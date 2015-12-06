@@ -35,7 +35,7 @@ public class NSGAIII {
 		for (Solution s : offspring.getSolutions())
 			combinedPopulation.addSolution(s);
 
-		ArrayList<Front> fronts = NonDominatedSort.execute(combinedPopulation);
+		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
 		Population nextPopulation = new Population();
 
@@ -46,7 +46,7 @@ public class NSGAIII {
 			}
 		} while (nextPopulation.size() < populationSize);
 
-		Front lastFront = fronts.get(lastFrontId);
+		Population lastFront = fronts.get(lastFrontId);
 
 		if (nextPopulation.size() == populationSize) {
 			population = nextPopulation.copy();

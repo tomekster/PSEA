@@ -2,21 +2,24 @@ package utils;
 
 import java.util.ArrayList;
 
-import core.Front;
 import core.Population;
 import core.Solution;
 
 public class NonDominatedSort {
 
-	public static ArrayList<Front> execute(Population population) {
-		ArrayList<Front> fronts = new ArrayList<Front>();
-		ArrayList<ArrayList<Integer>> dominated = new ArrayList<ArrayList<Integer>>();
-		;
-		int dominationCount[] = new int[population.size()];;
-		int rank[] = new int[population.size()];
-		
+	public static ArrayList<Population> execute(Population population) {
+		ArrayList<Population> fronts = new ArrayList<Population>();
+		ArrayList<Integer> front = new ArrayList<Integer>();
+		ArrayList<Integer> nextFront = new ArrayList<Integer>();
+		Population Q = new Population();
+
+		// dominated[i] = list of solutions that dominate solution i
+		ArrayList<ArrayList<Integer>> dominatedBySolutions = new ArrayList<ArrayList<Integer>>();
+		// dominationCount[i] = number of solutions dominating solution i
+		int dominationCount[] = new int[population.size()];
+
 		for (int i = 0; i < population.size(); i++) {
-			dominated.add(new ArrayList<Integer>());
+			dominatedBySolutions.add(new ArrayList<Integer>());
 			dominationCount[i] = 0;
 		}
 
@@ -24,38 +27,38 @@ public class NonDominatedSort {
 			Solution p = population.getSolution(i);
 			for (int j = 0; j < population.size(); j++) {
 				Solution q = population.getSolution(j);
-				Comparator cp  = new Comparator();
+				Comparator cp = new Comparator();
 				int flag = cp.compareDominance(p, q);
 				if (flag == -1) {
-					dominated.get(i).add(j);
+					dominatedBySolutions.get(i).add(j);
 				} else if (flag == 1) {
 					dominationCount[i]++;
 				}
 
-				if (dominationCount[i] == 0) {
-					rank[i] = 0;
-					fronts.get(0).addSolution(p);
-				}
+			}
+			if (dominationCount[i] == 0) {
+				nextFront.add(i);
+				Q.addSolution(population.getSolution(i));
 			}
 		}
-		
-		int frontId = 0;
-		while(fronts.get(frontId).size() != 0){
-			Front Q = new Front();
-			for (int i = 0; i < population.size(); i++) {
-				for (int q : dominated.get(i)) {
+
+		while (!Q.empty()) {
+			fronts.add(Q);
+			front = nextFront;
+			nextFront = new ArrayList<Integer>();
+			Q = new Population();
+			for (int i : front) {
+				for (int q : dominatedBySolutions.get(i)) {
 					dominationCount[q]--;
-					if(dominationCount[q] == 0){
-						rank[q] = i+1;
+					if (dominationCount[q] == 0) {
+						nextFront.add(q);
 						Q.addSolution(population.getSolution(q));
 					}
 				}
 			}
-			frontId++;
-			fronts.set(frontId, Q.copy());
 		}
 
-	return fronts;
-}
+		return fronts;
+	}
 
 }
