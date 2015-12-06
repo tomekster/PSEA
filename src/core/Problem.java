@@ -16,4 +16,9 @@ public class Problem {
 	public void evaluate(Solution solution){
 		//TODO Not sure if will be needed;
 	}
+
+
+	public int getNumVariables() {
+		return numVariables;
+	}
 }

@@ -5,7 +5,6 @@ import java.util.Random;
 
 import core.Solution;
 import operators.CrossoverOperator;
-import utils.Comparator;
 import utils.NSGAIIIRandom;
 
 public class SBX implements CrossoverOperator {
@@ -39,18 +38,16 @@ public class SBX implements CrossoverOperator {
 		double bethaq;
 		double c1, c2;
 
-		Comparator cp = new Comparator();
-		
 		if (random.nextDouble() < this.crossoverProbability) {
 			for (int pos = 0; pos < numVariables; pos++) {
 				p1 = parents.get(0).getVariable(pos);
 				p2 = parents.get(1).getVariable(pos);
 				if (random.nextDouble() <= 0.5) {
-					if (cp.compareDouble(p1, p2) == 0) {
+					if (Double.compare(p1, p2) == 0) {
 						children.get(0).setVariable(pos, p1);
 						children.get(1).setVariable(pos, p2);
 					} else {
-						if (p1 > p2) {
+						if (Double.compare(p1, p2)  > 0) {
 							double temp = p1;
 							p1 = p2;
 							p2 = temp;

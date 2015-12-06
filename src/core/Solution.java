@@ -1,7 +1,5 @@
 package core;
 
-import utils.Comparator;
-
 public class Solution {
 
 	private int numVariables;
@@ -87,9 +85,8 @@ public class Solution {
 			return false;
 		}
 
-		Comparator cp = new Comparator();
 		for (int i = 0; i < this.numVariables; i++) {
-			if (cp.compareDouble(this.variables[i], s2.getVariable(i)) != 0) {
+			if (Double.compare(this.variables[i], s2.getVariable(i)) != 0) {
 				return false;
 			}
 		}
