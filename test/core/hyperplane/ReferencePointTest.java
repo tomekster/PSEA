@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class ReferencePointTest {
 
-	double EPS = utils.Compare.EPS;
+	double EPS = utils.Comparator.EPS;
 	
 	@Test
 	public void copyConstructorTest(){

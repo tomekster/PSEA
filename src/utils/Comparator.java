@@ -3,7 +3,7 @@ package utils;
 import core.Solution;
 import exception.IncomparableSolutionsException;
 
-public class Compare {
+public class Comparator {
 
 	public static double EPS = 1E-10;
 
@@ -11,9 +11,9 @@ public class Compare {
 	 * 
 	 * @param a
 	 * @param b
-	 * @return 0 if abs(a-b) < 1E-20 ; -1 if a > b ; 1 if a < b
+	 * @return -1 if a > b ; 1 if a < b ; 0 if abs(a-b) < 1E-20
 	 */
-	public static int compareDouble(double a, double b) {
+	public int compareDouble(double a, double b) {
 		if (Math.abs(a - b) < EPS)
 			return 0;
 		else if (a > b)
@@ -23,22 +23,23 @@ public class Compare {
 	}
 
 	/**
+	 * Finds dominating solution assuming minimalization problem
 	 * 
 	 * @param solution1
 	 * @param solution2
 	 * @return 0 if neither of solutions dominates other ; -1 if solution1
 	 *         dominates solution2 ; 1 if solution2 dominates solution1
 	 */
-	public static int compareDominance(Solution solution1, Solution solution2) {
-		
-		if(solution1.getNumVariables() != solution2.getNumVariables()){
+	public int compareDominance(Solution solution1, Solution solution2) {
+
+		if (solution1.getNumVariables() != solution2.getNumVariables()) {
 			try {
 				throw new IncomparableSolutionsException();
 			} catch (IncomparableSolutionsException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		boolean firstDominates = false, secondDominates = false;
 		int flag;
 		for (int pos = 0; pos < solution1.getNumVariables(); pos++) {

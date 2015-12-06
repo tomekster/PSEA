@@ -4,10 +4,12 @@ import org.junit.runners.Suite;
 
 import core.hyperplane.HyperplaneTest;
 import core.hyperplane.ReferencePointTest;
+import utils.ComparatorTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
    HyperplaneTest.class,
-   ReferencePointTest.class
+   ReferencePointTest.class,
+   ComparatorTest.class
 })
 public class JunitTestSuite {
 }  	

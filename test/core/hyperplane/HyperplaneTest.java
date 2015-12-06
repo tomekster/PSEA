@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import utils.Comparator;
+
 public class HyperplaneTest {
 	
-	double EPS = utils.Compare.EPS;
+	double EPS = Comparator.EPS;
 	
 	private double refPointDimSum(ReferencePoint rp){
 		double sum = 0;

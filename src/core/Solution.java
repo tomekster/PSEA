@@ -25,7 +25,7 @@ public class Solution{
 		this.lowerBound = new double[numVariables];
 		this.upperBound = new double[numVariables];
 		for(int i=0 ; i<numVariables; i++){
-			variables[i] = 0.0;
+			variables[i] = vars[i];
 			lowerBound[i] = Double.MIN_VALUE;
 			lowerBound[i] = Double.MAX_VALUE;
 		}
