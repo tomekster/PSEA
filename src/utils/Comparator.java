@@ -1,7 +1,6 @@
 package utils;
 
 import core.Solution;
-import exception.IncomparableSolutionsException;
 
 public class Comparator {
 
@@ -18,11 +17,7 @@ public class Comparator {
 	public int compareDominance(Solution solution1, Solution solution2) {
 
 		if (solution1.getNumVariables() != solution2.getNumVariables()) {
-			try {
-				throw new IncomparableSolutionsException();
-			} catch (IncomparableSolutionsException e) {
-				e.printStackTrace();
-			}
+			throw new RuntimeException("Incomparable solutions. Different number of dimensions");
 		}
 
 		boolean firstDominates = false, secondDominates = false;
