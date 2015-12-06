@@ -6,6 +6,7 @@ import core.SolutionTest;
 import core.hyperplane.HyperplaneTest;
 import core.hyperplane.ReferencePointTest;
 import utils.ComparatorTest;
+import utils.GaussianEliminationTest;
 import utils.NonDominatedSortTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -13,7 +14,8 @@ import utils.NonDominatedSortTest;
    ReferencePointTest.class,
    ComparatorTest.class,
    SolutionTest.class,
-   NonDominatedSortTest.class
+   NonDominatedSortTest.class,
+   GaussianEliminationTest.class
 })
 public class JunitTestSuite {
 }  	

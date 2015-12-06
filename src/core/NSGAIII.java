@@ -53,14 +53,14 @@ public class NSGAIII {
 		if (nextPopulation.size() == populationSize) {
 			population = nextPopulation.copy();
 		} else {
-				for(int i=0; i < lastFrontId ; i++){
-					for(Solution s : fronts.get(i).getSolutions()){
-						nextPopulation.addSolution(s.copy());
-					}
+			for (int i = 0; i < lastFrontId; i++) {
+				for (Solution s : fronts.get(i).getSolutions()) {
+					nextPopulation.addSolution(s.copy());
 				}
-				int K = populationSize - nextPopulation.size();
+			}
+			int K = populationSize - nextPopulation.size();
 		}
-		
+
 		normalize(nextPopulation, this.problem.getNumVariables());
 
 		return population;
@@ -69,32 +69,56 @@ public class NSGAIII {
 	private void normalize(Population population, int numVariables) {
 		Comparator cp = new Comparator();
 		double z_min[] = new double[numVariables];
-		for(int j=0; j<numVariables; j++){
+		for (int j = 0; j < numVariables; j++) {
 			double min = Double.MAX_VALUE;
-			for(Solution s : population.getSolutions()){
+			for (Solution s : population.getSolutions()) {
 				min = cp.min(s.getVariable(j), min);
 			}
 			z_min[j] = min;
 		}
-		
-		for(Solution s : population.getSolutions()){
-			for(int j=0; j < s.getNumVariables(); j++){
-				s.setVariable(j, s.getVariable(j) - z_min[j]);				
+
+		for (Solution s : population.getSolutions()) {
+			for (int j = 0; j < s.getNumVariables(); j++) {
+				s.setVariable(j, s.getVariable(j) - z_min[j]);
 			}
 		}
-		
+
 		Population extremePoints = computeExtremePoints(population, numVariables);
-		
+
+		fixDuplicates(extremePoints);
+	}
+
+	private void fixDuplicates(Population extremePoints) {
+
+		// Look for duplicates
+		for (int i = 0; i < extremePoints.size(); i++) {
+			for (int j = i + 1; j < extremePoints.size(); j++) {
+				if (extremePoints.getSolution(i) == extremePoints.getSolution(j)) {
+					throw new RuntimeException("Duplicated extreme points");
+				}
+			}
+		}
+		/*
+		 * In JMetal idea was following: if extremePoints for i and j are the
+		 * same point, we obtain new points by projecting Pi on i-th axis, and
+		 * Pj on j-th axis.
+		 * 
+		 * New idea: Instead of projecting Pi, and Pj we move them epsilon
+		 * towards their axis. Problems: - New duplicates may appear, - Lower
+		 * bound values for problem - Negative values
+		 * 
+		 */
+
 	}
 
 	private Population computeExtremePoints(Population population, int numVariables) {
 		Population extremePoints = new Population();
-		for(int i=0; i<numVariables; i++){
+		for (int i = 0; i < numVariables; i++) {
 			double min = Double.MAX_VALUE;
 			Solution minSolution = null;
-			for(Solution s : population.getSolutions()){
-				double asf = ASF(s,i);
-				if(asf < min){
+			for (Solution s : population.getSolutions()) {
+				double asf = ASF(s, i);
+				if (asf < min) {
 					min = asf;
 					minSolution = s;
 				}
@@ -107,10 +131,10 @@ public class NSGAIII {
 	private double ASF(Solution s, int i) {
 		double res = Double.MAX_VALUE;
 		double cur;
-		for(int j=0; j<s.getNumVariables(); j++){
-			if(j==i){
+		for (int j = 0; j < s.getNumVariables(); j++) {
+			if (j == i) {
 				cur = s.getVariable(j);
-			} else{
+			} else {
 				cur = s.getVariable(j) * 1000000;
 			}
 			res = Double.min(res, cur);
