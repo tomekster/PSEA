@@ -9,6 +9,7 @@ import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import utils.Comparator;
+import utils.GaussianElimination;
 import utils.NonDominatedSort;
 
 public class NSGAIII {
@@ -63,6 +64,8 @@ public class NSGAIII {
 
 		normalize(nextPopulation, this.problem.getNumVariables());
 
+		//associate();
+		
 		return population;
 	}
 
@@ -86,6 +89,47 @@ public class NSGAIII {
 		Population extremePoints = computeExtremePoints(population, numVariables);
 
 		fixDuplicates(extremePoints);
+		
+		double invertedIntercepts[] = findIntercepts(extremePoints);
+		
+		for(Solution s : population.getSolutions()){
+			for(int i=0; i<s.getNumVariables(); i++){
+				//Multiplication instead of division - explained in findIntercepts()
+				s.setVariable(i, s.getVariable(i) * invertedIntercepts[i]);
+			}
+		}
+		
+	}
+
+	private double[] findIntercepts(Population extremePoints) {
+		
+		int n = extremePoints.size();
+		double a[][] = new double[n][n];
+		double b[] = new double[n];
+		for(int i = 0; i < n; i++){
+			b[i] = 1.0;
+			for(int j=0; j<n; j++){
+				a[i][j] = extremePoints.getSolution(i).getVariable(j);
+			}
+		}
+		
+		double coef[] = new double[n];
+		coef = GaussianElimination.execute(a, b);
+		
+		/**
+		 * Loop beneath was commented, because since b[i] = 1 for all i and just after returning 
+		 * from this method we divide each solutions objective value by corresponding intercept value
+		 * it is better to return inversed intercept values (by omitting division by b[i]), and multiply
+		 * objective value instead of dividing it. 
+		 */
+		
+		/*
+		for(int i = 0; i < n; i++){
+			coef[i] /= b[i];
+		}
+		*/
+		
+		return coef;
 	}
 
 	private void fixDuplicates(Population extremePoints) {
@@ -98,7 +142,9 @@ public class NSGAIII {
 				}
 			}
 		}
+		
 		/*
+		 * TODO
 		 * In JMetal idea was following: if extremePoints for i and j are the
 		 * same point, we obtain new points by projecting Pi on i-th axis, and
 		 * Pj on j-th axis.
