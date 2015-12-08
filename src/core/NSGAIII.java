@@ -1,31 +1,39 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.PriorityQueue;
 
+import core.hyperplane.Association;
+import core.hyperplane.Hyperplane;
+import core.hyperplane.ReferencePoint;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
-import utils.Comparator;
 import utils.GaussianElimination;
+import utils.Geometry;
+import utils.MyComparator;
 import utils.NonDominatedSort;
 
 public class NSGAIII {
 
-	Problem problem;
-	Population population;
-	int populationSize;
-	int numGenerations;
+	private Problem problem;
+	private Population population;
+	private int populationSize, numGenerations;
+	private Hyperplane hyperplane;
 
-	SelectionOperator selectionOperator = new BinaryTournament();
-	CrossoverOperator crossoverOperator = new SBX(1.0, 30.0);
-	MutationOperator mutationOperator = new PolynomialMutation(0.0, 0.0);
+	private SelectionOperator selectionOperator = new BinaryTournament();
+	private CrossoverOperator crossoverOperator = new SBX(1.0, 30.0);
+	private MutationOperator mutationOperator = new PolynomialMutation(0.0, 0.0);
 
 	public NSGAIII(Problem problem, int populationSize) {
 		this.problem = problem;
 		this.population = createInitialPopulation();
+		this.hyperplane = new Hyperplane(problem.getNumVariables(), problem.getNumPartitions());
 	}
 
 	public Population run() {
@@ -39,96 +47,150 @@ public class NSGAIII {
 
 		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
-		Population nextPopulation = new Population();
+		Population allFronts = new Population();
+		Population allButLastFront = new Population();
+		Population lastFront;
 
 		int lastFrontId = 0;
-		do {
+		while (true) {
+			Population front = fronts.get(lastFrontId);
+			if (allButLastFront.size() + front.size() > populationSize) {
+				lastFront = front;
+				break;
+			}
+
 			for (Solution s : fronts.get(lastFrontId).getSolutions()) {
-				nextPopulation.addSolution(s);
+				allButLastFront.addSolution(s.copy());
 			}
 			lastFrontId++;
-		} while (nextPopulation.size() < populationSize);
-		lastFrontId--;
-		Population lastFront = fronts.get(lastFrontId);
-
-		if (nextPopulation.size() == populationSize) {
-			population = nextPopulation.copy();
-		} else {
-			for (int i = 0; i < lastFrontId; i++) {
-				for (Solution s : fronts.get(i).getSolutions()) {
-					nextPopulation.addSolution(s.copy());
-				}
-			}
-			int K = populationSize - nextPopulation.size();
 		}
 
-		normalize(nextPopulation, this.problem.getNumVariables());
+		allFronts.addSolutions(allButLastFront);
+		allFronts.addSolutions(lastFront);
 
-		//associate();
-		
+		if (allFronts.size() == populationSize) {
+			population = allFronts.copy();
+		} else {
+			int K = populationSize - allButLastFront.size();
+			Population normalizedPopulation = normalize(allFronts, problem.getNumVariables());
+			associate(normalizedPopulation);
+			Population kPoints = niching(allButLastFront, lastFront, K);
+		}
+
 		return population;
 	}
 
-	private void normalize(Population population, int numVariables) {
-		Comparator cp = new Comparator();
+	private Population niching(Population allButLastFront, Population lastFront, int K) {
+		Population kPoints = new Population();
+		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
+		for(Solution s : allButLastFront.getSolutions()){
+			isLastFront.put(s, false);
+		}
+		for(Solution s : lastFront.getSolutions()){
+			isLastFront.put(s, true);
+		}
+		
+		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
+		for(ReferencePoint rp : hyperplane.getReferencePoints()){
+			refPQ.add(rp);
+		}
+		
+		while(kPoints.size() < K){
+			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
+			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint.getAssociatedSolutionsQueue();
+			while(! associatedSolutionsQueue.isEmpty()){
+				Solution s = associatedSolutionsQueue.poll().getSolution();
+				if(isLastFront.get(s)){
+					kPoints.addSolution(s);
+					smallestNicheCountRefPoint.incrNicheCount();
+					refPQ.add(smallestNicheCountRefPoint);
+					break;
+				}
+			}
+		}
+		
+		return null;
+	}
+
+	private void associate(Population population) {
+		hyperplane.resetAssociations();
+		ArrayList<ReferencePoint> refPoints = hyperplane.getReferencePoints();
+
+		for (Solution s : population.getSolutions()) {
+			double minDist = Double.MAX_VALUE;
+			ReferencePoint bestRefPoint = null;
+			for (int i = 0; i < refPoints.size(); i++) {
+				ReferencePoint curRefPoint = refPoints.get(i);
+				double dist = Geometry.pointLineDist(s.getVariables(), curRefPoint.getDimensions());
+				if (dist < minDist) {
+					minDist = dist;
+					bestRefPoint = curRefPoint;
+				}
+			}
+			bestRefPoint.addAssociation(new Association(s, minDist));
+		}
+	}
+
+	private Population normalize(Population population, int numVariables) {
+		Population resPop = population.copy();
 		double z_min[] = new double[numVariables];
 		for (int j = 0; j < numVariables; j++) {
 			double min = Double.MAX_VALUE;
-			for (Solution s : population.getSolutions()) {
-				min = cp.min(s.getVariable(j), min);
+			for (Solution s : resPop.getSolutions()) {
+				min = Double.min(s.getVariable(j), min);
 			}
 			z_min[j] = min;
 		}
 
-		for (Solution s : population.getSolutions()) {
+		for (Solution s : resPop.getSolutions()) {
 			for (int j = 0; j < s.getNumVariables(); j++) {
 				s.setVariable(j, s.getVariable(j) - z_min[j]);
 			}
 		}
 
-		Population extremePoints = computeExtremePoints(population, numVariables);
+		Population extremePoints = computeExtremePoints(resPop, numVariables);
 
 		fixDuplicates(extremePoints);
-		
+
 		double invertedIntercepts[] = findIntercepts(extremePoints);
-		
-		for(Solution s : population.getSolutions()){
-			for(int i=0; i<s.getNumVariables(); i++){
-				//Multiplication instead of division - explained in findIntercepts()
+
+		for (Solution s : resPop.getSolutions()) {
+			for (int i = 0; i < s.getNumVariables(); i++) {
+				// Multiplication instead of division - explained in
+				// findIntercepts()
 				s.setVariable(i, s.getVariable(i) * invertedIntercepts[i]);
 			}
 		}
-		
+		return resPop;
 	}
 
 	private double[] findIntercepts(Population extremePoints) {
-		
+
 		int n = extremePoints.size();
 		double a[][] = new double[n][n];
 		double b[] = new double[n];
-		for(int i = 0; i < n; i++){
+		for (int i = 0; i < n; i++) {
 			b[i] = 1.0;
-			for(int j=0; j<n; j++){
+			for (int j = 0; j < n; j++) {
 				a[i][j] = extremePoints.getSolution(i).getVariable(j);
 			}
 		}
-		
+
 		double coef[] = new double[n];
 		coef = GaussianElimination.execute(a, b);
-		
+
 		/**
-		 * Loop beneath was commented, because since b[i] = 1 for all i and just after returning 
-		 * from this method we divide each solutions objective value by corresponding intercept value
-		 * it is better to return inversed intercept values (by omitting division by b[i]), and multiply
-		 * objective value instead of dividing it. 
+		 * Loop beneath was commented, because since b[i] = 1 for all i and just
+		 * after returning from this method we divide each solutions objective
+		 * value by corresponding intercept value it is better to return
+		 * inversed intercept values (by omitting division by b[i]), and
+		 * multiply objective value instead of dividing it.
 		 */
-		
+
 		/*
-		for(int i = 0; i < n; i++){
-			coef[i] /= b[i];
-		}
-		*/
-		
+		 * for(int i = 0; i < n; i++){ coef[i] /= b[i]; }
+		 */
+
 		return coef;
 	}
 
@@ -142,12 +204,11 @@ public class NSGAIII {
 				}
 			}
 		}
-		
+
 		/*
-		 * TODO
-		 * In JMetal idea was following: if extremePoints for i and j are the
-		 * same point, we obtain new points by projecting Pi on i-th axis, and
-		 * Pj on j-th axis.
+		 * TODO In JMetal idea was following: if extremePoints for i and j are
+		 * the same point, we obtain new points by projecting Pi on i-th axis,
+		 * and Pj on j-th axis.
 		 * 
 		 * New idea: Instead of projecting Pi, and Pj we move them epsilon
 		 * towards their axis. Problems: - New duplicates may appear, - Lower

@@ -105,4 +105,8 @@ public class Solution {
 		sb.replace(sb.length()-2, sb.length(),")");
 		return sb.toString();
 	}
+
+	public double[] getVariables() {
+		return this.variables;
+	}
 }

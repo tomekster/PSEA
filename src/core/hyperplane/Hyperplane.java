@@ -36,5 +36,11 @@ public class Hyperplane {
 	public ArrayList <ReferencePoint> getReferencePoints(){
 		return this.referencePoints;
 	}
+
+	public void resetAssociations() {
+		for(ReferencePoint rp : referencePoints){
+			rp.resetAssociation();
+		}
+	}
 	
 }

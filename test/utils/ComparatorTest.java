@@ -8,7 +8,7 @@ import core.Solution;
 
 public class ComparatorTest {
 
-	private Comparator cp = new Comparator();
+	private MyComparator cp = new MyComparator();
 	
 	@Test
 	public void compareDominanceTest(){

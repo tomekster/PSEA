@@ -6,6 +6,7 @@ public class Problem {
 	private int numObjectives;
 	private int numConstraints;
 	private String problemName;
+	private int numPartitions;
 
 	public Solution createSolution() {
 		// TODO Auto-generated method stub
@@ -20,5 +21,9 @@ public class Problem {
 
 	public int getNumVariables() {
 		return numVariables;
+	}
+	
+	public int getNumPartitions() {
+		return numPartitions;
 	}
 }

@@ -20,6 +20,12 @@ public class Population{
 		this.solutions.add(solution);
 	}
 	
+	public void addSolutions(Population p){
+		for(Solution s : p.getSolutions()){
+			this.solutions.add(s);
+		}
+	}
+	
 	public Solution getSolution(int pos){
 		return this.solutions.get(pos);
 	}

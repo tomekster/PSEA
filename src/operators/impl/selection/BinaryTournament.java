@@ -3,7 +3,7 @@ package operators.impl.selection;
 import core.Population;
 import core.Solution;
 import operators.SelectionOperator;
-import utils.Comparator;
+import utils.MyComparator;
 import utils.NSGAIIIRandom;
 
 public class BinaryTournament implements SelectionOperator {
@@ -16,7 +16,7 @@ public class BinaryTournament implements SelectionOperator {
 		Solution candidate1 = population.getSolution(pos1);
 		Solution candidate2 = population.getSolution(pos2);
 		
-		Comparator cp = new Comparator();
+		MyComparator cp = new MyComparator();
 		
 		int flag = cp.compareDominance(candidate1, candidate2);
 		if(flag == -1) return candidate1;

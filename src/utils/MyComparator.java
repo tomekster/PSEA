@@ -1,8 +1,12 @@
 package utils;
 
-import core.Solution;
+import java.util.Comparator;
 
-public class Comparator {
+import core.Solution;
+import core.hyperplane.Association;
+import core.hyperplane.ReferencePoint;
+
+public class MyComparator {
 
 	public static double EPS = 1E-10;
 
@@ -37,8 +41,19 @@ public class Comparator {
 		else
 			return 0;
 	}
-
-	public double min(double a, double b) {
-		return Double.compare(a, b) < 0 ? a : b;
-	}
+	
+	
+	public static Comparator <Association> associationComparator = new Comparator <Association>(){
+		@Override
+		public int compare(Association o1, Association o2) {
+			return Double.compare(o1.getDist(), o2.getDist());
+		}
+	};
+	
+	public static Comparator <ReferencePoint> referencePointComparator = new Comparator <ReferencePoint>(){
+		@Override
+		public int compare(ReferencePoint o1, ReferencePoint o2) {
+			return Double.compare(o1.getNicheCount(), o2.getNicheCount());
+		}
+	};
 }

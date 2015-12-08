@@ -23,7 +23,7 @@ public class GaussianElimination {
 				max = Double.max(max, Math.abs(A[j][i]));
 			}
 
-			if (max < Comparator.EPS) {
+			if (max < MyComparator.EPS) {
 				throw new RuntimeException("Degenerated Matrix!");
 			}
 
