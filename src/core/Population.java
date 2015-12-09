@@ -9,9 +9,9 @@ public class Population{
 		this.solutions = new ArrayList <Solution>();
 	}
 	
-	public Population(Population nextPopulation) {
+	public Population(Population pop) {
 		this();
-		for(Solution s : this.solutions){
+		for(Solution s : pop.getSolutions()){
 			this.solutions.add(s.copy());
 		}
 	}
@@ -48,12 +48,12 @@ public class Population{
 	@Override
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
-		sb.append("[");
+		sb.append("[\n");
 		for(Solution s: this.solutions){
 			sb.append(s.toString());
-			sb.append(", ");
+			sb.append("\n");
 		}
-		sb.replace(sb.length()-2, sb.length(),"]");
+		sb.append("]");
 		return sb.toString();
 	}
 }

@@ -37,13 +37,12 @@ public class NSGAIII {
 	public NSGAIII(Problem problem, int numGenerations) {
 		this.problem = problem;
 		this.numGenerations = numGenerations;
-		this.hyperplane = new Hyperplane(problem.getNumObjectives(), getNumPartitions());
+		this.hyperplane = new Hyperplane(problem.getNumObjectives(), 12/*TODO getNumPartitions() */);
 		
-		int popSize = 0;
-		while(popSize < hyperplane.getReferencePoints().size()){
-			popSize+=4;
+		this.populationSize= 0;
+		while(this.populationSize < hyperplane.getReferencePoints().size()){
+			this.populationSize += 4;
 		}
-		populationSize = popSize;
 
 		this.population = createInitialPopulation();
 		
@@ -71,25 +70,25 @@ public class NSGAIII {
 
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
-
+		
+		for(Solution s : combinedPopulation.getSolutions()){
+			problem.evaluate(s);
+		}
 		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
-
+		
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();
-		Population lastFront;
+		Population lastFront = null;
 
-		int lastFrontId = 0;
-		while (true) {
-			Population front = fronts.get(lastFrontId);
+		for(Population front : fronts){
 			if (allButLastFront.size() + front.size() >= populationSize) {
 				lastFront = front;
 				break;
 			}
 
-			for (Solution s : fronts.get(lastFrontId).getSolutions()) {
+			for (Solution s : front.getSolutions()) {
 				allButLastFront.addSolution(s.copy());
 			}
-			lastFrontId++;
 		}
 
 		allFronts.addSolutions(allButLastFront);

@@ -20,14 +20,14 @@ public class MyComparator {
 	 */
 	public int compareDominance(Solution solution1, Solution solution2) {
 
-		if (solution1.getNumVariables() != solution2.getNumVariables()) {
+		if (solution1.getNumObjectives() != solution2.getNumObjectives()) {
 			throw new RuntimeException("Incomparable solutions. Different number of dimensions");
 		}
 
 		boolean firstDominates = false, secondDominates = false;
 		int flag;
-		for (int pos = 0; pos < solution1.getNumVariables(); pos++) {
-			flag = Double.compare(solution1.getVariable(pos), solution2.getVariable(pos));
+		for (int pos = 0; pos < solution1.getNumObjectives(); pos++) {
+			flag = Double.compare(solution1.getObjective(pos), solution2.getObjective(pos));
 			if (flag == 1)
 				secondDominates = true;
 			if (flag == -1)

@@ -24,9 +24,10 @@ public class NonDominatedSortTest {
 	public void oneSolutionPopulationTest() {
 		Solution s1;
 
-		double[] var1 = { 1.0, 2.0, 3.0 };
+		double[] var1 = { 0.0, 0.0, 0.0 };
+		double[] obj1 = { 1.0, 2.0, 3.0 };
 
-		s1 = new Solution(var1);
+		s1 = new Solution(var1,obj1);
 		p.addSolution(s1);
 		ArrayList<Population> fronts = NonDominatedSort.execute(p);
 		assertEquals(1, fronts.size());
@@ -39,11 +40,13 @@ public class NonDominatedSortTest {
 	public void twoSolutionsTwoFrontsTest() {
 		Solution s1, s2;
 
-		double[] var1 = { 1.0, 2.0, 3.0 };
-		double[] var2 = { 4.0, 4.0, 4.0 };
+		double[] var1 = { 0.0, 0.0, 0.0 };
+		double[] obj1 = { 1.0, 2.0, 3.0 };
+		double[] var2 = { 0.0, 0.0, 0.0 };
+		double[] obj2 = { 4.0, 4.0, 4.0 };
 
-		s1 = new Solution(var1);
-		s2 = new Solution(var2);
+		s1 = new Solution(var1,obj1);
+		s2 = new Solution(var2,obj2);
 
 		p.addSolution(s1);
 		p.addSolution(s2);
@@ -60,11 +63,13 @@ public class NonDominatedSortTest {
 	public void twoSolutionsOneFrontTest() {
 		Solution s1, s2;
 
-		double[] var1 = { 1.0, 2.0, 3.0 };
-		double[] var2 = { 2.0, 1.0, 3.0 };
+		double[] var1 = { 0.0, 0.0, 0.0 };
+		double[] obj1 = { 1.0, 2.0, 3.0 };
+		double[] var2 = { 0.0, 0.0, 0.0 };
+		double[] obj2 = { 2.0, 1.0, 3.0 };
 
-		s1 = new Solution(var1);
-		s2 = new Solution(var2);
+		s1 = new Solution(var1,obj1);
+		s2 = new Solution(var2,obj2);
 
 		p.addSolution(s1);
 		p.addSolution(s2);
@@ -81,22 +86,29 @@ public class NonDominatedSortTest {
 	public void manyFrontsTest() {
 		Solution s1, s2, s3, s4, s5, s6, s7;
 
-		double[] var1 = { 1.0, 4.0 };
-		double[] var2 = { 4.0, 1.0 };
-		double[] var3 = { 2.0, 2.0 };
-		double[] var4 = { 2.0, 5.0 };
-		double[] var5 = { 3.0, 3.0 };
-		double[] var6 = { 6.0, 6.0 };
-		double[] var7 = { 6.0, 7.0 };
+		double[] var1 = { 0.0, 0.0 };
+		double[] obj1 = { 1.0, 4.0 };
+		double[] var2 = { 0.0, 0.0 };
+		double[] obj2 = { 4.0, 1.0 };
+		double[] var3 = { 0.0, 0.0 };
+		double[] obj3 = { 2.0, 2.0 };
+		double[] var4 = { 0.0, 0.0 };
+		double[] obj4 = { 2.0, 5.0 };
+		double[] var5 = { 0.0, 0.0 };
+		double[] obj5 = { 3.0, 3.0 };
+		double[] var6 = { 0.0, 0.0 };
+		double[] obj6 = { 6.0, 6.0 };
+		double[] var7 = { 0.0, 0.0 };
+		double[] obj7 = { 6.0, 7.0 };
 		
 
-		s1 = new Solution(var1);
-		s2 = new Solution(var2);
-		s3 = new Solution(var3);
-		s4 = new Solution(var4);
-		s5 = new Solution(var5);
-		s6 = new Solution(var6);
-		s7 = new Solution(var7);
+		s1 = new Solution(var1,obj1);
+		s2 = new Solution(var2,obj2);
+		s3 = new Solution(var3,obj3);
+		s4 = new Solution(var4,obj4);
+		s5 = new Solution(var5,obj5);
+		s6 = new Solution(var6,obj6);
+		s7 = new Solution(var7,obj7);
 		
 
 		p.addSolution(s1);

@@ -25,7 +25,7 @@ public abstract class Problem {
 
 	public Solution createSolution() {
 		NSGAIIIRandom random = NSGAIIIRandom.getInstance();
-		Solution s = new Solution(numVariables);
+		Solution s = new Solution(numVariables,numObjectives);
 		for (int i = 0; i < numVariables; i++) {
 			if (Double.isInfinite(upperBound[i]) || Double.isInfinite(lowerBound[i])) {
 				throw new RuntimeException("Uninitialized variable bounds");

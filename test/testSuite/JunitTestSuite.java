@@ -2,9 +2,11 @@ package testSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import core.NSGAIIITest;
 import core.SolutionTest;
 import core.hyperplane.HyperplaneTest;
 import core.hyperplane.ReferencePointTest;
+import problems.DTLZ1Test;
 import utils.ComparatorTest;
 import utils.GaussianEliminationTest;
 import utils.NonDominatedSortTest;
@@ -15,7 +17,9 @@ import utils.NonDominatedSortTest;
    ComparatorTest.class,
    SolutionTest.class,
    NonDominatedSortTest.class,
-   GaussianEliminationTest.class
+   GaussianEliminationTest.class,
+   DTLZ1Test.class,
+   NSGAIIITest.class
 })
 public class JunitTestSuite {
 }  	

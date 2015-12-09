@@ -21,7 +21,7 @@ public class Hyperplane {
 			return;
 		}
 		
-		if(startDim == rp.getNumDimensions() -1){
+		if(startDim == rp.getNumDimensions() - 1){
 			rp.incrDim(startDim, step * left);
 			referencePoints.add(rp);
 			return;
