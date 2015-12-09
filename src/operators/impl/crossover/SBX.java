@@ -13,18 +13,22 @@ public class SBX implements CrossoverOperator {
 	private Random random = NSGAIIIRandom.getInstance();
 	private double crossoverProbability;
 	private double crossover_parameter_index;
+	int numVariables;
+	double[] lowerBound;
+	double[] upperBound;
 
-	public SBX(double crossoverProbability, double eta_c) {
+	public SBX(double crossoverProbability, double eta_c, double[] lowerBound, double[] upperBound) {
 		this.crossoverProbability = crossoverProbability;
 		this.crossover_parameter_index = eta_c;
+		this.numVariables = lowerBound.length;
+		this.lowerBound = lowerBound;
+		this.upperBound = upperBound;
 	}
 
 	@Override
 	public ArrayList<Solution> execute(ArrayList<Solution> parents) {
 
-		int numVariables = parents.get(0).getNumVariables();
-		double[] lowerBound = parents.get(0).getLowerBound();
-		double[] upperBound = parents.get(0).getUpperBound();
+		
 
 		ArrayList<Solution> children = new ArrayList<Solution>(2);
 		children.add(new Solution(parents.get(0)));

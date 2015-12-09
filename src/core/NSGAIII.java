@@ -1,7 +1,6 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
@@ -14,6 +13,7 @@ import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
+import problems.DTLZ1;
 import utils.GaussianElimination;
 import utils.Geometry;
 import utils.MyComparator;
@@ -26,24 +26,51 @@ public class NSGAIII {
 	private int populationSize, numGenerations;
 	private Hyperplane hyperplane;
 
-	private SelectionOperator selectionOperator = new BinaryTournament();
-	private CrossoverOperator crossoverOperator = new SBX(1.0, 30.0);
-	private MutationOperator mutationOperator = new PolynomialMutation(0.0, 0.0);
+	private SelectionOperator selectionOperator;
+	private CrossoverOperator crossoverOperator;
+	private MutationOperator mutationOperator;
 
-	public NSGAIII(Problem problem, int populationSize) {
+	public static void main(String args[]) {
+		NSGAIII alg = new NSGAIII(new DTLZ1(7), 400);
+	}
+
+	public NSGAIII(Problem problem, int numGenerations) {
 		this.problem = problem;
+		this.numGenerations = numGenerations;
+		this.hyperplane = new Hyperplane(problem.getNumObjectives(), getNumPartitions());
+		
+		int popSize = 0;
+		while(popSize < hyperplane.getReferencePoints().size()){
+			popSize+=4;
+		}
+		populationSize = popSize;
+
 		this.population = createInitialPopulation();
-		this.hyperplane = new Hyperplane(problem.getNumVariables(), problem.getNumPartitions());
+		
+		this.selectionOperator = new BinaryTournament();
+		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
+		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20, problem.getLowerBound(),
+				problem.getUpperBound());
+	}
+
+	private int getNumPartitions() {
+		switch (problem.getNumObjectives()) {
+		case 3:
+			return 12;
+		case 5:
+			return 6;
+		default:
+			throw new RuntimeException("Undefined number of hyperplane partitions for given problem dimensionality ("
+					+ problem.getNumVariables() + ")");
+		}
 	}
 
 	public Population run() {
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
 
-		for (Solution s : population.getSolutions())
-			combinedPopulation.addSolution(s);
-		for (Solution s : offspring.getSolutions())
-			combinedPopulation.addSolution(s);
+		combinedPopulation.addSolutions(population);
+		combinedPopulation.addSolutions(offspring);
 
 		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
@@ -54,7 +81,7 @@ public class NSGAIII {
 		int lastFrontId = 0;
 		while (true) {
 			Population front = fronts.get(lastFrontId);
-			if (allButLastFront.size() + front.size() > populationSize) {
+			if (allButLastFront.size() + front.size() >= populationSize) {
 				lastFront = front;
 				break;
 			}
@@ -75,6 +102,8 @@ public class NSGAIII {
 			Population normalizedPopulation = normalize(allFronts, problem.getNumVariables());
 			associate(normalizedPopulation);
 			Population kPoints = niching(allButLastFront, lastFront, K);
+			population.addSolutions(allButLastFront.copy());
+			population.addSolutions(kPoints.copy());
 		}
 
 		return population;
@@ -83,24 +112,25 @@ public class NSGAIII {
 	private Population niching(Population allButLastFront, Population lastFront, int K) {
 		Population kPoints = new Population();
 		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
-		for(Solution s : allButLastFront.getSolutions()){
+		for (Solution s : allButLastFront.getSolutions()) {
 			isLastFront.put(s, false);
 		}
-		for(Solution s : lastFront.getSolutions()){
+		for (Solution s : lastFront.getSolutions()) {
 			isLastFront.put(s, true);
 		}
-		
+
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
-		for(ReferencePoint rp : hyperplane.getReferencePoints()){
+		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
 			refPQ.add(rp);
 		}
-		
-		while(kPoints.size() < K){
+
+		while (kPoints.size() < K) {
 			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
-			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint.getAssociatedSolutionsQueue();
-			while(! associatedSolutionsQueue.isEmpty()){
+			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint
+					.getAssociatedSolutionsQueue();
+			while (!associatedSolutionsQueue.isEmpty()) {
 				Solution s = associatedSolutionsQueue.poll().getSolution();
-				if(isLastFront.get(s)){
+				if (isLastFront.get(s)) {
 					kPoints.addSolution(s);
 					smallestNicheCountRefPoint.incrNicheCount();
 					refPQ.add(smallestNicheCountRefPoint);
@@ -108,7 +138,7 @@ public class NSGAIII {
 				}
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -215,7 +245,6 @@ public class NSGAIII {
 		 * bound values for problem - Negative values
 		 * 
 		 */
-
 	}
 
 	private Population computeExtremePoints(Population population, int numVariables) {
@@ -278,6 +307,58 @@ public class NSGAIII {
 			population.addSolution(problem.createSolution());
 		}
 		return population;
+	}
+
+	public int getNumGenerations() {
+		return numGenerations;
+	}
+
+	public void setNumGenerations(int numGenerations) {
+		this.numGenerations = numGenerations;
+	}
+
+	public Hyperplane getHyperplane() {
+		return hyperplane;
+	}
+
+	public void setHyperplane(Hyperplane hyperplane) {
+		this.hyperplane = hyperplane;
+	}
+
+	public SelectionOperator getSelectionOperator() {
+		return selectionOperator;
+	}
+
+	public void setSelectionOperator(SelectionOperator selectionOperator) {
+		this.selectionOperator = selectionOperator;
+	}
+
+	public CrossoverOperator getCrossoverOperator() {
+		return crossoverOperator;
+	}
+
+	public void setCrossoverOperator(CrossoverOperator crossoverOperator) {
+		this.crossoverOperator = crossoverOperator;
+	}
+
+	public MutationOperator getMutationOperator() {
+		return mutationOperator;
+	}
+
+	public void setMutationOperator(MutationOperator mutationOperator) {
+		this.mutationOperator = mutationOperator;
+	}
+
+	public Problem getProblem() {
+		return problem;
+	}
+
+	public Population getPopulation() {
+		return population;
+	}
+
+	public int getPopulationSize() {
+		return populationSize;
 	}
 
 }

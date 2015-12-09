@@ -24,10 +24,14 @@ public class PolynomialMutation implements MutationOperator {
 
 	private double probability;
 	private double distributionIndex;
+	private double[] lowerBound;
+	private double[] upperBound;
 
-	public PolynomialMutation(double probability, double distributionIndex) {
+	public PolynomialMutation(double probability, double distributionIndex, double[] lowerBound, double[] upperBound) {
 		this.probability = probability;
 		this.distributionIndex = distributionIndex;
+		this.lowerBound = lowerBound;
+		this.upperBound = upperBound;
 	}
 
 	public void execute(Solution solution) {
@@ -39,8 +43,8 @@ public class PolynomialMutation implements MutationOperator {
 		for (int i = 0; i < solution.getNumVariables(); i++) {
 			if (random.nextDouble() <= probability) {
 				y = solution.getVariable(i);
-				yl = solution.getLowerBound(i);
-				yu = solution.getUpperBound(i);
+				yl = lowerBound[i];
+				yu = upperBound[i];
 				if (yl == yu) {
 					y = yl;
 				} else {
@@ -58,10 +62,8 @@ public class PolynomialMutation implements MutationOperator {
 						deltaq = 1.0 - Math.pow(val, mutPow);
 					}
 					y = y + deltaq * (yu - yl);
-					if (y < solution.getLowerBound(i))
-						y = solution.getLowerBound(i);
-					if (y > solution.getUpperBound(i))
-						y = solution.getUpperBound(i);
+					y = Double.max(y, lowerBound[i]);
+					y = Double.min(y, upperBound[i]);
 				}
 				solution.setVariable(i, y);
 			}
