@@ -1,12 +1,7 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.PriorityQueue;
 
-import core.hyperplane.Association;
-import core.hyperplane.Hyperplane;
-import core.hyperplane.ReferencePoint;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
@@ -14,9 +9,6 @@ import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import problems.DTLZ1;
-import utils.GaussianElimination;
-import utils.Geometry;
-import utils.MyComparator;
 import utils.NonDominatedSort;
 
 public class NSGAIII {
@@ -24,63 +16,54 @@ public class NSGAIII {
 	private Problem problem;
 	private Population population;
 	private int populationSize, numGenerations;
-	private Hyperplane hyperplane;
 
 	private SelectionOperator selectionOperator;
 	private CrossoverOperator crossoverOperator;
 	private MutationOperator mutationOperator;
+	private NicheCountSelection nicheCountSelection;
 
 	public static void main(String args[]) {
 		NSGAIII alg = new NSGAIII(new DTLZ1(7), 400);
+		alg.run();
 	}
 
 	public NSGAIII(Problem problem, int numGenerations) {
 		this.problem = problem;
 		this.numGenerations = numGenerations;
-		this.hyperplane = new Hyperplane(problem.getNumObjectives(), 12/*TODO getNumPartitions() */);
-		
-		this.populationSize= 0;
-		while(this.populationSize < hyperplane.getReferencePoints().size()){
-			this.populationSize += 4;
-		}
+		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
+		this.populationSize = nicheCountSelection.getPopulationSize();
 
 		this.population = createInitialPopulation();
-		
+
 		this.selectionOperator = new BinaryTournament();
 		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
 		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20, problem.getLowerBound(),
 				problem.getUpperBound());
 	}
 
-	private int getNumPartitions() {
-		switch (problem.getNumObjectives()) {
-		case 3:
-			return 12;
-		case 5:
-			return 6;
-		default:
-			throw new RuntimeException("Undefined number of hyperplane partitions for given problem dimensionality ("
-					+ problem.getNumVariables() + ")");
-		}
-	}
-
 	public Population run() {
+//		System.out.println("POPULATION: " + population.size());
+//		System.out.println(population);
 		Population offspring = createOffspring(population);
+//		System.out.println("OFFSPRING: " + offspring.size());
+//		System.out.println(offspring);
 		Population combinedPopulation = new Population();
 
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
+
+		problem.evaluate(combinedPopulation);
+
+//		System.out.println("COMBINED POPULATION: " + combinedPopulation.size());
+//		System.out.println(combinedPopulation);
 		
-		for(Solution s : combinedPopulation.getSolutions()){
-			problem.evaluate(s);
-		}
 		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
-		
+
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();
 		Population lastFront = null;
 
-		for(Population front : fronts){
+		for (Population front : fronts) {
 			if (allButLastFront.size() + front.size() >= populationSize) {
 				lastFront = front;
 				break;
@@ -94,187 +77,24 @@ public class NSGAIII {
 		allFronts.addSolutions(allButLastFront);
 		allFronts.addSolutions(lastFront);
 
+//		System.out.println("ALL SOLUTIONS: " + allFronts.size());
+//		System.out.println(allFronts);
+//		System.out.println("ALL BUT LAST FRONT: " + allButLastFront.size());
+//		System.out.println(allButLastFront);
+//		System.out.println("LAST FORNT: " + lastFront.size());
+//		System.out.println(lastFront);
+		
 		if (allFronts.size() == populationSize) {
 			population = allFronts.copy();
 		} else {
 			int K = populationSize - allButLastFront.size();
-			Population normalizedPopulation = normalize(allFronts, problem.getNumVariables());
-			associate(normalizedPopulation);
-			Population kPoints = niching(allButLastFront, lastFront, K);
+			Population kPoints = nicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K);
 			population.addSolutions(allButLastFront.copy());
+			//System.out.println("K_POINTS: " + kPoints);
 			population.addSolutions(kPoints.copy());
 		}
 
 		return population;
-	}
-
-	private Population niching(Population allButLastFront, Population lastFront, int K) {
-		Population kPoints = new Population();
-		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
-		for (Solution s : allButLastFront.getSolutions()) {
-			isLastFront.put(s, false);
-		}
-		for (Solution s : lastFront.getSolutions()) {
-			isLastFront.put(s, true);
-		}
-
-		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
-		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
-			refPQ.add(rp);
-		}
-
-		while (kPoints.size() < K) {
-			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
-			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint
-					.getAssociatedSolutionsQueue();
-			while (!associatedSolutionsQueue.isEmpty()) {
-				Solution s = associatedSolutionsQueue.poll().getSolution();
-				if (isLastFront.get(s)) {
-					kPoints.addSolution(s);
-					smallestNicheCountRefPoint.incrNicheCount();
-					refPQ.add(smallestNicheCountRefPoint);
-					break;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private void associate(Population population) {
-		hyperplane.resetAssociations();
-		ArrayList<ReferencePoint> refPoints = hyperplane.getReferencePoints();
-
-		for (Solution s : population.getSolutions()) {
-			double minDist = Double.MAX_VALUE;
-			ReferencePoint bestRefPoint = null;
-			for (int i = 0; i < refPoints.size(); i++) {
-				ReferencePoint curRefPoint = refPoints.get(i);
-				double dist = Geometry.pointLineDist(s.getVariables(), curRefPoint.getDimensions());
-				if (dist < minDist) {
-					minDist = dist;
-					bestRefPoint = curRefPoint;
-				}
-			}
-			bestRefPoint.addAssociation(new Association(s, minDist));
-		}
-	}
-
-	private Population normalize(Population population, int numVariables) {
-		Population resPop = population.copy();
-		double z_min[] = new double[numVariables];
-		for (int j = 0; j < numVariables; j++) {
-			double min = Double.MAX_VALUE;
-			for (Solution s : resPop.getSolutions()) {
-				min = Double.min(s.getVariable(j), min);
-			}
-			z_min[j] = min;
-		}
-
-		for (Solution s : resPop.getSolutions()) {
-			for (int j = 0; j < s.getNumVariables(); j++) {
-				s.setVariable(j, s.getVariable(j) - z_min[j]);
-			}
-		}
-
-		Population extremePoints = computeExtremePoints(resPop, numVariables);
-
-		fixDuplicates(extremePoints);
-
-		double invertedIntercepts[] = findIntercepts(extremePoints);
-
-		for (Solution s : resPop.getSolutions()) {
-			for (int i = 0; i < s.getNumVariables(); i++) {
-				// Multiplication instead of division - explained in
-				// findIntercepts()
-				s.setVariable(i, s.getVariable(i) * invertedIntercepts[i]);
-			}
-		}
-		return resPop;
-	}
-
-	private double[] findIntercepts(Population extremePoints) {
-
-		int n = extremePoints.size();
-		double a[][] = new double[n][n];
-		double b[] = new double[n];
-		for (int i = 0; i < n; i++) {
-			b[i] = 1.0;
-			for (int j = 0; j < n; j++) {
-				a[i][j] = extremePoints.getSolution(i).getVariable(j);
-			}
-		}
-
-		double coef[] = new double[n];
-		coef = GaussianElimination.execute(a, b);
-
-		/**
-		 * Loop beneath was commented, because since b[i] = 1 for all i and just
-		 * after returning from this method we divide each solutions objective
-		 * value by corresponding intercept value it is better to return
-		 * inversed intercept values (by omitting division by b[i]), and
-		 * multiply objective value instead of dividing it.
-		 */
-
-		/*
-		 * for(int i = 0; i < n; i++){ coef[i] /= b[i]; }
-		 */
-
-		return coef;
-	}
-
-	private void fixDuplicates(Population extremePoints) {
-
-		// Look for duplicates
-		for (int i = 0; i < extremePoints.size(); i++) {
-			for (int j = i + 1; j < extremePoints.size(); j++) {
-				if (extremePoints.getSolution(i) == extremePoints.getSolution(j)) {
-					throw new RuntimeException("Duplicated extreme points");
-				}
-			}
-		}
-
-		/*
-		 * TODO In JMetal idea was following: if extremePoints for i and j are
-		 * the same point, we obtain new points by projecting Pi on i-th axis,
-		 * and Pj on j-th axis.
-		 * 
-		 * New idea: Instead of projecting Pi, and Pj we move them epsilon
-		 * towards their axis. Problems: - New duplicates may appear, - Lower
-		 * bound values for problem - Negative values
-		 * 
-		 */
-	}
-
-	private Population computeExtremePoints(Population population, int numVariables) {
-		Population extremePoints = new Population();
-		for (int i = 0; i < numVariables; i++) {
-			double min = Double.MAX_VALUE;
-			Solution minSolution = null;
-			for (Solution s : population.getSolutions()) {
-				double asf = ASF(s, i);
-				if (asf < min) {
-					min = asf;
-					minSolution = s;
-				}
-			}
-			extremePoints.addSolution(minSolution);
-		}
-		return extremePoints;
-	}
-
-	private double ASF(Solution s, int i) {
-		double res = Double.MAX_VALUE;
-		double cur;
-		for (int j = 0; j < s.getNumVariables(); j++) {
-			if (j == i) {
-				cur = s.getVariable(j);
-			} else {
-				cur = s.getVariable(j) * 1000000;
-			}
-			res = Double.min(res, cur);
-		}
-		return res;
 	}
 
 	private Population createOffspring(Population population) {
@@ -316,14 +136,6 @@ public class NSGAIII {
 		this.numGenerations = numGenerations;
 	}
 
-	public Hyperplane getHyperplane() {
-		return hyperplane;
-	}
-
-	public void setHyperplane(Hyperplane hyperplane) {
-		this.hyperplane = hyperplane;
-	}
-
 	public SelectionOperator getSelectionOperator() {
 		return selectionOperator;
 	}
@@ -359,5 +171,4 @@ public class NSGAIII {
 	public int getPopulationSize() {
 		return populationSize;
 	}
-
 }

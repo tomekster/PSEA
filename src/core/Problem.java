@@ -25,18 +25,17 @@ public abstract class Problem {
 
 	public Solution createSolution() {
 		NSGAIIIRandom random = NSGAIIIRandom.getInstance();
-		Solution s = new Solution(numVariables,numObjectives);
-		for (int i = 0; i < numVariables; i++) {
-			if (Double.isInfinite(upperBound[i]) || Double.isInfinite(lowerBound[i])) {
-				throw new RuntimeException("Uninitialized variable bounds");
-			}
-			double val = lowerBound[i] + (upperBound[i] - lowerBound[i]) * random.nextDouble();
-			s.setVariable(i, val);
+		double var[] = new double[numVariables];
+		double obj[] = new double[numObjectives];
+		for(int i=0; i<numVariables; i++){
+			var[i] = lowerBound[i] + (upperBound[i] - lowerBound[i]) * random.nextDouble();
 		}
+		Solution s = new Solution(var,obj);
 		return s;
 	}
 
 	public abstract void evaluate(Solution solution);
+	public abstract void evaluate(Population pop);
 
 	// TODO
 	public abstract void evaluateConstraints(Solution solution);

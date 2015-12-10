@@ -23,4 +23,9 @@ public class Association {
 	public void setDist(double dist){
 		this.dist = dist;
 	}
+	
+	@Override
+	public String toString(){
+		return "(" + this.solution + ", " + this.dist + ")";
+	}
 }

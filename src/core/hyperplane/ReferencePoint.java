@@ -69,5 +69,21 @@ public class ReferencePoint {
 	public PriorityQueue<Association> getAssociatedSolutionsQueue(){
 		return associatedSolutions;
 	}
+	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		sb.append("[");
+		for(double d : dimensions){
+			sb.append(d + ", ");
+		}
+		sb.replace(sb.length()-2, sb.length(),"]\n");
+		sb.append("Associations: [");
+		for(Association as : associatedSolutions){
+			sb.append(as.toString() + ", ");
+		}
+		sb.replace(sb.length()-2, sb.length(),"]\n");
+		return sb.toString();
+	}
 
 }

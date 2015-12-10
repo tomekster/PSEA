@@ -17,7 +17,7 @@ public class NSGAIIITest {
 	
 	@Test
 	public void nsgaIIIrun(){
-		NSGAIII alg = new NSGAIII(new DTLZ1(3,1), 400);
+		NSGAIII alg = new NSGAIII(new DTLZ1(6), 400);
 		alg.run();
 	}
 	
