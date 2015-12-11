@@ -11,16 +11,15 @@ public class HyperplaneTest {
 	double EPS = MyComparator.EPS;
 	
 	private double refPointDimSum(ReferencePoint rp){
-		double sum = 0;
-		for(int i = 0; i<rp.getNumDimensions(); i++){
-			sum += rp.getDim(i);
+		double sum = 0.0;
+		for(double d : rp.getDimensions()){
+			sum += d;
 		}
 		return sum;
 	}
 	
 	@Test
 	public void referencePointsGenerationTest(){
-		
 		Hyperplane hp;
 		hp= new Hyperplane(3, 4);
 		assertEquals(15, hp.getReferencePoints().size());
@@ -33,6 +32,5 @@ public class HyperplaneTest {
 		for(ReferencePoint rp : hp.getReferencePoints()){
 			assertEquals(1.0, refPointDimSum(rp), EPS);
 		}
-		
 	}
 }
