@@ -13,7 +13,7 @@ public class ReferencePoint {
 	public ReferencePoint(int numDimensions) {
 		this.numDimensions = numDimensions;
 		this.dimensions = new double[numDimensions];
-		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator) ;
+		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator);
 		for(int i=0; i< numDimensions; i++) this.dimensions[i] = 0.0;
 	}
 

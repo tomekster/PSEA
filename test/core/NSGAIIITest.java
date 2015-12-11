@@ -14,12 +14,4 @@ public class NSGAIIITest {
 		assertEquals("DTLZ1",alg.getProblem().getName());
 		assertEquals(92, alg.getPopulationSize());
 	}
-	
-	@Test
-	public void nsgaIIIrun(){
-		NSGAIII alg = new NSGAIII(new DTLZ1(6), 400);
-		alg.run();
-	}
-	
-	
 }

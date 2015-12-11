@@ -28,4 +28,18 @@ public class ReferencePointTest {
 		}
 		assertNotEquals(rp1, rp2);
 	}
+	
+	@Test
+	public void refPointInitializationTest(){
+		ReferencePoint rp = new ReferencePoint(5);
+		assertEquals(5, rp.getNumDimensions());
+		double array[] = {0,0,0,0,0};
+		assertArrayEquals(array, rp.getDimensions(),1E-9);
+		assertTrue(rp.getAssociatedSolutionsQueue().isEmpty());
+	}
+	
+	@Test
+	public void associationsHeapTest(){
+		//TODO
+	}
 }

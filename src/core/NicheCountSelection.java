@@ -18,20 +18,19 @@ public class NicheCountSelection {
 
 	public NicheCountSelection(int numObjectives) {
 		this.numObjectives = numObjectives;
-		this.hyperplane = new Hyperplane(numObjectives,
-				12/* TODO getNumPartitions() */);
+		this.hyperplane = new Hyperplane(numObjectives, getNumPartitions());
 	}
-	
+
 	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k) {
-//		System.out.println("selectKPoints");
+		// System.out.println("selectKPoints");
 		Population normalizedPopulation = normalize(allFronts);
 		associate(normalizedPopulation);
 		Population kPoints = niching(allButLastFront, lastFront, k);
 		return kPoints;
 	}
-	
+
 	private Population normalize(Population population) {
-//		System.out.println("NORMALIZATION");
+		// System.out.println("NORMALIZATION");
 		Population resPop = population.copy();
 		double z_min[] = new double[numObjectives];
 		for (int j = 0; j < numObjectives; j++) {
@@ -142,25 +141,25 @@ public class NicheCountSelection {
 			}
 			bestRefPoint.addAssociation(new Association(s, minDist));
 		}
-		
-//		System.out.println("ASSOCIATIONS: ");
-//		for(ReferencePoint rp : refPoints){
-//			System.out.println(rp);
-//		}
+
+		// System.out.println("ASSOCIATIONS: ");
+		// for(ReferencePoint rp : refPoints){
+		// System.out.println(rp);
+		// }
 	}
 
 	private Population niching(Population allButLastFront, Population lastFront, int K) {
 		Population kPoints = new Population();
 		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
-//		System.out.println("FALSE: ");
+		// System.out.println("FALSE: ");
 		for (Solution s : allButLastFront.getSolutions()) {
 			isLastFront.put(s, false);
-//			System.out.println(s);
+			// System.out.println(s);
 		}
-//		System.out.println("TURUE: ");
+		// System.out.println("TURUE: ");
 		for (Solution s : lastFront.getSolutions()) {
 			isLastFront.put(s, true);
-//			System.out.println(s);
+			// System.out.println(s);
 		}
 
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
@@ -174,7 +173,7 @@ public class NicheCountSelection {
 					.getAssociatedSolutionsQueue();
 			while (!associatedSolutionsQueue.isEmpty()) {
 				Solution s = associatedSolutionsQueue.poll().getSolution();
-//				System.out.println("AssociatedSolutionQueue.poll(): " + s);
+				// System.out.println("AssociatedSolutionQueue.poll(): " + s);
 				if (isLastFront.get(s)) {
 					kPoints.addSolution(s);
 					smallestNicheCountRefPoint.incrNicheCount();
@@ -202,9 +201,9 @@ public class NicheCountSelection {
 			extremePoints.addSolution(minSolution);
 		}
 
-//		System.out.println("EXTREME POINTS: ");
-//		System.out.println(population);
-//		System.out.println(extremePoints);
+		// System.out.println("EXTREME POINTS: ");
+		// System.out.println(population);
+		// System.out.println(extremePoints);
 
 		return extremePoints;
 	}
@@ -224,14 +223,15 @@ public class NicheCountSelection {
 	}
 
 	public int getPopulationSize() {
-//		System.out.println("REF POINTS: " + hyperplane.getReferencePoints().size());
+		// System.out.println("REF POINTS: " +
+		// hyperplane.getReferencePoints().size());
 		int populationSize = 0;
 		while (populationSize < hyperplane.getReferencePoints().size()) {
 			populationSize += 4;
 		}
 		return populationSize;
 	}
-	
+
 	private int getNumPartitions() {
 		switch (numObjectives) {
 		case 3:
@@ -243,4 +243,9 @@ public class NicheCountSelection {
 					+ numObjectives + ")");
 		}
 	}
+
+	public Hyperplane getHyperplane() {
+		return hyperplane;
+	}
+
 }

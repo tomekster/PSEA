@@ -24,10 +24,10 @@ public class DTLZ1 extends Problem {
 		int numberOfVariables = getNumVariables();
 		int numberOfObjectives = getNumObjectives();
 
-		double[] f = new double[numberOfObjectives];
 		double[] x = new double[numberOfVariables];
+		double[] f = new double[numberOfObjectives];
 
-		int k = getNumVariables() - getNumObjectives() + 1;
+		int k = numberOfVariables - numberOfObjectives + 1;
 
 		for (int i = 0; i < numberOfVariables; i++) {
 			x[i] = solution.getVariable(i);
@@ -76,6 +76,5 @@ public class DTLZ1 extends Problem {
 		for(Solution s : pop.getSolutions()){
 			evaluate(s);
 		}
-		
 	}
 }

@@ -2,6 +2,9 @@ package core;
 
 import java.util.ArrayList;
 
+import core.hyperplane.ReferencePoint;
+import igd.IGD;
+import igd.ReferenceFrontGenerator;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
@@ -24,8 +27,26 @@ public class NSGAIII {
 
 	public static void main(String args[]) {
 		NSGAIII alg = new NSGAIII(new DTLZ1(7), 400);
-		alg.run();
+		Population result = alg.run();
+		System.out.println(result);
+		System.out.println(alg.judgeResult(result));
 	}
+	
+	public double judgeResult(Population result){
+		ArrayList <ReferencePoint> referencePoints = nicheCountSelection.getHyperplane().getReferencePoints();
+		double igd = IGD.execute(ReferenceFrontGenerator.generate(referencePoints, problem), result);
+		return igd;
+	}
+
+	private Population run() {
+		for(int i = 0; i < numGenerations; i++){
+			nextGeneration();
+		}
+		ArrayList <Population> fronts = NonDominatedSort.execute(population);
+		Population result = fronts.get(0);
+		problem.evaluate(result);
+		return result;
+	}	
 
 	public NSGAIII(Problem problem, int numGenerations) {
 		this.problem = problem;
@@ -41,12 +62,12 @@ public class NSGAIII {
 				problem.getUpperBound());
 	}
 
-	public Population run() {
-//		System.out.println("POPULATION: " + population.size());
-//		System.out.println(population);
+	public Population nextGeneration() {
+		// System.out.println("POPULATION: " + population.size());
+		// System.out.println(population);
 		Population offspring = createOffspring(population);
-//		System.out.println("OFFSPRING: " + offspring.size());
-//		System.out.println(offspring);
+		// System.out.println("OFFSPRING: " + offspring.size());
+		// System.out.println(offspring);
 		Population combinedPopulation = new Population();
 
 		combinedPopulation.addSolutions(population);
@@ -54,9 +75,10 @@ public class NSGAIII {
 
 		problem.evaluate(combinedPopulation);
 
-//		System.out.println("COMBINED POPULATION: " + combinedPopulation.size());
-//		System.out.println(combinedPopulation);
-		
+		// System.out.println("COMBINED POPULATION: " +
+		// combinedPopulation.size());
+		// System.out.println(combinedPopulation);
+
 		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
 		Population allFronts = new Population();
@@ -77,20 +99,21 @@ public class NSGAIII {
 		allFronts.addSolutions(allButLastFront);
 		allFronts.addSolutions(lastFront);
 
-//		System.out.println("ALL SOLUTIONS: " + allFronts.size());
-//		System.out.println(allFronts);
-//		System.out.println("ALL BUT LAST FRONT: " + allButLastFront.size());
-//		System.out.println(allButLastFront);
-//		System.out.println("LAST FORNT: " + lastFront.size());
-//		System.out.println(lastFront);
-		
+		// System.out.println("ALL SOLUTIONS: " + allFronts.size());
+		// System.out.println(allFronts);
+		// System.out.println("ALL BUT LAST FRONT: " + allButLastFront.size());
+		// System.out.println(allButLastFront);
+		// System.out.println("LAST FORNT: " + lastFront.size());
+		// System.out.println(lastFront);
+
 		if (allFronts.size() == populationSize) {
 			population = allFronts.copy();
 		} else {
+			population = new Population();
 			int K = populationSize - allButLastFront.size();
 			Population kPoints = nicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K);
 			population.addSolutions(allButLastFront.copy());
-			//System.out.println("K_POINTS: " + kPoints);
+			// System.out.println("K_POINTS: " + kPoints);
 			population.addSolutions(kPoints.copy());
 		}
 

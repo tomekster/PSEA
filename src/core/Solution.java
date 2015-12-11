@@ -50,7 +50,13 @@ public class Solution {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("(");
+		sb.append("VAR: (");
+		for (double d : this.variables) {
+			sb.append(d);
+			sb.append(", ");
+		}
+		sb.replace(sb.length() - 2, sb.length(), ")\n");
+		sb.append("OBJ: (");
 		for (double d : this.objectives) {
 			sb.append(d);
 			sb.append(", ");
