@@ -8,8 +8,8 @@ public class DTLZ2 extends Problem {
 	// k = numVariables - numObjectives + 1
 	private final static int k = 10;
 
-	public DTLZ2(int numVariables) {
-		this(numVariables, numVariables - k + 1);
+	public DTLZ2(int numObjectives) {
+		this(numObjectives + k - 1, numObjectives);
 	}
 
 	public DTLZ2(int numVariables, int numObjectives) {

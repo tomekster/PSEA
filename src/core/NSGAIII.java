@@ -51,7 +51,7 @@ public class NSGAIII implements Runnable {
 
 	public void run() {
 		for (int i = 0; i < numGenerations; i++) {
-			if (i % 50 == 49){
+			if(i%50 == 49){
 				System.out.println("GENERATION: " + (i + 1));
 			}
 			nextGeneration();
@@ -62,21 +62,13 @@ public class NSGAIII implements Runnable {
 	}
 
 	public Population nextGeneration() {
-		// System.out.println("POPULATION: " + population.size());
-		// System.out.println(population);
 		Population offspring = createOffspring(population);
-		// System.out.println("OFFSPRING: " + offspring.size());
-		// System.out.println(offspring);
 		Population combinedPopulation = new Population();
 
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
 
 		problem.evaluate(combinedPopulation);
-
-		// System.out.println("COMBINED POPULATION: " +
-		// combinedPopulation.size());
-		// System.out.println(combinedPopulation);
 
 		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
@@ -98,13 +90,6 @@ public class NSGAIII implements Runnable {
 		allFronts.addSolutions(allButLastFront);
 		allFronts.addSolutions(lastFront);
 
-		// System.out.println("ALL SOLUTIONS: " + allFronts.size());
-		// System.out.println(allFronts);
-		// System.out.println("ALL BUT LAST FRONT: " + allButLastFront.size());
-		// System.out.println(allButLastFront);
-		// System.out.println("LAST FORNT: " + lastFront.size());
-		// System.out.println(lastFront);
-
 		if (allFronts.size() == populationSize) {
 			population = allFronts.copy();
 		} else {
@@ -112,7 +97,6 @@ public class NSGAIII implements Runnable {
 			int K = populationSize - allButLastFront.size();
 			Population kPoints = nicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K);
 			population.addSolutions(allButLastFront.copy());
-			// System.out.println("K_POINTS: " + kPoints);
 			population.addSolutions(kPoints.copy());
 		}
 

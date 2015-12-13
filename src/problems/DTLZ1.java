@@ -8,9 +8,9 @@ public class DTLZ1 extends Problem {
 	// Parameter used in Deb's original paper
 	// k = numVariables - numObjectives + 1
 	private final static int k = 5;
-	
-	public DTLZ1(int numVariables) {
-		this(numVariables, numVariables - k + 1);
+
+	public DTLZ1(int numObjectives) {
+		this(numObjectives + k - 1, numObjectives);
 	}
 
 	public DTLZ1(int numVariables, int numObjectives) {

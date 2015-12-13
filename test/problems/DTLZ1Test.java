@@ -12,7 +12,7 @@ public class DTLZ1Test {
 	
 	@Test
 	public void DTLZ1initializationTest(){
-		Problem p = new DTLZ1(7);
+		Problem p = new DTLZ1(3);
 		assertEquals(7, p.getNumVariables());
 		assertEquals(3, p.getNumObjectives());
 		assertEquals(0, p.getNumConstraints());

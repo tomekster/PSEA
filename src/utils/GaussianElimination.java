@@ -32,6 +32,7 @@ public class GaussianElimination {
 			}
 
 			if (max < MyComparator.EPS) {
+				printMatrix(A2);
 				throw new RuntimeException("Degenerated Matrix!");
 			}
 			

@@ -29,6 +29,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import history.NSGAIIIHistory;
+import problems.DTLZ1;
 import problems.DTLZ2;
 import utils.NonDominatedSort;
 
@@ -37,9 +38,8 @@ import utils.NonDominatedSort;
  */
 public class Main {
 
-	//public static final Problem problem = new DTLZ2(7);
-	public static final Problem problem = new DTLZ2(12);
-	public static final int numGenerations = 250;
+	public static final Problem problem = new DTLZ2(5);
+	public static final int numGenerations = 350;
 
 	private int currentPopulationId;
 	private NSGAIIIHistory history;

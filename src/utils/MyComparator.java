@@ -8,7 +8,7 @@ import core.hyperplane.ReferencePoint;
 
 public class MyComparator {
 
-	public static double EPS = 1E-10;
+	public static double EPS = 1E-9;
 
 	/**
 	 * Finds dominating solution assuming minimalization problem
