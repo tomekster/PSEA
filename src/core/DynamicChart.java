@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
@@ -30,6 +31,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
 import problems.DTLZ1;
+import utils.NonDominatedSort;
 
 /**
  * @see http://stackoverflow.com/questions/5522575
@@ -47,7 +49,7 @@ public class DynamicChart {
 		this.currentPopulationId = 0;
 		this.chartPanel = createChart();
 		this.generationNum = new JLabel("0");
-		
+
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -92,12 +94,12 @@ public class DynamicChart {
 
 	private JSlider createDate() {
 		System.out.println(history.getGenerations().size());
-		final JSlider date = new JSlider(JSlider.VERTICAL,0,history.getGenerations().size(),0);
+		final JSlider date = new JSlider(JSlider.VERTICAL, 0, history.getGenerations().size(), 0);
 		date.setLabelTable(date.createStandardLabels(50));
 		date.setPaintLabels(true);
 		date.addChangeListener(new ChangeListener() {
 
-			@Override	
+			@Override
 			public void stateChanged(ChangeEvent ce) {
 				currentPopulationId = ((JSlider) ce.getSource()).getValue();
 				JFreeChart chart = chartPanel.getChart();
@@ -150,13 +152,20 @@ public class DynamicChart {
 		}
 		result.addSeries(refPointsSeries);
 		if (pop.getSolutions() != null) {
-			XYSeries populationSeries = new XYSeries("Population");
-			for (Solution s : pop.getSolutions()) {
-				populationSeries.add(s.getObjective(0), s.getObjective(1));
-			}
-			result.addSeries(populationSeries);
+			createpopulationSeries(pop, result);
 		}
 		return result;
+	}
+
+	private void createpopulationSeries(Population pop, XYSeriesCollection result) {
+		ArrayList<Population> fronts = NonDominatedSort.execute(pop);
+		for (int frontId = 0; frontId < fronts.size(); frontId++) {
+			XYSeries frontSeries = new XYSeries("Front " + frontId);
+			for (Solution s : fronts.get(frontId).getSolutions()) {
+				frontSeries.add(s.getObjective(0), s.getObjective(1));
+			}
+			result.addSeries(frontSeries);
+		}
 	}
 
 	public static void main(String[] args) {
