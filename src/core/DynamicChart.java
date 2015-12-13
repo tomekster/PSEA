@@ -42,13 +42,13 @@ public class DynamicChart {
 	private NSGAIIIHistory history;
 	private static final String title = "NSGAIII";
 	private ChartPanel chartPanel;
-	private JLabel generationNum;
+	private boolean firstFrontOnly;
 
 	public DynamicChart(NSGAIIIHistory history) {
 		this.history = history;
 		this.currentPopulationId = 0;
+		this.firstFrontOnly = false;
 		this.chartPanel = createChart();
-		this.generationNum = new JLabel("0");
 
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
@@ -60,7 +60,7 @@ public class DynamicChart {
 		chartPanel.setVerticalAxisTrace(true);
 
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panel.add(generationNum);
+		panel.add(createFirstFrontCB());
 		panel.add(createTrace());
 		panel.add(createDate());
 		panel.add(createZoom());
@@ -68,6 +68,27 @@ public class DynamicChart {
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
+	}
+
+	private JComboBox createFirstFrontCB() {
+		final JComboBox firstFrontCB = new JComboBox();
+		final String[] traceCmds = { "All fronts", "First fron only" };
+		firstFrontCB.setModel(new DefaultComboBoxModel(traceCmds));
+		firstFrontCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (traceCmds[0].equals(firstFrontCB.getSelectedItem())) {
+					firstFrontOnly = false;
+				} else {
+					firstFrontOnly = true;
+				}
+				JFreeChart chart = chartPanel.getChart();
+				XYPlot plot = (XYPlot) chart.getPlot();
+				plot.setDataset(createDataset());
+			}
+		});
+		return firstFrontCB;
 	}
 
 	private JComboBox createTrace() {
@@ -152,20 +173,29 @@ public class DynamicChart {
 		}
 		result.addSeries(refPointsSeries);
 		if (pop.getSolutions() != null) {
-			createpopulationSeries(pop, result);
+			ArrayList<XYSeries> frontSeries = createpopulationSeries(pop);
+			if (firstFrontOnly) {
+				result.addSeries(frontSeries.get(0));
+			} else {
+				for (XYSeries xys : frontSeries) {
+					result.addSeries(xys);
+				}
+			}
 		}
 		return result;
 	}
 
-	private void createpopulationSeries(Population pop, XYSeriesCollection result) {
+	private ArrayList<XYSeries> createpopulationSeries(Population pop) {
 		ArrayList<Population> fronts = NonDominatedSort.execute(pop);
+		ArrayList<XYSeries> resultSeries = new ArrayList<>();
 		for (int frontId = 0; frontId < fronts.size(); frontId++) {
 			XYSeries frontSeries = new XYSeries("Front " + frontId);
 			for (Solution s : fronts.get(frontId).getSolutions()) {
 				frontSeries.add(s.getObjective(0), s.getObjective(1));
 			}
-			result.addSeries(frontSeries);
+			resultSeries.add(frontSeries);
 		}
+		return resultSeries;
 	}
 
 	public static void main(String[] args) {
