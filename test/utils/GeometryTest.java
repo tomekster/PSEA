@@ -25,5 +25,21 @@ public class GeometryTest {
 		double P1[] = { 1, 1, 1 };
 		double P2[] = { 2, 2, 2 };
 		assertEquals(0, Geometry.pointLineDist(P1, P2), EPS);
+		
+		double P3[] = { 0, 1, 1 };
+		double P4[] = { 0, 0, 1 };
+		assertEquals(1, Geometry.pointLineDist(P3, P4), EPS);
+		
+		double P5[] = { 1, 1, 1 };
+		double P6[] = { 0, 0, 1 };
+		assertEquals(Math.sqrt(2), Geometry.pointLineDist(P5, P6), EPS);
+		
+		double P7[] = { 0, 0, 1 };
+		double P8[] = { 0, 1, 1 };
+		assertEquals(Math.sqrt(2)/2, Geometry.pointLineDist(P7, P8), EPS);
+		
+		double P9[] = { 0, 0, 1 };
+		double P10[] = { 1, 1, 1 };
+		assertEquals(Math.sqrt(2.0/3), Geometry.pointLineDist(P9, P10), EPS);
 	}
 }

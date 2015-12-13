@@ -31,9 +31,7 @@ public class NSGAIII implements Runnable {
 		this.numGenerations = numGenerations;
 		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
 		this.populationSize = nicheCountSelection.getPopulationSize();
-		
 		this.population = createInitialPopulation();
-		
 		this.selectionOperator = new BinaryTournament();
 		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
 		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20, problem.getLowerBound(),
@@ -41,24 +39,27 @@ public class NSGAIII implements Runnable {
 		this.history = new NSGAIIIHistory(numGenerations);
 		problem.evaluate(population);
 		history.setInitialPopulation(population.copy());
-		history.setReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
+		history.setReferencePoints(
+				ReferenceFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
 	}
-	
-	public double judgeResult(Population result){
-		ArrayList <ReferencePoint> referencePoints = nicheCountSelection.getHyperplane().getReferencePoints();
+
+	public double judgeResult(Population result) {
+		ArrayList<ReferencePoint> referencePoints = nicheCountSelection.getHyperplane().getReferencePoints();
 		double igd = IGD.execute(ReferenceFrontGenerator.generate(referencePoints, problem), result);
 		return igd;
 	}
 
 	public void run() {
-		for(int i = 0; i < numGenerations; i++){
-			System.out.println("GENERATION: " + (i+1));
-//			System.out.println("GENERATION: " + i);
+		for (int i = 0; i < numGenerations; i++) {
+			if (i % 50 == 49){
+				System.out.println("GENERATION: " + (i + 1));
+			}
 			nextGeneration();
+			problem.evaluate(population);
 			history.addGeneration(population.copy());
 		}
-	}	
-
+		System.out.println(judgeResult(population));
+	}
 
 	public Population nextGeneration() {
 		// System.out.println("POPULATION: " + population.size());

@@ -3,12 +3,11 @@ package history;
 import java.util.ArrayList;
 
 import core.Population;
-import core.hyperplane.ReferencePoint;
 
 public class NSGAIIIHistory {
 	
 	private Population initialPopulation;
-	private ArrayList <ReferencePoint> referencePoints;
+	private Population referencePoints;
 	private ArrayList<Population> generations;
 	
 	public NSGAIIIHistory(int numGenerations){
@@ -21,10 +20,10 @@ public class NSGAIIIHistory {
 	public void setInitialPopulation(Population initialPopulation) {
 		this.initialPopulation = initialPopulation;
 	}
-	public ArrayList<ReferencePoint> getReferencePoints() {
+	public Population getReferencePoints() {
 		return referencePoints;
 	}
-	public void setReferencePoints(ArrayList<ReferencePoint> referencePoints) {
+	public void setReferencePoints(Population referencePoints) {
 		this.referencePoints = referencePoints;
 	}
 	public ArrayList<Population> getGenerations() {

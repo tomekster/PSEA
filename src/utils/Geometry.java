@@ -6,21 +6,21 @@ public class Geometry {
 
 	/**
 	 * 
-	 * @param A
+	 * @param P
 	 *            point that we are computing distance for
 	 * @param B
-	 *            point on line (0,0) <-> B
+	 *            vector representing line
 	 * @return distance between point A and line (0,0) <-> B
 	 */
-	public static double pointLineDist(double[] A, double[] B) {
+	public static double pointLineDist(double[] P, double[] B) {
 
-		if (A.length != B.length) {
+		if (P.length != B.length) {
 			throw new RuntimeException("Point and line do not have same dimensionality");
 		}
 
-		int numDim = A.length;
-		
-		if(numDim < 2){
+		int numDim = P.length;
+
+		if (numDim < 2) {
 			throw new RuntimeException("Space needs to be at least two dimensional");
 		}
 
@@ -35,27 +35,14 @@ public class Geometry {
 		// Define zero point
 		double zero[] = new double[numDim];
 
-		// Find vector orthogonal to B by swapping nonnegative dimension with
-		// any other dimension and changing it's sign
+		double t = dot(P,B)/dot(B,B);
 		
-		double orthogonalB[] = new double[numDim];
-		for(int i=0; i<numDim; i++){
-			orthogonalB[i] = 0;
-		}
-		if (B[0] < EPS){
-			orthogonalB[0] = 1;
-		}else{
-			orthogonalB[0] = -B[1];
-			orthogonalB[1] = B[0];
-		}
-		
-		double sum = 0;
-		for (int i = 0; i < A.length; i++) {
-			sum += A[i] * orthogonalB[i];
+		double resVector[] = new double[numDim];
+		for (int i = 0; i < numDim; i++) {
+			resVector[i] = P[i] - t * B[i];
 			zero[i] = 0.0;
 		}
-		sum /= euclideanDistance(zero, B);
-		return Math.abs(sum);
+		return euclideanDistance(zero, resVector);
 	}
 
 	public static double euclideanDistance(double[] P1, double[] P2) {
@@ -71,5 +58,17 @@ public class Geometry {
 		}
 
 		return Math.sqrt(sum);
+	}
+	
+	public static double dot(double[] A, double[] B){
+		if (A.length != B.length) {
+			throw new RuntimeException("Vectors have different dimensionality");
+		}
+		int numDim = A.length;
+		double res=0;
+		for(int i=0; i<numDim; i++){
+			res += A[i] * B[i];
+		}
+		return res;
 	}
 }

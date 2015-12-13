@@ -15,6 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -28,7 +29,6 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
 import problems.DTLZ1;
 import utils.NonDominatedSort;
@@ -36,20 +36,22 @@ import utils.NonDominatedSort;
 /**
  * @see http://stackoverflow.com/questions/5522575
  */
-public class DynamicChart {
+public class Main {
 
+	public static final Problem problem = new DTLZ1(7);
+	public static final int numGenerations = 400;
+	
 	private int currentPopulationId;
 	private NSGAIIIHistory history;
 	private static final String title = "NSGAIII";
 	private ChartPanel chartPanel;
 	private boolean firstFrontOnly;
-
-	public DynamicChart(NSGAIIIHistory history) {
-		this.history = history;
-		this.currentPopulationId = 0;
+	
+	public Main() {
+		this.currentPopulationId = numGenerations;
 		this.firstFrontOnly = false;
 		this.chartPanel = createChart();
-
+		
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,6 +62,8 @@ public class DynamicChart {
 		chartPanel.setVerticalAxisTrace(true);
 
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		panel.add(new JLabel("IGD: "));
+		panel.add(createRunNSGAIII());
 		panel.add(createFirstFrontCB());
 		panel.add(createTrace());
 		panel.add(createDate());
@@ -68,6 +72,20 @@ public class DynamicChart {
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
+	}
+
+	private JButton createRunNSGAIII() {
+		final JButton run = new JButton(new AbstractAction("Run NSGAIII") {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NSGAIII alg = new NSGAIII(problem, numGenerations);
+				alg.run();
+				history = alg.getHistory();
+				resetChart();
+			}
+		});
+		return run;
 	}
 
 	private JComboBox createFirstFrontCB() {
@@ -83,9 +101,6 @@ public class DynamicChart {
 				} else {
 					firstFrontOnly = true;
 				}
-				JFreeChart chart = chartPanel.getChart();
-				XYPlot plot = (XYPlot) chart.getPlot();
-				plot.setDataset(createDataset());
 			}
 		});
 		return firstFrontCB;
@@ -114,8 +129,7 @@ public class DynamicChart {
 	}
 
 	private JSlider createDate() {
-		System.out.println(history.getGenerations().size());
-		final JSlider date = new JSlider(JSlider.VERTICAL, 0, history.getGenerations().size(), 0);
+		final JSlider date = new JSlider(JSlider.VERTICAL, 0, numGenerations, 0);
 		date.setLabelTable(date.createStandardLabels(50));
 		date.setPaintLabels(true);
 		date.addChangeListener(new ChangeListener() {
@@ -123,9 +137,7 @@ public class DynamicChart {
 			@Override
 			public void stateChanged(ChangeEvent ce) {
 				currentPopulationId = ((JSlider) ce.getSource()).getValue();
-				JFreeChart chart = chartPanel.getChart();
-				XYPlot plot = (XYPlot) chart.getPlot();
-				plot.setDataset(createDataset());
+				resetChart();
 			}
 		});
 		return date;
@@ -143,7 +155,10 @@ public class DynamicChart {
 	}
 
 	private ChartPanel createChart() {
-		XYDataset dataset = createDataset();
+		XYDataset dataset = new XYSeriesCollection();
+		if(history != null){
+			dataset = createDataset();
+		}
 		JFreeChart chart = ChartFactory.createScatterPlot("NSGAIII", "X", "Y", dataset, PlotOrientation.VERTICAL, true, // include
 				true, // tooltips
 				false // urls
@@ -152,10 +167,6 @@ public class DynamicChart {
 		XYPlot plot = chart.getXYPlot();
 		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
 		renderer.setBaseShapesVisible(true);
-		// NumberFormat currency = NumberFormat.getCurrencyInstance();
-		// currency.setMaximumFractionDigits(0);
-		// NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		// rangeAxis.setNumberFormatOverride(currency);
 		return new ChartPanel(chart);
 	}
 
@@ -168,8 +179,8 @@ public class DynamicChart {
 		}
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
-		for (ReferencePoint rp : history.getReferencePoints()) {
-			refPointsSeries.add(rp.getDim(0), rp.getDim(1));
+		for (Solution s : history.getReferencePoints().getSolutions()) {
+			refPointsSeries.add(s.getObjective(0), s.getObjective(1));
 		}
 		result.addSeries(refPointsSeries);
 		if (pop.getSolutions() != null) {
@@ -197,14 +208,18 @@ public class DynamicChart {
 		}
 		return resultSeries;
 	}
+	
+	private void resetChart(){
+		JFreeChart chart = chartPanel.getChart();
+		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.setDataset(createDataset());
+	}
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				NSGAIII alg = new NSGAIII(new DTLZ1(6), 400);
-				alg.run();
-				DynamicChart cpd = new DynamicChart(alg.getHistory());
+				Main cpd = new Main();
 			}
 		});
 	}
