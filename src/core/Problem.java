@@ -35,7 +35,12 @@ public abstract class Problem {
 	}
 
 	public abstract void evaluate(Solution solution);
-	public abstract void evaluate(Population pop);
+
+	public void evaluate(Population pop) {
+		for(Solution s : pop.getSolutions()){
+			evaluate(s);
+		}
+	}
 
 	// TODO
 	public abstract void evaluateConstraints(Solution solution);

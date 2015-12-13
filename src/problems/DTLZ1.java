@@ -1,6 +1,5 @@
 package problems;
 
-import core.Population;
 import core.Problem;
 import core.Solution;
 
@@ -68,13 +67,6 @@ public class DTLZ1 extends Problem {
 		for (int i = 0; i < getNumVariables(); i++) {
 			setLowerBound(i, 0.0);
 			setUpperBound(i, 1.0);
-		}
-	}
-
-	@Override
-	public void evaluate(Population pop) {
-		for(Solution s : pop.getSolutions()){
-			evaluate(s);
 		}
 	}
 }

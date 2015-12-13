@@ -15,7 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -30,7 +29,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import history.NSGAIIIHistory;
-import problems.DTLZ1;
+import problems.DTLZ2;
 import utils.NonDominatedSort;
 
 /**
@@ -38,20 +37,21 @@ import utils.NonDominatedSort;
  */
 public class Main {
 
-	public static final Problem problem = new DTLZ1(7);
-	public static final int numGenerations = 400;
-	
+	//public static final Problem problem = new DTLZ2(7);
+	public static final Problem problem = new DTLZ2(12);
+	public static final int numGenerations = 250;
+
 	private int currentPopulationId;
 	private NSGAIIIHistory history;
 	private static final String title = "NSGAIII";
 	private ChartPanel chartPanel;
 	private boolean firstFrontOnly;
-	
+
 	public Main() {
 		this.currentPopulationId = numGenerations;
 		this.firstFrontOnly = false;
 		this.chartPanel = createChart();
-		
+
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -156,7 +156,7 @@ public class Main {
 
 	private ChartPanel createChart() {
 		XYDataset dataset = new XYSeriesCollection();
-		if(history != null){
+		if (history != null) {
 			dataset = createDataset();
 		}
 		JFreeChart chart = ChartFactory.createScatterPlot("NSGAIII", "X", "Y", dataset, PlotOrientation.VERTICAL, true, // include
@@ -208,8 +208,8 @@ public class Main {
 		}
 		return resultSeries;
 	}
-	
-	private void resetChart(){
+
+	private void resetChart() {
 		JFreeChart chart = chartPanel.getChart();
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
