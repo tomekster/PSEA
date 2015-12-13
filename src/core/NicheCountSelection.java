@@ -29,9 +29,9 @@ public class NicheCountSelection {
 		return kPoints;
 	}
 
-	private Population normalize(Population population) {
+	private Population normalize(Population allFronts) {
 		// System.out.println("NORMALIZATION");
-		Population resPop = population.copy();
+		Population resPop = allFronts.copy();
 		double z_min[] = new double[numObjectives];
 		for (int j = 0; j < numObjectives; j++) {
 			double min = Double.MAX_VALUE;
@@ -41,6 +41,7 @@ public class NicheCountSelection {
 			z_min[j] = min;
 		}
 
+		//Move all points to new origin
 		for (Solution s : resPop.getSolutions()) {
 			for (int j = 0; j < numObjectives; j++) {
 				s.setObjective(j, s.getObjective(j) - z_min[j]);
@@ -49,7 +50,7 @@ public class NicheCountSelection {
 
 		Population extremePoints = computeExtremePoints(resPop, numObjectives);
 
-		fixDuplicates(extremePoints);
+		extremePoints = fixDuplicates(extremePoints);
 
 		double invertedIntercepts[] = findIntercepts(extremePoints);
 
@@ -63,7 +64,7 @@ public class NicheCountSelection {
 		return resPop;
 	}
 
-	private void fixDuplicates(Population extremePoints) {
+	private Population fixDuplicates(Population extremePoints) {
 
 		// Look for duplicates
 		for (int i = 0; i < extremePoints.size(); i++) {
@@ -71,6 +72,8 @@ public class NicheCountSelection {
 				if (extremePoints.getSolution(i) == extremePoints.getSolution(j)) {
 					// throw new RuntimeException("Duplicated extreme points");
 
+//					System.out.println("BEFORE FIX");
+//					System.out.println(extremePoints);
 					System.out.println("Duplicated extreme points");
 
 					/*
@@ -84,14 +87,33 @@ public class NicheCountSelection {
 					 * values
 					 * 
 					 */
-					Solution dup = extremePoints.getSolution(j);
-					for (int k = 0; k < dup.getNumObjectives(); k++) {
-						if (k != 1)
-							dup.setObjective(k, 0.0);
+					
+					Population fixed = new Population();
+					//For every solution in extremePoints
+					for(int k=0; k< extremePoints.getSolutions().size(); k++){
+						//Get extreme point copy
+						Solution fixedSolution = extremePoints.getSolution(k).copy();
+						//If extreme point was duplicate
+						if(k==j){
+							//Set all its variables to 0 
+							for (int l = 0; l < fixedSolution.getNumObjectives(); l++) {
+								//Except of the value dimension for which it was chosen via ASF
+								if (l != j){
+									fixedSolution.setObjective(l, 0.0);
+								}
+							}
+						}
+						//Add fixed solution to fixed set
+						fixed.addSolution(fixedSolution);
 					}
+					//Replace extreme points with fixed set
+					extremePoints = fixed;
+//					System.out.println("AFTER FIX");
+//					System.out.println(extremePoints);
 				}
 			}
 		}
+		return extremePoints;
 	}
 
 	private double[] findIntercepts(Population extremePoints) {
@@ -234,6 +256,8 @@ public class NicheCountSelection {
 
 	private int getNumPartitions() {
 		switch (numObjectives) {
+		case 2:
+			return 12;
 		case 3:
 			return 12;
 		case 5:

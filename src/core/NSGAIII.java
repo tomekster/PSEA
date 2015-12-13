@@ -3,6 +3,7 @@ package core;
 import java.util.ArrayList;
 
 import core.hyperplane.ReferencePoint;
+import history.NSGAIIIHistory;
 import igd.IGD;
 import igd.ReferenceFrontGenerator;
 import operators.CrossoverOperator;
@@ -11,10 +12,9 @@ import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
-import problems.DTLZ1;
 import utils.NonDominatedSort;
 
-public class NSGAIII {
+public class NSGAIII implements Runnable {
 
 	private Problem problem;
 	private Population population;
@@ -24,12 +24,24 @@ public class NSGAIII {
 	private CrossoverOperator crossoverOperator;
 	private MutationOperator mutationOperator;
 	private NicheCountSelection nicheCountSelection;
+	private NSGAIIIHistory history;
 
-	public static void main(String args[]) {
-		NSGAIII alg = new NSGAIII(new DTLZ1(7), 400);
-		Population result = alg.run();
-		System.out.println(result);
-		System.out.println(alg.judgeResult(result));
+	public NSGAIII(Problem problem, int numGenerations) {
+		this.problem = problem;
+		this.numGenerations = numGenerations;
+		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
+		this.populationSize = nicheCountSelection.getPopulationSize();
+		
+		this.population = createInitialPopulation();
+		
+		this.selectionOperator = new BinaryTournament();
+		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
+		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20, problem.getLowerBound(),
+				problem.getUpperBound());
+		this.history = new NSGAIIIHistory(numGenerations);
+		problem.evaluate(population);
+		history.setInitialPopulation(population.copy());
+		history.setReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
 	}
 	
 	public double judgeResult(Population result){
@@ -38,29 +50,15 @@ public class NSGAIII {
 		return igd;
 	}
 
-	private Population run() {
+	public void run() {
 		for(int i = 0; i < numGenerations; i++){
+			System.out.println("GENERATION: " + (i+1));
+//			System.out.println("GENERATION: " + i);
 			nextGeneration();
+			history.addGeneration(population.copy());
 		}
-		ArrayList <Population> fronts = NonDominatedSort.execute(population);
-		Population result = fronts.get(0);
-		problem.evaluate(result);
-		return result;
 	}	
 
-	public NSGAIII(Problem problem, int numGenerations) {
-		this.problem = problem;
-		this.numGenerations = numGenerations;
-		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
-		this.populationSize = nicheCountSelection.getPopulationSize();
-
-		this.population = createInitialPopulation();
-
-		this.selectionOperator = new BinaryTournament();
-		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
-		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20, problem.getLowerBound(),
-				problem.getUpperBound());
-	}
 
 	public Population nextGeneration() {
 		// System.out.println("POPULATION: " + population.size());
@@ -193,5 +191,13 @@ public class NSGAIII {
 
 	public int getPopulationSize() {
 		return populationSize;
+	}
+
+	public NSGAIIIHistory getHistory() {
+		return history;
+	}
+
+	public void setHistory(NSGAIIIHistory history) {
+		this.history = history;
 	}
 }
