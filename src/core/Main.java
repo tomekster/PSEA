@@ -5,6 +5,8 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
@@ -30,7 +32,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import history.NSGAIIIHistory;
 import problems.DTLZ1;
-import problems.DTLZ2;
 import utils.NonDominatedSort;
 
 /**
@@ -38,20 +39,43 @@ import utils.NonDominatedSort;
  */
 public class Main {
 
-	public static final Problem problem = new DTLZ2(5);
-	public static final int numGenerations = 350;
-
 	private int currentPopulationId;
 	private NSGAIIIHistory history;
 	private static final String title = "NSGAIII";
 	private ChartPanel chartPanel;
 	private boolean firstFrontOnly;
-
+	private boolean showTargetPoints;
+	private Constructor problemConstructor;
+	private int numGenerations;
+	private int executedGenerations;
+	private int numObjectives;
+	private double IGD;
+	private JLabel label;
+	private JSlider slider;
+	
 	public Main() {
+		this.numGenerations = 250;
+		this.numObjectives = 2;
+		try {
+			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
 		this.currentPopulationId = numGenerations;
 		this.firstFrontOnly = false;
+		this.showTargetPoints = true;
 		this.chartPanel = createChart();
+		this.label = new JLabel("IGD: --");
+		this.slider = new JSlider(JSlider.VERTICAL, 0, numGenerations, 0);
+		slider.addChangeListener(new ChangeListener() {
 
+			@Override
+			public void stateChanged(ChangeEvent ce) {
+				currentPopulationId = ((JSlider) ce.getSource()).getValue();
+				resetChart();
+			}
+		});
+		
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,30 +86,95 @@ public class Main {
 		chartPanel.setVerticalAxisTrace(true);
 
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panel.add(new JLabel("IGD: "));
+		panel.add(label);
 		panel.add(createRunNSGAIII());
+		panel.add(chooseProblemCB());
+		panel.add(createNumObjectivesCB());
+		panel.add(createNumGenerationsCB());
 		panel.add(createFirstFrontCB());
+		panel.add(createTargetPointsSeriesCB());
 		panel.add(createTrace());
-		panel.add(createDate());
+		panel.add(slider);
 		panel.add(createZoom());
 		f.add(panel, BorderLayout.SOUTH);
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
-
+	
 	private JButton createRunNSGAIII() {
 		final JButton run = new JButton(new AbstractAction("Run NSGAIII") {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				NSGAIII alg = new NSGAIII(problem, numGenerations);
-				alg.run();
-				history = alg.getHistory();
+				NSGAIII alg;
+				try {
+					alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations);
+					alg.run();
+					executedGenerations = alg.getNumGenerations();
+					history = alg.getHistory();
+					label.setText("IGD: " + alg.judgeResult(alg.getPopulation()));
+					updateSlider();
+				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+						| InvocationTargetException e1) {
+					e1.printStackTrace();
+				}
 				resetChart();
 			}
 		});
 		return run;
+	}
+	
+	private JComboBox chooseProblemCB() {
+		final JComboBox chooseProblemCB = new JComboBox();
+		final String[] traceCmds = { "DTLZ1", "DTLZ2", "DTLZ3" };
+		chooseProblemCB.setModel(new DefaultComboBoxModel(traceCmds));
+		chooseProblemCB.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String problemName = String.valueOf(chooseProblemCB.getSelectedItem());
+
+				Class c = null;
+				try {
+					c = Class.forName("problems." + problemName);
+				} catch (ClassNotFoundException e1) {
+					e1.printStackTrace();
+				}
+				try {
+					problemConstructor = c.getConstructor( Integer.class );
+				} catch (NoSuchMethodException | SecurityException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		return chooseProblemCB;
+	}
+	
+	private JComboBox createNumObjectivesCB() {
+		final JComboBox numObjectivesCB = new JComboBox();
+		final String[] traceCmds = { "2", "3", "5", "8", "10", "15"};
+		numObjectivesCB.setModel(new DefaultComboBoxModel(traceCmds));
+		numObjectivesCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				numObjectives = Integer.parseInt((String) numObjectivesCB.getSelectedItem());
+			}
+		});
+		return numObjectivesCB;
+	}
+	
+	private JComboBox createNumGenerationsCB() {
+		final JComboBox numGenerationsCB = new JComboBox();
+		final String[] traceCmds = { "250", "350", "400", "500", "600", "750", "1000", "1500"};
+		numGenerationsCB.setModel(new DefaultComboBoxModel(traceCmds));
+		numGenerationsCB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				numGenerations = Integer.parseInt((String) numGenerationsCB.getSelectedItem());
+			}
+		});
+		return numGenerationsCB;
 	}
 
 	private JComboBox createFirstFrontCB() {
@@ -101,9 +190,29 @@ public class Main {
 				} else {
 					firstFrontOnly = true;
 				}
+				resetChart();
 			}
 		});
 		return firstFrontCB;
+	}
+	
+	private JComboBox createTargetPointsSeriesCB() {
+		final JComboBox targetPointsCB = new JComboBox();
+		final String[] traceCmds = { "Show target points", "Hide target points" };
+		targetPointsCB.setModel(new DefaultComboBoxModel(traceCmds));
+		targetPointsCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (traceCmds[0].equals(targetPointsCB.getSelectedItem())) {
+					showTargetPoints = true;
+				} else {
+					showTargetPoints = false;
+				}
+				resetChart();
+			}
+		});
+		return targetPointsCB;
 	}
 
 	private JComboBox createTrace() {
@@ -128,19 +237,10 @@ public class Main {
 		return trace;
 	}
 
-	private JSlider createDate() {
-		final JSlider date = new JSlider(JSlider.VERTICAL, 0, numGenerations, 0);
-		date.setLabelTable(date.createStandardLabels(50));
-		date.setPaintLabels(true);
-		date.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent ce) {
-				currentPopulationId = ((JSlider) ce.getSource()).getValue();
-				resetChart();
-			}
-		});
-		return date;
+	private void updateSlider() {
+		this.slider.setMaximum(executedGenerations);;
+		slider.setLabelTable(slider.createStandardLabels(executedGenerations/10));
+		slider.setPaintLabels(true);
 	}
 
 	private JButton createZoom() {
@@ -179,8 +279,10 @@ public class Main {
 		}
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
-		for (Solution s : history.getReferencePoints().getSolutions()) {
-			refPointsSeries.add(s.getObjective(0), s.getObjective(1));
+		if(showTargetPoints){
+			for (Solution s : history.getTargetPoints().getSolutions()) {
+				refPointsSeries.add(s.getObjective(0), s.getObjective(1));
+			}
 		}
 		result.addSeries(refPointsSeries);
 		if (pop.getSolutions() != null) {

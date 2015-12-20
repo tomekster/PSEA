@@ -3,15 +3,19 @@ package core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+import java.util.logging.Logger;
 
 import core.hyperplane.Association;
 import core.hyperplane.Hyperplane;
 import core.hyperplane.ReferencePoint;
+import exceptions.DegeneratedMatrixException;
 import utils.GaussianElimination;
 import utils.Geometry;
 import utils.MyComparator;
 
 public class NicheCountSelection {
+
+	private final static Logger LOGGER = Logger.getLogger(NicheCountSelection.class.getName());
 
 	private int numObjectives;
 	private Hyperplane hyperplane;
@@ -21,14 +25,14 @@ public class NicheCountSelection {
 		this.hyperplane = new Hyperplane(numObjectives, getNumPartitions());
 	}
 
-	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k) {
+	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k) throws DegeneratedMatrixException {
 		Population normalizedPopulation = normalize(allFronts);
 		associate(normalizedPopulation);
 		Population kPoints = niching(allButLastFront, lastFront, k);
 		return kPoints;
 	}
 
-	private Population normalize(Population allFronts) {
+	private Population normalize(Population allFronts) throws DegeneratedMatrixException {
 		Population resPop = allFronts.copy();
 		double z_min[] = new double[numObjectives];
 		for (int j = 0; j < numObjectives; j++) {
@@ -39,7 +43,7 @@ public class NicheCountSelection {
 			z_min[j] = min;
 		}
 
-		//Move all points to new origin
+		// Move all points to new origin
 		for (Solution s : resPop.getSolutions()) {
 			for (int j = 0; j < numObjectives; j++) {
 				s.setObjective(j, s.getObjective(j) - z_min[j]);
@@ -63,15 +67,20 @@ public class NicheCountSelection {
 	}
 
 	private Population fixDuplicates(Population extremePoints) {
+		
+		Population fixed = new Population();
+		for (Solution s : extremePoints.getSolutions()) {
+			fixed.addSolution(s.copy());
+		}
 
 		// Look for duplicates
-		for (int i = 0; i < extremePoints.size(); i++) {
-			for (int j = i + 1; j < extremePoints.size(); j++) {
-				if (extremePoints.getSolution(i).equals(extremePoints.getSolution(j))) {
+		for (int i = 0; i < fixed.size(); i++) {
+			for (int j = i + 1; j < fixed.size(); j++) {
+				if (fixed.getSolution(i).equals(fixed.getSolution(j))) {
 					// throw new RuntimeException("Duplicated extreme points");
 
-					System.out.println("Duplicated extreme points");
-
+					LOGGER.severe("Duplicated extreme points");
+					
 					/*
 					 * TODO In JMetal idea was following: if extremePoints for i
 					 * and j are the same point, we obtain new points by
@@ -83,34 +92,28 @@ public class NicheCountSelection {
 					 * values
 					 * 
 					 */
-					
-					Population fixed = new Population();
-					//For every solution in extremePoints
-					for(int k=0; k< extremePoints.getSolutions().size(); k++){
-						//Get extreme point copy
-						Solution fixedSolution = extremePoints.getSolution(k).copy();
-						//If extreme point was duplicate
-						if(k==j){
-							//Set all its variables to 0 
-							for (int l = 0; l < fixedSolution.getNumObjectives(); l++) {
-								//Except of the value dimension for which it was chosen via ASF
-								if (l != j){
-									fixedSolution.setObjective(l, 0.0);
-								}
-							}
+
+					// Get duplicated solution
+					Solution fixedSolution = fixed.getSolution(j);
+					// Set all its variables to 0
+					for (int k = 0; k < fixedSolution.getNumObjectives(); k++) {
+						// Except of the value dimension for which it was chosen
+						// via ASF
+						if (k == j) {
+							fixedSolution.setObjective(k, 1);
 						}
-						//Add fixed solution to fixed set
-						fixed.addSolution(fixedSolution);
+						else{
+							fixedSolution.setObjective(k, 0.0);
+						}
 					}
-					//Replace extreme points with fixed set
-					extremePoints = fixed;
 				}
 			}
 		}
-		return extremePoints;
+		
+		return fixed;
 	}
 
-	private double[] findIntercepts(Population extremePoints) {
+	private double[] findIntercepts(Population extremePoints) throws DegeneratedMatrixException {
 
 		int n = extremePoints.size();
 		double a[][] = new double[n][n];
@@ -231,8 +234,8 @@ public class NicheCountSelection {
 		return populationSize;
 	}
 
-	private ArrayList <Integer> getNumPartitions() {
-		ArrayList <Integer> res = new ArrayList<>();
+	private ArrayList<Integer> getNumPartitions() {
+		ArrayList<Integer> res = new ArrayList<>();
 		switch (numObjectives) {
 		case 2:
 		case 3:

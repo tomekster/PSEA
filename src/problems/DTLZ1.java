@@ -9,7 +9,7 @@ public class DTLZ1 extends Problem {
 	// k = numVariables - numObjectives + 1
 	private final static int k = 5;
 
-	public DTLZ1(int numObjectives) {
+	public DTLZ1(Integer numObjectives) {
 		this(numObjectives + k - 1, numObjectives);
 	}
 

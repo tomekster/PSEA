@@ -7,7 +7,7 @@ import core.Problem;
 import core.Solution;
 import core.hyperplane.ReferencePoint;
 
-public class ReferenceFrontGenerator {
+public class TargetFrontGenerator {
 
 	public static Population generate(ArrayList<ReferencePoint> referencePoints,
 			Problem problem) {
@@ -26,6 +26,7 @@ public class ReferenceFrontGenerator {
 			}
 			break;
 		case "DTLZ2":
+		case "DTLZ3":
 			double sqr_sum;
 			for (ReferencePoint r : referencePoints) {
 				sqr_sum = 0;

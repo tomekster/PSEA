@@ -3,9 +3,10 @@ package core;
 import java.util.ArrayList;
 
 import core.hyperplane.ReferencePoint;
+import exceptions.DegeneratedMatrixException;
 import history.NSGAIIIHistory;
 import igd.IGD;
-import igd.ReferenceFrontGenerator;
+import igd.TargetFrontGenerator;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
@@ -14,7 +15,12 @@ import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import utils.NonDominatedSort;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class NSGAIII implements Runnable {
+
+	private final static Logger LOGGER = Logger.getLogger(NSGAIII.class.getName());
 
 	private Problem problem;
 	private Population population;
@@ -39,29 +45,38 @@ public class NSGAIII implements Runnable {
 		this.history = new NSGAIIIHistory(numGenerations);
 		problem.evaluate(population);
 		history.setInitialPopulation(population.copy());
-		history.setReferencePoints(
-				ReferenceFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
+		history.setTargetPoints(
+				TargetFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
 	}
 
 	public double judgeResult(Population result) {
 		ArrayList<ReferencePoint> referencePoints = nicheCountSelection.getHyperplane().getReferencePoints();
-		double igd = IGD.execute(ReferenceFrontGenerator.generate(referencePoints, problem), result);
+		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), result);
 		return igd;
 	}
 
 	public void run() {
+		LOGGER.setLevel(Level.INFO);
+		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
+				+ " objectives, and " + numGenerations + " generations.");
 		for (int i = 0; i < numGenerations; i++) {
-			if(i%50 == 49){
-				System.out.println("GENERATION: " + (i + 1));
+			 System.out.println("GENERATION: " + (i + 1));
+//			if (i % 50 == 49)
+//				System.out.println("GENERATION: " + (i + 1));
+			try {
+				nextGeneration();
+			} catch (DegeneratedMatrixException e) {
+				LOGGER.warning("Degenerated matrix at " + (i + 1) + " generation");
+				this.numGenerations = i;
+				e.printStackTrace();
 			}
-			nextGeneration();
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 		}
-		System.out.println(judgeResult(population));
+//		System.out.println(judgeResult(population));
 	}
 
-	public Population nextGeneration() {
+	public Population nextGeneration() throws DegeneratedMatrixException {
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
 

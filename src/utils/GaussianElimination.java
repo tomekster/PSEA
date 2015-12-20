@@ -1,12 +1,14 @@
 package utils;
 
+import exceptions.DegeneratedMatrixException;
+
 /*
  * Copyright © 2000–2011, Robert Sedgewick and Kevin Wayne.
  * Last updated: Sun Aug 2 18:43:37 EDT 2015. 
  */
 public class GaussianElimination {
 
-	public static double[] execute(double[][] A, double[] B) {
+	public static double[] execute(double[][] A, double[] B) throws DegeneratedMatrixException {
 
 		double A2[][] = A.clone();
 		
@@ -32,8 +34,9 @@ public class GaussianElimination {
 			}
 
 			if (max < MyComparator.EPS) {
+				System.out.println("ROW: " + i);
 				printMatrix(A2);
-				throw new RuntimeException("Degenerated Matrix!");
+				throw new DegeneratedMatrixException();
 			}
 			
 			//Place max element in current column in current row

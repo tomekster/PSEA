@@ -7,7 +7,7 @@ import core.Population;
 public class NSGAIIIHistory {
 	
 	private Population initialPopulation;
-	private Population referencePoints;
+	private Population targetPoints;
 	private ArrayList<Population> generations;
 	
 	public NSGAIIIHistory(int numGenerations){
@@ -20,11 +20,11 @@ public class NSGAIIIHistory {
 	public void setInitialPopulation(Population initialPopulation) {
 		this.initialPopulation = initialPopulation;
 	}
-	public Population getReferencePoints() {
-		return referencePoints;
+	public Population getTargetPoints() {
+		return targetPoints;
 	}
-	public void setReferencePoints(Population referencePoints) {
-		this.referencePoints = referencePoints;
+	public void setTargetPoints(Population targetPoints) {
+		this.targetPoints = targetPoints;
 	}
 	public ArrayList<Population> getGenerations() {
 		return generations;
