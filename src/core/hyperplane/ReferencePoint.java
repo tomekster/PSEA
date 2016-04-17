@@ -9,12 +9,13 @@ public class ReferencePoint {
 	private int numDimensions;
 	private int nicheCount;
 	private PriorityQueue<Association> associatedSolutions;
-	
+
 	public ReferencePoint(int numDimensions) {
 		this.numDimensions = numDimensions;
 		this.dimensions = new double[numDimensions];
 		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator);
-		for(int i=0; i< numDimensions; i++) this.dimensions[i] = 0.0;
+		for (int i = 0; i < numDimensions; i++)
+			this.dimensions[i] = 0.0;
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
@@ -23,28 +24,29 @@ public class ReferencePoint {
 	}
 
 	public double getDim(int index) {
-		return this.dimensions[index]; 
+		return this.dimensions[index];
 	}
-	
+
 	public void setDim(int index, double val) {
-		this.dimensions[index] = val; 
+		this.dimensions[index] = val;
 	}
-	
+
 	public void incrDim(int index, double value) {
-		this.dimensions[index] += value; 
+		this.dimensions[index] += value;
 	}
+
 	public void decrDim(int index, double value) {
-		this.dimensions[index] += value; 
+		this.dimensions[index] += value;
 	}
 
 	public void incrNicheCount() {
-		this.nicheCount++; 
+		this.nicheCount++;
 	}
-	
+
 	public int getNicheCount() {
-		return nicheCount; 
+		return nicheCount;
 	}
-	
+
 	public int getNumDimensions() {
 		return this.numDimensions;
 	}
@@ -56,33 +58,37 @@ public class ReferencePoint {
 	public void setNicheCount(int i) {
 		this.nicheCount = 0;
 	}
-	
-	public void resetAssociation(){
+
+	public void resetAssociation() {
 		this.nicheCount = 0;
 		this.associatedSolutions.clear();
 	}
 
 	public void addAssociation(Association association) {
-		this.associatedSolutions.add(association);	
+		this.associatedSolutions.add(association);
 	}
-	
-	public PriorityQueue<Association> getAssociatedSolutionsQueue(){
+
+	public PriorityQueue<Association> getAssociatedSolutionsQueue() {
 		return associatedSolutions;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");
-		for(double d : dimensions){
+		for (double d : dimensions) {
 			sb.append(d + ", ");
 		}
-		sb.replace(sb.length()-2, sb.length(),"]\n");
-		sb.append("Associations: [");
-		for(Association as : associatedSolutions){
-			sb.append(as.toString() + ", ");
+		sb.replace(sb.length() - 2, sb.length(), "]\n");
+		if (!associatedSolutions.isEmpty()) {
+			sb.append("Associations: [\n");
+			for (Association as : associatedSolutions) {
+				sb.append(as.toString() + ",\n");
+			}
+			sb.replace(sb.length() - 2, sb.length(), "]");
+		} else {
+			sb.append("Associations: none");
 		}
-		sb.replace(sb.length()-2, sb.length(),"]\n");
 		return sb.toString();
 	}
 

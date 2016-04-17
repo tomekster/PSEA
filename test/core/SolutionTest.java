@@ -13,10 +13,10 @@ public class SolutionTest {
 		double[] obj = {0};
 		Solution s1 = new Solution(var1,obj);
 		Solution s2 = new Solution(var1,obj);
-		assertTrue(s1.sameAs(s2));
+		assertTrue(s1.equals(s2));
 		
 		Solution s3 = new Solution(var3,obj);
-		assertFalse(s1.sameAs(s3));
+		assertFalse(s1.equals(s3));
 		
 	}
 }

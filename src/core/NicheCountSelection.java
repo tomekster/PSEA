@@ -25,14 +25,15 @@ public class NicheCountSelection {
 		this.hyperplane = new Hyperplane(numObjectives, getNumPartitions());
 	}
 
-	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k) throws DegeneratedMatrixException {
+	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k)
+			throws DegeneratedMatrixException {
 		Population normalizedPopulation = normalize(allFronts);
 		associate(normalizedPopulation);
 		Population kPoints = niching(allButLastFront, lastFront, k);
 		return kPoints;
 	}
 
-	private Population normalize(Population allFronts) throws DegeneratedMatrixException {
+	public Population normalize(Population allFronts) {
 		Population resPop = allFronts.copy();
 		double z_min[] = new double[numObjectives];
 		for (int j = 0; j < numObjectives; j++) {
@@ -52,22 +53,42 @@ public class NicheCountSelection {
 
 		Population extremePoints = computeExtremePoints(resPop, numObjectives);
 
-		extremePoints = fixDuplicates(extremePoints);
+		// extremePoints = fixDuplicates(extremePoints);
 
-		double invertedIntercepts[] = findIntercepts(extremePoints);
+		double invertedIntercepts[] = new double[extremePoints.size()];
 
+		try {
+			invertedIntercepts = findIntercepts(extremePoints);
+		} catch (DegeneratedMatrixException e) {
+			for (int i = 0; i < extremePoints.size(); i++) {
+				double worstObjectives[] = allFronts.findWorstObjectives();
+				invertedIntercepts[i] = 1.0 / worstObjectives[i];
+			}
+			e.printStackTrace();
+		}
+		if(invertedIntercepts == null){
+			invertedIntercepts = new double[extremePoints.size()];
+			for (int i = 0; i < extremePoints.size(); i++) {
+				double worstObjectives[] = allFronts.findWorstObjectives();
+				invertedIntercepts[i] = 1.0 / worstObjectives[i];
+			}
+		}
+		
 		for (Solution s : resPop.getSolutions()) {
 			for (int i = 0; i < numObjectives; i++) {
-				// Multiplication instead of division - explained in
-				// findIntercepts()
+				/**
+				 * Multiplication instead of division - explained in
+				 * findIntercepts()
+				 */
 				s.setObjective(i, s.getObjective(i) * invertedIntercepts[i]);
 			}
 		}
+
 		return resPop;
 	}
 
 	private Population fixDuplicates(Population extremePoints) {
-		
+
 		Population fixed = new Population();
 		for (Solution s : extremePoints.getSolutions()) {
 			fixed.addSolution(s.copy());
@@ -76,11 +97,11 @@ public class NicheCountSelection {
 		// Look for duplicates
 		for (int i = 0; i < fixed.size(); i++) {
 			for (int j = i + 1; j < fixed.size(); j++) {
-				if (fixed.getSolution(i).equals(fixed.getSolution(j))) {
+				if (Geometry.euclideanDistance(fixed.getSolution(i).getObjectives(),
+						fixed.getSolution(j).getObjectives()) < MyComparator.EPS) {
 					// throw new RuntimeException("Duplicated extreme points");
-
 					LOGGER.severe("Duplicated extreme points");
-					
+
 					/*
 					 * TODO In JMetal idea was following: if extremePoints for i
 					 * and j are the same point, we obtain new points by
@@ -99,51 +120,67 @@ public class NicheCountSelection {
 					for (int k = 0; k < fixedSolution.getNumObjectives(); k++) {
 						// Except of the value dimension for which it was chosen
 						// via ASF
-						if (k == j) {
-							fixedSolution.setObjective(k, 1);
-						}
-						else{
+						if (k != j) {
 							fixedSolution.setObjective(k, 0.0);
 						}
 					}
 				}
 			}
 		}
-		
+
 		return fixed;
+
 	}
 
 	private double[] findIntercepts(Population extremePoints) throws DegeneratedMatrixException {
 
 		int n = extremePoints.size();
-		double a[][] = new double[n][n];
-		double b[] = new double[n];
-		for (int i = 0; i < n; i++) {
-			b[i] = 1.0;
-			for (int j = 0; j < n; j++) {
-				a[i][j] = extremePoints.getSolution(i).getObjective(j);
+		double coef[] = null;
+
+		boolean duplicate = false;
+		for (int i = 0; !duplicate && i < n; i++) {
+			for (int j = i + 1; !duplicate && j < n; j++) {
+				duplicate = extremePoints.getSolution(i) == extremePoints.getSolution(j);
 			}
 		}
 
-		double coef[] = new double[n];
-		coef = GaussianElimination.execute(a, b);
+		if (!duplicate) {
+			coef = new double[n];
 
-		/**
-		 * Loop beneath was commented, because since b[i] = 1 for all i and just
-		 * after returning from this method we divide each solutions objective
-		 * value by corresponding intercept value it is better to return
-		 * inversed intercept values (by omitting division by b[i]), and
-		 * multiply objective value instead of dividing it.
-		 */
+			double a[][] = new double[n][n];
+			double b[] = new double[n];
+			for (int i = 0; i < n; i++) {
+				b[i] = 1.0;
+				for (int j = 0; j < n; j++) {
+					a[i][j] = extremePoints.getSolution(i).getObjective(j);
+				}
+			}
 
-		/*
-		 * for(int i = 0; i < n; i++){ coef[i] /= b[i]; }
-		 */
+			coef = GaussianElimination.execute(a, b);
+
+			for (int i = 0; i < n; i++) {
+				if (coef[i] < 0){
+					return null;
+				}
+			}
+
+			/**
+			 * Loop beneath was commented, because since b[i] = 1 for all i and
+			 * just after returning from this method we divide each solutions
+			 * objective value by corresponding intercept value it is better to
+			 * return inversed intercept values (by omitting division by b[i]),
+			 * and multiply objective value instead of dividing it.
+			 */
+
+			/*
+			 * for(int i = 0; i < n; i++){ coef[i] /= b[i]; }
+			 */
+		}
 
 		return coef;
 	}
 
-	private void associate(Population population) {
+	public void associate(Population population) {
 		hyperplane.resetAssociations();
 		ArrayList<ReferencePoint> refPoints = hyperplane.getReferencePoints();
 
@@ -219,7 +256,7 @@ public class NicheCountSelection {
 			if (j == i) {
 				cur = objectives[j];
 			} else {
-				cur = objectives[j] * 1000000;
+				cur = objectives[j] * 100000;
 			}
 			res = Double.max(res, cur);
 		}
@@ -238,6 +275,8 @@ public class NicheCountSelection {
 		ArrayList<Integer> res = new ArrayList<>();
 		switch (numObjectives) {
 		case 2:
+			res.add(2);
+			break;
 		case 3:
 			res.add(12);
 			break;

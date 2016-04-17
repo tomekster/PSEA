@@ -1,12 +1,14 @@
 package core;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.AbstractAction;
@@ -47,13 +49,16 @@ public class Main {
 	private boolean showTargetPoints;
 	private Constructor problemConstructor;
 	private int numGenerations;
+	private int numRuns;
 	private int executedGenerations;
 	private int numObjectives;
-	private double IGD;
-	private JLabel label;
+	private JLabel labelIGD;
 	private JSlider slider;
-	
+	private boolean interactive;
+
 	public Main() {
+		this.interactive = true;
+		this.numRuns = 1;
 		this.numGenerations = 250;
 		this.numObjectives = 2;
 		try {
@@ -65,7 +70,7 @@ public class Main {
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
 		this.chartPanel = createChart();
-		this.label = new JLabel("IGD: --");
+		this.labelIGD = new JLabel("IGD: --");
 		this.slider = new JSlider(JSlider.VERTICAL, 0, numGenerations, 0);
 		slider.addChangeListener(new ChangeListener() {
 
@@ -75,7 +80,7 @@ public class Main {
 				resetChart();
 			}
 		});
-		
+
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,54 +91,57 @@ public class Main {
 		chartPanel.setVerticalAxisTrace(true);
 
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panel.add(label);
-		panel.add(createRunNSGAIII());
-		panel.add(chooseProblemCB());
+		panel.add(labelIGD);
+		panel.add(createRunNSGAIIIButton());
+		panel.add(createInteractiveCV());
+		panel.add(chooseProblemComboBox());
 		panel.add(createNumObjectivesCB());
 		panel.add(createNumGenerationsCB());
+		panel.add(createNumberOfRunsCB());
 		panel.add(createFirstFrontCB());
 		panel.add(createTargetPointsSeriesCB());
 		panel.add(createTrace());
 		panel.add(slider);
 		panel.add(createZoom());
+		
 		f.add(panel, BorderLayout.SOUTH);
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 	}
-	
-	private JButton createRunNSGAIII() {
+
+	private JButton createRunNSGAIIIButton() {
 		final JButton run = new JButton(new AbstractAction("Run NSGAIII") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				NSGAIII alg;
-				try {
-					alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations);
-					alg.run();
-					executedGenerations = alg.getNumGenerations();
-					history = alg.getHistory();
-					label.setText("IGD: " + alg.judgeResult(alg.getPopulation()));
-					updateSlider();
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException e1) {
-					e1.printStackTrace();
-				}
-				resetChart();
+				runNSGAIIInTimes(numRuns);
 			}
 		});
 		return run;
 	}
 	
-	private JComboBox chooseProblemCB() {
+	private Component createInteractiveCV() {
+		final JComboBox interactiveCB = new JComboBox();
+		final String[] traceCmds = { "Interactive", "Non-Interactive" };
+		interactiveCB.setModel(new DefaultComboBoxModel(traceCmds));
+		interactiveCB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				interactive = ((String) interactiveCB.getSelectedItem()).equals("Interactive");
+			}
+		});
+		return interactiveCB;
+	}
+
+	private JComboBox chooseProblemComboBox() {
 		final JComboBox chooseProblemCB = new JComboBox();
-		final String[] traceCmds = { "DTLZ1", "DTLZ2", "DTLZ3" };
+		final String[] traceCmds = { "DTLZ1", "DTLZ2", "DTLZ3", "DTLZ4", "DTLZ5", "DTLZ6", "DTLZ7" };
 		chooseProblemCB.setModel(new DefaultComboBoxModel(traceCmds));
 		chooseProblemCB.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String problemName = String.valueOf(chooseProblemCB.getSelectedItem());
-
 				Class c = null;
 				try {
 					c = Class.forName("problems." + problemName);
@@ -141,7 +149,7 @@ public class Main {
 					e1.printStackTrace();
 				}
 				try {
-					problemConstructor = c.getConstructor( Integer.class );
+					problemConstructor = c.getConstructor(Integer.class);
 				} catch (NoSuchMethodException | SecurityException e1) {
 					e1.printStackTrace();
 				}
@@ -149,13 +157,12 @@ public class Main {
 		});
 		return chooseProblemCB;
 	}
-	
+
 	private JComboBox createNumObjectivesCB() {
 		final JComboBox numObjectivesCB = new JComboBox();
-		final String[] traceCmds = { "2", "3", "5", "8", "10", "15"};
+		final String[] traceCmds = { "2", "3", "5", "8", "10", "15" };
 		numObjectivesCB.setModel(new DefaultComboBoxModel(traceCmds));
 		numObjectivesCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				numObjectives = Integer.parseInt((String) numObjectivesCB.getSelectedItem());
@@ -163,10 +170,10 @@ public class Main {
 		});
 		return numObjectivesCB;
 	}
-	
+
 	private JComboBox createNumGenerationsCB() {
 		final JComboBox numGenerationsCB = new JComboBox();
-		final String[] traceCmds = { "250", "350", "400", "500", "600", "750", "1000", "1500"};
+		final String[] traceCmds = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000", "3000" };
 		numGenerationsCB.setModel(new DefaultComboBoxModel(traceCmds));
 		numGenerationsCB.addActionListener(new ActionListener() {
 			@Override
@@ -175,6 +182,19 @@ public class Main {
 			}
 		});
 		return numGenerationsCB;
+	}
+	
+	private JComboBox createNumberOfRunsCB() {
+		final JComboBox numRunsCB = new JComboBox();
+		final String[] traceCmds = { "1", "20"};
+		numRunsCB.setModel(new DefaultComboBoxModel(traceCmds));
+		numRunsCB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				numRuns = Integer.parseInt((String) numRunsCB.getSelectedItem());
+			}
+		});
+		return numRunsCB;
 	}
 
 	private JComboBox createFirstFrontCB() {
@@ -195,7 +215,7 @@ public class Main {
 		});
 		return firstFrontCB;
 	}
-	
+
 	private JComboBox createTargetPointsSeriesCB() {
 		final JComboBox targetPointsCB = new JComboBox();
 		final String[] traceCmds = { "Show target points", "Hide target points" };
@@ -238,14 +258,14 @@ public class Main {
 	}
 
 	private void updateSlider() {
-		this.slider.setMaximum(executedGenerations);;
-		slider.setLabelTable(slider.createStandardLabels(executedGenerations/10));
+		this.slider.setMaximum(executedGenerations);
+		slider.setLabelTable(slider.createStandardLabels(executedGenerations / 10));
 		slider.setPaintLabels(true);
+		slider.setValue(executedGenerations);
 	}
 
 	private JButton createZoom() {
 		final JButton auto = new JButton(new AbstractAction("Auto Zoom") {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				chartPanel.restoreAutoBounds();
@@ -279,7 +299,7 @@ public class Main {
 		}
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
-		if(showTargetPoints){
+		if (showTargetPoints) {
 			for (Solution s : history.getTargetPoints().getSolutions()) {
 				refPointsSeries.add(s.getObjective(0), s.getObjective(1));
 			}
@@ -317,6 +337,40 @@ public class Main {
 		plot.setDataset(createDataset());
 	}
 
+	
+	double runNSGAIIIOnce(){
+		NSGAIII alg;
+		double resIGD = -1;
+		try {
+			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive);
+			alg.run();
+			executedGenerations = alg.getNumGenerations();
+			history = alg.getHistory();
+			resIGD = alg.judgeResult(alg.getPopulation());
+			updateSlider();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e1) {
+			e1.printStackTrace();
+		}
+		return resIGD;
+	}
+	
+	void runNSGAIIInTimes(int n){
+		ArrayList <Double> resIgd = new ArrayList<Double>(n);
+		for(int i=0; i<n; i++){
+			resIgd.add(runNSGAIIIOnce());
+			System.out.println(i + ": " + resIgd.get(i));
+		}
+		resIgd.sort(null);
+		DecimalFormat format = new DecimalFormat("#.00");
+		String resWorse = format.format(resIgd.get(n-1));
+		String resMed = format.format(resIgd.get(n/2));
+		String resBest = format.format(resIgd.get(0));
+		
+		labelIGD.setText("[" +  resWorse + ", " + resMed + ", " + resBest + "]" );
+		resetChart();
+	}
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override

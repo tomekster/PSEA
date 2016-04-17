@@ -13,8 +13,8 @@ public class BinaryTournament implements SelectionOperator {
 		
 		int pos1 = random.nextInt(population.size());
 		int pos2 = random.nextInt(population.size());
-		Solution candidate1 = population.getSolution(pos1);
-		Solution candidate2 = population.getSolution(pos2);
+		Solution candidate1 = population.getSolution(pos1).copy();
+		Solution candidate2 = population.getSolution(pos2).copy();
 		
 		MyComparator cp = new MyComparator();
 		
@@ -26,7 +26,4 @@ public class BinaryTournament implements SelectionOperator {
 		}
 		
 	}
-			
-			
-	
 }

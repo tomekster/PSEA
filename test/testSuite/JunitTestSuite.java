@@ -3,10 +3,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import core.NSGAIIITest;
+import core.NicheCountSelectionTest;
 import core.PopulationTest;
 import core.SolutionTest;
 import core.hyperplane.HyperplaneTest;
-import core.hyperplane.NicheCountSelectionTest;
 import core.hyperplane.ReferencePointTest;
 import problems.DTLZ1Test;
 import utils.ComparatorTest;

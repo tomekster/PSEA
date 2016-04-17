@@ -74,48 +74,4 @@ public class Geometry {
 		}
 		return res;
 	}
-
-	public static double populationVarMinDist(Population pop){
-		double res = Double.MAX_VALUE;
-		Solution closest1 = null;
-		Solution closest2 = null;
-		for(int i=0; i < pop.size(); i++){
-			for(int j=i+1; j < pop.size(); j++){
-				Solution s1 = pop.getSolution(i);
-				Solution s2 = pop.getSolution(j);
-				double dist = euclideanDistance(s1.getVariables(), s2.getVariables());
-				if(Double.compare(dist, res ) < res){
-					res = dist;
-					closest1 = s1;
-					closest2 = s2;
-				}
-			}
-		}
-//		System.out.println("Closest points: ");
-//		System.out.println(closest1.toString());
-//		System.out.println(closest2.toString());
-		return res;
-	}
-	
-	public static double populationObjMinDist(Population pop){
-		double res = Double.MAX_VALUE;
-		Solution closest1 = null;
-		Solution closest2 = null;
-		for(int i=0; i < pop.size(); i++){
-			for(int j=i+1; j < pop.size(); j++){
-				Solution s1 = pop.getSolution(i);
-				Solution s2 = pop.getSolution(j);
-				double dist = euclideanDistance(s1.getObjectives(), s2.getObjectives());
-				if(Double.compare(dist, res ) < res){
-					res = dist;
-					closest1 = s1;
-					closest2 = s2;
-				}
-			}
-		}
-//		System.out.println("Closest points: ");
-//		System.out.println(closest1.toString());
-//		System.out.println(closest2.toString());
-		return res;
-	}
 }

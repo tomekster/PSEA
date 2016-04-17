@@ -26,6 +26,9 @@ public class NonDominatedSort {
 		for (int i = 0; i < population.size(); i++) {
 			Solution p = population.getSolution(i);
 			for (int j = 0; j < population.size(); j++) {
+				if(i==j){
+					continue;
+				}
 				Solution q = population.getSolution(j);
 				MyComparator cp = new MyComparator();
 				int flag = cp.compareDominance(p, q);

@@ -13,7 +13,7 @@ public class DTLZ3 extends Problem {
 	}
 	
 	public DTLZ3(int numVariables, int numObjectives) {
-		super(numVariables, numObjectives, 0, "DTLZ2");
+		super(numVariables, numObjectives, 0, "DTLZ3");
 		setBoundsOnVariables();
 	}
 
@@ -66,6 +66,5 @@ public class DTLZ3 extends Problem {
 			setLowerBound(i, 0.0);
 			setUpperBound(i, 1.0);
 		}
-
 	}
 }

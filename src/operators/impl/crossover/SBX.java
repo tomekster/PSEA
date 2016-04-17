@@ -5,6 +5,7 @@ import java.util.Random;
 
 import core.Solution;
 import operators.CrossoverOperator;
+import utils.MyComparator;
 import utils.NSGAIIIRandom;
 
 public class SBX implements CrossoverOperator {
@@ -28,81 +29,71 @@ public class SBX implements CrossoverOperator {
 	@Override
 	public ArrayList<Solution> execute(ArrayList<Solution> parents) {
 
-		
-
 		ArrayList<Solution> children = new ArrayList<Solution>(2);
 		children.add(new Solution(parents.get(0)));
 		children.add(new Solution(parents.get(1)));
 
 		double p1, p2;
 		double rand;
-		double p_min, p_max;
+		double lb, ub;
 		double betha;
 		double alpha;
 		double bethaq;
 		double c1, c2;
 
-		if (random.nextDouble() < this.crossoverProbability) {
-			for (int pos = 0; pos < numVariables; pos++) {
-				p1 = parents.get(0).getVariable(pos);
-				p2 = parents.get(1).getVariable(pos);
-				if (random.nextDouble() <= 0.5) {
-					if (Double.compare(p1, p2) == 0) {
-						children.get(0).setVariable(pos, p1);
-						children.get(1).setVariable(pos, p2);
-					} else {
-						if (Double.compare(p1, p2)  > 0) {
-							double temp = p1;
-							p1 = p2;
-							p2 = temp;
-						}
+		if (random.nextDouble() > this.crossoverProbability) {
+			return children;
+		}
 
-						rand = random.nextDouble();
-						p_min = lowerBound[pos];
-						p_max = upperBound[pos];
+		for (int pos = 0; pos < numVariables; pos++) {
+			p1 = parents.get(0).getVariable(pos);
+			p2 = parents.get(1).getVariable(pos);
+			if (random.nextDouble() > 0.5) {
+				continue;
+			}
+			if (Math.abs(p1 - p2) < MyComparator.EPS) {
+				continue;
+			}
+			double y1 = Double.min(p1, p2);
+			double y2 = Double.max(p1, p2);
 
-						// C1 part
-						betha = 1.0 + (2.0 * (p1 - p_min) / (p2 - p1));
-						alpha = 2.0 - Math.pow(betha, -(crossover_parameter_index + 1.0));
-						if (rand <= (1.0 / alpha)) {
-							bethaq = Math.pow((rand * alpha), (1.0 / (crossover_parameter_index + 1.0)));
-						} else {
-							bethaq = Math.pow((1.0 / (2.0 - rand * alpha)), (1.0 / (crossover_parameter_index + 1.0)));
-						}
-						c1 = 0.5 * ((p1 + p2) - bethaq * (p2 - p1));
+			lb = lowerBound[pos];
+			ub = upperBound[pos];
 
-						// C2 part
-						betha = 1.0 + (2.0 * (p_max - p2) / (p2 - p1));
-						alpha = 2.0 - Math.pow(betha, -(crossover_parameter_index + 1.0));
-						if (rand <= (1.0 / alpha)) {
-							bethaq = Math.pow((rand * alpha), (1.0 / (crossover_parameter_index + 1.0)));
-						} else {
-							bethaq = Math.pow((1.0 / (2.0 - rand * alpha)), (1.0 / (crossover_parameter_index + 1.0)));
-						}
-						c2 = 0.5 * ((p1 + p2) + bethaq * (p2 - p1));
+			rand = random.nextDouble();
 
-						// Fix boundaries
-						if (c1 < p_min)
-							c1 = p_min;
-						if (c2 < p_min)
-							c2 = p_min;
-						if (c1 > p_max)
-							c1 = p_max;
-						if (c2 > p_max)
-							c2 = p_max;
+			// C1 part
+			betha = 1.0 + (2.0 * (y1 - lb) / (y2 - y1));
+			alpha = 2.0 - Math.pow(betha, -(crossover_parameter_index + 1.0));
+			bethaq = find_bethaq(rand, alpha);
+			c1 = 0.5 * ((y1 + y2) - bethaq * (y2 - y1));
 
-						if (random.nextDouble() < 0.5) {
-							children.get(0).setVariable(pos, c1);
-							children.get(1).setVariable(pos, c2);
-						} else {
-							children.get(0).setVariable(pos, c2);
-							children.get(1).setVariable(pos, c1);
-						}
-					}
-				}
+			// C2 part
+			betha = 1.0 + (2.0 * (ub - y2) / (y2 - y1));
+			alpha = 2.0 - Math.pow(betha, -(crossover_parameter_index + 1.0));
+			bethaq = find_bethaq(rand, alpha);
+			c2 = 0.5 * ((y1 + y2) + bethaq * (y2 - y1));
+
+			c1 = Double.min(ub, Double.max(lb, c1));
+			c2 = Double.min(ub, Double.max(lb, c2));
+
+			if (random.nextDouble() < 0.5) {
+				children.get(0).setVariable(pos, c1);
+				children.get(1).setVariable(pos, c2);
+			} else {
+				children.get(0).setVariable(pos, c2);
+				children.get(1).setVariable(pos, c1);
 			}
 		}
 
 		return children;
+	}
+
+	private double find_bethaq(double rand, double alpha) {
+		if (rand <= (1.0 / alpha)) {
+			return Math.pow((rand * alpha), (1.0 / (crossover_parameter_index + 1.0)));
+		} else {
+			return Math.pow((1.0 / (2.0 - rand * alpha)), (1.0 / (crossover_parameter_index + 1.0)));
+		}
 	}
 }

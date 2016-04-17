@@ -13,6 +13,7 @@ import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
+import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
 
 import java.util.logging.Level;
@@ -31,16 +32,18 @@ public class NSGAIII implements Runnable {
 	private MutationOperator mutationOperator;
 	private NicheCountSelection nicheCountSelection;
 	private NSGAIIIHistory history;
+	private boolean interactive;
 
-	public NSGAIII(Problem problem, int numGenerations) {
+	public NSGAIII(Problem problem, int numGenerations, boolean interactive) {
 		this.problem = problem;
 		this.numGenerations = numGenerations;
+		this.interactive = interactive;
 		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
 		this.populationSize = nicheCountSelection.getPopulationSize();
 		this.population = createInitialPopulation();
 		this.selectionOperator = new BinaryTournament();
 		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
-		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20, problem.getLowerBound(),
+		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(),
 				problem.getUpperBound());
 		this.history = new NSGAIIIHistory(numGenerations);
 		problem.evaluate(population);
@@ -60,9 +63,22 @@ public class NSGAIII implements Runnable {
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
 		for (int i = 0; i < numGenerations; i++) {
-			 System.out.println("GENERATION: " + (i + 1));
-//			if (i % 50 == 49)
-//				System.out.println("GENERATION: " + (i + 1));
+			if (i % 50 == 49) {
+				if (interactive) {
+					NSGAIIIRandom rand =  NSGAIIIRandom.getInstance();
+					int id1 = rand.nextInt(populationSize);
+					int id2 = rand.nextInt(populationSize);
+					Solution s1 = population.getSolution(id1);
+					Solution s2 = population.getSolution(id2);
+					System.out.println("PROMPT???");
+					System.out.println("SIZE: " + populationSize);
+					System.out.println(id1 + " " + id2);
+					System.out.println(s1.toString());
+					System.out.println(s2.toString());
+				}
+				System.out.println("GENERATION: " + (i + 1));
+			}
+
 			try {
 				nextGeneration();
 			} catch (DegeneratedMatrixException e) {
@@ -73,7 +89,7 @@ public class NSGAIII implements Runnable {
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 		}
-//		System.out.println(judgeResult(population));
+
 	}
 
 	public Population nextGeneration() throws DegeneratedMatrixException {

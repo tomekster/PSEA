@@ -26,6 +26,6 @@ public class Association {
 	
 	@Override
 	public String toString(){
-		return "(" + this.solution + ", " + this.dist + ")";
+		return "(" + this.solution + "\nDIST: " + this.dist + ")";
 	}
 }

@@ -2,6 +2,8 @@ package core;
 
 import java.util.Arrays;
 
+import utils.MyComparator;
+
 public class Solution {
 
 	private int numVariables;
@@ -31,20 +33,6 @@ public class Solution {
 
 	public Solution copy() {
 		return new Solution(this);
-	}
-
-	public boolean sameAs(Solution s2) {
-		if (this.numVariables != s2.getNumVariables()) {
-			return false;
-		}
-
-		for (int i = 0; i < this.numVariables; i++) {
-			if (Double.compare(this.variables[i], s2.getVariable(i)) != 0) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	@Override
