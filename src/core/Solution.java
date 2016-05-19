@@ -1,5 +1,6 @@
 package core;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import utils.MyComparator;
@@ -33,6 +34,18 @@ public class Solution {
 
 	public Solution copy() {
 		return new Solution(this);
+	}
+	
+	public String objs(){
+		StringBuffer sb = new StringBuffer();
+		DecimalFormat format = new DecimalFormat("0.00");
+		sb.append("[" + format.format(this.objectives[0]));
+		for(int i=1; i<numObjectives; i++){
+			sb.append(", ");
+			sb.append(format.format(this.objectives[i]));
+		}
+		sb.append("]");
+		return sb.toString();
 	}
 
 	@Override

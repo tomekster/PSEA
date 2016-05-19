@@ -22,7 +22,7 @@ public class Population{
 	
 	public void addSolutions(Population p){
 		for(Solution s : p.getSolutions()){
-			this.solutions.add(s);
+			addSolution(s);
 		}
 	}
 	

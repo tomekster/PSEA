@@ -6,5 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JCommon 1.0.23"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JFreeChart "/>
+	<classpathentry kind="lib" path="/opt/ibm/ILOG/CPLEX_Studio1263/cplex/lib/cplex.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

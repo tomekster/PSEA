@@ -15,9 +15,13 @@ import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
+import preferences.Comparison;
+import preferences.PreferenceCollector;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 public class NSGAIII implements Runnable {
 
@@ -33,6 +37,7 @@ public class NSGAIII implements Runnable {
 	private NicheCountSelection nicheCountSelection;
 	private NSGAIIIHistory history;
 	private boolean interactive;
+	private PreferenceCollector PC;
 
 	public NSGAIII(Problem problem, int numGenerations, boolean interactive) {
 		this.problem = problem;
@@ -50,6 +55,7 @@ public class NSGAIII implements Runnable {
 		history.setInitialPopulation(population.copy());
 		history.setTargetPoints(
 				TargetFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
+		this.PC = new PreferenceCollector();
 	}
 
 	public double judgeResult(Population result) {
@@ -66,15 +72,17 @@ public class NSGAIII implements Runnable {
 			if (i % 50 == 49) {
 				if (interactive) {
 					NSGAIIIRandom rand =  NSGAIIIRandom.getInstance();
-					int id1 = rand.nextInt(populationSize);
-					int id2 = rand.nextInt(populationSize);
-					Solution s1 = population.getSolution(id1);
-					Solution s2 = population.getSolution(id2);
-					System.out.println("PROMPT???");
-					System.out.println("SIZE: " + populationSize);
-					System.out.println(id1 + " " + id2);
-					System.out.println(s1.toString());
-					System.out.println(s2.toString());
+					Population firstFront = NonDominatedSort.execute(population).get(0);
+					if(firstFront.size() > 1){
+						int id1, id2;
+						id1 = rand.nextInt(firstFront.size());
+						do{
+							id2 = rand.nextInt(firstFront.size());
+						}while(id2 == id1);
+						Solution s1 = firstFront.getSolution(id1);
+						Solution s2 = firstFront.getSolution(id2);
+						elicitate(s1, s2);
+					}
 				}
 				System.out.println("GENERATION: " + (i + 1));
 			}
@@ -90,6 +98,22 @@ public class NSGAIII implements Runnable {
 			history.addGeneration(population.copy());
 		}
 
+	}
+
+	private void elicitate(Solution s1, Solution s2) {
+		Object[] options = {"A: " + s1.objs(),"B: " + s2.objs()};
+		int n = JOptionPane.showOptionDialog(null,
+		"Which Solution do you prefer?",
+		"Compare solutions",
+		JOptionPane.YES_NO_OPTION,
+		JOptionPane.QUESTION_MESSAGE,
+		null,
+		options,
+		null);
+		
+		if(n == 0){
+			PC.addComparison(s1,s2);
+		}
 	}
 
 	public Population nextGeneration() throws DegeneratedMatrixException {

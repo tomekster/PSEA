@@ -34,6 +34,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import history.NSGAIIIHistory;
 import problems.DTLZ1;
+import solver.CPLEX;
 import utils.NonDominatedSort;
 
 /**
@@ -85,25 +86,31 @@ public class Main {
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setLayout(new BorderLayout(0, 5));
-		f.add(chartPanel, BorderLayout.CENTER);
+		f.add(chartPanel, BorderLayout.NORTH);
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.setHorizontalAxisTrace(true);
 		chartPanel.setVerticalAxisTrace(true);
 
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		panel.add(labelIGD);
-		panel.add(createRunNSGAIIIButton());
-		panel.add(createInteractiveCV());
-		panel.add(chooseProblemComboBox());
-		panel.add(createNumObjectivesCB());
-		panel.add(createNumGenerationsCB());
-		panel.add(createNumberOfRunsCB());
-		panel.add(createFirstFrontCB());
-		panel.add(createTargetPointsSeriesCB());
-		panel.add(createTrace());
-		panel.add(slider);
-		panel.add(createZoom());
+		JPanel panel = new JPanel(new FlowLayout());
+
+		JPanel topPanel = new JPanel(new FlowLayout());
+		topPanel.add(labelIGD);
+		topPanel.add(createRunNSGAIIIButton());
+		topPanel.add(createInteractiveCV());
+		topPanel.add(chooseProblemComboBox());
 		
+		JPanel bottomPanel = new JPanel(new FlowLayout());
+		bottomPanel.add(createNumObjectivesCB());
+		bottomPanel.add(createNumGenerationsCB());
+		bottomPanel.add(createNumberOfRunsCB());
+		bottomPanel.add(createFirstFrontCB());
+		bottomPanel.add(createTargetPointsSeriesCB());
+		bottomPanel.add(createTrace());
+		bottomPanel.add(slider);
+		bottomPanel.add(createZoom());
+		
+		panel.add(topPanel, BorderLayout.WEST);
+		panel.add(bottomPanel, BorderLayout.EAST);
 		f.add(panel, BorderLayout.SOUTH);
 		f.pack();
 		f.setLocationRelativeTo(null);
