@@ -1,6 +1,10 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
 
 import core.hyperplane.ReferencePoint;
 import exceptions.DegeneratedMatrixException;
@@ -13,15 +17,10 @@ import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
+import preferences.PreferenceCollector;
 import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
-import preferences.Comparison;
-import preferences.PreferenceCollector;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.swing.JOptionPane;
+import utils.RACS;
 
 public class NSGAIII implements Runnable {
 
@@ -125,7 +124,8 @@ public class NSGAIII implements Runnable {
 
 		problem.evaluate(combinedPopulation);
 
-		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
+		//ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
+		ArrayList<Population> fronts = RACS.execute(combinedPopulation, nicheCountSelection.getHyperplane().getReferencePoints(), PC);
 
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();

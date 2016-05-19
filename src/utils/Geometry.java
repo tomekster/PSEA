@@ -67,9 +67,8 @@ public class Geometry {
 		if (A.length != B.length) {
 			throw new RuntimeException("Vectors have different dimensionality");
 		}
-		int numDim = A.length;
 		double res = 0;
-		for (int i = 0; i < numDim; i++) {
+		for (int i = 0; i < A.length; i++) {
 			res += A[i] * B[i];
 		}
 		return res;
