@@ -369,7 +369,7 @@ public class Main {
 			System.out.println(i + ": " + resIgd.get(i));
 		}
 		resIgd.sort(null);
-		DecimalFormat format = new DecimalFormat("#.00");
+		DecimalFormat format = new DecimalFormat("#.0000000");
 		String resWorse = format.format(resIgd.get(n-1));
 		String resMed = format.format(resIgd.get(n/2));
 		String resBest = format.format(resIgd.get(0));

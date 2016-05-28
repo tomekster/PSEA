@@ -18,6 +18,7 @@ import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.PreferenceCollector;
+import preferences.TchebyshevFunction;
 import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
 import utils.RACS;
@@ -70,14 +71,14 @@ public class NSGAIII implements Runnable {
 		for (int i = 0; i < numGenerations; i++) {
 			if (i % 50 == 49) {
 				if (interactive) {
-					NSGAIIIRandom rand =  NSGAIIIRandom.getInstance();
+					NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
 					Population firstFront = NonDominatedSort.execute(population).get(0);
-					if(firstFront.size() > 1){
+					if (firstFront.size() > 1) {
 						int id1, id2;
 						id1 = rand.nextInt(firstFront.size());
-						do{
+						do {
 							id2 = rand.nextInt(firstFront.size());
-						}while(id2 == id1);
+						} while (id2 == id1);
 						Solution s1 = firstFront.getSolution(id1);
 						Solution s2 = firstFront.getSolution(id2);
 						elicitate(s1, s2);
@@ -100,61 +101,33 @@ public class NSGAIII implements Runnable {
 	}
 
 	private void elicitate(Solution s1, Solution s2) {
-		Object[] options = {"A: " + s1.objs(),"B: " + s2.objs()};
-		int n = JOptionPane.showOptionDialog(null,
-		"Which Solution do you prefer?",
-		"Compare solutions",
-		JOptionPane.YES_NO_OPTION,
-		JOptionPane.QUESTION_MESSAGE,
-		null,
-		options,
-		null);
+		Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
+//		int n = JOptionPane.showOptionDialog(null, "Which Solution do you prefer?", "Compare solutions",
+//				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
+//
+//		if (n == 0) {
+//			PC.addComparison(s1, s2);
+//		} else{
+//			PC.addComparison(s2, s1);
+//		}
 		
-		if(n == 0){
-			PC.addComparison(s1,s2);
+		if (TchebyshevFunction.decidentEvaluate(s1) < TchebyshevFunction.decidentEvaluate(s2)) {
+			PC.addComparison(s1, s2);
+		} else{
+			PC.addComparison(s2, s1);
 		}
 	}
 
 	public Population nextGeneration() throws DegeneratedMatrixException {
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
-
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
-
 		problem.evaluate(combinedPopulation);
-
-		//ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
-		ArrayList<Population> fronts = RACS.execute(combinedPopulation, nicheCountSelection.getHyperplane().getReferencePoints(), PC);
-
-		Population allFronts = new Population();
-		Population allButLastFront = new Population();
-		Population lastFront = null;
-
-		for (Population front : fronts) {
-			if (allButLastFront.size() + front.size() >= populationSize) {
-				lastFront = front;
-				break;
-			}
-
-			for (Solution s : front.getSolutions()) {
-				allButLastFront.addSolution(s.copy());
-			}
-		}
-
-		allFronts.addSolutions(allButLastFront);
-		allFronts.addSolutions(lastFront);
-
-		if (allFronts.size() == populationSize) {
-			population = allFronts.copy();
-		} else {
-			population = new Population();
-			int K = populationSize - allButLastFront.size();
-			Population kPoints = nicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K);
-			population.addSolutions(allButLastFront.copy());
-			population.addSolutions(kPoints.copy());
-		}
-
+		population = new Population();
+		int K = populationSize;
+		Population kPoints = nicheCountSelection.selectKPoints(combinedPopulation, K);
+		population.addSolutions(kPoints.copy());
 		return population;
 	}
 

@@ -22,7 +22,6 @@ public class RACS {
 			included[i] = false;
 		}
 		
-		
 		for(ReferencePoint rp : referencePoints){
 			double lambda[] = new double[rp.getNumDimensions()];
 			for(int i=0; i < rp.getNumDimensions(); i++){
@@ -35,7 +34,8 @@ public class RACS {
 			}
 		}
 		
-		while(true){
+		boolean addedToFront = true;
+		while(addedToFront){
 			front = new ArrayList <Solution>();
 			for(int i=0; i<population.size(); i++){
 				if(included[i]) { continue; }
@@ -48,29 +48,34 @@ public class RACS {
 				}
 			}
 			if( front.isEmpty() ){
+				addedToFront = false;
 				for(int i=0; i<population.size(); i++){
 					if(!included[i]){
 						front.add(population.getSolution(i));
 					}
 				}
-				break;
 			}
 			Population frontPop = new Population();
 			for(Solution s : front){ frontPop.addSolution(s); }
 			fronts.add(frontPop);
 		}
-
-		System.out.println(fronts.size());
+		System.out.println("Lambda size = " + referencePoints.size());
+		System.out.println("LambdaB size = " + LAMBDA.size());
+		System.out.println("Front size = " + fronts.size());
+		for(Population p : fronts){
+			System.out.println("\t" + p.size());
+		}
 		
 		return fronts;
 	}
 
 	public static double RATSLP(double[] lambda, PreferenceCollector pc, Population pop, int solutionXId) {
-		double epsVal = Double.MIN_VALUE;
+		double epsVal = -Double.MAX_VALUE;
 		try{
 			IloCplex cplex = new IloCplex();
 			cplex.setParam(IloCplex.BooleanParam.PreInd, false);
-			IloNumVar eps  = cplex.numVar(Double.MIN_VALUE, Double.MAX_VALUE);
+			cplex.setOut(null);
+			IloNumVar eps  = cplex.numVar(-Double.MAX_VALUE, Double.MAX_VALUE);
 			IloNumVar rho  = cplex.numVar(0, 1000000);
 			
 			cplex.addMaximize(eps);
@@ -78,11 +83,11 @@ public class RACS {
 				Solution a = cmp.getBetter();
 				Solution b = cmp.getWorse();
 				
-				/*
-				System.out.println(a + " >> " + b );
-				System.out.println("eps + " + "rho*" + Geometry.dot(a.getObjectives(), lambda) + " + " + getMax(a,lambda)  + " <= ");
-				System.out.println("rho*" + Geometry.dot(b.getObjectives(), lambda) + " + " + getMax(b,lambda) );
-				*/
+				
+//				System.out.println(a + " >> " + b );
+//				System.out.println("eps + " + "rho*" + Geometry.dot(a.getObjectives(), lambda) + " + " + getMax(a,lambda)  + " <= ");
+//				System.out.println("rho*" + Geometry.dot(b.getObjectives(), lambda) + " + " + getMax(b,lambda) );
+				
 				cplex.addLe( cplex.sum( cplex.prod(1.0, eps), 	cplex.prod(rho,Geometry.dot(a.getObjectives(), lambda)), cplex.constant(getMax(a,lambda)) ), 
 							 cplex.sum( 						cplex.prod(rho,Geometry.dot(b.getObjectives(), lambda)), cplex.constant(getMax(b,lambda)) ));	
 			}
@@ -114,7 +119,7 @@ public class RACS {
 	}
 
 	private static double getMax(Solution a, double[] lambda) {
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		for(int i=0; i<a.getNumObjectives(); i++){
 			max = Double.max(max,lambda[i] * a.getObjective(i));
 		}			

@@ -25,11 +25,11 @@ public class NicheCountSelection {
 		this.hyperplane = new Hyperplane(numObjectives, getNumPartitions());
 	}
 
-	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k)
+	public Population selectKPoints(Population pop, int k)
 			throws DegeneratedMatrixException {
-		Population normalizedPopulation = normalize(allFronts);
+		Population normalizedPopulation = normalize(pop);
 		associate(normalizedPopulation);
-		Population kPoints = niching(allButLastFront, lastFront, k);
+		Population kPoints = niching(pop, k);
 		return kPoints;
 	}
 
@@ -199,15 +199,8 @@ public class NicheCountSelection {
 		}
 	}
 
-	private Population niching(Population allButLastFront, Population lastFront, int K) {
+	private Population niching(Population pop, int K) {
 		Population kPoints = new Population();
-		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
-		for (Solution s : allButLastFront.getSolutions()) {
-			isLastFront.put(s, false);
-		}
-		for (Solution s : lastFront.getSolutions()) {
-			isLastFront.put(s, true);
-		}
 
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
 		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
@@ -220,12 +213,10 @@ public class NicheCountSelection {
 					.getAssociatedSolutionsQueue();
 			while (!associatedSolutionsQueue.isEmpty()) {
 				Solution s = associatedSolutionsQueue.poll().getSolution();
-				if (isLastFront.get(s)) {
-					kPoints.addSolution(s);
-					smallestNicheCountRefPoint.incrNicheCount();
-					refPQ.add(smallestNicheCountRefPoint);
-					break;
-				}
+				kPoints.addSolution(s);
+				smallestNicheCountRefPoint.incrNicheCount();
+				refPQ.add(smallestNicheCountRefPoint);
+				break;	
 			}
 		}
 
