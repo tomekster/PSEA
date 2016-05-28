@@ -15,7 +15,7 @@ public class RACS {
 	public static ArrayList<Population> execute(Population population, ArrayList <ReferencePoint> referencePoints, PreferenceCollector pc) {
 		ArrayList<Population> fronts = new ArrayList<Population>();
 		ArrayList<Solution> front;
-		ArrayList <double[]> LAMBDA = new ArrayList<double[]>(); 
+		ArrayList <double[]> coherentDirections = new ArrayList<double[]>(); 
 
 		boolean included[] = new boolean[population.size()];
 		for(int i=0; i<population.size(); i++){
@@ -26,11 +26,13 @@ public class RACS {
 			double lambda[] = new double[rp.getNumDimensions()];
 			for(int i=0; i < rp.getNumDimensions(); i++){
 				lambda[i] = 1/rp.getDim(i);
+				if(lambda[i] == Double.NEGATIVE_INFINITY) lambda[i] = -Double.MAX_VALUE;
+				if(lambda[i] == Double.POSITIVE_INFINITY) lambda[i] = Double.MAX_VALUE;
 			}	
 			
 			double eps = RATSLP(lambda, pc, population, -1);
 			if(eps > 0){
-				LAMBDA.add(lambda.clone());
+				coherentDirections.add(lambda.clone());
 			}
 		}
 		
@@ -39,7 +41,7 @@ public class RACS {
 			front = new ArrayList <Solution>();
 			for(int i=0; i<population.size(); i++){
 				if(included[i]) { continue; }
-				for(double lambda[] : LAMBDA){
+				for(double lambda[] : coherentDirections){
 					double eps = RATSLP(lambda, pc, population, i);
 					if(eps > 0){
 						front.add(population.getSolution(i));
@@ -59,11 +61,12 @@ public class RACS {
 			for(Solution s : front){ frontPop.addSolution(s); }
 			fronts.add(frontPop);
 		}
-		System.out.println("Lambda size = " + referencePoints.size());
-		System.out.println("LambdaB size = " + LAMBDA.size());
-		System.out.println("Front size = " + fronts.size());
-		for(Population p : fronts){
-			System.out.println("\t" + p.size());
+		System.out.println("#All directions = " + referencePoints.size());
+		System.out.println("#CoherentDirections = " + coherentDirections.size());
+		System.out.println("#Fronts = " + fronts.size());
+		for(int i =0 ; i<fronts.size(); i++){
+			Population p = fronts.get(i);
+			System.out.println("\t Front i size = " + p.size());
 		}
 		
 		return fronts;

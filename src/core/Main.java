@@ -32,9 +32,11 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
 import problems.DTLZ1;
 import solver.CPLEX;
+import utils.Geometry;
 import utils.NonDominatedSort;
 
 /**
@@ -46,6 +48,7 @@ public class Main {
 	private NSGAIIIHistory history;
 	private static final String title = "NSGAIII";
 	private ChartPanel chartPanel;
+	private ChartPanel chartPanelReferencePlane;
 	private boolean firstFrontOnly;
 	private boolean showTargetPoints;
 	private Constructor problemConstructor;
@@ -71,8 +74,9 @@ public class Main {
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
 		this.chartPanel = createChart();
+		this.chartPanelReferencePlane = createChartReferencePlane();
 		this.labelIGD = new JLabel("IGD: --");
-		this.slider = new JSlider(JSlider.VERTICAL, 0, numGenerations, 0);
+		this.slider = new JSlider(JSlider.HORIZONTAL, 0, numGenerations, 0);
 		slider.addChangeListener(new ChangeListener() {
 
 			@Override
@@ -91,27 +95,28 @@ public class Main {
 		chartPanel.setHorizontalAxisTrace(true);
 		chartPanel.setVerticalAxisTrace(true);
 
+		f.add(chartPanelReferencePlane, BorderLayout.SOUTH);
+		chartPanelReferencePlane.setMouseWheelEnabled(true);
+		chartPanelReferencePlane.setHorizontalAxisTrace(true);
+		chartPanelReferencePlane.setVerticalAxisTrace(true);
+
 		JPanel panel = new JPanel(new FlowLayout());
 
-		JPanel topPanel = new JPanel(new FlowLayout());
-		topPanel.add(labelIGD);
-		topPanel.add(createRunNSGAIIIButton());
-		topPanel.add(createInteractiveCV());
-		topPanel.add(chooseProblemComboBox());
-		
-		JPanel bottomPanel = new JPanel(new FlowLayout());
-		bottomPanel.add(createNumObjectivesCB());
-		bottomPanel.add(createNumGenerationsCB());
-		bottomPanel.add(createNumberOfRunsCB());
-		bottomPanel.add(createFirstFrontCB());
-		bottomPanel.add(createTargetPointsSeriesCB());
-		bottomPanel.add(createTrace());
-		bottomPanel.add(slider);
-		bottomPanel.add(createZoom());
-		
-		panel.add(topPanel, BorderLayout.WEST);
-		panel.add(bottomPanel, BorderLayout.EAST);
-		f.add(panel, BorderLayout.SOUTH);
+		panel.add(labelIGD);
+		panel.add(createRunNSGAIIIButton());
+		panel.add(createInteractiveCV());
+		panel.add(chooseProblemComboBox());
+
+		panel.add(createNumObjectivesCB());
+		panel.add(createNumGenerationsCB());
+		panel.add(createNumberOfRunsCB());
+		panel.add(createFirstFrontCB());
+		panel.add(createTargetPointsSeriesCB());
+		panel.add(createTrace());
+		panel.add(slider);
+		panel.add(createZoom());
+
+		f.add(panel, BorderLayout.CENTER);
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
@@ -126,7 +131,7 @@ public class Main {
 		});
 		return run;
 	}
-	
+
 	private Component createInteractiveCV() {
 		final JComboBox interactiveCB = new JComboBox();
 		final String[] traceCmds = { "Interactive", "Non-Interactive" };
@@ -180,7 +185,8 @@ public class Main {
 
 	private JComboBox createNumGenerationsCB() {
 		final JComboBox numGenerationsCB = new JComboBox();
-		final String[] traceCmds = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000", "3000" };
+		final String[] traceCmds = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+				"3000" };
 		numGenerationsCB.setModel(new DefaultComboBoxModel(traceCmds));
 		numGenerationsCB.addActionListener(new ActionListener() {
 			@Override
@@ -190,10 +196,10 @@ public class Main {
 		});
 		return numGenerationsCB;
 	}
-	
+
 	private JComboBox createNumberOfRunsCB() {
 		final JComboBox numRunsCB = new JComboBox();
-		final String[] traceCmds = { "1", "20"};
+		final String[] traceCmds = { "1", "20" };
 		numRunsCB.setModel(new DefaultComboBoxModel(traceCmds));
 		numRunsCB.addActionListener(new ActionListener() {
 			@Override
@@ -266,7 +272,7 @@ public class Main {
 
 	private void updateSlider() {
 		this.slider.setMaximum(executedGenerations);
-		slider.setLabelTable(slider.createStandardLabels(executedGenerations / 10));
+		slider.setLabelTable(slider.createStandardLabels(executedGenerations / 5));
 		slider.setPaintLabels(true);
 		slider.setValue(executedGenerations);
 	}
@@ -297,13 +303,25 @@ public class Main {
 		return new ChartPanel(chart);
 	}
 
+	private ChartPanel createChartReferencePlane() {
+		XYDataset dataset = new XYSeriesCollection();
+		if (history != null) {
+			dataset = createDatasetReferencePlane();
+		}
+		JFreeChart chart = ChartFactory.createScatterPlot("NSGAIII", "X", "Y", dataset, PlotOrientation.VERTICAL, true, // include
+				true, // tooltips
+				false // urls
+		);
+
+		XYPlot plot = chart.getXYPlot();
+		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+		renderer.setBaseShapesVisible(true);
+		return new ChartPanel(chart);
+	}
+
 	private XYDataset createDataset() {
 		Population pop;
-		if (currentPopulationId == 0) {
-			pop = history.getInitialPopulation();
-		} else {
-			pop = history.getGeneration(currentPopulationId - 1);
-		}
+		pop = history.getGeneration(currentPopulationId);
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
 		if (showTargetPoints) {
@@ -325,6 +343,16 @@ public class Main {
 		return result;
 	}
 
+	private XYDataset createDatasetReferencePlane() {
+		ArrayList<ArrayList<ReferencePoint>> referencePointsHistory = history.getReferencePointsHistory();
+		XYSeriesCollection result = new XYSeriesCollection();
+		if (referencePointsHistory != null) {
+			ArrayList<ReferencePoint> referencePoints = referencePointsHistory.get(currentPopulationId);
+			result.addSeries(createReferencePointsSeries(referencePoints));
+		}
+		return result;
+	}
+
 	private ArrayList<XYSeries> createpopulationSeries(Population pop) {
 		ArrayList<Population> fronts = NonDominatedSort.execute(pop);
 		ArrayList<XYSeries> resultSeries = new ArrayList<>();
@@ -338,14 +366,32 @@ public class Main {
 		return resultSeries;
 	}
 
+	private XYSeries createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints) {
+		XYSeries rpSeries = new XYSeries("Reference points");
+		if(referencePoints.size() > 0){
+			ReferencePoint rp = referencePoints.get(0);
+			System.out.println(rp.getDim(0) + " " + rp.getDim(1) + " " + rp.getDim(2));
+		}
+		for (ReferencePoint rp : referencePoints) {
+			Solution t = Geometry.castRefPointToPlane(rp);
+			rpSeries.add(t.getObjective(0), t.getObjective(1));
+		}
+		return rpSeries;
+	}
+
 	private void resetChart() {
 		JFreeChart chart = chartPanel.getChart();
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
+
+		if (this.numObjectives == 3) {
+			JFreeChart chartRP = chartPanelReferencePlane.getChart();
+			XYPlot plotRP = (XYPlot) chartRP.getPlot();
+			plotRP.setDataset(createDatasetReferencePlane());
+		}
 	}
 
-	
-	double runNSGAIIIOnce(){
+	double runNSGAIIIOnce() {
 		NSGAIII alg;
 		double resIGD = -1;
 		try {
@@ -361,23 +407,23 @@ public class Main {
 		}
 		return resIGD;
 	}
-	
-	void runNSGAIIInTimes(int n){
-		ArrayList <Double> resIgd = new ArrayList<Double>(n);
-		for(int i=0; i<n; i++){
+
+	void runNSGAIIInTimes(int n) {
+		ArrayList<Double> resIgd = new ArrayList<Double>(n);
+		for (int i = 0; i < n; i++) {
 			resIgd.add(runNSGAIIIOnce());
 			System.out.println(i + ": " + resIgd.get(i));
 		}
 		resIgd.sort(null);
 		DecimalFormat format = new DecimalFormat("#.0000000");
-		String resWorse = format.format(resIgd.get(n-1));
-		String resMed = format.format(resIgd.get(n/2));
+		String resWorse = format.format(resIgd.get(n - 1));
+		String resMed = format.format(resIgd.get(n / 2));
 		String resBest = format.format(resIgd.get(0));
-		
-		labelIGD.setText("[" +  resWorse + ", " + resMed + ", " + resBest + "]" );
+
+		labelIGD.setText("[" + resWorse + ", " + resMed + ", " + resBest + "]");
 		resetChart();
 	}
-	
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override

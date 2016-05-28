@@ -211,15 +211,13 @@ public class NicheCountSelection {
 			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
 			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint
 					.getAssociatedSolutionsQueue();
-			while (!associatedSolutionsQueue.isEmpty()) {
+			if(!associatedSolutionsQueue.isEmpty()) {
 				Solution s = associatedSolutionsQueue.poll().getSolution();
 				kPoints.addSolution(s);
 				smallestNicheCountRefPoint.incrNicheCount();
 				refPQ.add(smallestNicheCountRefPoint);
-				break;	
 			}
 		}
-
 		return kPoints;
 	}
 

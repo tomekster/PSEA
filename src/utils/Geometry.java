@@ -2,6 +2,7 @@ package utils;
 
 import core.Population;
 import core.Solution;
+import core.hyperplane.ReferencePoint;
 
 public class Geometry {
 
@@ -71,6 +72,19 @@ public class Geometry {
 		for (int i = 0; i < A.length; i++) {
 			res += A[i] * B[i];
 		}
+		return res;
+	}
+	
+	public static Solution castRefPointToPlane(ReferencePoint rp){
+		double tmp[] = {0,0};
+		Solution res = new Solution(tmp, tmp);
+		double a[] = rp.getDimensions().clone();
+		a[0] -= 1;
+		double b[] = {-0.5, -0.5, 1};
+		res.setObjective(0, pointLineDist(a, b));
+		
+		b = new double[]{-1,1,0};
+		res.setObjective(1, pointLineDist(a, b));
 		return res;
 	}
 }

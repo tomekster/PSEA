@@ -29,7 +29,7 @@ public class NSGAIII implements Runnable {
 
 	private Problem problem;
 	private Population population;
-	private int populationSize, numGenerations;
+	private int populationSize, numGenerations, elicitationInterval;
 
 	private SelectionOperator selectionOperator;
 	private CrossoverOperator crossoverOperator;
@@ -43,6 +43,7 @@ public class NSGAIII implements Runnable {
 		this.problem = problem;
 		this.numGenerations = numGenerations;
 		this.interactive = interactive;
+		this.elicitationInterval = 50;
 		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
 		this.populationSize = nicheCountSelection.getPopulationSize();
 		this.population = createInitialPopulation();
@@ -52,7 +53,8 @@ public class NSGAIII implements Runnable {
 				problem.getUpperBound());
 		this.history = new NSGAIIIHistory(numGenerations);
 		problem.evaluate(population);
-		history.setInitialPopulation(population.copy());
+		history.addGeneration(population.copy());
+		history.addReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
 		history.setTargetPoints(
 				TargetFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
 		this.PC = new PreferenceCollector();
@@ -69,7 +71,7 @@ public class NSGAIII implements Runnable {
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
 		for (int i = 0; i < numGenerations; i++) {
-			if (i % 50 == 49) {
+			if (i % elicitationInterval == elicitationInterval - 1) {
 				if (interactive) {
 					NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
 					Population firstFront = NonDominatedSort.execute(population).get(0);
@@ -96,12 +98,13 @@ public class NSGAIII implements Runnable {
 			}
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
+			history.addReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
 		}
 
 	}
 
 	private void elicitate(Solution s1, Solution s2) {
-		Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
+//		Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
 //		int n = JOptionPane.showOptionDialog(null, "Which Solution do you prefer?", "Compare solutions",
 //				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 //
@@ -125,8 +128,7 @@ public class NSGAIII implements Runnable {
 		combinedPopulation.addSolutions(offspring);
 		problem.evaluate(combinedPopulation);
 		population = new Population();
-		int K = populationSize;
-		Population kPoints = nicheCountSelection.selectKPoints(combinedPopulation, K);
+		Population kPoints = nicheCountSelection.selectKPoints(combinedPopulation, populationSize);
 		population.addSolutions(kPoints.copy());
 		return population;
 	}
