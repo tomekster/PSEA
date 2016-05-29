@@ -71,20 +71,20 @@ public class NSGAIII implements Runnable {
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
 		for (int i = 0; i < numGenerations; i++) {
-			if (i % elicitationInterval == elicitationInterval - 1) {
-				if (interactive) {
-					NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
-					Population firstFront = NonDominatedSort.execute(population).get(0);
-					if (firstFront.size() > 1) {
-						int id1, id2;
-						id1 = rand.nextInt(firstFront.size());
-						do {
-							id2 = rand.nextInt(firstFront.size());
-						} while (id2 == id1);
-						Solution s1 = firstFront.getSolution(id1);
-						Solution s2 = firstFront.getSolution(id2);
-						elicitate(s1, s2);
-					}
+			if (interactive && i % elicitationInterval == elicitationInterval - 1) {
+				NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
+				Population firstFront = NonDominatedSort.execute(population).get(0);
+				if (firstFront.size() > 1) {
+					int id1, id2;
+					id1 = rand.nextInt(firstFront.size());
+					do {
+						id2 = rand.nextInt(firstFront.size());
+					} while (id2 == id1);
+					Solution s1 = firstFront.getSolution(id1);
+					Solution s2 = firstFront.getSolution(id2);
+					elicitate(s1, s2);
+					boolean coherent[] = RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC);
+					nicheCountSelection.getHyperplane().modifyReferencePoints(coherent, (double)(i)/numGenerations);
 				}
 				System.out.println("GENERATION: " + (i + 1));
 			}
@@ -104,19 +104,21 @@ public class NSGAIII implements Runnable {
 	}
 
 	private void elicitate(Solution s1, Solution s2) {
-//		Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
-//		int n = JOptionPane.showOptionDialog(null, "Which Solution do you prefer?", "Compare solutions",
-//				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
-//
-//		if (n == 0) {
-//			PC.addComparison(s1, s2);
-//		} else{
-//			PC.addComparison(s2, s1);
-//		}
-		
+		// Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
+		// int n = JOptionPane.showOptionDialog(null, "Which Solution do you
+		// prefer?", "Compare solutions",
+		// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+		// options, null);
+		//
+		// if (n == 0) {
+		// PC.addComparison(s1, s2);
+		// } else{
+		// PC.addComparison(s2, s1);
+		// }
+
 		if (TchebyshevFunction.decidentEvaluate(s1) < TchebyshevFunction.decidentEvaluate(s2)) {
 			PC.addComparison(s1, s2);
-		} else{
+		} else {
 			PC.addComparison(s2, s1);
 		}
 	}

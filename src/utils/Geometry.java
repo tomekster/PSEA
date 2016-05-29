@@ -1,8 +1,6 @@
 package utils;
 
-import core.Population;
 import core.Solution;
-import core.hyperplane.ReferencePoint;
 
 public class Geometry {
 
@@ -33,7 +31,11 @@ public class Geometry {
 			max = Math.max(max, Math.abs(d));
 		}
 		if (max < EPS) {
-			throw new RuntimeException("Line represented by degenerated vector (B = 0)");
+			String s = "";
+			for(int i=0; i<B.length; i++){
+				s += B[i] + " ";
+			}
+			throw new RuntimeException("Line represented by degenerated vector (B = 0)\n B: [" + s + "]\n");
 		}
 
 		// Define zero point
@@ -75,16 +77,54 @@ public class Geometry {
 		return res;
 	}
 	
-	public static Solution castRefPointToPlane(ReferencePoint rp){
+	public static Solution cast3dPointToPlane(double p[]){
 		double tmp[] = {0,0};
 		Solution res = new Solution(tmp, tmp);
-		double a[] = rp.getDimensions().clone();
+		double a[] = p.clone();
+		double sum = 0;
+		for(double d : a){
+			sum += d;
+		}
+		double dif = (sum - 1)/p.length;
+		for(int i=0; i<p.length; i++){
+			a[i] -= dif;
+		}
 		a[0] -= 1;
 		double b[] = {-0.5, -0.5, 1};
 		res.setObjective(0, pointLineDist(a, b));
 		
 		b = new double[]{-1,1,0};
 		res.setObjective(1, pointLineDist(a, b));
+		return res;
+	}
+	
+	public static double[] randomPointOnSphere(int dim, double radius){
+		NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
+		double res[] = new double[dim];
+		double sum = 0;
+		
+		for(int i=0; i<dim; i++){
+			res[i] = rand.nextGaussian();
+			sum += res[i] * res[i];
+		}
+		sum = Math.sqrt(sum);
+		for(int i=0; i<dim; i++){
+			res[i] *= radius/sum;
+		}
+		return res;
+	}
+	
+	public static double[] normalize(double[] a){
+		double res[] = new double[a.length];
+		double sum = 0;
+		for(int i=0; i<a.length; i++){
+			res[i] = a[i];
+			sum += a[i];
+		}
+		
+		for(int i=0; i<a.length; i++){
+			res[i] /= sum;
+		}
 		return res;
 	}
 }

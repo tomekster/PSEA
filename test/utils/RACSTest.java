@@ -45,7 +45,7 @@ public class RACSTest {
 		PreferenceCollector pc = new PreferenceCollector();
 		pc.addComparison(s1, s3);
 		
-		double EPS = RACS.RATSLP(lambda, pc, p, -1);
+		double EPS = RACS.RATSLP(lambda, pc);
 		System.out.println("EPS = " + EPS);
 		assertTrue(EPS > 1E-9);
 	}
@@ -74,7 +74,7 @@ public class RACSTest {
 		PreferenceCollector pc = new PreferenceCollector();
 		pc.addComparison(s3, s2);
 		
-		double EPS = RACS.RATSLP(lambda, pc, p, -1);
+		double EPS = RACS.RATSDominationLP(lambda, pc, p, -1);
 		System.out.println("EPS = " + EPS);
 		assertTrue(EPS < 0);
 	}
@@ -105,7 +105,7 @@ public class RACSTest {
 		pc.addComparison(s2, s4);
 		pc.addComparison(s4, s1);
 		
-		double EPS = RACS.RATSLP(lambda, pc, p, -1);
+		double EPS = RACS.RATSLP(lambda, pc);
 		System.out.println("EPS = " + EPS);
 		assertTrue(EPS < 0);
 	}

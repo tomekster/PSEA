@@ -42,6 +42,10 @@ public class ReferencePoint {
 	public void incrNicheCount() {
 		this.nicheCount++;
 	}
+	
+	public void decrNicheCount() {
+		this.nicheCount--;
+	}
 
 	public int getNicheCount() {
 		return nicheCount;
@@ -91,5 +95,4 @@ public class ReferencePoint {
 		}
 		return sb.toString();
 	}
-
 }

@@ -63,8 +63,8 @@ public class Main {
 	public Main() {
 		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 250;
-		this.numObjectives = 2;
+		this.numGenerations = 350;
+		this.numObjectives = 3;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -90,12 +90,12 @@ public class Main {
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setLayout(new BorderLayout(0, 5));
-		f.add(chartPanel, BorderLayout.NORTH);
+		f.add(chartPanel, BorderLayout.WEST);
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.setHorizontalAxisTrace(true);
 		chartPanel.setVerticalAxisTrace(true);
 
-		f.add(chartPanelReferencePlane, BorderLayout.SOUTH);
+		f.add(chartPanelReferencePlane, BorderLayout.EAST);
 		chartPanelReferencePlane.setMouseWheelEnabled(true);
 		chartPanelReferencePlane.setHorizontalAxisTrace(true);
 		chartPanelReferencePlane.setVerticalAxisTrace(true);
@@ -116,7 +116,7 @@ public class Main {
 		panel.add(slider);
 		panel.add(createZoom());
 
-		f.add(panel, BorderLayout.CENTER);
+		f.add(panel, BorderLayout.SOUTH);
 		f.pack();
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
@@ -368,12 +368,8 @@ public class Main {
 
 	private XYSeries createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints) {
 		XYSeries rpSeries = new XYSeries("Reference points");
-		if(referencePoints.size() > 0){
-			ReferencePoint rp = referencePoints.get(0);
-			System.out.println(rp.getDim(0) + " " + rp.getDim(1) + " " + rp.getDim(2));
-		}
 		for (ReferencePoint rp : referencePoints) {
-			Solution t = Geometry.castRefPointToPlane(rp);
+			Solution t = Geometry.cast3dPointToPlane(rp.getDimensions());
 			rpSeries.add(t.getObjective(0), t.getObjective(1));
 		}
 		return rpSeries;
