@@ -85,9 +85,8 @@ public class Geometry {
 		for(double d : a){
 			sum += d;
 		}
-		double dif = (sum - 1)/p.length;
 		for(int i=0; i<p.length; i++){
-			a[i] -= dif;
+			a[i] /= sum;
 		}
 		a[0] -= 1;
 		double b[] = {-0.5, -0.5, 1};

@@ -54,16 +54,9 @@ public class RACS {
 	 */
 	public static void execute(ArrayList<ReferencePoint> referencePoints,
 			PreferenceCollector pc) {
-		int count = 0;
 		for (ReferencePoint rp : referencePoints) {
 			rp.setCoherent(isCoherent(rp, pc));
-			if(rp.isCoherent()){
-				count++;
-			}
 		}
-
-		System.out.println("#All directions = " + referencePoints.size());
-		System.out.println("#CoherentDirections = " + count);
 	}
 
 	/**

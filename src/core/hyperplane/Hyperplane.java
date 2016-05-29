@@ -3,9 +3,6 @@ package core.hyperplane;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-import org.jfree.data.function.NormalDistributionFunction2D;
-
-import core.Solution;
 import utils.Geometry;
 import utils.MyComparator;
 import utils.NSGAIIIRandom;
@@ -65,7 +62,7 @@ public class Hyperplane {
 		}
 	}
 
-	public void modifyReferencePoints(double alpha) {
+	public boolean modifyReferencePoints(double alpha) {
 		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
 
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
@@ -77,8 +74,8 @@ public class Hyperplane {
 				refPQ.add(rp);
 			}
 		}
-		if(refPQ.isEmpty()){
-			return;
+		if(refPQ.isEmpty() || refPQ.size() == referencePoints.size()){
+			return false;
 		}
 		
 		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
@@ -92,6 +89,7 @@ public class Hyperplane {
 			refPQ.add(largestNicheCountRefPoint);
 		}
 		this.referencePoints = newReferencePoints;
+		return true;
 	}
 
 	private ReferencePoint getRandomNeighbour(ReferencePoint rp, double radius) {
@@ -112,6 +110,14 @@ public class Hyperplane {
 		} while (!positive);
 		res.setDimensions(p);
 		return res;
+	}
+
+	public void cloneReferencePoints() {
+		ArrayList <ReferencePoint> newReferencePoints = new ArrayList<>();
+		for(ReferencePoint rp : referencePoints){
+			newReferencePoints.add(rp.copy());
+		}
+		this.referencePoints = newReferencePoints;
 	}
 
 }

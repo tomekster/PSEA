@@ -36,6 +36,7 @@ public class NSGAIII implements Runnable {
 	private NSGAIIIHistory history;
 	private boolean interactive;
 	private PreferenceCollector PC;
+	private boolean recheckCoherence;
 
 	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval) {
 		this.problem = problem;
@@ -69,6 +70,8 @@ public class NSGAIII implements Runnable {
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
+		
+		this.recheckCoherence = false;
 		for (int i = 0; i < numGenerations; i++) {
 			if (interactive && i % elicitationInterval == elicitationInterval - 1) {
 				NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
@@ -81,12 +84,24 @@ public class NSGAIII implements Runnable {
 					} while (id2 == id1);
 					Solution s1 = firstFront.getSolution(id1);
 					Solution s2 = firstFront.getSolution(id2);
+					System.out.println("Preference elicitation:");
+					System.out.println("s1:");
+					System.out.println(s1.toString());
+					System.out.println("s2:");
+					System.out.println(s2.toString());
 					elicitate(s1, s2);
+					this.recheckCoherence = true;
 				}
 				System.out.println("GENERATION: " + (i + 1));
 			}
-			RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
-			nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations);
+			if(this.recheckCoherence){
+				//nicheCountSelection.getHyperplane().cloneReferencePoints();
+				RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
+				this.recheckCoherence = false;
+			}
+			if(nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations)){
+				recheckCoherence = true;
+			}
 			
 			try {
 				nextGeneration();

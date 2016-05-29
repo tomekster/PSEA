@@ -98,12 +98,14 @@ public class Main {
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.setHorizontalAxisTrace(true);
 		chartPanel.setVerticalAxisTrace(true);
-
+		chartPanel.setPreferredSize(new Dimension(600, 600));
+		
 		f.add(chartPanelReferencePlane, BorderLayout.EAST);
 		chartPanelReferencePlane.setMouseWheelEnabled(true);
 		chartPanelReferencePlane.setHorizontalAxisTrace(true);
 		chartPanelReferencePlane.setVerticalAxisTrace(true);
-
+		chartPanelReferencePlane.setPreferredSize(new Dimension(600, 600));
+		
 		JPanel panel = new JPanel(new FlowLayout());
 		panel.setPreferredSize(new Dimension(40,100));
 		panel.add(labelIGD);
