@@ -44,8 +44,8 @@ public class NSGAIIIHistory {
 	public void setReferencePointsHistory(ArrayList< ArrayList<ReferencePoint> > referencePoints) {
 		this.referencePointsHistory = referencePoints;
 	}
-	public ArrayList<ReferencePoint> getReferencePoints(int referencePoints){
-		return referencePointsHistory.get(referencePoints);
+	public ArrayList<ReferencePoint> getReferencePoints(int id){
+		return referencePointsHistory.get(id);
 	}
 	public void addReferencePoints(ArrayList<ReferencePoint>  referencePoints){
 		this.referencePointsHistory.add(referencePoints);

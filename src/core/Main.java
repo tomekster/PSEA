@@ -2,6 +2,7 @@ package core;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -92,7 +93,7 @@ public class Main {
 		JFrame f = new JFrame(title);
 		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setLayout(new BorderLayout(0, 5));
+		f.setLayout(new BorderLayout(5, 5));
 		f.add(chartPanel, BorderLayout.WEST);
 		chartPanel.setMouseWheelEnabled(true);
 		chartPanel.setHorizontalAxisTrace(true);
@@ -104,7 +105,7 @@ public class Main {
 		chartPanelReferencePlane.setVerticalAxisTrace(true);
 
 		JPanel panel = new JPanel(new FlowLayout());
-
+		panel.setPreferredSize(new Dimension(40,100));
 		panel.add(labelIGD);
 		panel.add(createRunNSGAIIIButton());
 		panel.add(createInteractiveCV());
@@ -285,6 +286,7 @@ public class Main {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				chartPanel.restoreAutoBounds();
+				chartPanelReferencePlane.restoreAutoBounds();
 			}
 		});
 		return auto;

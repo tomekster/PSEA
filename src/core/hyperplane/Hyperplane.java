@@ -69,9 +69,11 @@ public class Hyperplane {
 		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
 
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
-		for (ReferencePoint rp : referencePoints){
+		for (ReferencePoint rp : referencePoints){ 
 			if(rp.isCoherent()){
-				newReferencePoints.add(rp);
+				ReferencePoint rpCopy = new ReferencePoint(rp.getNumDimensions());
+				rpCopy.setDimensions(rp.getDimensions().clone());
+				newReferencePoints.add(rpCopy);
 				refPQ.add(rp);
 			}
 		}
@@ -108,9 +110,7 @@ public class Hyperplane {
 			}
 			p = Geometry.normalize(p);
 		} while (!positive);
-		for(int i=0; i<dim; i++){
-			res.setDim(i, p[i]);
-		}
+		res.setDimensions(p);
 		return res;
 	}
 

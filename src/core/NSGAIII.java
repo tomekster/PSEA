@@ -82,12 +82,12 @@ public class NSGAIII implements Runnable {
 					Solution s1 = firstFront.getSolution(id1);
 					Solution s2 = firstFront.getSolution(id2);
 					elicitate(s1, s2);
-					RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
-					nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations);
 				}
 				System.out.println("GENERATION: " + (i + 1));
 			}
-
+			RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
+			nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations);
+			
 			try {
 				nextGeneration();
 			} catch (DegeneratedMatrixException e) {

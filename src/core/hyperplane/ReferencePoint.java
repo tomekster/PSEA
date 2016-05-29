@@ -16,13 +16,17 @@ public class ReferencePoint {
 		this.dimensions = new double[numDimensions];
 		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator);
 		this.coherent = false;
-		for (int i = 0; i < numDimensions; i++)
+		for (int i = 0; i < numDimensions; i++){
 			this.dimensions[i] = 0.0;
+		}
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
-		this(rp.getNumDimensions());
-		this.dimensions = rp.dimensions.clone();
+		this.numDimensions = rp.getNumDimensions();
+		this.dimensions = rp.getDimensions().clone();
+		this.associatedSolutions = new PriorityQueue<Association> (rp.getAssociatedSolutionsQueue());
+		this.coherent = rp.isCoherent();
+		this.nicheCount = rp.getNicheCount();
 	}
 
 	public double getDim(int index) {
@@ -62,7 +66,7 @@ public class ReferencePoint {
 	}
 
 	public void setNicheCount(int i) {
-		this.nicheCount = 0;
+		this.nicheCount = i;
 	}
 
 	public void resetAssociation() {
@@ -104,5 +108,14 @@ public class ReferencePoint {
 
 	public void setCoherent(boolean coherent) {
 		this.coherent = coherent;
+	}
+
+	public ReferencePoint copy() {
+		ReferencePoint rp = new ReferencePoint(this);
+		return rp;
+	}
+	
+	public void setDimensions(double dim[]){
+		this.dimensions = dim;
 	}
 }
