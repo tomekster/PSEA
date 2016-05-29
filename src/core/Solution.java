@@ -3,8 +3,6 @@ package core;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-import utils.MyComparator;
-
 public class Solution {
 
 	private int numVariables;

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
-
 import core.hyperplane.ReferencePoint;
 import exceptions.DegeneratedMatrixException;
 import history.NSGAIIIHistory;
@@ -39,11 +37,11 @@ public class NSGAIII implements Runnable {
 	private boolean interactive;
 	private PreferenceCollector PC;
 
-	public NSGAIII(Problem problem, int numGenerations, boolean interactive) {
+	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval) {
 		this.problem = problem;
 		this.numGenerations = numGenerations;
 		this.interactive = interactive;
-		this.elicitationInterval = 50;
+		this.elicitationInterval = elicitationInterval;
 		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
 		this.populationSize = nicheCountSelection.getPopulationSize();
 		this.population = createInitialPopulation();
@@ -57,6 +55,7 @@ public class NSGAIII implements Runnable {
 		history.addReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
 		history.setTargetPoints(
 				TargetFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
+		history.setPreferenceCollector(PC);
 		this.PC = new PreferenceCollector();
 	}
 
@@ -99,6 +98,7 @@ public class NSGAIII implements Runnable {
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 			history.addReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
+			history.setPreferenceCollector(PC);
 		}
 
 	}

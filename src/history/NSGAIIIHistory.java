@@ -4,12 +4,14 @@ import java.util.ArrayList;
 
 import core.Population;
 import core.hyperplane.ReferencePoint;
+import preferences.PreferenceCollector;
 
 public class NSGAIIIHistory {
 	
 	private Population targetPoints;
 	private ArrayList<Population> generations;
 	private ArrayList< ArrayList<ReferencePoint> > referencePointsHistory;
+	private PreferenceCollector pc;
 	
 	public NSGAIIIHistory(int numGenerations){
 		this.generations = new ArrayList<>(numGenerations);
@@ -47,6 +49,14 @@ public class NSGAIIIHistory {
 	}
 	public void addReferencePoints(ArrayList<ReferencePoint>  referencePoints){
 		this.referencePointsHistory.add(referencePoints);
+	}
+
+	public PreferenceCollector getPreferenceCollector() {
+		return pc;
+	}
+
+	public void setPreferenceCollector(PreferenceCollector pc) {
+		this.pc = pc;
 	}
 	
 }

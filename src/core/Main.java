@@ -34,8 +34,9 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
+import preferences.Comparison;
+import preferences.PreferenceCollector;
 import problems.DTLZ1;
-import solver.CPLEX;
 import utils.Geometry;
 import utils.NonDominatedSort;
 
@@ -53,6 +54,7 @@ public class Main {
 	private boolean showTargetPoints;
 	private Constructor problemConstructor;
 	private int numGenerations;
+	private int elicitationInterval;
 	private int numRuns;
 	private int executedGenerations;
 	private int numObjectives;
@@ -64,6 +66,7 @@ public class Main {
 		this.interactive = true;
 		this.numRuns = 1;
 		this.numGenerations = 350;
+		this.elicitationInterval = 50;
 		this.numObjectives = 3;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
@@ -345,10 +348,11 @@ public class Main {
 
 	private XYDataset createDatasetReferencePlane() {
 		ArrayList<ArrayList<ReferencePoint>> referencePointsHistory = history.getReferencePointsHistory();
+		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (referencePointsHistory != null) {
 			ArrayList<ReferencePoint> referencePoints = referencePointsHistory.get(currentPopulationId);
-			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints);
+			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints, new ArrayList<Comparison>(comparisonsHistory.subList(0, currentPopulationId/elicitationInterval)));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -369,21 +373,34 @@ public class Main {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
 		XYSeries coherentRpSeries = new XYSeries("Coherent reference points");
 		XYSeries incoherentRpSeries = new XYSeries("Incoherent reference points");
+		XYSeries preferedSolutions = new XYSeries("Prefered solutions");
+		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
+		Solution t;
 		for (ReferencePoint rp : referencePoints) {
 			if(rp.isCoherent()){
-				Solution t = Geometry.cast3dPointToPlane(rp.getDimensions());
-				coherentRpSeries.add(t.getObjective(0), t.getObjective(1));
+				t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				coherentRpSeries.add(t.getObjective(0), t.getObjective(1));		
 			} else{
-				Solution t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				t = Geometry.cast3dPointToPlane(rp.getDimensions());
 				incoherentRpSeries.add(t.getObjective(0), t.getObjective(1));
 			}
 		}
+		
+		for (Comparison c : comparisons) {
+				t = Geometry.cast3dPointToPlane(c.getBetter().getObjectives());
+				preferedSolutions.add(t.getObjective(0), t.getObjective(1));
+				t = Geometry.cast3dPointToPlane(c.getWorse().getObjectives());
+				nonPreferedSolutions.add(t.getObjective(0), t.getObjective(1));
+		}
+		
 		result.add(coherentRpSeries);
 		result.add(incoherentRpSeries);
+		result.add(preferedSolutions);
+		result.add(nonPreferedSolutions);
 		return result;
 	}
 
@@ -403,7 +420,7 @@ public class Main {
 		NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive);
+			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval);
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();
