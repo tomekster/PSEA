@@ -8,12 +8,14 @@ public class ReferencePoint {
 	private double dimensions[];
 	private int numDimensions;
 	private int nicheCount;
+	private boolean coherent;
 	private PriorityQueue<Association> associatedSolutions;
 
 	public ReferencePoint(int numDimensions) {
 		this.numDimensions = numDimensions;
 		this.dimensions = new double[numDimensions];
 		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator);
+		this.coherent = false;
 		for (int i = 0; i < numDimensions; i++)
 			this.dimensions[i] = 0.0;
 	}
@@ -94,5 +96,13 @@ public class ReferencePoint {
 			sb.append("Associations: none");
 		}
 		return sb.toString();
+	}
+
+	public boolean isCoherent() {
+		return coherent;
+	}
+
+	public void setCoherent(boolean coherent) {
+		this.coherent = coherent;
 	}
 }

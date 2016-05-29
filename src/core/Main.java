@@ -348,7 +348,10 @@ public class Main {
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (referencePointsHistory != null) {
 			ArrayList<ReferencePoint> referencePoints = referencePointsHistory.get(currentPopulationId);
-			result.addSeries(createReferencePointsSeries(referencePoints));
+			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints);
+			for(XYSeries ser : series){
+				result.addSeries(ser);
+			}
 		}
 		return result;
 	}
@@ -366,13 +369,22 @@ public class Main {
 		return resultSeries;
 	}
 
-	private XYSeries createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints) {
-		XYSeries rpSeries = new XYSeries("Reference points");
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints) {
+		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
+		XYSeries coherentRpSeries = new XYSeries("Coherent reference points");
+		XYSeries incoherentRpSeries = new XYSeries("Incoherent reference points");
 		for (ReferencePoint rp : referencePoints) {
-			Solution t = Geometry.cast3dPointToPlane(rp.getDimensions());
-			rpSeries.add(t.getObjective(0), t.getObjective(1));
+			if(rp.isCoherent()){
+				Solution t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				coherentRpSeries.add(t.getObjective(0), t.getObjective(1));
+			} else{
+				Solution t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				incoherentRpSeries.add(t.getObjective(0), t.getObjective(1));
+			}
 		}
-		return rpSeries;
+		result.add(coherentRpSeries);
+		result.add(incoherentRpSeries);
+		return result;
 	}
 
 	private void resetChart() {

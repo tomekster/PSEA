@@ -65,16 +65,20 @@ public class Hyperplane {
 		}
 	}
 
-	public void modifyReferencePoints(boolean[] coherent, double alpha) {
+	public void modifyReferencePoints(double alpha) {
 		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
 
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
-		for (int i = 0; i < referencePoints.size(); i++) {
-			if (coherent[i]) {
-				newReferencePoints.add(referencePoints.get(i));
-				refPQ.add(referencePoints.get(i));
+		for (ReferencePoint rp : referencePoints){
+			if(rp.isCoherent()){
+				newReferencePoints.add(rp);
+				refPQ.add(rp);
 			}
 		}
+		if(refPQ.isEmpty()){
+			return;
+		}
+		
 		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
 		double radius = NSGAIIIRandom.getInstance().nextDouble() * (Math.E - Math.exp(alpha)) / (Math.E - 1) * 0.5;
 		for (int i = 0; i < numIncoherentPoints; i++) {

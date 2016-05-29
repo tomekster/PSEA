@@ -83,8 +83,8 @@ public class NSGAIII implements Runnable {
 					Solution s1 = firstFront.getSolution(id1);
 					Solution s2 = firstFront.getSolution(id2);
 					elicitate(s1, s2);
-					boolean coherent[] = RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC);
-					nicheCountSelection.getHyperplane().modifyReferencePoints(coherent, (double)(i)/numGenerations);
+					RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
+					nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations);
 				}
 				System.out.println("GENERATION: " + (i + 1));
 			}
@@ -116,7 +116,8 @@ public class NSGAIII implements Runnable {
 		// PC.addComparison(s2, s1);
 		// }
 
-		if (TchebyshevFunction.decidentEvaluate(s1) < TchebyshevFunction.decidentEvaluate(s2)) {
+		//if (TchebyshevFunction.decidentCenterCompare(s1,s2)) {
+		if (TchebyshevFunction.decidentMajorXCompare(s1,s2)) {
 			PC.addComparison(s1, s2);
 		} else {
 			PC.addComparison(s2, s1);

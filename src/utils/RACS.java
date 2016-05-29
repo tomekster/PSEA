@@ -52,20 +52,18 @@ public class RACS {
 	 * @return boolean[] where value at position i indicates whether
 	 *         ReferencePoint i is coherent with user's preferences or not
 	 */
-	public static boolean[] execute(ArrayList<ReferencePoint> referencePoints,
+	public static void execute(ArrayList<ReferencePoint> referencePoints,
 			PreferenceCollector pc) {
-		boolean res[] = new boolean[referencePoints.size()];
 		int count = 0;
-		for (int i = 0; i < referencePoints.size(); i++) {
-			res[i] = isCoherent(referencePoints.get(i), pc);
-			if (res[i])
+		for (ReferencePoint rp : referencePoints) {
+			rp.setCoherent(isCoherent(rp, pc));
+			if(rp.isCoherent()){
 				count++;
+			}
 		}
 
 		System.out.println("#All directions = " + referencePoints.size());
 		System.out.println("#CoherentDirections = " + count);
-
-		return res;
 	}
 
 	/**
