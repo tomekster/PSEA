@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
 
@@ -24,11 +25,11 @@ public class NicheCountSelection {
 		this.hyperplane = new Hyperplane(numObjectives, getNumPartitions());
 	}
 
-	public Population selectKPoints(Population pop, int k)
+	public Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, int k)
 			throws DegeneratedMatrixException {
-		Population normalizedPopulation = normalize(pop);
+		Population normalizedPopulation = normalize(allFronts);
 		associate(normalizedPopulation);
-		Population kPoints = niching(pop, k);
+		Population kPoints = niching(allButLastFront, lastFront, k);
 		return kPoints;
 	}
 
@@ -198,9 +199,16 @@ public class NicheCountSelection {
 		}
 	}
 
-	private Population niching(Population pop, int K) {
+	private Population niching(Population allButLastFront, Population lastFront, int K) {
 		Population kPoints = new Population();
-
+		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
+		for (Solution s : allButLastFront.getSolutions()) {
+			isLastFront.put(s, false);
+		}
+		for (Solution s : lastFront.getSolutions()) {
+			isLastFront.put(s, true);
+		}
+		
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
 		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
 			refPQ.add(rp);
@@ -210,11 +218,14 @@ public class NicheCountSelection {
 			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
 			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint
 					.getAssociatedSolutionsQueue();
-			if(!associatedSolutionsQueue.isEmpty()) {
+			while (!associatedSolutionsQueue.isEmpty()) {
 				Solution s = associatedSolutionsQueue.poll().getSolution();
-				kPoints.addSolution(s);
-				smallestNicheCountRefPoint.incrNicheCount();
-				refPQ.add(smallestNicheCountRefPoint);
+				if (isLastFront.get(s)) {
+					kPoints.addSolution(s);
+					smallestNicheCountRefPoint.incrNicheCount();
+					refPQ.add(smallestNicheCountRefPoint);
+					break;
+				}
 			}
 		}
 		return kPoints;

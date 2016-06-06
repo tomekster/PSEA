@@ -25,35 +25,36 @@ public class RACS {
 	 * @param pc
 	 * @return
 	 */
-	// public static ArrayList<Population> execute(Population population,
-	// ArrayList<ReferencePoint> referencePoints,
-	// PreferenceCollector pc) {
-	// ArrayList<ReferencePoint> coherentReferencePoints =
-	// findCoherentDirections(referencePoints, population, pc);
-	// ArrayList<Population> fronts =
-	// getDominationFronts(coherentReferencePoints, population, pc);
-	//
-	// System.out.println("#All directions = " + referencePoints.size());
-	// System.out.println("#CoherentDirections = " +
-	// coherentReferencePoints.size());
-	// System.out.println("#Fronts = " + fronts.size());
-	// for (int i = 0; i < fronts.size(); i++) {
-	// Population p = fronts.get(i);
-	// System.out.println("\t Front i size = " + p.size());
-	// }
-	//
-	// return fronts;
-	// }
+	public static ArrayList<Population> racsDomSort(Population population, ArrayList<ReferencePoint> referencePoints,
+			PreferenceCollector pc) {
+		//ArrayList<ReferencePoint> coherentReferencePoints = findCoherentDirections(referencePoints, pc);
+		//ArrayList<Population> fronts = getDominationFronts(coherentReferencePoints, population, pc);
+		ArrayList <ReferencePoint> coherentReferencePoints = new ArrayList<ReferencePoint>();
+		for(ReferencePoint rp : referencePoints){
+			if(rp.isCoherent()) coherentReferencePoints.add(rp.copy());
+		}
+
+		ArrayList<Population> fronts = getDominationFronts(coherentReferencePoints, population, pc);
+
+		System.out.println("#All directions = " + referencePoints.size());
+		System.out.println("#CoherentDirections = " + coherentReferencePoints.size());
+		System.out.println("#Fronts = " + fronts.size());
+		for (int i = 0; i < fronts.size(); i++) {
+			Population p = fronts.get(i);
+			System.out.println("\t Front i size = " + p.size());
+		}
+
+		return fronts;
+	}
 
 	/**
+	 * Set reference points "coherent" field
 	 * 
 	 * @param referencePoints
 	 * @param pc
-	 * @return boolean[] where value at position i indicates whether
-	 *         ReferencePoint i is coherent with user's preferences or not
+	 * 
 	 */
-	public static void execute(ArrayList<ReferencePoint> referencePoints,
-			PreferenceCollector pc) {
+	public static void markCoherent(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
 		for (ReferencePoint rp : referencePoints) {
 			rp.setCoherent(isCoherent(rp, pc));
 		}
@@ -66,7 +67,8 @@ public class RACS {
 	 * @return Array of Reference Points which are coherent with user's
 	 *         preferences contained in PreferenceCollector
 	 */
-	private static ArrayList<ReferencePoint> findCoherentDirections(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
+	private static ArrayList<ReferencePoint> findCoherentDirections(ArrayList<ReferencePoint> referencePoints,
+			PreferenceCollector pc) {
 		ArrayList<ReferencePoint> coherentReferencePoints = new ArrayList<ReferencePoint>();
 		for (ReferencePoint rp : referencePoints) {
 			if (isCoherent(rp, pc)) {
@@ -83,9 +85,10 @@ public class RACS {
 	}
 
 	/**
+	 * Extracts direction lambda from ReferencePoint rp
 	 * 
 	 * @param rp
-	 * @return Extracts direction lambda from ReferencePoint rp
+	 * @return double[] lambda
 	 */
 	private static double[] getDirection(ReferencePoint rp) {
 		double lambda[] = new double[rp.getNumDimensions()];
@@ -97,14 +100,16 @@ public class RACS {
 
 	/**
 	 * 
+	 * Returns ArrayList of Population representing domination fronts. Solution
+	 * s is qualified to first front if there exists at least one direction
+	 * lambda associated with coherent ReferencePoint with corresponding
+	 * Chebyshev Scalarizing Function which evaluates solution s as better than
+	 * any other solution in population.
+	 * 
 	 * @param coherentReferencePoints
 	 * @param pop
 	 * @param pc
-	 * @return Returns ArrayList of Population representing domination fronts.
-	 *         Solution s is qualified to first front if there exists at least
-	 *         one direction lambda associated with coherent ReferencePoint with
-	 *         corresponding Chebyshev Scalarizing Function which evaluates
-	 *         solution s as better than any other solution in population.
+	 * @return AraryList <Population> fronts
 	 */
 	private static ArrayList<Population> getDominationFronts(ArrayList<ReferencePoint> coherentReferencePoints,
 			Population pop, PreferenceCollector pc) {
@@ -118,7 +123,10 @@ public class RACS {
 			included[i] = false;
 		}
 
+		
+		int lpCount=0;
 		while (addedToFront) {
+			System.out.println("New fornt");
 			front = new ArrayList<Solution>();
 			for (int i = 0; i < pop.size(); i++) {
 				if (included[i]) {
@@ -127,9 +135,12 @@ public class RACS {
 				for (ReferencePoint rp : coherentReferencePoints) {
 					lambda = getDirection(rp);
 					double eps = RATSDominationLP(lambda, pc, pop, i);
+					lpCount++;
+					System.out.println("lpCount = " + lpCount);
 					if (eps > 0) {
 						front.add(pop.getSolution(i));
 						included[i] = true;
+						break;
 					}
 				}
 			}
@@ -179,7 +190,7 @@ public class RACS {
 				// getMax(a,lambda) + " <= ");
 				// System.out.println("rho*" + Geometry.dot(b.getObjectives(),
 				// lambda) + " + " + getMax(b,lambda) );
-				
+
 				cplex.addLe(
 						cplex.sum(cplex.prod(1.0, eps), cplex.prod(rho, Geometry.dot(a.getObjectives(), lambda)),
 								cplex.constant(getMax(a, lambda))),
@@ -201,7 +212,7 @@ public class RACS {
 		}
 		return epsVal;
 	}
-	
+
 	/**
 	 * 
 	 * @param lambda
@@ -237,7 +248,8 @@ public class RACS {
 						cplex.sum(cplex.prod(1.0, eps), cplex.prod(rho, Geometry.dot(a.getObjectives(), lambda)),
 								cplex.constant(getMax(a, lambda))),
 						cplex.sum(cplex.prod(rho, Geometry.dot(b.getObjectives(), lambda)),
-								cplex.constant(getMax(b, lambda))));
+								cplex.constant(getMax(b, lambda)))
+						);
 			}
 
 			if (solutionXId >= 0) {
@@ -251,7 +263,8 @@ public class RACS {
 							cplex.sum(cplex.prod(1.0, eps), cplex.prod(rho, Geometry.dot(x.getObjectives(), lambda)),
 									cplex.constant(getMax(x, lambda))),
 							cplex.sum(cplex.prod(rho, Geometry.dot(y.getObjectives(), lambda)),
-									cplex.constant(getMax(y, lambda))));
+									cplex.constant(getMax(y, lambda)))
+							);
 				}
 			}
 

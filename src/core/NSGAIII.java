@@ -96,7 +96,7 @@ public class NSGAIII implements Runnable {
 			}
 			if(this.recheckCoherence){
 				//nicheCountSelection.getHyperplane().cloneReferencePoints();
-				RACS.execute(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
+				RACS.markCoherent(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
 				this.recheckCoherence = false;
 			}
 			if(nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations)){
@@ -131,8 +131,8 @@ public class NSGAIII implements Runnable {
 		// PC.addComparison(s2, s1);
 		// }
 
-		//if (TchebyshevFunction.decidentCenterCompare(s1,s2)) {
-		if (TchebyshevFunction.decidentMajorXCompare(s1,s2)) {
+		if (TchebyshevFunction.decidentCenterCompare(s1,s2)) {
+		//if (TchebyshevFunction.decidentMajorXCompare(s1,s2)) {
 			PC.addComparison(s1, s2);
 		} else {
 			PC.addComparison(s2, s1);
@@ -142,12 +142,42 @@ public class NSGAIII implements Runnable {
 	public Population nextGeneration() throws DegeneratedMatrixException {
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
+		
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
+		
 		problem.evaluate(combinedPopulation);
-		population = new Population();
-		Population kPoints = nicheCountSelection.selectKPoints(combinedPopulation, populationSize);
-		population.addSolutions(kPoints.copy());
+		
+		//ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
+		ArrayList<Population> fronts = RACS.racsDomSort(combinedPopulation, nicheCountSelection.getHyperplane().getReferencePoints(), PC);
+		
+		Population allFronts = new Population();
+		Population allButLastFront = new Population();
+		Population lastFront = null;
+
+		for (Population front : fronts) {
+			if (allButLastFront.size() + front.size() >= populationSize) {
+				lastFront = front;
+				break;
+			}
+
+			for (Solution s : front.getSolutions()) {
+				allButLastFront.addSolution(s.copy());
+			}
+		}
+
+		allFronts.addSolutions(allButLastFront);
+		allFronts.addSolutions(lastFront);
+
+		if (allFronts.size() == populationSize) {
+			population = allFronts.copy();
+		} else {
+			population = new Population();
+			int K = populationSize - allButLastFront.size();
+			Population kPoints = nicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K);
+			population.addSolutions(allButLastFront.copy());
+			population.addSolutions(kPoints.copy());
+		}
 		return population;
 	}
 

@@ -91,7 +91,6 @@ public class Main {
 		});
 
 		JFrame f = new JFrame(title);
-		f.setTitle(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setLayout(new BorderLayout(5, 5));
 		f.add(chartPanel, BorderLayout.WEST);
