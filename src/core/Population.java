@@ -56,16 +56,4 @@ public class Population{
 		sb.append("]");
 		return sb.toString();
 	}
-
-	public double[] findWorstObjectives() {
-		int numObjectives = solutions.get(0).getNumObjectives();
-		double worstObjectives[] = new double[numObjectives];
-		for(int i=0; i<numObjectives; i++ ){
-			worstObjectives[i] = Double.MIN_VALUE;
-			for(Solution s : solutions){
-				worstObjectives[i] = Double.max(worstObjectives[i], s.getObjective(i));
-			}
-		}
-		return worstObjectives;
-	}
 }

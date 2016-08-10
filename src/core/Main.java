@@ -64,11 +64,11 @@ public class Main {
 	private boolean interactive;
 
 	public Main() {
-		this.interactive = true;
+		this.interactive = false;
 		this.numRuns = 1;
-		this.numGenerations = 350;
+		this.numGenerations = 50;
 		this.elicitationInterval = 50;
-		this.numObjectives = 3;
+		this.numObjectives = 2;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -311,7 +311,7 @@ public class Main {
 
 	private ChartPanel createChartReferencePlane() {
 		XYDataset dataset = new XYSeriesCollection();
-		if (history != null) {
+		if (this.interactive && history != null) {
 			dataset = createDatasetReferencePlane();
 		}
 		JFreeChart chart = ChartFactory.createScatterPlot("NSGAIII", "X", "Y", dataset, PlotOrientation.VERTICAL, true, // include
@@ -385,10 +385,10 @@ public class Main {
 		Solution t;
 		for (ReferencePoint rp : referencePoints) {
 			if(rp.isCoherent()){
-				t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				t = Geometry.cast3dPointToPlane(rp.getNormDimensions());
 				coherentRpSeries.add(t.getObjective(0), t.getObjective(1));		
 			} else{
-				t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				t = Geometry.cast3dPointToPlane(rp.getNormDimensions());
 				incoherentRpSeries.add(t.getObjective(0), t.getObjective(1));
 			}
 		}
@@ -412,7 +412,7 @@ public class Main {
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
 
-		if (this.numObjectives == 3) {
+		if (this.interactive && this.numObjectives == 3) {
 			JFreeChart chartRP = chartPanelReferencePlane.getChart();
 			XYPlot plotRP = (XYPlot) chartRP.getPlot();
 			plotRP.setDataset(createDatasetReferencePlane());
@@ -427,7 +427,7 @@ public class Main {
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();
-			resIGD = alg.judgeResult(alg.getPopulation());
+			resIGD = alg.evaluateFinalResult(alg.getPopulation());
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
@@ -449,6 +449,7 @@ public class Main {
 		String resBest = format.format(resIgd.get(0));
 
 		labelIGD.setText("[" + resWorse + ", " + resMed + ", " + resBest + "]");
+		System.out.println(labelIGD.getText());
 		resetChart();
 	}
 

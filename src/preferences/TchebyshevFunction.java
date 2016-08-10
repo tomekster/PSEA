@@ -34,6 +34,14 @@ public class TchebyshevFunction {
 		return sum;
 	}
 	
+	/***
+	 * Method simulates decident with most preferred solution corresponding to central 
+	 * point of hyperplane
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return 
+	 */
 	public static boolean decidentCenterCompare(Solution s1, Solution s2){
 		int dim = s1.getNumObjectives();
 		double lambda[] = new double[dim];
@@ -47,6 +55,14 @@ public class TchebyshevFunction {
 		return eval(s1, lambda, rho, refPoint) < eval(s2, lambda, rho, refPoint);
 	}
 	
+	/***
+	 * Method simulates decident with most preferred solution corresponding to point of 
+	 * hyperplane maximizing value at X axis (first objective)
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return 
+	 */
 	public static boolean decidentMajorXCompare(Solution s1, Solution s2){
 		int dim = s1.getNumObjectives();
 		double lambda[] = new double[dim];

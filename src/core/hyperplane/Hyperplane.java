@@ -12,22 +12,23 @@ public class Hyperplane {
 	private ArrayList<ReferencePoint> referencePoints;
 	private int dim;
 
-	public Hyperplane(int M, ArrayList<Integer> partitions) {
+	public Hyperplane(int M) {
 		this.dim = M;
 		referencePoints = new ArrayList<ReferencePoint>();
-		generateReferencePoints(M, partitions);
+		generateReferencePoints();
 	}
 
-	private void generateReferencePoints(int M, ArrayList<Integer> partitions) {
+	private void generateReferencePoints() {
 		ArrayList<ReferencePoint> boundaryLayer = new ArrayList<>();
 		ArrayList<ReferencePoint> insideLayer = new ArrayList<>();
 
+		ArrayList<Integer> partitions = getNumPartitions(dim);
 		int p = partitions.get(0);
-		generateRecursive(new ReferencePoint(M), 1.0 / p, 0, p, boundaryLayer);
+		generateRecursive(new ReferencePoint(dim), 1.0 / p, 0, p, boundaryLayer);
 		referencePoints.addAll(boundaryLayer);
 		if (partitions.size() > 1) {
 			p = partitions.get(1);
-			ReferencePoint rp = new ReferencePoint(M);
+			ReferencePoint rp = new ReferencePoint(dim);
 			generateRecursive(rp, 0.5 / p, 0, p, insideLayer);
 			referencePoints.addAll(insideLayer);
 		}
@@ -41,14 +42,14 @@ public class Hyperplane {
 		}
 
 		if (startDim == rp.getNumDimensions() - 1) {
-			rp.incrDim(startDim, step * left);
+			rp.incrNormDim(startDim, step * left);
 			layer.add(rp);
 			return;
 		}
 
 		for (int i = 0; i <= left; i++) {
 			generateRecursive(new ReferencePoint(rp), step, startDim + 1, left - i, layer);
-			rp.incrDim(startDim, step);
+			rp.incrNormDim(startDim, step);
 		}
 	}
 
@@ -56,20 +57,24 @@ public class Hyperplane {
 		return this.referencePoints;
 	}
 
+	/**
+	 * Set Niche count of every RP to 0 and clear list o associated solutions
+	 */
 	public void resetAssociations() {
 		for (ReferencePoint rp : referencePoints) {
 			rp.resetAssociation();
 		}
 	}
 
-	public boolean modifyReferencePoints(double alpha) {
+	public boolean modifyReferencePoints(int generation, int totalNumGenerations) {
+		double alpha = (double) generation / totalNumGenerations;
 		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
 
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
 		for (ReferencePoint rp : referencePoints){ 
 			if(rp.isCoherent()){
 				ReferencePoint rpCopy = new ReferencePoint(rp.getNumDimensions());
-				rpCopy.setDimensions(rp.getDimensions().clone());
+				rpCopy.setNormDimensions(rp.getNormDimensions().clone());
 				newReferencePoints.add(rpCopy);
 				refPQ.add(rp);
 			}
@@ -79,12 +84,12 @@ public class Hyperplane {
 		}
 		
 		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
-		double radius = NSGAIIIRandom.getInstance().nextDouble() * (Math.E - Math.exp(alpha)) / (Math.E - 1) * 0.5;
+		//double radius = NSGAIIIRandom.getInstance().nextDouble() * (Math.E - Math.exp(alpha)) / (Math.E - 1) * 0.5;
+		double radius = 0.25 * (1 - alpha);
 		for (int i = 0; i < numIncoherentPoints; i++) {
 			ReferencePoint largestNicheCountRefPoint = refPQ.poll();
-			ReferencePoint n = getRandomNeighbour(largestNicheCountRefPoint, radius);
+			ReferencePoint n = getRandomNormNeighbour(largestNicheCountRefPoint, radius);
 			newReferencePoints.add(n);
-			
 			largestNicheCountRefPoint.decrNicheCount();
 			refPQ.add(largestNicheCountRefPoint);
 		}
@@ -92,7 +97,7 @@ public class Hyperplane {
 		return true;
 	}
 
-	private ReferencePoint getRandomNeighbour(ReferencePoint rp, double radius) {
+	private ReferencePoint getRandomNormNeighbour(ReferencePoint rp, double radius) {
 		ReferencePoint res = new ReferencePoint(dim);
 		double p[] = new double[dim];
 		boolean positive;
@@ -100,7 +105,7 @@ public class Hyperplane {
 			positive = true;
 			p = Geometry.randomPointOnSphere(dim, radius);
 			for (int i = 0; i < dim; i++) {
-				p[i] += rp.getDim(i);
+				p[i] += rp.getNormDim(i);
 				if (p[i] < 0) {
 					positive = false;
 					break;
@@ -108,7 +113,7 @@ public class Hyperplane {
 			}
 			p = Geometry.normalize(p);
 		} while (!positive);
-		res.setDimensions(p);
+		res.setNormDimensions(p);
 		return res;
 	}
 
@@ -120,4 +125,35 @@ public class Hyperplane {
 		this.referencePoints = newReferencePoints;
 	}
 
+	private ArrayList<Integer> getNumPartitions(int numObjectives) {
+		ArrayList<Integer> res = new ArrayList<>();
+		switch (numObjectives) {
+		case 2:
+			res.add(2);
+			break;
+		case 3:
+			res.add(12);
+			break;
+		case 5:
+			res.add(6);
+			break;
+		case 8:
+		case 10:
+			res.add(3);
+			res.add(2);
+			break;
+		case 15:
+			res.add(2);
+			res.add(1);
+			break;
+		default:
+			throw new RuntimeException("Undefined number of hyperplane partitions for given problem dimensionality ("
+					+ numObjectives + ")");
+		}
+		return res;
+	}
+	
+	public int getDim(){
+		return this.dim;
+	}
 }

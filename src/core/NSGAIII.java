@@ -1,9 +1,11 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import core.hyperplane.Hyperplane;
 import core.hyperplane.ReferencePoint;
 import exceptions.DegeneratedMatrixException;
 import history.NSGAIIIHistory;
@@ -17,8 +19,10 @@ import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.PreferenceCollector;
 import preferences.TchebyshevFunction;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
+import utils.NormalizationTransform;
 import utils.RACS;
 
 public class NSGAIII implements Runnable {
@@ -32,38 +36,44 @@ public class NSGAIII implements Runnable {
 	private SelectionOperator selectionOperator;
 	private CrossoverOperator crossoverOperator;
 	private MutationOperator mutationOperator;
-	private NicheCountSelection nicheCountSelection;
 	private NSGAIIIHistory history;
 	private boolean interactive;
 	private PreferenceCollector PC;
-	private boolean recheckCoherence;
-
+	private Hyperplane hyperplane;
+	private NormalizationTransform normTrans;
+	
 	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval) {
+		//Defines problem that NSGAIII will solve
 		this.problem = problem;
-		this.numGenerations = numGenerations;
-		this.interactive = interactive;
-		this.elicitationInterval = elicitationInterval;
-		this.nicheCountSelection = new NicheCountSelection(problem.getNumObjectives());
-		this.populationSize = nicheCountSelection.getPopulationSize();
+		
+		//Hyperplane is one of basic constructs used in NSGA-III algorithm. 
+		//It is responsible of keeping solutions uniformly spread among objective space
+		this.hyperplane = new Hyperplane(problem.getNumObjectives());
+		
+		//Number of solutions in every generation. Depends on Hyperplane because number of solutions 
+		//in population should be close to number of Reference Points on Hyperplane 
+		this.populationSize = this.hyperplane.getReferencePoints().size();
+		this.populationSize += this.populationSize%2;
 		this.population = createInitialPopulation();
+		
+		//Standard genetic operations used in evolutionary algorithms
 		this.selectionOperator = new BinaryTournament();
 		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
 		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(),
 				problem.getUpperBound());
+		
+		//Parameters of algorithm execution
+		this.numGenerations = numGenerations;
+		this.interactive = interactive;
+		this.elicitationInterval = elicitationInterval;
+		
+		//Structure for storing intermediate state of algorithm for further analysis, display, etc.
 		this.history = new NSGAIIIHistory(numGenerations);
-		problem.evaluate(population);
 		history.addGeneration(population.copy());
-		history.addReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
-		history.setTargetPoints(
-				TargetFrontGenerator.generate(nicheCountSelection.getHyperplane().getReferencePoints(), problem));
+		history.addReferencePoints(this.hyperplane.getReferencePoints());
+		history.setTargetPoints(TargetFrontGenerator.generate(this.hyperplane.getReferencePoints(), problem));
 		history.setPreferenceCollector(PC);
 		this.PC = new PreferenceCollector();
-	}
-
-	public double judgeResult(Population result) {
-		ArrayList<ReferencePoint> referencePoints = nicheCountSelection.getHyperplane().getReferencePoints();
-		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), result);
-		return igd;
 	}
 
 	public void run() {
@@ -71,37 +81,29 @@ public class NSGAIII implements Runnable {
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
 		
-		this.recheckCoherence = false;
+		boolean recheckCoherence = false;
+		
 		for (int i = 0; i < numGenerations; i++) {
 			if (interactive && i % elicitationInterval == elicitationInterval - 1) {
-				NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
+//				NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
 				Population firstFront = NonDominatedSort.execute(population).get(0);
 				if (firstFront.size() > 1) {
-					int id1, id2;
-					id1 = rand.nextInt(firstFront.size());
-					do {
-						id2 = rand.nextInt(firstFront.size());
-					} while (id2 == id1);
-					Solution s1 = firstFront.getSolution(id1);
-					Solution s2 = firstFront.getSolution(id2);
-					System.out.println("Preference elicitation:");
-					System.out.println("s1:");
-					System.out.println(s1.toString());
-					System.out.println("s2:");
-					System.out.println(s2.toString());
-					elicitate(s1, s2);
-					this.recheckCoherence = true;
+//					int id1, id2;
+//					id1 = rand.nextInt(firstFront.size());
+//					do { id2 = rand.nextInt(firstFront.size()); } while (id2 == id1);
+//					elicitate(firstFront.getSolution(id1), firstFront.getSolution(id2));
+					elicitate(population);
+					recheckCoherence = true;
 				}
 				System.out.println("GENERATION: " + (i + 1));
 			}
-			if(this.recheckCoherence){
-				//nicheCountSelection.getHyperplane().cloneReferencePoints();
-				RACS.markCoherent(nicheCountSelection.getHyperplane().getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
-				this.recheckCoherence = false;
+			
+			if(recheckCoherence){
+				RACS.markCoherent(this.hyperplane.getReferencePoints(), this.PC); //Sets ReferencePoints 'coherent' field
+				recheckCoherence = false;
 			}
-			if(nicheCountSelection.getHyperplane().modifyReferencePoints((double)(i)/numGenerations)){
-				recheckCoherence = true;
-			}
+			
+			//recheckCoherence |= this.hyperplane.modifyReferencePoints(i, numGenerations);
 			
 			try {
 				nextGeneration();
@@ -110,33 +112,21 @@ public class NSGAIII implements Runnable {
 				this.numGenerations = i;
 				e.printStackTrace();
 			}
+			
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
-			history.addReferencePoints(nicheCountSelection.getHyperplane().getReferencePoints());
+			history.addReferencePoints(this.hyperplane.getReferencePoints());
 			history.setPreferenceCollector(PC);
 		}
-
 	}
-
-	private void elicitate(Solution s1, Solution s2) {
-		// Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
-		// int n = JOptionPane.showOptionDialog(null, "Which Solution do you
-		// prefer?", "Compare solutions",
-		// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
-		// options, null);
-		//
-		// if (n == 0) {
-		// PC.addComparison(s1, s2);
-		// } else{
-		// PC.addComparison(s2, s1);
-		// }
-
-		if (TchebyshevFunction.decidentCenterCompare(s1,s2)) {
-		//if (TchebyshevFunction.decidentMajorXCompare(s1,s2)) {
-			PC.addComparison(s1, s2);
-		} else {
-			PC.addComparison(s2, s1);
+	
+	private Population createInitialPopulation() {
+		Population population = new Population();
+		for (int i = 0; i < populationSize; i++) {
+			population.addSolution(problem.createSolution());
 		}
+		problem.evaluate(population);
+		return population;
 	}
 
 	public Population nextGeneration() throws DegeneratedMatrixException {
@@ -148,8 +138,8 @@ public class NSGAIII implements Runnable {
 		
 		problem.evaluate(combinedPopulation);
 		
-		//ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
-		ArrayList<Population> fronts = RACS.racsDomSort(combinedPopulation, nicheCountSelection.getHyperplane().getReferencePoints(), PC);
+		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
+		//ArrayList<Population> fronts = RACS.racsDomSort(combinedPopulation, nicheCountSelection.getHyperplane().getReferencePoints(), PC);
 		
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();
@@ -166,6 +156,7 @@ public class NSGAIII implements Runnable {
 			}
 		}
 
+		//Note - allFronts, allButLastFront, lastFront should store reference to the same Solution objects - not separate copies 
 		allFronts.addSolutions(allButLastFront);
 		allFronts.addSolutions(lastFront);
 
@@ -174,13 +165,13 @@ public class NSGAIII implements Runnable {
 		} else {
 			population = new Population();
 			int K = populationSize - allButLastFront.size();
-			Population kPoints = nicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K);
+			Population kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K, hyperplane, normTrans);
 			population.addSolutions(allButLastFront.copy());
 			population.addSolutions(kPoints.copy());
 		}
 		return population;
 	}
-
+	
 	private Population createOffspring(Population population) {
 		Population offspring = new Population();
 		Population matingPopulation = new Population();
@@ -203,15 +194,74 @@ public class NSGAIII implements Runnable {
 		}
 		return offspring;
 	}
-
-	private Population createInitialPopulation() {
-		Population population = new Population();
-		for (int i = 0; i < populationSize; i++) {
-			population.addSolution(problem.createSolution());
-		}
-		return population;
+	
+	public double evaluateFinalResult(Population result) {
+		ArrayList<ReferencePoint> referencePoints = this.hyperplane.getReferencePoints();
+		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), result);
+		return igd;
 	}
 
+	private void elicitate(Solution s1, Solution s2) {
+		// Object[] options = { "A: " + s1.objs(), "B: " + s2.objs() };
+		// int n = JOptionPane.showOptionDialog(null, "Which Solution do you
+		// prefer?", "Compare solutions",
+		// JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+		// options, null);
+		//
+		// if (n == 0) {
+		// PC.addComparison(s1, s2);
+		// } else{
+		// PC.addComparison(s2, s1);
+		// }
+
+		if (TchebyshevFunction.decidentCenterCompare(s1,s2)) {
+		//if (TchebyshevFunction.decidentMajorXCompare(s1,s2)) {
+			PC.addComparison(s1, s2);
+		} else {
+			PC.addComparison(s2, s1);
+		}
+	}
+	
+	private void elicitate(Population pop) {
+		int m = pop.getSolution(0).getNumObjectives();
+		int extremeSolutionsIdx[] = new int[m];
+		double minDimVal[] = new double[m];
+		Arrays.fill(extremeSolutionsIdx, -1);
+		Arrays.fill(minDimVal, 1000000);
+		
+		for(int i=0; i<pop.size(); i++){
+			Solution s = pop.getSolutions().get(i);
+			for(int j=0; j<m; j++){
+				if(s.getObjectives()[j] < minDimVal[j]){
+					minDimVal[j] = s.getObjectives()[j];
+					extremeSolutionsIdx[j] = i;
+				}
+			}
+		}
+		
+		Solution s1 = null,s2 = null;
+		double maxDist = 0;
+		double d;
+		for(int i=0; i<m; i++){
+			for(int j=i+1; j<m; j++){
+				d = Geometry.euclideanDistance(
+						Geometry.normalize(pop.getSolution(i).getObjectives()),
+						Geometry.normalize(pop.getSolution(j).getObjectives()));
+				if(d > maxDist){
+					s1 = pop.getSolution(i);
+					s2 = pop.getSolution(j);
+				}
+			}
+		}
+		
+		if (TchebyshevFunction.decidentCenterCompare(s1,s2)) {
+		//if (TchebyshevFunction.decidentMajorXCompare(s1,s2)) {
+			PC.addComparison(s1, s2);
+		} else {
+			PC.addComparison(s2, s1);
+		}
+	}
+	
 	public int getNumGenerations() {
 		return numGenerations;
 	}

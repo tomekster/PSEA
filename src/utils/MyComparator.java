@@ -60,7 +60,7 @@ public class MyComparator {
 	public static Comparator <ReferencePoint> referencePointComparatorDesc = new Comparator <ReferencePoint>(){
 		@Override
 		public int compare(ReferencePoint o1, ReferencePoint o2) {
-			return -Double.compare(o1.getNicheCount(), o2.getNicheCount());
+			return -Integer.compare(o1.getNicheCount(), o2.getNicheCount());
 		}
 	};
 }
