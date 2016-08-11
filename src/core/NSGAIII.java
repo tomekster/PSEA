@@ -103,7 +103,9 @@ public class NSGAIII implements Runnable {
 				recheckCoherence = false;
 			}
 			
-			//recheckCoherence |= this.hyperplane.modifyReferencePoints(i, numGenerations);
+			if(interactive){
+				recheckCoherence |= this.hyperplane.modifyReferencePoints(i, numGenerations);
+			}
 			
 			try {
 				nextGeneration();
