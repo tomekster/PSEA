@@ -19,13 +19,14 @@ public class ReferencePoint {
 		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator);
 		this.coherent = false;
 		for (int i = 0; i < numDimensions; i++){
+			this.dimensions[i] = 0.0;
 			this.normDimensions[i] = 0.0;
 		}
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
 		this.numDimensions = rp.getNumDimensions();
-		this.dimensions = rp.getNormDimensions().clone();
+		this.dimensions = rp.getDimensions().clone();
 		this.normDimensions = rp.getNormDimensions().clone();
 		this.associatedSolutions = new PriorityQueue<Association> (rp.getAssociatedSolutionsQueue());
 		this.coherent = rp.isCoherent();
