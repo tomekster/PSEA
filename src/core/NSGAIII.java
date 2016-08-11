@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import core.hyperplane.Hyperplane;
 import core.hyperplane.ReferencePoint;
-import exceptions.DegeneratedMatrixException;
 import history.NSGAIIIHistory;
 import igd.IGD;
 import igd.TargetFrontGenerator;
@@ -20,9 +19,7 @@ import operators.impl.selection.BinaryTournament;
 import preferences.PreferenceCollector;
 import preferences.TchebyshevFunction;
 import utils.Geometry;
-import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
-import utils.NormalizationTransform;
 import utils.RACS;
 
 public class NSGAIII implements Runnable {
@@ -40,7 +37,6 @@ public class NSGAIII implements Runnable {
 	private boolean interactive;
 	private PreferenceCollector PC;
 	private Hyperplane hyperplane;
-	private NormalizationTransform normTrans;
 	
 	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval) {
 		//Defines problem that NSGAIII will solve
@@ -105,13 +101,7 @@ public class NSGAIII implements Runnable {
 			
 			//recheckCoherence |= this.hyperplane.modifyReferencePoints(i, numGenerations);
 			
-			try {
-				nextGeneration();
-			} catch (DegeneratedMatrixException e) {
-				LOGGER.warning("Degenerated matrix at " + (i + 1) + " generation");
-				this.numGenerations = i;
-				e.printStackTrace();
-			}
+			nextGeneration();
 			
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
@@ -129,7 +119,7 @@ public class NSGAIII implements Runnable {
 		return population;
 	}
 
-	public Population nextGeneration() throws DegeneratedMatrixException {
+	public Population nextGeneration(){
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
 		
@@ -165,7 +155,7 @@ public class NSGAIII implements Runnable {
 		} else {
 			population = new Population();
 			int K = populationSize - allButLastFront.size();
-			Population kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K, hyperplane, normTrans);
+			Population kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K, hyperplane);
 			population.addSolutions(allButLastFront.copy());
 			population.addSolutions(kPoints.copy());
 		}

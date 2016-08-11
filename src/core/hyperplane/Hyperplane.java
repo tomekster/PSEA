@@ -42,14 +42,14 @@ public class Hyperplane {
 		}
 
 		if (startDim == rp.getNumDimensions() - 1) {
-			rp.incrNormDim(startDim, step * left);
+			rp.incrDim(startDim, step * left);
 			layer.add(rp);
 			return;
 		}
 
 		for (int i = 0; i <= left; i++) {
 			generateRecursive(new ReferencePoint(rp), step, startDim + 1, left - i, layer);
-			rp.incrNormDim(startDim, step);
+			rp.incrDim(startDim, step);
 		}
 	}
 
@@ -74,7 +74,7 @@ public class Hyperplane {
 		for (ReferencePoint rp : referencePoints){ 
 			if(rp.isCoherent()){
 				ReferencePoint rpCopy = new ReferencePoint(rp.getNumDimensions());
-				rpCopy.setNormDimensions(rp.getNormDimensions().clone());
+				rpCopy.setDimensions(rp.getDimensions().clone());
 				newReferencePoints.add(rpCopy);
 				refPQ.add(rp);
 			}
@@ -105,7 +105,7 @@ public class Hyperplane {
 			positive = true;
 			p = Geometry.randomPointOnSphere(dim, radius);
 			for (int i = 0; i < dim; i++) {
-				p[i] += rp.getNormDim(i);
+				p[i] += rp.getDim(i);
 				if (p[i] < 0) {
 					positive = false;
 					break;
@@ -113,7 +113,7 @@ public class Hyperplane {
 			}
 			p = Geometry.normalize(p);
 		} while (!positive);
-		res.setNormDimensions(p);
+		res.setDimensions(p);
 		return res;
 	}
 

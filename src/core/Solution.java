@@ -9,7 +9,6 @@ public class Solution {
 	private int numObjectives;
 	private double[] variables;
 	private double[] objectives;
-	private double[] normObjectives;
 
 	public Solution(double vars[], double obj[]) {
 		this.numVariables = vars.length;
@@ -17,7 +16,6 @@ public class Solution {
 
 		this.variables = new double[vars.length];
 		this.objectives = new double[obj.length];
-		this.normObjectives= new double[obj.length];
 		
 		for (int i = 0; i < vars.length; i++) {
 			this.variables[i] = vars[i];
@@ -79,10 +77,6 @@ public class Solution {
 	public double getObjective(int pos) {
 		return this.objectives[pos];
 	}
-	
-	public double getNormalizedObjective(int pos) {
-		return this.normObjectives[pos];
-	}
 
 	public void setNumObjectives(int numObjectives) {
 		this.numObjectives = numObjectives;
@@ -90,10 +84,6 @@ public class Solution {
 
 	public double[] getObjectives() {
 		return objectives;
-	}
-	
-	public double[] getNormObjectives() {
-		return normObjectives;
 	}
 
 	public int getNumVariables() {
@@ -112,10 +102,6 @@ public class Solution {
 		this.objectives[pos] = objective;
 	}
 
-	public void setNormalizedObjective(int pos, double normalizedObjective) {
-		this.normObjectives[pos] = normalizedObjective;
-	}
-	
 	public void setNumVariables(int numVariables) {
 		this.numVariables = numVariables;
 	}

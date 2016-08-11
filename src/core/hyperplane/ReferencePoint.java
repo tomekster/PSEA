@@ -5,7 +5,6 @@ import java.util.PriorityQueue;
 import utils.MyComparator;
 
 public class ReferencePoint {
-	private double normDimensions[];
 	private double dimensions[];
 	private int numDimensions;
 	private int nicheCount;
@@ -15,18 +14,16 @@ public class ReferencePoint {
 	public ReferencePoint(int numDimensions) {
 		this.numDimensions = numDimensions;
 		this.dimensions = new double[numDimensions];
-		this.normDimensions = new double[numDimensions];
 		this.associatedSolutions = new PriorityQueue<Association>(MyComparator.associationComparator);
 		this.coherent = false;
 		for (int i = 0; i < numDimensions; i++){
-			this.normDimensions[i] = 0.0;
+			this.dimensions[i] = 0.0;
 		}
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
 		this.numDimensions = rp.getNumDimensions();
-		this.dimensions = rp.getNormDimensions().clone();
-		this.normDimensions = rp.getNormDimensions().clone();
+		this.dimensions = rp.getDimensions().clone();
 		this.associatedSolutions = new PriorityQueue<Association> (rp.getAssociatedSolutionsQueue());
 		this.coherent = rp.isCoherent();
 		this.nicheCount = rp.getNicheCount();
@@ -40,20 +37,12 @@ public class ReferencePoint {
 		this.dimensions[index] = val;
 	}
 	
-	public double getNormDim(int index) {
-		return this.normDimensions[index];
+	public void incrDim(int index, double value) {
+		this.dimensions[index] += value;
 	}
 
-	public void setNormDim(int index, double val) {
-		this.normDimensions[index] = val;
-	}
-
-	public void incrNormDim(int index, double value) {
-		this.normDimensions[index] += value;
-	}
-
-	public void decrNormDim(int index, double value) {
-		this.normDimensions[index] += value;
+	public void decrDim(int index, double value) {
+		this.dimensions[index] += value;
 	}
 
 	public void incrNicheCount() {
@@ -76,10 +65,6 @@ public class ReferencePoint {
 		return this.dimensions;
 	}
 
-	public double[] getNormDimensions() {
-		return this.normDimensions;
-	}
-	
 	public void setNicheCount(int i) {
 		this.nicheCount = i;
 	}
@@ -101,7 +86,7 @@ public class ReferencePoint {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");
-		for (double d : normDimensions) {
+		for (double d : dimensions) {
 			sb.append(d + ", ");
 		}
 		sb.replace(sb.length() - 2, sb.length(), "]\n");
@@ -132,9 +117,5 @@ public class ReferencePoint {
 	
 	public void setDimensions(double dim[]){
 		this.dimensions = dim;
-	}
-	
-	public void setNormDimensions(double dim[]){
-		this.normDimensions = dim;
 	}
 }

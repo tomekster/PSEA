@@ -36,7 +36,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
 import preferences.Comparison;
-import preferences.PreferenceCollector;
 import problems.DTLZ1;
 import utils.Geometry;
 import utils.NonDominatedSort;
@@ -385,10 +384,10 @@ public class Main {
 		Solution t;
 		for (ReferencePoint rp : referencePoints) {
 			if(rp.isCoherent()){
-				t = Geometry.cast3dPointToPlane(rp.getNormDimensions());
+				t = Geometry.cast3dPointToPlane(rp.getDimensions());
 				coherentRpSeries.add(t.getObjective(0), t.getObjective(1));		
 			} else{
-				t = Geometry.cast3dPointToPlane(rp.getNormDimensions());
+				t = Geometry.cast3dPointToPlane(rp.getDimensions());
 				incoherentRpSeries.add(t.getObjective(0), t.getObjective(1));
 			}
 		}

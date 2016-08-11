@@ -21,10 +21,10 @@ public class TargetFrontGenerator {
 				double obj[] = new double[r.getNumDimensions()];
 				double sum = 0;
 				for (int i = 0; i < r.getNumDimensions(); i++) {
-					sum += r.getNormDim(i);
+					sum += r.getDim(i);
 				}
 				for(int i=0; i< r.getNumDimensions(); i++){
-					obj[i] = r.getNormDim(i) * (0.5 / sum);
+					obj[i] = r.getDim(i) * (0.5 / sum);
 				}
 				res.addSolution(new Solution(var, obj));
 			}
@@ -35,7 +35,7 @@ public class TargetFrontGenerator {
 			double sqr_sum;
 			for (ReferencePoint r : referencePoints) {
 				sqr_sum = 0;
-				for (double d : r.getNormDimensions()) {
+				for (double d : r.getDimensions()) {
 					sqr_sum += d*d;
 				}
 				
@@ -44,7 +44,7 @@ public class TargetFrontGenerator {
 				double var[] = new double[0];
 				double obj[] = new double[r.getNumDimensions()];
 				for (int i = 0; i < r.getNumDimensions(); i++) {
-					obj[i] = r.getNormDim(i) / div;
+					obj[i] = r.getDim(i) / div;
 				}
 				res.addSolution(new Solution(var, obj));
 			}
