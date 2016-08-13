@@ -54,7 +54,7 @@ public class RACS {
 	 * @param pc
 	 * 
 	 */
-	public static void markCoherent(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
+	public static void checkIfRefPointsAreCoherent(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
 		for (ReferencePoint rp : referencePoints) {
 			rp.setCoherent(isCoherent(rp, pc));
 		}
@@ -79,28 +79,16 @@ public class RACS {
 	}
 
 	private static boolean isCoherent(ReferencePoint rp, PreferenceCollector pc) {
-		double lambda[] = getDirection(rp);
-		double eps = RATSLP(lambda, pc);
-		return eps > 0;
-	}
-
-	/**
-	 * Extracts direction lambda from ReferencePoint rp
-	 * 
-	 * @param rp
-	 * @return double[] lambda
-	 */
-	private static double[] getDirection(ReferencePoint rp) {
-		double lambda[] = new double[rp.getNumDimensions()];
-		for (int i = 0; i < rp.getNumDimensions(); i++) {
-			lambda[i] = 1 / rp.getDim(i);
-		}
-		return lambda;
+		double lambda[] = Geometry.invert(rp.getDimensions());
+		Pair <Double, Double> epsAndRho= RATSLP(lambda, pc);
+		rp.setEps(epsAndRho.first);
+		rp.setRho(epsAndRho.second);
+		return epsAndRho.first> 0;
 	}
 
 	/**
 	 * 
-	 * Returns ArrayList of Population representing domination fronts. Solution
+	 * Returns ArrayList of Populations representing domination fronts. Solution
 	 * s is qualified to first front if there exists at least one direction
 	 * lambda associated with coherent ReferencePoint with corresponding
 	 * Chebyshev Scalarizing Function which evaluates solution s as better than
@@ -133,7 +121,7 @@ public class RACS {
 					continue;
 				}
 				for (ReferencePoint rp : coherentReferencePoints) {
-					lambda = getDirection(rp);
+					lambda = Geometry.invert(rp.getDimensions());
 					double eps = RATSDominationLP(lambda, pc, pop, i);
 					lpCount++;
 					System.out.println("lpCount = " + lpCount);
@@ -167,12 +155,12 @@ public class RACS {
 	 * @param pc
 	 * @param pop
 	 * @param solutionXId
-	 * @return Solve LP which compare given solution with whole population
-	 *         assuming Chebyshev Scalarizing function corresponding to given
-	 *         direction lambda
+	 * @return Solve LP which determines if there exists Chebev function with direction lambda, 
+	 * which satisfies all inequalities resulting from DM's comparisons.
 	 */
-	public static double RATSLP(double[] lambda, PreferenceCollector pc) {
+	public static Pair<Double, Double> RATSLP(double[] lambda, PreferenceCollector pc) {
 		double epsVal = -Double.MAX_VALUE;
+		double rhoVal = 0;
 		try {
 			IloCplex cplex = new IloCplex();
 			cplex.setParam(IloCplex.BooleanParam.PreInd, false);
@@ -190,7 +178,8 @@ public class RACS {
 				// getMax(a,lambda) + " <= ");
 				// System.out.println("rho*" + Geometry.dot(b.getObjectives(),
 				// lambda) + " + " + getMax(b,lambda) );
-
+				
+				//Add ineaqualities based on Chebyshev Augmented Scalarizing Function
 				cplex.addLe(
 						cplex.sum(cplex.prod(1.0, eps), cplex.prod(rho, Geometry.dot(a.getObjectives(), lambda)),
 								cplex.constant(getMax(a, lambda))),
@@ -202,7 +191,7 @@ public class RACS {
 				cplex.output().println("Solution value  = " + cplex.getObjValue());
 
 				epsVal = cplex.getValue(eps);
-				double rhoVal = cplex.getValue(rho);
+				rhoVal = cplex.getValue(rho);
 				cplex.output().println("EpsValue = " + epsVal);
 				cplex.output().println("RhoValue = " + rhoVal);
 			}
@@ -210,7 +199,10 @@ public class RACS {
 		} catch (IloException e) {
 			System.out.println("Concert exception cought: " + e);
 		}
-		return epsVal;
+		
+		Pair <Double, Double> res = new Pair <Double, Double>(epsVal, rhoVal);
+		
+		return res;
 	}
 
 	/**

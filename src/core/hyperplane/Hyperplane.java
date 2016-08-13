@@ -1,11 +1,14 @@
 package core.hyperplane;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
+import core.Population;
+import core.Solution;
 import utils.Geometry;
 import utils.MyComparator;
-import utils.NSGAIIIRandom;
 
 public class Hyperplane {
 
@@ -73,9 +76,7 @@ public class Hyperplane {
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
 		for (ReferencePoint rp : referencePoints){ 
 			if(rp.isCoherent()){
-				ReferencePoint rpCopy = new ReferencePoint(rp.getNumDimensions());
-				rpCopy.setDimensions(rp.getDimensions().clone());
-				newReferencePoints.add(rpCopy);
+				newReferencePoints.add(rp);
 				refPQ.add(rp);
 			}
 		}
@@ -88,7 +89,7 @@ public class Hyperplane {
 		double radius = 0.25 * (1 - alpha);
 		for (int i = 0; i < numIncoherentPoints; i++) {
 			ReferencePoint largestNicheCountRefPoint = refPQ.poll();
-			ReferencePoint n = getRandomNormNeighbour(largestNicheCountRefPoint, radius);
+			ReferencePoint n = getRandomNeighbour(largestNicheCountRefPoint, radius);
 			newReferencePoints.add(n);
 			largestNicheCountRefPoint.decrNicheCount();
 			refPQ.add(largestNicheCountRefPoint);
@@ -97,7 +98,7 @@ public class Hyperplane {
 		return true;
 	}
 
-	private ReferencePoint getRandomNormNeighbour(ReferencePoint rp, double radius) {
+	private ReferencePoint getRandomNeighbour(ReferencePoint rp, double radius) {
 		ReferencePoint res = new ReferencePoint(dim);
 		double p[] = new double[dim];
 		boolean positive;
@@ -115,6 +116,41 @@ public class Hyperplane {
 		} while (!positive);
 		res.setDimensions(p);
 		return res;
+	}
+
+	public ArrayList<Population> getFrontsByReferencePoitnRankings(Population pop, int popSize) {
+		
+		int numCoherent = 0;
+		for(ReferencePoint rp : referencePoints){
+			if(!rp.isCoherent()){
+				continue;
+			}
+			numCoherent += 1;
+			rp.buildRanking(pop);
+		}
+		
+		Set <Solution> usedSolutions = new HashSet<Solution>();
+		ArrayList <Population> fronts = new ArrayList <Population>();
+		int frontId = -1;
+		while(usedSolutions.size() < popSize){
+			frontId += 1;
+			Population front = new Population();
+			for(ReferencePoint rp : referencePoints){
+				if(rp.isCoherent()){
+					Solution s = rp.getRankingElement(frontId);
+					if(usedSolutions.contains(s)){
+						continue;
+					} else{
+						front.addSolution(s);
+						usedSolutions.add(s);
+					}
+				}
+			}
+			if(!front.empty()){
+				fronts.add(front);
+			}
+		}
+		return fronts;
 	}
 
 	public void cloneReferencePoints() {
@@ -156,4 +192,5 @@ public class Hyperplane {
 	public int getDim(){
 		return this.dim;
 	}
+
 }

@@ -61,13 +61,15 @@ public class Main {
 	private JLabel labelIGD;
 	private JSlider slider;
 	private boolean interactive;
+	private int firstPhaseLength;
 
 	public Main() {
-		this.interactive = false;
+		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 50;
-		this.elicitationInterval = 50;
-		this.numObjectives = 2;
+		this.numGenerations = 350;
+		this.elicitationInterval = 25;
+		this.numObjectives = 3;
+		this.firstPhaseLength = numGenerations/2;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -354,7 +356,7 @@ public class Main {
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (referencePointsHistory != null) {
 			ArrayList<ReferencePoint> referencePoints = referencePointsHistory.get(currentPopulationId);
-			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints, new ArrayList<Comparison>(comparisonsHistory.subList(0, currentPopulationId/elicitationInterval)));
+			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId - firstPhaseLength + elicitationInterval))/elicitationInterval)));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -422,7 +424,7 @@ public class Main {
 		NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval);
+			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval, firstPhaseLength);
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();

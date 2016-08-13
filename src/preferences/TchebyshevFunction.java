@@ -1,8 +1,6 @@
 package preferences;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import core.Solution;
 
@@ -10,6 +8,10 @@ public class TchebyshevFunction {
 	
 	//TODO - test Tchebyshev function  
 	public static double eval(Solution s, double lambda[], double rho, double refPoint[]){
+		if(null == refPoint){
+			refPoint = new double[lambda.length];
+			Arrays.fill(refPoint, 0);
+		}
 		double res = -Double.MAX_VALUE;
 		for(int i=0; i<s.getNumObjectives(); i++){
 			res = Double.max(lambda[i] * (s.getObjective(i) - refPoint[i]), res);
@@ -42,7 +44,7 @@ public class TchebyshevFunction {
 	 * @param s2
 	 * @return 
 	 */
-	public static boolean decidentCenterCompare(Solution s1, Solution s2){
+	public static boolean decidentCentralPointCompare(Solution s1, Solution s2){
 		int dim = s1.getNumObjectives();
 		double lambda[] = new double[dim];
 		double refPoint[] = new double[dim];
@@ -63,7 +65,7 @@ public class TchebyshevFunction {
 	 * @param s2
 	 * @return 
 	 */
-	public static boolean decidentMajorXCompare(Solution s1, Solution s2){
+	public static boolean decidentPrefereXCompare(Solution s1, Solution s2){
 		int dim = s1.getNumObjectives();
 		double lambda[] = new double[dim];
 		double refPoint[] = new double[dim];

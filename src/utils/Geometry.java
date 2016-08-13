@@ -126,4 +126,13 @@ public class Geometry {
 		}
 		return res;
 	}
+
+	public static double[] invert(double[] dimensions) {
+		int len = dimensions.length;
+		double lambda[] = new double[len];
+		for (int i = 0; i < len; i++) {
+			lambda[i] = 1 / dimensions[i];
+		}
+		return lambda;
+	}
 }
