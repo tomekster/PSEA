@@ -133,7 +133,6 @@ public class NSGAIII implements Runnable {
 
 		problem.evaluate(combinedPopulation);
 
-		if (!secondPhase) {
 			ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
 			Population allFronts = new Population();
@@ -157,32 +156,23 @@ public class NSGAIII implements Runnable {
 			allFronts.addSolutions(allButLastFront);
 			allFronts.addSolutions(lastFront);
 
+		
 			if (allFronts.size() == populationSize) {
 				population = allFronts.copy();
 			} else {
 				population = new Population();
+				Population kPoints = new Population();
 				int K = populationSize - allButLastFront.size();
-				Population kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K,
+				if (!secondPhase) {
+					kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K,
 						hyperplane);
+				} else{
+					kPoints = hyperplane.selectKPoints(lastFront, K);
+				}
 				population.addSolutions(allButLastFront.copy());
 				population.addSolutions(kPoints.copy());
 			}
-		}	else {
-			// ArrayList<Population> fronts = RACS.racsDomSort(combinedPopulation, nicheCountSelection.getHyperplane().getReferencePoints(), PC);
-			ArrayList<Population> fronts = hyperplane.getFrontsByReferencePoitnRankings(combinedPopulation, populationSize);
-			population = new Population();
-			for(Population pop : fronts){
-				for(Solution s : pop.getSolutions()){
-					population.addSolution(s);
-					if(population.size() == populationSize){
-						break;
-					}
-				}
-				if(population.size() == populationSize){
-					break;
-				}
-			}
-		}
+			
 		return population;
 	}
 
@@ -237,8 +227,8 @@ public class NSGAIII implements Runnable {
 		// PC.addComparison(s2, s1);
 		// }
 
-		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
-//			if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
+		//if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
+		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
 			PC.addComparison(s1, s2);
 		} else {
 			PC.addComparison(s2, s1);
@@ -276,8 +266,8 @@ public class NSGAIII implements Runnable {
 			}
 		}
 
-		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
-			 //if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
+//		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
+		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
 			PC.addComparison(s1, s2);
 		} else {
 			PC.addComparison(s2, s1);

@@ -145,6 +145,9 @@ public class Hyperplane {
 						usedSolutions.add(s);
 					}
 				}
+				if(usedSolutions.size() == popSize){
+					break;
+				}
 			}
 			if(!front.empty()){
 				fronts.add(front);
@@ -191,6 +194,21 @@ public class Hyperplane {
 	
 	public int getDim(){
 		return this.dim;
+	}
+
+	public Population selectKPoints(Population pop, int k) {
+		ArrayList <Population> fronts = getFrontsByReferencePoitnRankings(pop, k);
+		Population res = new Population();
+		for(Population front : fronts){
+			res.addSolutions(front);
+		}
+		assert res.size() == k;
+		System.out.println("###");
+		System.out.println(res.size());
+		System.out.println(k);
+		System.out.println("###");
+		return res;
+		
 	}
 
 }

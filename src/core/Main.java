@@ -356,7 +356,7 @@ public class Main {
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (referencePointsHistory != null) {
 			ArrayList<ReferencePoint> referencePoints = referencePointsHistory.get(currentPopulationId);
-			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId - firstPhaseLength + elicitationInterval))/elicitationInterval)));
+			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId - firstPhaseLength + elicitationInterval-1))/elicitationInterval)));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}

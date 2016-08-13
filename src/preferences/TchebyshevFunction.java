@@ -80,4 +80,19 @@ public class TchebyshevFunction {
 		return eval(s1, lambda, rho, refPoint) < eval(s2, lambda, rho, refPoint);
 	}
 	
+	public static boolean decidentPrefereYCompare(Solution s1, Solution s2){
+		int dim = s1.getNumObjectives();
+		double lambda[] = new double[dim];
+		double refPoint[] = new double[dim];
+		double rho = 0;
+		
+		for(int i=0; i<dim; i++){
+			lambda[i] = 1000000;
+			refPoint[i] = 0;
+		}
+		lambda[1] = 1;
+		
+		return eval(s1, lambda, rho, refPoint) < eval(s2, lambda, rho, refPoint);
+	}
+	
 }
