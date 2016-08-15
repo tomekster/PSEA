@@ -61,7 +61,7 @@ public class ReferencePoint {
 		for(Pair<Solution, Double> p : solutionValuePairs){
 			ranking.add(p.first);
 		}
-		
+		assert ranking.size() == pop.size();
 		return ranking;
 	}
 

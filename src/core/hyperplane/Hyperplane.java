@@ -118,14 +118,11 @@ public class Hyperplane {
 		return res;
 	}
 
-	public ArrayList<Population> getFrontsByReferencePoitnRankings(Population pop, int popSize) {
-		
-		int numCoherent = 0;
+	public ArrayList<Population> getFrontsByReferencePointRankings(Population pop, int popSize) {
 		for(ReferencePoint rp : referencePoints){
 			if(!rp.isCoherent()){
 				continue;
 			}
-			numCoherent += 1;
 			rp.buildRanking(pop);
 		}
 		
@@ -197,16 +194,20 @@ public class Hyperplane {
 	}
 
 	public Population selectKPoints(Population pop, int k) {
-		ArrayList <Population> fronts = getFrontsByReferencePoitnRankings(pop, k);
+		System.out.println("###");
+		System.out.println("Requested points (k): " + k);
+		ArrayList <Population> fronts = getFrontsByReferencePointRankings(pop, k);
+		System.out.println("Returned fronts: " + fronts.size());
+		int numPoints = 0;
+		for(Population p : fronts){
+			numPoints += p.size();
+		}
+		System.out.println("Returned points: " + numPoints);
 		Population res = new Population();
 		for(Population front : fronts){
 			res.addSolutions(front);
 		}
 		assert res.size() == k;
-		System.out.println("###");
-		System.out.println(res.size());
-		System.out.println(k);
-		System.out.println("###");
 		return res;
 		
 	}

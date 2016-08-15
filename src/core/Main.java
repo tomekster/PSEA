@@ -32,12 +32,14 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jzy3d.analysis.AnalysisLauncher;
 
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
 import preferences.Comparison;
 import problems.DTLZ1;
 import utils.Geometry;
+import utils.MySeries;
 import utils.NonDominatedSort;
 
 /**
@@ -62,6 +64,7 @@ public class Main {
 	private JSlider slider;
 	private boolean interactive;
 	private int firstPhaseLength;
+	private Plot3D plot;
 
 	public Main() {
 		this.interactive = true;
@@ -90,6 +93,7 @@ public class Main {
 				resetChart();
 			}
 		});
+		this.plot = null;
 
 		JFrame f = new JFrame(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -412,12 +416,38 @@ public class Main {
 		JFreeChart chart = chartPanel.getChart();
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
-
+		
+		//plot3D();
+		
 		if (this.interactive && this.numObjectives == 3) {
 			JFreeChart chartRP = chartPanelReferencePlane.getChart();
 			XYPlot plotRP = (XYPlot) chartRP.getPlot();
 			plotRP.setDataset(createDatasetReferencePlane());
 		}
+	}
+
+	private void plot3D() {
+		if(this.plot == null){
+			this.plot = new Plot3D(createJZY3DDataset());
+			try {
+				AnalysisLauncher.open(this.plot);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else{
+			this.plot.update(createJZY3DDataset());
+		}
+	}
+
+	private MySeries createJZY3DDataset() {
+		Population pop = history.getGeneration(currentPopulationId);
+		ArrayList <ReferencePoint> rp = history.getReferencePointsHistory().get(currentPopulationId);
+		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList
+				(0, Integer.max(0,(currentPopulationId - firstPhaseLength + elicitationInterval-1))/elicitationInterval));
+		
+		return new MySeries(pop.getSolutions(), rp, comparisons);
 	}
 
 	double runNSGAIIIOnce() {

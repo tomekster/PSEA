@@ -85,18 +85,18 @@ public class NSGAIII implements Runnable {
 				+ " objectives, and " + numGenerations + " generations.");
 
 		boolean recheckCoherence = false;
-		boolean secondPhase;
+		boolean firstPhase;
 		for (int generation = 0; generation < numGenerations; generation++) {
-			secondPhase = generation >= numPrepGen;
+			firstPhase = generation < numPrepGen;
 			
-			if (interactive && secondPhase){
+			if (interactive && firstPhase){
 				if( (generation - numPrepGen) % elicitationInterval == 0) {
 					System.out.println("GENERATION: " + generation);
 					recheckCoherence = true;
 					Population firstFront = NonDominatedSort.execute(population).get(0);
 					if (firstFront.size() > 1){
 						System.out.println(generation + " ELICITATTE" );
-						elicitate(population);
+						elicitate(firstFront);
 					}
 				}
 				
@@ -106,7 +106,7 @@ public class NSGAIII implements Runnable {
 				}
 			}
 
-			nextGeneration(secondPhase);
+			nextGeneration(firstPhase);
 
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
@@ -124,7 +124,7 @@ public class NSGAIII implements Runnable {
 		return population;
 	}
 
-	public Population nextGeneration(boolean secondPhase) {
+	public Population nextGeneration(boolean firstPhase) {
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
 
@@ -163,10 +163,12 @@ public class NSGAIII implements Runnable {
 				population = new Population();
 				Population kPoints = new Population();
 				int K = populationSize - allButLastFront.size();
-				if (!secondPhase) {
+				//TODO verify if 2Phases help
+				if (true) {
 					kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K,
 						hyperplane);
 				} else{
+					System.out.println("popSize: " + populationSize);
 					kPoints = hyperplane.selectKPoints(lastFront, K);
 				}
 				population.addSolutions(allButLastFront.copy());
@@ -235,15 +237,15 @@ public class NSGAIII implements Runnable {
 		}
 	}
 
-	private void elicitate(Population pop) {
-		int m = pop.getSolution(0).getNumObjectives();
+	private void elicitate(Population firstFront) {
+		int m = firstFront.getSolution(0).getNumObjectives();
 		int extremeSolutionsIdx[] = new int[m];
 		double minDimVal[] = new double[m];
 		Arrays.fill(extremeSolutionsIdx, -1);
 		Arrays.fill(minDimVal, 1000000);
 
-		for (int i = 0; i < pop.size(); i++) {
-			Solution s = pop.getSolutions().get(i);
+		for (int i = 0; i < firstFront.size(); i++) {
+			Solution s = firstFront.getSolutions().get(i);
 			for (int j = 0; j < m; j++) {
 				if (s.getObjectives()[j] < minDimVal[j]) {
 					minDimVal[j] = s.getObjectives()[j];
@@ -253,21 +255,21 @@ public class NSGAIII implements Runnable {
 		}
 
 		Solution s1 = null, s2 = null;
-		double maxDist = 0;
-		double d;
+		double maxDist = 0, d;
 		for (int i = 0; i < m; i++) {
 			for (int j = i + 1; j < m; j++) {
-				d = Geometry.euclideanDistance(Geometry.normalize(pop.getSolution(i).getObjectives()),
-						Geometry.normalize(pop.getSolution(j).getObjectives()));
+				d = Geometry.euclideanDistance(Geometry.normalize(firstFront.getSolution(i).getObjectives()),
+						Geometry.normalize(firstFront.getSolution(j).getObjectives()));
 				if (d > maxDist) {
-					s1 = pop.getSolution(i);
-					s2 = pop.getSolution(j);
+					maxDist = d;
+					s1 = firstFront.getSolution(i);
+					s2 = firstFront.getSolution(j);
 				}
 			}
 		}
 
-//		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
-		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
+		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
+//		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
 			PC.addComparison(s1, s2);
 		} else {
 			PC.addComparison(s2, s1);
