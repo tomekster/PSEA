@@ -10,10 +10,10 @@ import core.Solution;
 import utils.Geometry;
 import utils.MyComparator;
 
-public class Hyperplane {
+public abstract class Hyperplane {
 
-	private ArrayList<ReferencePoint> referencePoints;
-	private int dim;
+	protected ArrayList<ReferencePoint> referencePoints;
+	protected int dim;
 
 	public Hyperplane(int M) {
 		this.dim = M;
@@ -60,45 +60,7 @@ public class Hyperplane {
 		return this.referencePoints;
 	}
 
-	/**
-	 * Set Niche count of every RP to 0 and clear list o associated solutions
-	 */
-	public void resetAssociations() {
-		for (ReferencePoint rp : referencePoints) {
-			rp.resetAssociation();
-		}
-	}
-
-	public boolean modifyReferencePoints(int generation, int totalNumGenerations) {
-		double alpha = (double) generation / totalNumGenerations;
-		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
-
-		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
-		for (ReferencePoint rp : referencePoints){ 
-			if(rp.isCoherent()){
-				newReferencePoints.add(rp);
-				refPQ.add(rp);
-			}
-		}
-		if(refPQ.isEmpty() || refPQ.size() == referencePoints.size()){
-			return false;
-		}
-		
-		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
-		//double radius = NSGAIIIRandom.getInstance().nextDouble() * (Math.E - Math.exp(alpha)) / (Math.E - 1) * 0.5;
-		double radius = 0.25 * (1 - alpha);
-		for (int i = 0; i < numIncoherentPoints; i++) {
-			ReferencePoint largestNicheCountRefPoint = refPQ.poll();
-			ReferencePoint n = getRandomNeighbour(largestNicheCountRefPoint, radius);
-			newReferencePoints.add(n);
-			largestNicheCountRefPoint.decrNicheCount();
-			refPQ.add(largestNicheCountRefPoint);
-		}
-		this.referencePoints = newReferencePoints;
-		return true;
-	}
-
-	private ReferencePoint getRandomNeighbour(ReferencePoint rp, double radius) {
+	protected ReferencePoint getRandomNeighbour(ReferencePoint rp, double radius) {
 		ReferencePoint res = new ReferencePoint(dim);
 		double p[] = new double[dim];
 		boolean positive;
@@ -116,41 +78,6 @@ public class Hyperplane {
 		} while (!positive);
 		res.setDimensions(p);
 		return res;
-	}
-
-	public ArrayList<Population> getFrontsByReferencePointRankings(Population pop, int popSize) {
-		for(ReferencePoint rp : referencePoints){
-			if(!rp.isCoherent()){
-				continue;
-			}
-			rp.buildRanking(pop);
-		}
-		
-		Set <Solution> usedSolutions = new HashSet<Solution>();
-		ArrayList <Population> fronts = new ArrayList <Population>();
-		int frontId = -1;
-		while(usedSolutions.size() < popSize){
-			frontId += 1;
-			Population front = new Population();
-			for(ReferencePoint rp : referencePoints){
-				if(rp.isCoherent()){
-					Solution s = rp.getRankingElement(frontId);
-					if(usedSolutions.contains(s)){
-						continue;
-					} else{
-						front.addSolution(s);
-						usedSolutions.add(s);
-					}
-				}
-				if(usedSolutions.size() == popSize){
-					break;
-				}
-			}
-			if(!front.empty()){
-				fronts.add(front);
-			}
-		}
-		return fronts;
 	}
 
 	public void cloneReferencePoints() {
@@ -192,24 +119,4 @@ public class Hyperplane {
 	public int getDim(){
 		return this.dim;
 	}
-
-	public Population selectKPoints(Population pop, int k) {
-		System.out.println("###");
-		System.out.println("Requested points (k): " + k);
-		ArrayList <Population> fronts = getFrontsByReferencePointRankings(pop, k);
-		System.out.println("Returned fronts: " + fronts.size());
-		int numPoints = 0;
-		for(Population p : fronts){
-			numPoints += p.size();
-		}
-		System.out.println("Returned points: " + numPoints);
-		Population res = new Population();
-		for(Population front : fronts){
-			res.addSolutions(front);
-		}
-		assert res.size() == k;
-		return res;
-		
-	}
-
 }

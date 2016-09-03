@@ -77,6 +77,11 @@ public class TchebyshevFunction {
 		}
 		lambda[0] = 1;
 		
+		for(int i=0; i<dim; i++){
+			System.out.println(s1.getObjective(i) + ", " + s2.getObjective(i));
+		}
+		System.out.println( eval(s1, lambda, rho, refPoint) + ", " + eval(s2, lambda, rho, refPoint));
+		
 		return eval(s1, lambda, rho, refPoint) < eval(s2, lambda, rho, refPoint);
 	}
 	

@@ -10,12 +10,15 @@ public class NSGAIIIHistory {
 	
 	private Population targetPoints;
 	private ArrayList<Population> generations;
-	private ArrayList< ArrayList<ReferencePoint> > referencePointsHistory;
+	private ArrayList< ArrayList<ReferencePoint> > solutionDirectionsHistory;
+	private ArrayList< ArrayList<ReferencePoint> > chebyshevDirectionsHistory;
 	private PreferenceCollector pc;
+	private ArrayList<Population> chebRanking;
 	
 	public NSGAIIIHistory(int numGenerations){
 		this.generations = new ArrayList<>(numGenerations);
-		this.referencePointsHistory = new ArrayList< ArrayList<ReferencePoint> >();
+		this.solutionDirectionsHistory = new ArrayList< ArrayList<ReferencePoint> >();
+		this.chebyshevDirectionsHistory = new ArrayList< ArrayList<ReferencePoint> >();
 	}
 	
 	public Population getTargetPoints() {
@@ -37,20 +40,32 @@ public class NSGAIIIHistory {
 		this.generations.add(pop);
 	}
 
-	public ArrayList< ArrayList<ReferencePoint> > getReferencePointsHistory() {
-		return referencePointsHistory;
+	public ArrayList< ArrayList<ReferencePoint> > getSolutionDirectionsHistory() {
+		return solutionDirectionsHistory;
+	}
+	public void setSolutionDirectionsHistory(ArrayList< ArrayList<ReferencePoint> > referencePoints) {
+		this.solutionDirectionsHistory = referencePoints;
+	}
+	public ArrayList<ReferencePoint> getSolutionDirections(int id){
+		return solutionDirectionsHistory.get(id);
+	}
+	public void addSolutionDirections(ArrayList<ReferencePoint>  solutionDirections){
+		this.solutionDirectionsHistory.add(solutionDirections);
 	}
 
-	public void setReferencePointsHistory(ArrayList< ArrayList<ReferencePoint> > referencePoints) {
-		this.referencePointsHistory = referencePoints;
+	public ArrayList< ArrayList<ReferencePoint> > getChebyshevDirectionsHistory() {
+		return chebyshevDirectionsHistory;
 	}
-	public ArrayList<ReferencePoint> getReferencePoints(int id){
-		return referencePointsHistory.get(id);
+	public void setChebyshevDirectionsHistory(ArrayList< ArrayList<ReferencePoint> > referencePoints) {
+		this.chebyshevDirectionsHistory = referencePoints;
 	}
-	public void addReferencePoints(ArrayList<ReferencePoint>  referencePoints){
-		this.referencePointsHistory.add(referencePoints);
+	public ArrayList<ReferencePoint> getChebyshevDirections(int id){
+		return chebyshevDirectionsHistory.get(id);
 	}
-
+	public void addChebyshevDirections(ArrayList<ReferencePoint>  chebyshevDirections){
+		this.chebyshevDirectionsHistory.add(chebyshevDirections);
+	}
+	
 	public PreferenceCollector getPreferenceCollector() {
 		return pc;
 	}
@@ -58,5 +73,4 @@ public class NSGAIIIHistory {
 	public void setPreferenceCollector(PreferenceCollector pc) {
 		this.pc = pc;
 	}
-	
 }

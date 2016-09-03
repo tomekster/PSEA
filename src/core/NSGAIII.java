@@ -5,8 +5,9 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import core.hyperplane.Hyperplane;
+import core.hyperplane.ChebyshevDirections;
 import core.hyperplane.ReferencePoint;
+import core.hyperplane.SolutionDirections;
 import history.NSGAIIIHistory;
 import igd.IGD;
 import igd.TargetFrontGenerator;
@@ -18,7 +19,6 @@ import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.PreferenceCollector;
 import preferences.TchebyshevFunction;
-import utils.Geometry;
 import utils.NSGAIIIRandom;
 import utils.NonDominatedSort;
 import utils.RACS;
@@ -37,23 +37,31 @@ public class NSGAIII implements Runnable {
 	private NSGAIIIHistory history;
 	private boolean interactive;
 	private PreferenceCollector PC;
-	private Hyperplane hyperplane;
-	private int numPrepGen;
+	private SolutionDirections solutionDirections;
+	private SolutionDirections originalHyperplane;
+	private ChebyshevDirections chebyshevDirections;
+	private double spreadingPointsPercent;
 
-	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval, int numPrepGen) {
+	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval, double spreadingPointsPercent) {
 		// Defines problem that NSGAIII will solve
 		this.problem = problem;
 
-		// Hyperplane is one of basic constructs used in NSGA-III algorithm.
-		// It is responsible of keeping solutions uniformly spread among
-		// objective space
-		this.hyperplane = new Hyperplane(problem.getNumObjectives());
+		// Hyperplane is one of basic constructs used in NSGA-III algorithm. It is responsible 
+		// for keeping solutions uniformly spread among objective space. 
+		// In modified NSGA-III it is used to store information about directions which are interesting 
+		// from DM's point of view, based on preference information elicitated during algorithm run 
+		this.solutionDirections = new SolutionDirections(problem.getNumObjectives());
+		
+		this.originalHyperplane= new SolutionDirections(problem.getNumObjectives());
+		
+		
+		// Chebyshev directions is a new idea in modified NSGA-III. It is supposed to store information 
+		// about Chebyshev function directions which are coherent with user's preferences
+		this.chebyshevDirections = new ChebyshevDirections(problem.getNumObjectives());
 
-		// Number of solutions in every generation. Depends on Hyperplane
-		// because number of solutions
-		// in population should be close to number of Reference Points on
-		// Hyperplane
-		this.populationSize = this.hyperplane.getReferencePoints().size();
+		// Number of solutions in every generation. Depends on Hyperplane because number 
+		// of solutions in population should be close to number of Reference Points on Hyperplane
+		this.populationSize = this.solutionDirections.getReferencePoints().size();
 		this.populationSize += this.populationSize % 2;
 		this.population = createInitialPopulation();
 
@@ -67,14 +75,15 @@ public class NSGAIII implements Runnable {
 		this.numGenerations = numGenerations;
 		this.interactive = interactive;
 		this.elicitationInterval = elicitationInterval;
-		this.numPrepGen = Integer.max(elicitationInterval, numPrepGen);
-
+		this.spreadingPointsPercent = spreadingPointsPercent;
+		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
 		this.history = new NSGAIIIHistory(numGenerations);
 		history.addGeneration(population.copy());
-		history.addReferencePoints(this.hyperplane.getReferencePoints());
-		history.setTargetPoints(TargetFrontGenerator.generate(this.hyperplane.getReferencePoints(), problem));
+		history.addSolutionDirections(this.solutionDirections.getReferencePoints());
+		history.addChebyshevDirections(this.chebyshevDirections.getReferencePoints());
+		history.setTargetPoints(TargetFrontGenerator.generate(this.solutionDirections.getReferencePoints(), problem));
 		history.setPreferenceCollector(PC);
 		this.PC = new PreferenceCollector();
 	}
@@ -85,32 +94,36 @@ public class NSGAIII implements Runnable {
 				+ " objectives, and " + numGenerations + " generations.");
 
 		boolean recheckCoherence = false;
-		boolean firstPhase;
 		for (int generation = 0; generation < numGenerations; generation++) {
-			firstPhase = generation < numPrepGen;
-			
-			if (interactive && firstPhase){
-				if( (generation - numPrepGen) % elicitationInterval == 0) {
+			nextGeneration();
+
+			if(interactive){
+				if(generation % elicitationInterval == 0) {
 					System.out.println("GENERATION: " + generation);
 					recheckCoherence = true;
 					Population firstFront = NonDominatedSort.execute(population).get(0);
 					if (firstFront.size() > 1){
-						System.out.println(generation + " ELICITATTE" );
+						System.out.println(generation + " ELICITATE" );
 						elicitate(firstFront);
 					}
 				}
-				
 				if (recheckCoherence) {
-					RACS.checkIfRefPointsAreCoherent(hyperplane.getReferencePoints(), this.PC);
-					recheckCoherence = hyperplane.modifyReferencePoints(generation,numGenerations);
+					RACS.checkIfRefPointsAreCoherent(chebyshevDirections.getReferencePoints(), this.PC);
+					recheckCoherence = chebyshevDirections.modifyChebyshevDirections(generation,numGenerations);
 				}
+				
+				Population bestChebyshevSolutions = chebyshevDirections.selectKChebyshevPoints(population, populationSize/2);
+				// TODO - this looks bad. Associatie should not be called here in this way. You should refactor this in future. 
+				// Associate needs to be called before modifySolutionDirections, since it uses associations
+				NicheCountSelection.associate(population, solutionDirections);
+				solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
 			}
 
-			nextGeneration(firstPhase);
 
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
-			history.addReferencePoints(hyperplane.getReferencePoints());
+			history.addSolutionDirections(solutionDirections.getReferencePoints());
+			history.addChebyshevDirections((ArrayList <ReferencePoint>)chebyshevDirections.getReferencePoints().clone());
 			history.setPreferenceCollector(PC);
 		}
 	}
@@ -124,7 +137,7 @@ public class NSGAIII implements Runnable {
 		return population;
 	}
 
-	public Population nextGeneration(boolean firstPhase) {
+	public Population nextGeneration() {
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
 
@@ -133,47 +146,52 @@ public class NSGAIII implements Runnable {
 
 		problem.evaluate(combinedPopulation);
 
-			ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
+		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
 
-			Population allFronts = new Population();
-			Population allButLastFront = new Population();
-			Population lastFront = null;
-
-			//TODO - refactor allFronts, allButLastFront and lastFront finding loop like in Hyperplane.getfronts... 
-			for (Population front : fronts) {
-				if (allButLastFront.size() + front.size() >= populationSize) {
-					lastFront = front;
-					break;
-				}
-
-				for (Solution s : front.getSolutions()) {
-					allButLastFront.addSolution(s.copy());
-				}
-			}
-
-			// Note - allFronts, allButLastFront, lastFront should store
-			// reference to the same Solution objects - not separate copies
-			allFronts.addSolutions(allButLastFront);
-			allFronts.addSolutions(lastFront);
-
+		Population spreadingPoints;
+		Population allFronts = new Population();
+		Population allButLastFront = new Population();
+		Population lastFront = null;
 		
-			if (allFronts.size() == populationSize) {
-				population = allFronts.copy();
-			} else {
-				population = new Population();
-				Population kPoints = new Population();
-				int K = populationSize - allButLastFront.size();
-				//TODO verify if 2Phases help
-				if (true) {
-					kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K,
-						hyperplane);
-				} else{
-					System.out.println("popSize: " + populationSize);
-					kPoints = hyperplane.selectKPoints(lastFront, K);
-				}
-				population.addSolutions(allButLastFront.copy());
-				population.addSolutions(kPoints.copy());
+		//TODO - refactor allFronts, allButLastFront and lastFront finding loop like in Hyperplane.getfronts... 
+		for (Population front : fronts) {
+			if (allButLastFront.size() + front.size() >= populationSize) {
+				lastFront = front;
+				break;
 			}
+			for (Solution s : front.getSolutions()) {
+				allButLastFront.addSolution(s.copy());
+			}
+		}
+		
+		// Note - allFronts, allButLastFront, lastFront should store
+		// reference to the same Solution objects - not separate copies
+		allFronts.addSolutions(allButLastFront);
+		allFronts.addSolutions(lastFront);
+			
+		assert allFronts.size() >= populationSize;
+		assert allButLastFront.size() <= populationSize;
+		assert allButLastFront.size() + lastFront.size() >= populationSize;
+		
+		if (allFronts.size() == populationSize) {
+			population = allFronts.copy();
+		} else {
+			population = new Population();
+			Population kPoints = new Population();
+			int K = populationSize - allButLastFront.size();
+			int numSpreadingPoints = (int) (this.spreadingPointsPercent * K); 
+			//TODO verify if 2Phases help
+			spreadingPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, numSpreadingPoints, originalHyperplane);
+			//TODO - take care, risky operation since equals in Solution is overloaded. Might delete solutions which are not exactly equal but only very close. Might affect niching.
+			allFronts.removeSolutions(spreadingPoints);
+			
+			allButLastFront.removeSolutions(spreadingPoints);
+			allButLastFront.removeSolutions(lastFront);
+			kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K - numSpreadingPoints, solutionDirections);
+			population.addSolutions(allButLastFront.copy());
+			population.addSolutions(spreadingPoints.copy());
+			population.addSolutions(kPoints.copy());
+		}
 			
 		return population;
 	}
@@ -202,7 +220,7 @@ public class NSGAIII implements Runnable {
 	}
 
 	public double evaluateFinalResult(Population result) {
-		ArrayList<ReferencePoint> referencePoints = this.hyperplane.getReferencePoints();
+		ArrayList<ReferencePoint> referencePoints = this.solutionDirections.getReferencePoints();
 		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), result);
 		return igd;
 	}
@@ -255,18 +273,28 @@ public class NSGAIII implements Runnable {
 		}
 
 		Solution s1 = null, s2 = null;
-		double maxDist = 0, d;
-		for (int i = 0; i < m; i++) {
-			for (int j = i + 1; j < m; j++) {
-				d = Geometry.euclideanDistance(Geometry.normalize(firstFront.getSolution(i).getObjectives()),
-						Geometry.normalize(firstFront.getSolution(j).getObjectives()));
-				if (d > maxDist) {
-					maxDist = d;
-					s1 = firstFront.getSolution(i);
-					s2 = firstFront.getSolution(j);
-				}
-			}
-		}
+		int i, j;
+		i = NSGAIIIRandom.getInstance().nextInt(firstFront.size());
+		do{
+			j = NSGAIIIRandom.getInstance().nextInt(firstFront.size());
+		} while(i==j);
+		
+		s1 = firstFront.getSolution(i);
+		s2 = firstFront.getSolution(j);
+		
+//Find maximal distance between solutions
+//		double maxDist = 0, d;
+//		for (int i = 0; i < m; i++) {
+//			for (int j = i + 1; j < m; j++) {
+//				d = Geometry.euclideanDistance(Geometry.normalize(firstFront.getSolution(i).getObjectives()),
+//						Geometry.normalize(firstFront.getSolution(j).getObjectives()));
+//				if (d > maxDist) {
+//					maxDist = d;
+//					s1 = firstFront.getSolution(i);
+//					s2 = firstFront.getSolution(j);
+//				}
+//			}
+//		}
 
 		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
 //		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {

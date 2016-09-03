@@ -7,6 +7,7 @@ import java.util.PriorityQueue;
 import core.hyperplane.Association;
 import core.hyperplane.Hyperplane;
 import core.hyperplane.ReferencePoint;
+import core.hyperplane.SolutionDirections;
 import utils.Geometry;
 import utils.MyComparator;
 
@@ -16,15 +17,15 @@ import utils.MyComparator;
 public class NicheCountSelection {
 
 	public static Population selectKPoints(Population allFronts, Population allButLastFront, Population lastFront, 
-			int k, Hyperplane hyperplane){
-		associate(allFronts, hyperplane);
-		Population kPoints = niching(allButLastFront, lastFront, k, hyperplane);
+			int k, SolutionDirections solutionDirections){
+		associate(allFronts, solutionDirections);
+		Population kPoints = niching(allButLastFront, lastFront, k, solutionDirections);
 		return kPoints;
 	}
 
-	public static void associate(Population population, Hyperplane hyperplane) {
-		hyperplane.resetAssociations();
-		ArrayList<ReferencePoint> refPoints = hyperplane.getReferencePoints();
+	public static void associate(Population population, SolutionDirections solutionDirections) {
+		solutionDirections.resetAssociations();
+		ArrayList<ReferencePoint> refPoints = solutionDirections.getReferencePoints();
 
 		for (Solution s : population.getSolutions()) {
 			double minDist = Double.MAX_VALUE;

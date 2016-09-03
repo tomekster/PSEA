@@ -105,33 +105,4 @@ public class Solution {
 	public void setNumVariables(int numVariables) {
 		this.numVariables = numVariables;
 	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + numObjectives;
-		result = prime * result + numVariables;
-		result = prime * result + Arrays.hashCode(variables);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Solution other = (Solution) obj;
-		if (numObjectives != other.numObjectives)
-			return false;
-		if (numVariables != other.numVariables)
-			return false;
-		if (!Arrays.equals(variables, other.variables))
-			return false;
-		return true;
-	}
-	
 }

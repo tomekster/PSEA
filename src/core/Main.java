@@ -54,6 +54,9 @@ public class Main {
 	private ChartPanel chartPanelReferencePlane;
 	private boolean firstFrontOnly;
 	private boolean showTargetPoints;
+	private boolean showSolDir;
+	private boolean showGeneration;
+	private boolean showChebDir;
 	private Constructor problemConstructor;
 	private int numGenerations;
 	private int elicitationInterval;
@@ -63,16 +66,14 @@ public class Main {
 	private JLabel labelIGD;
 	private JSlider slider;
 	private boolean interactive;
-	private int firstPhaseLength;
 	private Plot3D plot;
 
 	public Main() {
-		this.interactive = true;
+		this.interactive = false;
 		this.numRuns = 1;
 		this.numGenerations = 350;
 		this.elicitationInterval = 25;
 		this.numObjectives = 3;
-		this.firstPhaseLength = numGenerations/2;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -81,6 +82,9 @@ public class Main {
 		this.currentPopulationId = numGenerations;
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
+		this.showSolDir = true;
+		this.showGeneration = true;
+		this.showChebDir= true;
 		this.chartPanel = createChart();
 		this.chartPanelReferencePlane = createChartReferencePlane();
 		this.labelIGD = new JLabel("IGD: --");
@@ -121,7 +125,10 @@ public class Main {
 		panel.add(createNumGenerationsCB());
 		panel.add(createNumberOfRunsCB());
 		panel.add(createFirstFrontCB());
+		panel.add(createShowGenSeriesCB());
 		panel.add(createTargetPointsSeriesCB());
+		panel.add(createSolDirSeriesCB());
+		panel.add(createChebDirSeriesCB());
 		panel.add(createTrace());
 		panel.add(slider);
 		panel.add(createZoom());
@@ -257,6 +264,63 @@ public class Main {
 		});
 		return targetPointsCB;
 	}
+	
+	private JComboBox createSolDirSeriesCB() {
+		final JComboBox solDirCB = new JComboBox();
+		final String[] traceCmds = { "Show solution directions", "Hide solution directions" };
+		solDirCB.setModel(new DefaultComboBoxModel(traceCmds));
+		solDirCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (traceCmds[0].equals(solDirCB.getSelectedItem())) {
+					showSolDir = true;
+				} else {
+					showSolDir = false;
+				}
+				resetChart();
+			}
+		});
+		return solDirCB;
+	}
+	
+	private JComboBox createShowGenSeriesCB() {
+		final JComboBox showGenCB = new JComboBox();
+		final String[] traceCmds = { "Show generation solutions", "Hide generation solutions" };
+		showGenCB.setModel(new DefaultComboBoxModel(traceCmds));
+		showGenCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (traceCmds[0].equals(showGenCB.getSelectedItem())) {
+					showGeneration = true;
+				} else {
+					showGeneration = false;
+				}
+				resetChart();
+			}
+		});
+		return showGenCB;
+	}
+	
+	private JComboBox createChebDirSeriesCB() {
+		final JComboBox chebDirCB = new JComboBox();
+		final String[] traceCmds = { "Show chebyshev directions", "Hide chebyshev directions" };
+		chebDirCB.setModel(new DefaultComboBoxModel(traceCmds));
+		chebDirCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (traceCmds[0].equals(chebDirCB.getSelectedItem())) {
+					showChebDir = true;
+				} else {
+					showChebDir= false;
+				}
+				resetChart();
+			}
+		});
+		return chebDirCB;
+	}
 
 	private JComboBox createTrace() {
 		final JComboBox trace = new JComboBox();
@@ -355,16 +419,20 @@ public class Main {
 	}
 
 	private XYDataset createDatasetReferencePlane() {
-		ArrayList<ArrayList<ReferencePoint>> referencePointsHistory = history.getReferencePointsHistory();
+		ArrayList<Population> generationsHistory = history.getGenerations();
+		ArrayList<ArrayList<ReferencePoint>> solutionDirectionsHistory = history.getSolutionDirectionsHistory();
+		ArrayList<ArrayList<ReferencePoint>> chebyshevDirectionsHistory = history.getChebyshevDirectionsHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
-		if (referencePointsHistory != null) {
-			ArrayList<ReferencePoint> referencePoints = referencePointsHistory.get(currentPopulationId);
-			ArrayList<XYSeries> series = createReferencePointsSeries(referencePoints, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId - firstPhaseLength + elicitationInterval-1))/elicitationInterval)));
+		if (solutionDirectionsHistory != null && chebyshevDirectionsHistory != null) {
+			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
+			ArrayList<ReferencePoint> solutionDirections = solutionDirectionsHistory.get(currentPopulationId);
+			ArrayList<ReferencePoint> chebyshevDirections= chebyshevDirectionsHistory.get(currentPopulationId);
+			ArrayList<XYSeries> series = createReferencePointsSeries(generation, solutionDirections, chebyshevDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval)));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
-		}
+		}	
 		return result;
 	}
 
@@ -381,23 +449,40 @@ public class Main {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<ReferencePoint> referencePoints, ArrayList<Comparison> comparisons) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ArrayList<ReferencePoint> solutionDirections, ArrayList<ReferencePoint> chebyshevDirections, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
-		XYSeries coherentRpSeries = new XYSeries("Coherent reference points");
-		XYSeries incoherentRpSeries = new XYSeries("Incoherent reference points");
+		XYSeries generationSeries= new XYSeries("Generation solutions");
+		XYSeries solutionSeries= new XYSeries("Solution directions");
+		XYSeries coherentChSeries = new XYSeries("Coherent chebyshev directions");
+		XYSeries incoherentChSeries = new XYSeries("Incoherent chebyshev directions");
 		XYSeries preferedSolutions = new XYSeries("Prefered solutions");
 		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
 		Solution t;
-		for (ReferencePoint rp : referencePoints) {
-			if(rp.isCoherent()){
-				t = Geometry.cast3dPointToPlane(rp.getDimensions());
-				coherentRpSeries.add(t.getObjective(0), t.getObjective(1));		
-			} else{
-				t = Geometry.cast3dPointToPlane(rp.getDimensions());
-				incoherentRpSeries.add(t.getObjective(0), t.getObjective(1));
+		
+		if(showGeneration){
+			for(Solution s : generation){
+				t = Geometry.cast3dPointToPlane(s.getObjectives());
+				generationSeries.add(t.getObjective(0), t.getObjective(1));	
 			}
 		}
 		
+		if(showSolDir){
+			for (ReferencePoint rp : solutionDirections) {
+				t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				solutionSeries.add(t.getObjective(0), t.getObjective(1));		
+			}
+		}
+		if(showChebDir){
+			for (ReferencePoint rp : chebyshevDirections) {
+				if(rp.isCoherent()){
+					t = Geometry.cast3dPointToPlane(rp.getDimensions());
+					coherentChSeries.add(t.getObjective(0), t.getObjective(1));		
+				} else{
+					t = Geometry.cast3dPointToPlane(rp.getDimensions());
+					incoherentChSeries.add(t.getObjective(0), t.getObjective(1));
+				}
+			}
+		}
 		for (Comparison c : comparisons) {
 				t = Geometry.cast3dPointToPlane(c.getBetter().getObjectives());
 				preferedSolutions.add(t.getObjective(0), t.getObjective(1));
@@ -405,10 +490,12 @@ public class Main {
 				nonPreferedSolutions.add(t.getObjective(0), t.getObjective(1));
 		}
 		
-		result.add(coherentRpSeries);
-		result.add(incoherentRpSeries);
+		result.add(solutionSeries);
+		result.add(coherentChSeries);
+		result.add(incoherentChSeries);
 		result.add(preferedSolutions);
 		result.add(nonPreferedSolutions);
+		result.add(generationSeries);
 		return result;
 	}
 
@@ -443,10 +530,8 @@ public class Main {
 
 	private MySeries createJZY3DDataset() {
 		Population pop = history.getGeneration(currentPopulationId);
-		ArrayList <ReferencePoint> rp = history.getReferencePointsHistory().get(currentPopulationId);
-		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList
-				(0, Integer.max(0,(currentPopulationId - firstPhaseLength + elicitationInterval-1))/elicitationInterval));
-		
+		ArrayList <ReferencePoint> rp = history.getSolutionDirectionsHistory().get(currentPopulationId);
+		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval));		
 		return new MySeries(pop.getSolutions(), rp, comparisons);
 	}
 
@@ -454,7 +539,7 @@ public class Main {
 		NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval, firstPhaseLength);
+			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval, 0);
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();

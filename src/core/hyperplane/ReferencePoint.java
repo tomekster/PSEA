@@ -43,7 +43,7 @@ public class ReferencePoint {
 		this.nicheCount = rp.getNicheCount();
 	}
 	
-	public ArrayList<Solution> buildRanking(Population pop){
+	public ArrayList<Solution> buildSolutionsRanking(Population pop){
 		ArrayList < Pair<Solution, Double> > solutionValuePairs = new ArrayList < Pair<Solution, Double>>();
 		for(Solution s : pop.getSolutions()){
 			double chebyshevValue = TchebyshevFunction.eval(s, Geometry.invert(this.dimensions), this.rho, null);
@@ -52,8 +52,8 @@ public class ReferencePoint {
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>(){
 			@Override
 			public int compare(final Pair<Solution, Double> o1, final Pair<Solution, Double> o2){
-				//Sort pairs by Chebyshev Function value descending
-				return -Double.compare(o1.second, o2.second);
+				//Sort pairs by Chebyshev Function value ascending
+				return Double.compare(o1.second, o2.second);
 			}
 		});
 		
@@ -121,19 +121,9 @@ public class ReferencePoint {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("[");
+		sb.append("Dim:");
 		for (double d : dimensions) {
-			sb.append(d + ", ");
-		}
-		sb.replace(sb.length() - 2, sb.length(), "]\n");
-		if (!associatedSolutions.isEmpty()) {
-			sb.append("Associations: [\n");
-			for (Association as : associatedSolutions) {
-				sb.append(as.toString() + ",\n");
-			}
-			sb.replace(sb.length() - 2, sb.length(), "]");
-		} else {
-			sb.append("Associations: none");
+			sb.append(" " + d);
 		}
 		return sb.toString();
 	}

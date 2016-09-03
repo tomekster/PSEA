@@ -1,6 +1,8 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class Population{
 	private ArrayList <Solution> solutions = null;
@@ -55,5 +57,15 @@ public class Population{
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	public void removeSolutions(Population solutionsToRemove) {
+		for (Iterator<Solution> it = solutions.iterator(); it.hasNext();){
+			Solution s = it.next();
+			if(Arrays.asList(solutionsToRemove).contains(s)){
+				it.remove();
+			}
+		}
+		
 	}
 }
