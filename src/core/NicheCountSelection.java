@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
@@ -9,7 +10,6 @@ import core.hyperplane.Hyperplane;
 import core.hyperplane.ReferencePoint;
 import core.hyperplane.SolutionDirections;
 import utils.Geometry;
-import utils.MyComparator;
 
 /***
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
@@ -52,7 +52,13 @@ public class NicheCountSelection {
 			isLastFront.put(s, true);
 		}
 		
-		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparator);
+		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(new Comparator <ReferencePoint>() {
+			@Override
+			public int compare(ReferencePoint o1, ReferencePoint o2) {
+				return Double.compare(o1.getNicheCount(), o2.getNicheCount());
+			}
+		});
+		
 		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
 			refPQ.add(rp);
 		}

@@ -5,7 +5,7 @@ import java.util.Random;
 
 import core.Solution;
 import operators.CrossoverOperator;
-import utils.MyComparator;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
 
 public class SBX implements CrossoverOperator {
@@ -51,7 +51,7 @@ public class SBX implements CrossoverOperator {
 			if (random.nextDouble() > 0.5) {
 				continue;
 			}
-			if (Math.abs(p1 - p2) < MyComparator.EPS) {
+			if (Math.abs(p1 - p2) < Geometry.EPS) {
 				continue;
 			}
 			double y1 = Double.min(p1, p2);

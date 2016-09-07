@@ -6,10 +6,8 @@ import org.jzy3d.colors.Color;
 import org.jzy3d.maths.Coord3d;
 import org.jzy3d.plot3d.primitives.Scatter;
 import org.jzy3d.plot3d.rendering.canvas.Quality;
-import org.jzy3d.maths.Scale;
 
 import utils.MySeries;
-
 
 public class Plot3D extends AbstractAnalysis{
 	private Scatter solutionScatter;

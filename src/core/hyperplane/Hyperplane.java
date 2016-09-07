@@ -1,14 +1,8 @@
 package core.hyperplane;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
 
-import core.Population;
-import core.Solution;
 import utils.Geometry;
-import utils.MyComparator;
 
 public abstract class Hyperplane {
 

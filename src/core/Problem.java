@@ -21,6 +21,7 @@ public abstract class Problem {
 			lowerBound[i] = Double.MIN_VALUE;
 			upperBound[i] = Double.MAX_VALUE;
 		}
+		setBoundsOnVariables();
 	}
 
 	public Solution createSolution() {
@@ -45,7 +46,9 @@ public abstract class Problem {
 	// TODO
 	public abstract void evaluateConstraints(Solution solution);
 
-	public abstract void setBoundsOnVariables();
+	public void setBoundsOnVariables(){
+		//To be overriden by subclasses
+	}
 
 	public String getName() {
 		return name;

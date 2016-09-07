@@ -1,12 +1,17 @@
 package core.hyperplane;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import utils.Geometry;
+
 public class ReferencePointTest {
 
-	double EPS = utils.MyComparator.EPS;
+	double EPS = Geometry.EPS;
 	
 	@Test
 	public void copyConstructorTest(){

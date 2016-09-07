@@ -1,36 +1,34 @@
-package problems;
+package problems.dtlz;
 
 import core.Problem;
 import core.Solution;
 
-public class DTLZ4 extends Problem {
+public class DTLZ2 extends Problem {
 	// Parameter used in Deb's original paper
 	// k = numVariables - numObjectives + 1
 	private final static int k = 10;
 
-	public DTLZ4(Integer numObjectives) {
+	public DTLZ2(Integer numObjectives) {
 		this(numObjectives + k - 1, numObjectives);
 	}
 
-	public DTLZ4(int numVariables, int numObjectives) {
-		super(numVariables, numObjectives, 0, "DTLZ4");
-		setBoundsOnVariables();
+	public DTLZ2(Integer numVariables, int numObjectives) {
+		super(numVariables, numObjectives, 0, "DTLZ2");
 	}
 
 	/** Evaluate() method */
 	public void evaluate(Solution solution) {
 		int numberOfVariables = getNumVariables();
 		int numberOfObjectives = getNumObjectives();
+
 		double[] f = new double[numberOfObjectives];
 		double[] x = new double[numberOfVariables];
-		
-		double alpha = 100.0;
+
+		int k = numberOfVariables - numberOfObjectives + 1;
 
 		for (int i = 0; i < numberOfVariables; i++) {
 			x[i] = solution.getVariable(i);
 		}
-		
-		int k = getNumVariables() - getNumObjectives() + 1;
 
 		double g = 0.0;
 		for (int i = numberOfVariables - k; i < numberOfVariables; i++) {
@@ -43,11 +41,11 @@ public class DTLZ4 extends Problem {
 
 		for (int i = 0; i < numberOfObjectives; i++) {
 			for (int j = 0; j < numberOfObjectives - (i + 1); j++) {
-				f[i] *= java.lang.Math.cos(java.lang.Math.pow(x[j], alpha) * (java.lang.Math.PI / 2.0));
+				f[i] *= Math.cos(x[j] * 0.5 * Math.PI);
 			}
 			if (i != 0) {
 				int aux = numberOfObjectives - (i + 1);
-				f[i] *= java.lang.Math.sin(java.lang.Math.pow(x[aux], alpha) * (java.lang.Math.PI / 2.0));
+				f[i] *= Math.sin(x[aux] * 0.5 * Math.PI);
 			}
 		}
 

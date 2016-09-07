@@ -6,15 +6,15 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import utils.MyComparator;
+import utils.Geometry;
 
 public class HyperplaneTest {
 
-	double EPS = MyComparator.EPS;
+	double EPS = Geometry.EPS;
 
 	private double refPointDimSum(ReferencePoint rp) {
 		double sum = 0.0;
-		for (double d : rp.getNormDimensions()) {
+		for (double d : Geometry.normalize(rp.getDimensions())) {
 			sum += d;
 		}
 		return sum;
@@ -22,11 +22,11 @@ public class HyperplaneTest {
 
 	@Test
 	public void referencePointsGenerationTest() {
-		Hyperplane hp;
+		SolutionDirections hp;
 		ArrayList<Integer> partitions = new ArrayList<>();
 
 		partitions.add(4);
-		hp = new Hyperplane(3, partitions);
+		hp = new SolutionDirections(3);
 		assertEquals(15, hp.getReferencePoints().size());
 		for (ReferencePoint rp : hp.getReferencePoints()) {
 			assertEquals(1.0, refPointDimSum(rp), EPS);
@@ -34,7 +34,7 @@ public class HyperplaneTest {
 
 		partitions.clear();
 		partitions.add(12);
-		hp = new Hyperplane(3, partitions);
+		hp = new SolutionDirections(3);
 		assertEquals(91, hp.getReferencePoints().size());
 		for (ReferencePoint rp : hp.getReferencePoints()) {
 			assertEquals(1.0, refPointDimSum(rp), EPS);
@@ -42,7 +42,7 @@ public class HyperplaneTest {
 		
 		partitions.clear();
 		partitions.add(6);
-		hp = new Hyperplane(5, partitions);
+		hp = new SolutionDirections(5);
 		assertEquals(210, hp.getReferencePoints().size());
 		for (ReferencePoint rp : hp.getReferencePoints()) {
 			assertEquals(1.0, refPointDimSum(rp), EPS);
@@ -51,7 +51,7 @@ public class HyperplaneTest {
 		partitions.clear();
 		partitions.add(3);
 		partitions.add(2);
-		hp = new Hyperplane(8, partitions);
+		hp = new SolutionDirections(8);
 		assertEquals(156, hp.getReferencePoints().size());
 		for (int i=0; i<120; i++) {
 			ReferencePoint rp = hp.getReferencePoints().get(i);
@@ -65,7 +65,7 @@ public class HyperplaneTest {
 		partitions.clear();
 		partitions.add(3);
 		partitions.add(2);
-		hp = new Hyperplane(10, partitions);
+		hp = new SolutionDirections(10);
 		assertEquals(275, hp.getReferencePoints().size());
 		for (int i=0; i<220; i++) {
 			ReferencePoint rp = hp.getReferencePoints().get(i);
@@ -79,7 +79,7 @@ public class HyperplaneTest {
 		partitions.clear();
 		partitions.add(2);
 		partitions.add(1);
-		hp = new Hyperplane(15, partitions);
+		hp = new SolutionDirections(15);
 		assertEquals(135, hp.getReferencePoints().size());
 		for (int i=0; i<120; i++) {
 			ReferencePoint rp = hp.getReferencePoints().get(i);

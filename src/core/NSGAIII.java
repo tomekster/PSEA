@@ -8,44 +8,31 @@ import java.util.logging.Logger;
 import core.hyperplane.ChebyshevDirections;
 import core.hyperplane.ReferencePoint;
 import core.hyperplane.SolutionDirections;
-import history.NSGAIIIHistory;
 import igd.IGD;
 import igd.TargetFrontGenerator;
-import operators.CrossoverOperator;
-import operators.MutationOperator;
-import operators.SelectionOperator;
-import operators.impl.crossover.SBX;
-import operators.impl.mutation.PolynomialMutation;
-import operators.impl.selection.BinaryTournament;
 import preferences.PreferenceCollector;
-import preferences.TchebyshevFunction;
+import solutionRankers.ChebyshevRanker;
+import solutionRankers.ChebyshevRankerBuilder;
+import solutionRankers.NonDominationRanker;
 import utils.NSGAIIIRandom;
-import utils.NonDominatedSort;
 import utils.RACS;
 
-public class NSGAIII implements Runnable {
+public class NSGAIII extends EA {
 
 	private final static Logger LOGGER = Logger.getLogger(NSGAIII.class.getName());
 
-	private Problem problem;
-	private Population population;
-	private int populationSize, numGenerations, elicitationInterval;
+	private int elicitationInterval;
 
-	private SelectionOperator selectionOperator;
-	private CrossoverOperator crossoverOperator;
-	private MutationOperator mutationOperator;
-	private NSGAIIIHistory history;
 	private boolean interactive;
 	private PreferenceCollector PC;
 	private SolutionDirections solutionDirections;
 	private SolutionDirections originalHyperplane;
 	private ChebyshevDirections chebyshevDirections;
 	private double spreadingPointsPercent;
+	private ChebyshevRanker chebyshevRanker;
 
 	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval, double spreadingPointsPercent) {
-		// Defines problem that NSGAIII will solve
-		this.problem = problem;
-
+		super(problem, numGenerations, 0);
 		// Hyperplane is one of basic constructs used in NSGA-III algorithm. It is responsible 
 		// for keeping solutions uniformly spread among objective space. 
 		// In modified NSGA-III it is used to store information about directions which are interesting 
@@ -53,7 +40,6 @@ public class NSGAIII implements Runnable {
 		this.solutionDirections = new SolutionDirections(problem.getNumObjectives());
 		
 		this.originalHyperplane= new SolutionDirections(problem.getNumObjectives());
-		
 		
 		// Chebyshev directions is a new idea in modified NSGA-III. It is supposed to store information 
 		// about Chebyshev function directions which are coherent with user's preferences
@@ -65,29 +51,25 @@ public class NSGAIII implements Runnable {
 		this.populationSize += this.populationSize % 2;
 		this.population = createInitialPopulation();
 
-		// Standard genetic operations used in evolutionary algorithms
-		this.selectionOperator = new BinaryTournament();
-		this.crossoverOperator = new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound());
-		this.mutationOperator = new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(),
-				problem.getUpperBound());
-
 		// Parameters of algorithm execution
-		this.numGenerations = numGenerations;
 		this.interactive = interactive;
 		this.elicitationInterval = elicitationInterval;
 		this.spreadingPointsPercent = spreadingPointsPercent;
+		this.chebyshevRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(problem.getNumObjectives());
 		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
-		this.history = new NSGAIIIHistory(numGenerations);
+		history.setNumSolutionDirections(solutionDirections.getReferencePoints().size());
 		history.addGeneration(population.copy());
 		history.addSolutionDirections(this.solutionDirections.getReferencePoints());
 		history.addChebyshevDirections(this.chebyshevDirections.getReferencePoints());
 		history.setTargetPoints(TargetFrontGenerator.generate(this.solutionDirections.getReferencePoints(), problem));
-		history.setPreferenceCollector(PC);
 		this.PC = new PreferenceCollector();
+		history.setPreferenceCollector(PC);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
 	public void run() {
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
@@ -101,7 +83,7 @@ public class NSGAIII implements Runnable {
 				if(generation % elicitationInterval == 0) {
 					System.out.println("GENERATION: " + generation);
 					recheckCoherence = true;
-					Population firstFront = NonDominatedSort.execute(population).get(0);
+					Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
 					if (firstFront.size() > 1){
 						System.out.println(generation + " ELICITATE" );
 						elicitate(firstFront);
@@ -119,34 +101,17 @@ public class NSGAIII implements Runnable {
 				solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
 			}
 
-
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 			history.addSolutionDirections(solutionDirections.getReferencePoints());
 			history.addChebyshevDirections((ArrayList <ReferencePoint>)chebyshevDirections.getReferencePoints().clone());
-			history.setPreferenceCollector(PC);
+			history.addBestChebVal(evaluateGeneration(population));
 		}
 	}
 
-	private Population createInitialPopulation() {
-		Population population = new Population();
-		for (int i = 0; i < populationSize; i++) {
-			population.addSolution(problem.createSolution());
-		}
-		problem.evaluate(population);
-		return population;
-	}
-
-	public Population nextGeneration() {
-		Population offspring = createOffspring(population);
-		Population combinedPopulation = new Population();
-
-		combinedPopulation.addSolutions(population);
-		combinedPopulation.addSolutions(offspring);
-
-		problem.evaluate(combinedPopulation);
-
-		ArrayList<Population> fronts = NonDominatedSort.execute(combinedPopulation);
+	@Override
+	public Population selectNewPopulation(Population pop) {
+		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
 
 		Population spreadingPoints;
 		Population allFronts = new Population();
@@ -173,10 +138,11 @@ public class NSGAIII implements Runnable {
 		assert allButLastFront.size() <= populationSize;
 		assert allButLastFront.size() + lastFront.size() >= populationSize;
 		
+		Population res;
 		if (allFronts.size() == populationSize) {
-			population = allFronts.copy();
+			res = allFronts.copy();
 		} else {
-			population = new Population();
+			res = new Population();
 			Population kPoints = new Population();
 			int K = populationSize - allButLastFront.size();
 			int numSpreadingPoints = (int) (this.spreadingPointsPercent * K); 
@@ -188,38 +154,19 @@ public class NSGAIII implements Runnable {
 			allButLastFront.removeSolutions(spreadingPoints);
 			allButLastFront.removeSolutions(lastFront);
 			kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K - numSpreadingPoints, solutionDirections);
-			population.addSolutions(allButLastFront.copy());
-			population.addSolutions(spreadingPoints.copy());
-			population.addSolutions(kPoints.copy());
+			res.addSolutions(allButLastFront.copy());
+			res.addSolutions(spreadingPoints.copy());
+			res.addSolutions(kPoints.copy());
 		}
 			
-		return population;
+		return res;
 	}
 
-	private Population createOffspring(Population population) {
-		Population offspring = new Population();
-		Population matingPopulation = new Population();
-
-		while (matingPopulation.size() < populationSize) {
-			matingPopulation.addSolution(selectionOperator.execute(population));
-		}
-
-		for (int i = 0; i < populationSize; i += 2) {
-			ArrayList<Solution> parents = new ArrayList<Solution>(2);
-			parents.add(matingPopulation.getSolution(i));
-			parents.add(matingPopulation.getSolution(i + 1));
-			ArrayList<Solution> children = crossoverOperator.execute(parents);
-
-			mutationOperator.execute(children.get(0));
-			mutationOperator.execute(children.get(1));
-
-			offspring.addSolution(children.get(0));
-			offspring.addSolution(children.get(1));
-		}
-		return offspring;
+	public double evaluateGeneration(Population gen) {
+		return chebyshevRanker.getMinChebVal(gen);
 	}
-
-	public double evaluateFinalResult(Population result) {
+	
+	public double evaluateFinalResult(Population result){
 		ArrayList<ReferencePoint> referencePoints = this.solutionDirections.getReferencePoints();
 		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), result);
 		return igd;
@@ -247,12 +194,7 @@ public class NSGAIII implements Runnable {
 		// PC.addComparison(s2, s1);
 		// }
 
-		//if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
-		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
-			PC.addComparison(s1, s2);
-		} else {
-			PC.addComparison(s2, s1);
-		}
+		addComparison(s1, s2);
 	}
 
 	private void elicitate(Population firstFront) {
@@ -296,63 +238,17 @@ public class NSGAIII implements Runnable {
 //			}
 //		}
 
-		if (TchebyshevFunction.decidentCentralPointCompare(s1, s2)) {
-//		if (TchebyshevFunction.decidentPrefereXCompare(s1, s2)) {
+		addComparison(s1, s2);
+	}
+	
+	private void addComparison(Solution s1, Solution s2) {
+		int comparisonResult = this.chebyshevRanker.compareSolutions(s1, s2); 
+		if (comparisonResult == -1) {
 			PC.addComparison(s1, s2);
-		} else {
+		} else if (comparisonResult == 1){
 			PC.addComparison(s2, s1);
+		} else{
+			System.out.println("Incomparable solutions - equal chebyshev function value");
 		}
-	}
-
-	public int getNumGenerations() {
-		return numGenerations;
-	}
-
-	public void setNumGenerations(int numGenerations) {
-		this.numGenerations = numGenerations;
-	}
-
-	public SelectionOperator getSelectionOperator() {
-		return selectionOperator;
-	}
-
-	public void setSelectionOperator(SelectionOperator selectionOperator) {
-		this.selectionOperator = selectionOperator;
-	}
-
-	public CrossoverOperator getCrossoverOperator() {
-		return crossoverOperator;
-	}
-
-	public void setCrossoverOperator(CrossoverOperator crossoverOperator) {
-		this.crossoverOperator = crossoverOperator;
-	}
-
-	public MutationOperator getMutationOperator() {
-		return mutationOperator;
-	}
-
-	public void setMutationOperator(MutationOperator mutationOperator) {
-		this.mutationOperator = mutationOperator;
-	}
-
-	public Problem getProblem() {
-		return problem;
-	}
-
-	public Population getPopulation() {
-		return population;
-	}
-
-	public int getPopulationSize() {
-		return populationSize;
-	}
-
-	public NSGAIIIHistory getHistory() {
-		return history;
-	}
-
-	public void setHistory(NSGAIIIHistory history) {
-		this.history = history;
 	}
 }

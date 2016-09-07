@@ -1,13 +1,13 @@
-package utils;
+package solutionRankers;
 
 import java.util.ArrayList;
 
 import core.Population;
 import core.Solution;
 
-public class NonDominatedSort {
+public class NonDominationRanker{
 
-	public static ArrayList<Population> execute(Population population) {
+	public static ArrayList<Population> sortPopulation(Population population) {
 		ArrayList<Population> fronts = new ArrayList<Population>();
 		ArrayList<Integer> front = new ArrayList<Integer>();
 		ArrayList<Integer> nextFront = new ArrayList<Integer>();
@@ -30,8 +30,7 @@ public class NonDominatedSort {
 					continue;
 				}
 				Solution q = population.getSolution(j);
-				MyComparator cp = new MyComparator();
-				int flag = cp.compareDominance(p, q);
+				int flag = compareSolutions(p, q);
 				if (flag == -1) {
 					dominatedBySolutions.get(i).add(j);
 				} else if (flag == 1) {
@@ -63,5 +62,36 @@ public class NonDominatedSort {
 
 		return fronts;
 	}
+	
+	/**
+	 * Finds dominating solution assuming minimization problem
+	 * 
+	 * @param solution1
+	 * @param solution2
+	 * @return 0 if neither of solutions dominates other ; -1 if solution1
+	 *         dominates solution2 ; 1 if solution2 dominates solution1
+	 */
+	public static int compareSolutions(Solution solution1, Solution solution2) {
 
+		if (solution1.getNumObjectives() != solution2.getNumObjectives()) {
+			throw new RuntimeException("Incomparable solutions. Different number of dimensions");
+		}
+
+		boolean firstDominates = false, secondDominates = false;
+		int flag;
+		for (int pos = 0; pos < solution1.getNumObjectives(); pos++) {
+			flag = Double.compare(solution1.getObjective(pos), solution2.getObjective(pos));
+			if (flag == 1)
+				secondDominates = true;
+			if (flag == -1)
+				firstDominates = true;
+		}
+
+		if (firstDominates && !secondDominates)
+			return -1;
+		else if (!firstDominates && secondDominates)
+			return 1;
+		else
+			return 0;
+	}
 }

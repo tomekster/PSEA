@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import exceptions.DegeneratedMatrixException;
+import utils.comparators.MyComparator;
 
 public class GaussianEliminationTest {
 

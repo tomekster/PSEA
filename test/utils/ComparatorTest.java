@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import core.Solution;
+import utils.comparators.MyComparator;
 
 public class ComparatorTest {
 

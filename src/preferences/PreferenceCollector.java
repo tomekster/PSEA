@@ -2,8 +2,6 @@ package preferences;
 
 import java.util.ArrayList;
 
-import javax.swing.JOptionPane;
-
 import core.Solution;
 
 public class PreferenceCollector {

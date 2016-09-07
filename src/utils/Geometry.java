@@ -4,7 +4,7 @@ import core.Solution;
 
 public class Geometry {
 
-	private static double EPS = MyComparator.EPS;
+	public static double EPS = 1E-9;
 
 	/**
 	 * 

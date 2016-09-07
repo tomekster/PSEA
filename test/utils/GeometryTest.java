@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import utils.comparators.MyComparator;
+
 public class GeometryTest {
 
 	private double EPS = MyComparator.EPS;

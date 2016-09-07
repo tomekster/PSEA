@@ -37,10 +37,10 @@ import org.jzy3d.analysis.AnalysisLauncher;
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
 import preferences.Comparison;
-import problems.DTLZ1;
+import problems.dtlz.DTLZ1;
+import solutionRankers.NonDominationRanker;
 import utils.Geometry;
 import utils.MySeries;
-import utils.NonDominatedSort;
 
 /**
  * @see http://stackoverflow.com/questions/5522575
@@ -69,11 +69,11 @@ public class Main {
 	private Plot3D plot;
 
 	public Main() {
-		this.interactive = false;
+		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 350;
+		this.numGenerations = 50;
 		this.elicitationInterval = 25;
-		this.numObjectives = 3;
+		this.numObjectives = 2;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -164,7 +164,7 @@ public class Main {
 
 	private JComboBox chooseProblemComboBox() {
 		final JComboBox chooseProblemCB = new JComboBox();
-		final String[] traceCmds = { "DTLZ1", "DTLZ2", "DTLZ3", "DTLZ4", "DTLZ5", "DTLZ6", "DTLZ7" };
+		final String[] traceCmds = { "DTLZ1", "DTLZ2", "DTLZ3", "DTLZ4", "WFG1", "WFG2", "WFG3", "WFG4", "WFG5", "WFG6", "WFG7", "WFG8", "WFG9"};
 		chooseProblemCB.setModel(new DefaultComboBoxModel(traceCmds));
 		chooseProblemCB.addActionListener(new ActionListener() {
 
@@ -173,12 +173,14 @@ public class Main {
 				String problemName = String.valueOf(chooseProblemCB.getSelectedItem());
 				Class c = null;
 				try {
-					c = Class.forName("problems." + problemName);
+					if(problemName.contains("DTLZ")) {
+						c = Class.forName("problems.dtlz." + problemName);
+					} else if(problemName.contains("WFG")) {
+						c = Class.forName("problems.wfg." + problemName);
+					}
+					problemConstructor = c.getConstructor(Integer.class);
 				} catch (ClassNotFoundException e1) {
 					e1.printStackTrace();
-				}
-				try {
-					problemConstructor = c.getConstructor(Integer.class);
 				} catch (NoSuchMethodException | SecurityException e1) {
 					e1.printStackTrace();
 				}
@@ -437,7 +439,8 @@ public class Main {
 	}
 
 	private ArrayList<XYSeries> createpopulationSeries(Population pop) {
-		ArrayList<Population> fronts = NonDominatedSort.execute(pop);
+		NonDominationRanker ndr = new NonDominationRanker();
+		ArrayList<Population> fronts = ndr.sortPopulation(pop);
 		ArrayList<XYSeries> resultSeries = new ArrayList<>();
 		for (int frontId = 0; frontId < fronts.size(); frontId++) {
 			XYSeries frontSeries = new XYSeries("Front " + frontId);
@@ -543,7 +546,7 @@ public class Main {
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();
-			resIGD = alg.evaluateFinalResult(alg.getPopulation());
+			resIGD = alg.evaluateGeneration(alg.getPopulation());
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {

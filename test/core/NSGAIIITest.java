@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import problems.DTLZ1;
+import problems.dtlz.DTLZ1;
 
 public class NSGAIIITest {
 	@Test
