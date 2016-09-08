@@ -32,7 +32,7 @@ public class NicheCountSelection {
 			ReferencePoint bestRefPoint = null;
 			for (int i = 0; i < refPoints.size(); i++) {
 				ReferencePoint curRefPoint = refPoints.get(i);
-				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDimensions());
+				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
 				if (dist < minDist) {
 					minDist = dist;
 					bestRefPoint = curRefPoint;

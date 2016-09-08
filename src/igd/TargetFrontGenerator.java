@@ -35,7 +35,7 @@ public class TargetFrontGenerator {
 			double sqr_sum;
 			for (ReferencePoint r : referencePoints) {
 				sqr_sum = 0;
-				for (double d : r.getDimensions()) {
+				for (double d : r.getDim()) {
 					sqr_sum += d*d;
 				}
 				

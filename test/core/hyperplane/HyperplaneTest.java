@@ -14,7 +14,7 @@ public class HyperplaneTest {
 
 	private double refPointDimSum(ReferencePoint rp) {
 		double sum = 0.0;
-		for (double d : Geometry.normalize(rp.getDimensions())) {
+		for (double d : Geometry.normalize(rp.getDim())) {
 			sum += d;
 		}
 		return sum;

@@ -13,6 +13,11 @@ public abstract class Hyperplane {
 		this.dim = M;
 		referencePoints = new ArrayList<ReferencePoint>();
 		generateReferencePoints();
+		for(ReferencePoint rp : referencePoints){
+			for(int i=0; i<rp.getNumDimensions(); i++){
+				rp.setDim(i, Double.max(Geometry.EPS, rp.getDim(i)));
+			}
+		}
 	}
 
 	private void generateReferencePoints() {
@@ -27,6 +32,7 @@ public abstract class Hyperplane {
 			p = partitions.get(1);
 			ReferencePoint rp = new ReferencePoint(dim);
 			generateRecursive(rp, 0.5 / p, 0, p, insideLayer);
+			
 			referencePoints.addAll(insideLayer);
 		}
 	}
@@ -54,15 +60,15 @@ public abstract class Hyperplane {
 		return this.referencePoints;
 	}
 
-	protected ReferencePoint getRandomNeighbour(ReferencePoint rp, double radius) {
-		ReferencePoint res = new ReferencePoint(dim);
+	protected ReferencePoint getRandomNeighbour(ReferencePoint centralPoint, double radius) {
+		ReferencePoint newPoint = new ReferencePoint(dim);
 		double p[] = new double[dim];
 		boolean positive;
 		do {
 			positive = true;
 			p = Geometry.randomPointOnSphere(dim, radius);
 			for (int i = 0; i < dim; i++) {
-				p[i] += rp.getDim(i);
+				p[i] += centralPoint.getDim(i);
 				if (p[i] < 0) {
 					positive = false;
 					break;
@@ -70,8 +76,8 @@ public abstract class Hyperplane {
 			}
 			p = Geometry.normalize(p);
 		} while (!positive);
-		res.setDimensions(p);
-		return res;
+		newPoint.setDimensions(p);
+		return newPoint;
 	}
 
 	public void cloneReferencePoints() {

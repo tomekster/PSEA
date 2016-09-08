@@ -54,9 +54,11 @@ public class RACS {
 	 * @param pc
 	 * 
 	 */
-	public static void checkIfRefPointsAreCoherent(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
+	public static void recheckIncoherentPoints(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
 		for (ReferencePoint rp : referencePoints) {
-			rp.setCoherent(isCoherent(rp, pc));
+			if(!rp.isCoherent()){
+				rp.setCoherent(checkCoherence(rp, pc));
+			}
 		}
 	}
 
@@ -71,15 +73,15 @@ public class RACS {
 			PreferenceCollector pc) {
 		ArrayList<ReferencePoint> coherentReferencePoints = new ArrayList<ReferencePoint>();
 		for (ReferencePoint rp : referencePoints) {
-			if (isCoherent(rp, pc)) {
+			if (checkCoherence(rp, pc)) {
 				coherentReferencePoints.add(rp);
 			}
 		}
 		return coherentReferencePoints;
 	}
 
-	private static boolean isCoherent(ReferencePoint rp, PreferenceCollector pc) {
-		double lambda[] = Geometry.invert(rp.getDimensions());
+	public static boolean checkCoherence(ReferencePoint rp, PreferenceCollector pc) {
+		double lambda[] = Geometry.invert(rp.getDim());
 		Pair <Double, Double> epsAndRho= RATSLP(lambda, pc);
 		rp.setEps(epsAndRho.first);
 		rp.setRho(epsAndRho.second);
@@ -121,7 +123,7 @@ public class RACS {
 					continue;
 				}
 				for (ReferencePoint rp : coherentReferencePoints) {
-					lambda = Geometry.invert(rp.getDimensions());
+					lambda = Geometry.invert(rp.getDim());
 					double eps = RATSDominationLP(lambda, pc, pop, i);
 					lpCount++;
 					System.out.println("lpCount = " + lpCount);

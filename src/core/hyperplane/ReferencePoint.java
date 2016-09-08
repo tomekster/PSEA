@@ -30,11 +30,16 @@ public class ReferencePoint {
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
-		this.numDimensions = rp.getNumDimensions();
-		this.dimensions = rp.getDimensions().clone();
+		this(rp.getNumDimensions());
+		this.dimensions = rp.getDim().clone();
 		this.associatedSolutions = new PriorityQueue<Association> (rp.getAssociatedSolutionsQueue());
 		this.coherent = rp.isCoherent();
 		this.nicheCount = rp.getNicheCount();
+	}
+	
+	public ReferencePoint(double []dimensions) {
+		this(dimensions.length);
+		this.dimensions = dimensions.clone();
 	}
 
 	public double getDim(int index) {
@@ -69,7 +74,7 @@ public class ReferencePoint {
 		return this.numDimensions;
 	}
 
-	public double[] getDimensions() {
+	public double[] getDim() {
 		return this.dimensions;
 	}
 

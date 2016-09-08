@@ -15,6 +15,7 @@ import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
 import utils.NSGAIIIRandom;
+import utils.Pair;
 import utils.RACS;
 
 public class NSGAIII extends EA {
@@ -75,23 +76,23 @@ public class NSGAIII extends EA {
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
 
-		boolean recheckCoherence = false;
 		for (int generation = 0; generation < numGenerations; generation++) {
+			System.out.println("GENERATION: " + generation);
 			nextGeneration();
 
 			if(interactive){
 				if(generation % elicitationInterval == 0) {
-					System.out.println("GENERATION: " + generation);
-					recheckCoherence = true;
 					Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
 					if (firstFront.size() > 1){
-						System.out.println(generation + " ELICITATE" );
 						elicitate(firstFront);
+						
+						//New elicitation - set all chebDirs to incoherent
+						for(ReferencePoint rp : chebyshevDirections.getReferencePoints()){
+							rp.setCoherent(false);
+						}
+						RACS.recheckIncoherentPoints(chebyshevDirections.getReferencePoints(), this.PC);
+						chebyshevDirections.modifyChebyshevDirections(generation, numGenerations, PC);
 					}
-				}
-				if (recheckCoherence) {
-					RACS.checkIfRefPointsAreCoherent(chebyshevDirections.getReferencePoints(), this.PC);
-					recheckCoherence = chebyshevDirections.modifyChebyshevDirections(generation,numGenerations);
 				}
 				
 				Population bestChebyshevSolutions = chebyshevDirections.selectKChebyshevPoints(population, populationSize/2);
@@ -162,7 +163,7 @@ public class NSGAIII extends EA {
 		return res;
 	}
 
-	public double evaluateGeneration(Population gen) {
+	public Pair<Solution, Double> evaluateGeneration(Population gen) {
 		return chebyshevRanker.getMinChebVal(gen);
 	}
 	

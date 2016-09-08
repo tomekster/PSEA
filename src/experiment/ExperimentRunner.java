@@ -25,9 +25,10 @@ import utils.Pair;
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();
 	private static HashMap<Pair<String, Integer>, Integer> numGenerationsMap = new HashMap<>();
-
+	private static HashMap<Integer, Integer> popSizeMap = new HashMap<>();
+	
 	public static void main(String[] args) {
-		int numRuns = 20;
+		int numRuns = 1;
 		initExecutionData();
 		for (Problem p : problems) {
 			for (int runId = 1; runId <= numRuns; runId++) {
@@ -39,22 +40,23 @@ public class ExperimentRunner {
 	}
 
 	private static void runNSGAIIIExperiment(Problem p, int runId) {
-		NSGAIII alg = new NSGAIII(p,
-				numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), true, 25, 0);
+		NSGAIII alg = new NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), true, 25, 0);
 		alg.run();
 		saveHistory(alg.getHistory(), "NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
 	}
 
 	private static void runSingleObjectiveEA(Problem p, int runId) {
+		int numObj = p.getNumObjectives();
 		SingleObjectiveEA soea = new SingleObjectiveEA(p,
-				numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), 92,
-				ChebyshevRankerBuilder.getCentralChebyshevRanker(p.getNumObjectives()));
+				numGenerationsMap.get(new Pair<String, Integer>(p.getName(), numObj)), popSizeMap.get(numObj),
+				ChebyshevRankerBuilder.getCentralChebyshevRanker(numObj));
 		soea.run();
-		saveHistory(soea.getHistory(), "SingleCrit_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, true);
+		saveHistory(soea.getHistory(), "SingleCrit_" + p.getName() + '_' + numObj + '_' + runId, true);
 	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = { 3, 5, 8, 10, 15  };
+		//int numObjectives[] = { 3, 5, 8, 10, 15  };
+		int numObjectives[] = {8};
 		for (int no : numObjectives) {
 			problems.add(new DTLZ1(no));
 			problems.add(new DTLZ2(no)); 
@@ -83,6 +85,12 @@ public class ExperimentRunner {
 		numGenerationsMap.put(new Pair<String, Integer>("DTLZ4", 8), 1250);
 		numGenerationsMap.put(new Pair<String, Integer>("DTLZ4", 10), 2000);
 		numGenerationsMap.put(new Pair<String, Integer>("DTLZ4", 15), 3000);
+		
+		popSizeMap.put(3, 92);
+		popSizeMap.put(5, 212);
+		popSizeMap.put(8, 156);
+		popSizeMap.put(10, 276);
+		popSizeMap.put(15, 136);
 	}
 
 	private static void saveHistory(NSGAIIIHistory history, String filename, boolean soea) {
@@ -93,7 +101,8 @@ public class ExperimentRunner {
 		lines.add(history.getNumGenerations() + " " + history.getPopulationSize() + " "
 				+ history.getNumSolutionDirections()+ " "
 				+ history.getNumVariables() + " "
-				+ history.getNumObjectives());
+				+ history.getNumObjectives() + " "
+				+ history.getRACSCount().size());
 		
 		//saveSolutions(lines, history);
 		
@@ -104,7 +113,9 @@ public class ExperimentRunner {
 		}
 		
 		saveBestChebVal(lines, history);
-
+		saveBestChebSol(lines, history);
+		saveRacsCount(lines, history);
+		
 		try {
 			Files.write(file, lines, Charset.forName("UTF-8"));
 		} catch (IOException e) {
@@ -141,7 +152,7 @@ public class ExperimentRunner {
 			ArrayList<ReferencePoint> solDirs = history.getSolutionDirections(generationId);
 			for (int j = 0; j < solDirs.size(); j++) {
 				ReferencePoint solDir = solDirs.get(j);
-				for (double dim : solDir.getDimensions()) {
+				for (double dim : solDir.getDim()) {
 					sb.append(dim);
 					sb.append(" ");
 				}
@@ -157,7 +168,7 @@ public class ExperimentRunner {
 			ArrayList<ReferencePoint> chebDirs = history.getSolutionDirections(generationId);
 			for (int j = 0; j < chebDirs.size(); j++) {
 				ReferencePoint chebDir = chebDirs.get(j);
-				for (double dim : chebDir.getDimensions()) {
+				for (double dim : chebDir.getDim()) {
 					sb.append(dim);
 					sb.append(" ");
 				}
@@ -174,6 +185,23 @@ public class ExperimentRunner {
 			sb.append("\n");
 		}
 		lines.add(sb.toString());
-		
+	}
+	
+	private static void saveBestChebSol(ArrayList<String> lines, NSGAIIIHistory history) {
+		StringBuffer sb = new StringBuffer();
+		for (int generationId = 0; generationId < history.getNumGenerations(); generationId++) {
+			sb.append(history.getBestChebSol(generationId));
+			sb.append("\n");
+		}
+		lines.add(sb.toString());
+	}
+	
+	private static void saveRacsCount(ArrayList<String> lines, NSGAIIIHistory history) {
+		StringBuffer sb = new StringBuffer();
+		for (int racsCount : history.getRACSCount()) {
+			sb.append(racsCount);
+			sb.append("\n");
+		}
+		lines.add(sb.toString());
 	}
 }

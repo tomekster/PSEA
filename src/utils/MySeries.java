@@ -20,7 +20,7 @@ public class MySeries {
 	public void setReferencePointSeries(ArrayList<ReferencePoint> refPoints){
 		referencePointSeries = new ArrayList <Point>();
 		for(ReferencePoint rp : refPoints){
-			referencePointSeries.add((new Point(rp.getDimensions())));
+			referencePointSeries.add((new Point(rp.getDim())));
 		}
 	}
 	

@@ -3,8 +3,10 @@ package history;
 import java.util.ArrayList;
 
 import core.Population;
+import core.Solution;
 import core.hyperplane.ReferencePoint;
 import preferences.PreferenceCollector;
+import utils.Pair;
 
 public class NSGAIIIHistory {
 	
@@ -18,14 +20,19 @@ public class NSGAIIIHistory {
 	private ArrayList<Population> generations;
 	private ArrayList< ArrayList<ReferencePoint> > solutionDirectionsHistory;
 	private ArrayList< ArrayList<ReferencePoint> > chebyshevDirectionsHistory;
+	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;
+	private ArrayList<Integer> RACSCount;
+	
 	private PreferenceCollector pc;
 	
 	public NSGAIIIHistory(int numGenerations){
 		this.generations = new ArrayList<>(numGenerations);
 		this.solutionDirectionsHistory = new ArrayList< ArrayList<ReferencePoint> >();
 		this.chebyshevDirectionsHistory = new ArrayList< ArrayList<ReferencePoint> >();
+		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
+		this.RACSCount= new ArrayList <Integer>();
 	}
 	public Population getTargetPoints() {
 		return targetPoints;
@@ -64,8 +71,9 @@ public class NSGAIIIHistory {
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
 	}
-	public void addBestChebVal(double  bestChebVal){
-		this.bestChebVal.add(bestChebVal);
+	public void addBestChebVal(Pair<Solution, Double> bestChebVal){
+		this.bestChebSol.add(bestChebVal.first);
+		this.bestChebVal.add(bestChebVal.second);
 	}
 	
 	public PreferenceCollector getPreferenceCollector() {
@@ -114,5 +122,20 @@ public class NSGAIIIHistory {
 
 	public void setNumObjectives(int numObjectives) {
 		this.numObjectives = numObjectives;
+	}
+	public ArrayList <Integer> getRACSCount(){
+		return this.RACSCount;
+	}
+	public int getRACSCount(int pos) {
+		return this.RACSCount.get(pos);
+	}
+	public void addRACSCount(int numRACSChecks) {
+		this.RACSCount.add(numRACSChecks);
+	}
+	public Solution getBestChebSol(int pos) {
+		return this.bestChebSol.get(pos);
+	}
+	public void addBestChebSol(Solution s) {
+		this.bestChebSol.add(s);
 	}
 }

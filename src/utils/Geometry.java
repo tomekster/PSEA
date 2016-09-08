@@ -135,4 +135,16 @@ public class Geometry {
 		}
 		return lambda;
 	}
+	
+	public static double[] linearCombination(double[] a, double[] b, double alpha){
+		assert a.length == b.length;
+		assert alpha >= 0;
+		assert alpha <= 1;
+		
+		double res[] = new double[a.length];
+		for(int i =0; i<a.length; i++){
+			res[i] = alpha * a[i] +  (1-alpha) * b[i];
+		}
+		return res;
+	}
 }

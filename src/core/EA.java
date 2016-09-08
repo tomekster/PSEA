@@ -11,6 +11,7 @@ import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
+import utils.Pair;
 
 public abstract class EA implements Runnable {
 
@@ -61,9 +62,6 @@ public abstract class EA implements Runnable {
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 			history.addBestChebVal(evaluateGeneration(population));
-			if(generation % 50 == 0){
-				System.out.println("GNERATION: " + generation);
-			}
 		}
 	}
 
@@ -113,7 +111,7 @@ public abstract class EA implements Runnable {
 		return offspring;
 	}
 
-	protected abstract double evaluateGeneration(Population pop);
+	protected abstract Pair<Solution, Double> evaluateGeneration(Population pop);
 
 	public int getNumGenerations() {
 		return numGenerations;

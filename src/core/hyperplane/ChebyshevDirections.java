@@ -7,9 +7,11 @@ import java.util.HashMap;
 
 import core.Population;
 import core.Solution;
+import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import utils.Geometry;
 import utils.Pair;
+import utils.RACS;
 
 public class ChebyshevDirections extends Hyperplane{
 	public ChebyshevDirections(int M) {
@@ -61,7 +63,7 @@ public class ChebyshevDirections extends Hyperplane{
 	public ArrayList<Solution> buildSolutionsRanking(ReferencePoint cd, Population pop){
 		ArrayList < Pair<Solution, Double> > solutionValuePairs = new ArrayList < Pair<Solution, Double>>();
 		for(Solution s : pop.getSolutions()){
-			double chebyshevValue = ChebyshevRanker.eval(s, null, Geometry.invert(cd.getDimensions()), cd.getRho());
+			double chebyshevValue = ChebyshevRanker.eval(s, null, Geometry.invert(cd.getDim()), cd.getRho());
 			solutionValuePairs.add( new Pair <Solution, Double>(s, chebyshevValue));
 		}
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>(){
@@ -80,7 +82,7 @@ public class ChebyshevDirections extends Hyperplane{
 		return ranking;
 	}
 
-	public boolean modifyChebyshevDirections(int generation, int totalNumGenerations) {
+	public void modifyChebyshevDirections(int generation, int totalNumGenerations, PreferenceCollector pc) {
 		double alpha = (double) generation / totalNumGenerations;
 		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
 
@@ -89,22 +91,46 @@ public class ChebyshevDirections extends Hyperplane{
 				newReferencePoints.add(rp);
 			}
 		}
-		if(newReferencePoints.isEmpty()){
-			return false;
-		}
-		
+
 		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
 		double radius = 0.25 * (1 - alpha);
 
 		Collections.shuffle(newReferencePoints);
-		ArrayList <ReferencePoint> neighbours = new ArrayList<>();
+		ArrayList <ReferencePoint> newNeighbours = new ArrayList<>();
+		int count =0;
 		for(int i=0; i<numIncoherentPoints; i++){
-			neighbours.add(getRandomNeighbour(newReferencePoints.get(i % newReferencePoints.size()), radius));
+			ReferencePoint centralRefPoint = newReferencePoints.get(i % newReferencePoints.size());
+			ReferencePoint newNeighbour = getRandomNeighbour(centralRefPoint, radius);
+			
+			if(!RACS.checkCoherence(newNeighbour, pc)){
+				count++;
+				newNeighbour = coherentBinarySearch(centralRefPoint, newNeighbour, 0, 1, pc);
+			}
+			
+			newNeighbours.add(newNeighbour);
 		}
-		
+		System.out.println(count);
+				
 		this.referencePoints = newReferencePoints;
-		this.referencePoints.addAll(neighbours);
-		return true;
+		this.referencePoints.addAll(newNeighbours);
+		System.out.println("New neigh: " + newNeighbours.size());
 	}
-		
+	
+	private ReferencePoint coherentBinarySearch(ReferencePoint begRP, ReferencePoint endRP, double beg, double end, PreferenceCollector pc) {
+		//TODO - NOTE just arbitrary threshold - can be customized
+		double thresh = 1E-6;
+		while(end - beg > thresh){
+			double mid = (beg+end)/2;
+			double [] midDim = Geometry.linearCombination(begRP.getDim(), endRP.getDim(), mid);
+			ReferencePoint midRefPoint= new ReferencePoint(midDim);
+			if(RACS.checkCoherence(midRefPoint, pc)){
+				end = mid;
+			} else {
+				beg = mid;
+			}
+		}
+		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(begRP.getDim(), endRP.getDim(), end)); 
+		return res;
+	}
+
 }

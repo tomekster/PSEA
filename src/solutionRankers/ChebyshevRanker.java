@@ -6,6 +6,7 @@ import java.util.Comparator;
 
 import core.Population;
 import core.Solution;
+import utils.Pair;
 
 public class ChebyshevRanker{
 	
@@ -65,12 +66,16 @@ public class ChebyshevRanker{
 		return res;
 	}
 	
-	public double getMinChebVal(Population pop){
+	public Pair<Solution, Double> getMinChebVal(Population pop){
+		Pair<Solution, Double> res = null;
 		double minChebVal = Double.MAX_VALUE;
 		for(Solution s : pop.getSolutions()){
 			double val = this.eval(s);
-			minChebVal = Double.min(minChebVal, val);
+			if(val < minChebVal){
+				res = new Pair<>(s, minChebVal = val); 
+			}
 		}
-		return minChebVal;
+		assert res != null;
+		return res;
 	}
 }

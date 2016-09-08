@@ -471,17 +471,17 @@ public class Main {
 		
 		if(showSolDir){
 			for (ReferencePoint rp : solutionDirections) {
-				t = Geometry.cast3dPointToPlane(rp.getDimensions());
+				t = Geometry.cast3dPointToPlane(rp.getDim());
 				solutionSeries.add(t.getObjective(0), t.getObjective(1));		
 			}
 		}
 		if(showChebDir){
 			for (ReferencePoint rp : chebyshevDirections) {
 				if(rp.isCoherent()){
-					t = Geometry.cast3dPointToPlane(rp.getDimensions());
+					t = Geometry.cast3dPointToPlane(rp.getDim());
 					coherentChSeries.add(t.getObjective(0), t.getObjective(1));		
 				} else{
-					t = Geometry.cast3dPointToPlane(rp.getDimensions());
+					t = Geometry.cast3dPointToPlane(rp.getDim());
 					incoherentChSeries.add(t.getObjective(0), t.getObjective(1));
 				}
 			}
@@ -546,7 +546,7 @@ public class Main {
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();
-			resIGD = alg.evaluateGeneration(alg.getPopulation());
+			resIGD = alg.evaluateFinalResult(alg.getPopulation());
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
