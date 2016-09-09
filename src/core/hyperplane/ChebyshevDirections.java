@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
+import core.NSGAIII;
 import core.Population;
 import core.Solution;
 import preferences.PreferenceCollector;
@@ -14,6 +16,8 @@ import utils.Pair;
 import utils.RACS;
 
 public class ChebyshevDirections extends Hyperplane{
+	private final static Logger LOGGER = Logger.getLogger(NSGAIII.class.getName());
+	
 	public ChebyshevDirections(int M) {
 		super(M);
 	}
@@ -82,7 +86,7 @@ public class ChebyshevDirections extends Hyperplane{
 		return ranking;
 	}
 
-	public void modifyChebyshevDirections(int generation, int totalNumGenerations, PreferenceCollector pc) {
+	public boolean modifyChebyshevDirections(int generation, int totalNumGenerations, PreferenceCollector pc) {
 		double alpha = (double) generation / totalNumGenerations;
 		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
 
@@ -90,6 +94,10 @@ public class ChebyshevDirections extends Hyperplane{
 			if(rp.isCoherent()){
 				newReferencePoints.add(rp);
 			}
+		}
+		//TODO - NOTE maybe should be handled differently - for now false means "Do not continue execution"
+		if(newReferencePoints.isEmpty()){
+			return false;
 		}
 
 		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
@@ -104,24 +112,23 @@ public class ChebyshevDirections extends Hyperplane{
 			
 			if(!RACS.checkCoherence(newNeighbour, pc)){
 				count++;
-				newNeighbour = coherentBinarySearch(centralRefPoint, newNeighbour, 0, 1, pc);
+				newNeighbour = coherentBinarySearch(centralRefPoint.getDim(), newNeighbour.getDim(), 0, 1, pc);
 			}
 			
 			newNeighbours.add(newNeighbour);
 		}
-		System.out.println(count);
 				
 		this.referencePoints = newReferencePoints;
 		this.referencePoints.addAll(newNeighbours);
-		System.out.println("New neigh: " + newNeighbours.size());
+		return true;
 	}
 	
-	private ReferencePoint coherentBinarySearch(ReferencePoint begRP, ReferencePoint endRP, double beg, double end, PreferenceCollector pc) {
+	private ReferencePoint coherentBinarySearch(double[] begP, double[] endP, double beg, double end, PreferenceCollector pc) {
 		//TODO - NOTE just arbitrary threshold - can be customized
 		double thresh = 1E-6;
 		while(end - beg > thresh){
 			double mid = (beg+end)/2;
-			double [] midDim = Geometry.linearCombination(begRP.getDim(), endRP.getDim(), mid);
+			double [] midDim = Geometry.linearCombination(begP, endP, mid);
 			ReferencePoint midRefPoint= new ReferencePoint(midDim);
 			if(RACS.checkCoherence(midRefPoint, pc)){
 				end = mid;
@@ -129,7 +136,7 @@ public class ChebyshevDirections extends Hyperplane{
 				beg = mid;
 			}
 		}
-		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(begRP.getDim(), endRP.getDim(), end)); 
+		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(begP, endP, end)); 
 		return res;
 	}
 

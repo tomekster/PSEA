@@ -27,7 +27,7 @@ for problemName in problemNames:
     for obj in objs:
         for algName in algNames:
             prefix = algName + problemName + str(obj)
-            filelist = [dir + x for x in os.listdir(dir) if prefix in x and not 'RES' in x]
+            filelist = [dir + x for x in os.listdir(dir) if prefix in x and not 'RES' in x and not 'pdf' in x]
 
             res = []
             for filename in filelist:
@@ -41,9 +41,11 @@ for problemName in problemNames:
                 res = addList(res, data)
             res = [x/len(filelist) for x in res]
             outFile = open("RES_" + algName + problemName + str(obj), 'w')
-            for r in res:
-                outFile.write(str(r))
-
-            x = range(len(res));
-            plt.plot(x, res)
+            if len(res) > 0:
+                for r in res:
+                    outFile.write(str(r))
+                x = range(len(res));
+                plt.plot(x, res)
+                plt.savefig(problemName + str(obj) + '.pdf', bbox_inches='tight')
         plt.show()
+        plt.clf()

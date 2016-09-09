@@ -25,6 +25,16 @@ public class RACS {
 	 * @param pc
 	 * @return
 	 */
+	
+	static int RACScalls = 0;
+	
+	public static void setRacsCalls(int val){
+		RACScalls = 0;
+	}
+	public static int getRacsCalls(){
+		return RACScalls;
+	}
+	
 	public static ArrayList<Population> racsDomSort(Population population, ArrayList<ReferencePoint> referencePoints,
 			PreferenceCollector pc) {
 		//ArrayList<ReferencePoint> coherentReferencePoints = findCoherentDirections(referencePoints, pc);
@@ -81,6 +91,7 @@ public class RACS {
 	}
 
 	public static boolean checkCoherence(ReferencePoint rp, PreferenceCollector pc) {
+		RACScalls++;
 		double lambda[] = Geometry.invert(rp.getDim());
 		Pair <Double, Double> epsAndRho= RATSLP(lambda, pc);
 		rp.setEps(epsAndRho.first);

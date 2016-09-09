@@ -28,7 +28,7 @@ public class ExperimentRunner {
 	private static HashMap<Integer, Integer> popSizeMap = new HashMap<>();
 	
 	public static void main(String[] args) {
-		int numRuns = 1;
+		int numRuns = 5;
 		initExecutionData();
 		for (Problem p : problems) {
 			for (int runId = 1; runId <= numRuns; runId++) {
@@ -55,8 +55,7 @@ public class ExperimentRunner {
 	}
 
 	private static void initExecutionData() {
-		//int numObjectives[] = { 3, 5, 8, 10, 15  };
-		int numObjectives[] = {8};
+		int numObjectives[] = { /*3, 5,*/ 8, 10, 15  };
 		for (int no : numObjectives) {
 			problems.add(new DTLZ1(no));
 			problems.add(new DTLZ2(no)); 

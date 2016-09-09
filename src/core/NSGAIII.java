@@ -77,11 +77,12 @@ public class NSGAIII extends EA {
 				+ " objectives, and " + numGenerations + " generations.");
 
 		for (int generation = 0; generation < numGenerations; generation++) {
-			System.out.println("GENERATION: " + generation);
+			RACS.setRacsCalls(0);
 			nextGeneration();
 
 			if(interactive){
 				if(generation % elicitationInterval == 0) {
+					System.out.println("GENERATION: " + generation);
 					Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
 					if (firstFront.size() > 1){
 						elicitate(firstFront);
@@ -91,7 +92,12 @@ public class NSGAIII extends EA {
 							rp.setCoherent(false);
 						}
 						RACS.recheckIncoherentPoints(chebyshevDirections.getReferencePoints(), this.PC);
-						chebyshevDirections.modifyChebyshevDirections(generation, numGenerations, PC);
+						boolean coherentExists = chebyshevDirections.modifyChebyshevDirections(generation, numGenerations, PC);
+						if(!coherentExists){
+							LOGGER.info("Generation " + generation + ": no coherent chebyshev points");
+							history.setNumGenerations(generation);
+							break;
+						}
 					}
 				}
 				
@@ -101,7 +107,9 @@ public class NSGAIII extends EA {
 				NicheCountSelection.associate(population, solutionDirections);
 				solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
 			}
-
+			//TODO NOTE just for testing purpose. 22 = ceil(log_2(1E-6) + 1)
+			if(RACS.getRacsCalls() > 0) System.out.println(RACS.getRacsCalls());
+			assert RACS.getRacsCalls() < 22 * populationSize;
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 			history.addSolutionDirections(solutionDirections.getReferencePoints());

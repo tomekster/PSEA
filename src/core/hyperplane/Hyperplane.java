@@ -62,22 +62,45 @@ public abstract class Hyperplane {
 
 	protected ReferencePoint getRandomNeighbour(ReferencePoint centralPoint, double radius) {
 		ReferencePoint newPoint = new ReferencePoint(dim);
-		double p[] = new double[dim];
-		boolean positive;
-		do {
-			positive = true;
-			p = Geometry.randomPointOnSphere(dim, radius);
-			for (int i = 0; i < dim; i++) {
-				p[i] += centralPoint.getDim(i);
-				if (p[i] < 0) {
-					positive = false;
-					break;
-				}
+		double p[] = new double[dim - 1];
+		double q[] = new double[dim];
+		p = Geometry.randomPointOnSphere(dim-1, radius);
+		for(int i=0; i<dim-1; i++){
+			q[i] = p[i];
+		}
+		q[dim-1] = 0;
+		q = Geometry.mapOnHyperplane(q);
+		for (int i = 0; i < dim; i++) {
+			q[i] += centralPoint.getDim(i);
+		}
+		for(int i=0; i<dim; i++){
+			if(q[i] < 0){
+				q = binarySearchNonnegative(centralPoint.getDim(), q, 0, 1);
+				break;
 			}
-			p = Geometry.normalize(p);
-		} while (!positive);
-		newPoint.setDimensions(p);
+		}
+		newPoint.setDimensions(q);
 		return newPoint;
+	}
+
+	private double[] binarySearchNonnegative(double[] pos, double[] cur, double beg, double end) {
+		//TODO - NOTE just arbitrary threshold - can be customized
+		double thresh = 1E-6;
+		while(end - beg > thresh){
+			double mid = (beg+end)/2;
+			double [] midDim = Geometry.linearCombination(pos, cur, mid);
+			//Check if any of dimensions has negative value
+			double min = Double.MIN_VALUE;
+			for(double d : midDim){
+				min = Double.min(min, d);
+			}
+			if(min >= 0){
+				end = mid;
+			} else {
+				beg = mid;
+			}
+		}
+		return Geometry.linearCombination(pos, cur, end); 
 	}
 
 	public void cloneReferencePoints() {
