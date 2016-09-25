@@ -64,11 +64,9 @@ public class RACS {
 	 * @param pc
 	 * 
 	 */
-	public static void recheckIncoherentPoints(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
+	public static void recheckAllPoints(ArrayList<ReferencePoint> referencePoints, PreferenceCollector pc) {
 		for (ReferencePoint rp : referencePoints) {
-			if(!rp.isCoherent()){
-				rp.setCoherent(checkCoherence(rp, pc));
-			}
+			rp.setCoherent(checkCoherence(rp, pc));
 		}
 	}
 
@@ -179,7 +177,7 @@ public class RACS {
 			cplex.setParam(IloCplex.BooleanParam.PreInd, false);
 			cplex.setOut(null);
 			IloNumVar eps = cplex.numVar(-Double.MAX_VALUE, Double.MAX_VALUE);
-			IloNumVar rho = cplex.numVar(0, 1000000);
+			IloNumVar rho = cplex.numVar(0, 0.5);
 			cplex.addMaximize(eps);
 			for (Comparison cmp : pc.getComparisons()) {
 				Solution a = cmp.getBetter();

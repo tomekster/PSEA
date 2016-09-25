@@ -15,10 +15,14 @@ import core.SingleObjectiveEA;
 import core.Solution;
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
-import problems.dtlz.DTLZ1;
-import problems.dtlz.DTLZ2;
-import problems.dtlz.DTLZ3;
-import problems.dtlz.DTLZ4;
+import problems.wfg.WFG1;
+import problems.wfg.WFG2;
+import problems.wfg.WFG3;
+import problems.wfg.WFG4;
+import problems.wfg.WFG5;
+import problems.wfg.WFG6;
+import problems.wfg.WFG7;
+import problems.wfg.WFG8;
 import solutionRankers.ChebyshevRankerBuilder;
 import utils.Pair;
 
@@ -28,7 +32,7 @@ public class ExperimentRunner {
 	private static HashMap<Integer, Integer> popSizeMap = new HashMap<>();
 	
 	public static void main(String[] args) {
-		int numRuns = 5;
+		int numRuns = 1;
 		initExecutionData();
 		for (Problem p : problems) {
 			for (int runId = 1; runId <= numRuns; runId++) {
@@ -40,7 +44,7 @@ public class ExperimentRunner {
 	}
 
 	private static void runNSGAIIIExperiment(Problem p, int runId) {
-		NSGAIII alg = new NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), true, 25, 0);
+		NSGAIII alg = new NSGAIII(p, /*numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives()))*/1000, true, 25, 0);
 		alg.run();
 		saveHistory(alg.getHistory(), "NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
 	}
@@ -48,19 +52,22 @@ public class ExperimentRunner {
 	private static void runSingleObjectiveEA(Problem p, int runId) {
 		int numObj = p.getNumObjectives();
 		SingleObjectiveEA soea = new SingleObjectiveEA(p,
-				numGenerationsMap.get(new Pair<String, Integer>(p.getName(), numObj)), popSizeMap.get(numObj),
+				/*numGenerationsMap.get(new Pair<String, Integer>(p.getName(), numObj))*/ 1000, popSizeMap.get(numObj),
 				ChebyshevRankerBuilder.getCentralChebyshevRanker(numObj));
 		soea.run();
 		saveHistory(soea.getHistory(), "SingleCrit_" + p.getName() + '_' + numObj + '_' + runId, true);
 	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = { /*3, 5,*/ 8, 10, 15  };
+		int numObjectives[] = { 3, 5, 8, 10, 15  };
 		for (int no : numObjectives) {
-			problems.add(new DTLZ1(no));
-			problems.add(new DTLZ2(no)); 
-			problems.add(new DTLZ3(no));
-			problems.add(new DTLZ4(no));
+//			problems.add(new DTLZ1(no));
+//			problems.add(new DTLZ2(no)); 
+//			problems.add(new DTLZ3(no));
+//			problems.add(new DTLZ4(no));
+
+			problems.add(new WFG6(no));
+			problems.add(new WFG7(no));
 		}
 
 		// Map from <ProblemName, NumObjectives> to NumGenerations
@@ -84,6 +91,16 @@ public class ExperimentRunner {
 		numGenerationsMap.put(new Pair<String, Integer>("DTLZ4", 8), 1250);
 		numGenerationsMap.put(new Pair<String, Integer>("DTLZ4", 10), 2000);
 		numGenerationsMap.put(new Pair<String, Integer>("DTLZ4", 15), 3000);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG6", 3), 400);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG6", 5), 750);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG6", 8), 1500);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG6", 10), 2000);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG6", 15), 3000);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG7", 3), 400);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG7", 5), 750);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG7", 8), 1500);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG7", 10), 2000);
+		numGenerationsMap.put(new Pair<String, Integer>("WFG7", 15), 3000);
 		
 		popSizeMap.put(3, 92);
 		popSizeMap.put(5, 212);

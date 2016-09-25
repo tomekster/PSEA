@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import core.NSGAIII;
 import core.Population;
 import core.Solution;
 import preferences.PreferenceCollector;
@@ -16,7 +15,7 @@ import utils.Pair;
 import utils.RACS;
 
 public class ChebyshevDirections extends Hyperplane{
-	private final static Logger LOGGER = Logger.getLogger(NSGAIII.class.getName());
+	private final static Logger LOGGER = Logger.getLogger(ChebyshevDirections.class.getName());
 	
 	public ChebyshevDirections(int M) {
 		super(M);
@@ -87,39 +86,74 @@ public class ChebyshevDirections extends Hyperplane{
 	}
 
 	public boolean modifyChebyshevDirections(int generation, int totalNumGenerations, PreferenceCollector pc) {
-		double alpha = (double) generation / totalNumGenerations;
-		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
+		//double alpha = (double) generation / totalNumGenerations;
+		ArrayList<ReferencePoint> coherentReferencePoints = new ArrayList<>();
+		ArrayList<ReferencePoint> incoherentReferencePoints = new ArrayList<>();
 
 		for (ReferencePoint rp : referencePoints){ 
 			if(rp.isCoherent()){
-				newReferencePoints.add(rp);
+				coherentReferencePoints.add(rp);
+			} else{
+				incoherentReferencePoints.add(rp);
 			}
 		}
 		//TODO - NOTE maybe should be handled differently - for now false means "Do not continue execution"
-		if(newReferencePoints.isEmpty()){
+		if(coherentReferencePoints.isEmpty()){
+			LOGGER.info("No coherent chebyshev points");
 			return false;
 		}
 
-		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
-		double radius = 0.25 * (1 - alpha);
+		//Find mass center of coherent points
+		double[] massCenter = new double[coherentReferencePoints.get(0).getNumDimensions()];
+		double[] min = new double[coherentReferencePoints.get(0).getNumDimensions()];
+		double[] max = new double[coherentReferencePoints.get(0).getNumDimensions()];
+		for(int i=0; i<coherentReferencePoints.get(0).getNumDimensions(); i++){
+			min[i] = Double.MAX_VALUE;
+			max[i] = -Double.MAX_VALUE;
+		}
+		
+		for(ReferencePoint rp : coherentReferencePoints){
+			for(int i=0; i< rp.getNumDimensions(); i++){
+				min[i] = Math.min(min[i], rp.getDim(i));
+				max[i] = Math.max(max[i], rp.getDim(i));
+				massCenter[i] += rp.getDim(i);
+			}
+		}
+		for(int i=0; i < massCenter.length; i++){
+			System.out.print(Math.round(min[i] * 100)/100.0 + ", ");
+		}
+		System.out.println();
+		for(int i=0; i < massCenter.length; i++){
+			massCenter[i] /= coherentReferencePoints.size();
+			System.out.print(Math.round(massCenter[i] * 100)/100.0 + ", ");
+		}
+		System.out.println();
+		for(int i=0; i < massCenter.length; i++){
+		System.out.print(Math.round(max[i] * 100)/100.0 + ", ");
+		}
+		System.out.println();
+		
+		if(!RACS.checkCoherence(new ReferencePoint(massCenter), pc)){
+			LOGGER.info("Chebyshef points center of mass is not coherent");
+		}
+		//double radius = 0.25 * (1 - alpha);
 
-		Collections.shuffle(newReferencePoints);
-		ArrayList <ReferencePoint> newNeighbours = new ArrayList<>();
-		int count =0;
-		for(int i=0; i<numIncoherentPoints; i++){
-			ReferencePoint centralRefPoint = newReferencePoints.get(i % newReferencePoints.size());
-			ReferencePoint newNeighbour = getRandomNeighbour(centralRefPoint, radius);
+		//Collections.shuffle(newReferencePoints);
+		for(ReferencePoint rp : incoherentReferencePoints){
+			ReferencePoint newCoherentRP = coherentBinarySearch(massCenter, rp.getDim(), 0, 1, pc);
 			
+			/*
+			ReferencePoint newNeighbour = getRandomNeighbour(centralRefPoint, radius);
 			if(!RACS.checkCoherence(newNeighbour, pc)){
 				count++;
 				newNeighbour = coherentBinarySearch(centralRefPoint.getDim(), newNeighbour.getDim(), 0, 1, pc);
 			}
+			*/
 			
-			newNeighbours.add(newNeighbour);
+			coherentReferencePoints.add(newCoherentRP);
 		}
 				
-		this.referencePoints = newReferencePoints;
-		this.referencePoints.addAll(newNeighbours);
+		this.referencePoints = coherentReferencePoints;
 		return true;
 	}
 	

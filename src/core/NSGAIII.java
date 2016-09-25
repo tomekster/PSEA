@@ -75,7 +75,7 @@ public class NSGAIII extends EA {
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
-
+		boolean continueExecution = true;
 		for (int generation = 0; generation < numGenerations; generation++) {
 			RACS.setRacsCalls(0);
 			nextGeneration();
@@ -87,28 +87,21 @@ public class NSGAIII extends EA {
 					if (firstFront.size() > 1){
 						elicitate(firstFront);
 						
-						//New elicitation - set all chebDirs to incoherent
-						for(ReferencePoint rp : chebyshevDirections.getReferencePoints()){
-							rp.setCoherent(false);
-						}
-						RACS.recheckIncoherentPoints(chebyshevDirections.getReferencePoints(), this.PC);
-						boolean coherentExists = chebyshevDirections.modifyChebyshevDirections(generation, numGenerations, PC);
-						if(!coherentExists){
-							LOGGER.info("Generation " + generation + ": no coherent chebyshev points");
-							history.setNumGenerations(generation);
-							break;
-						}
+						//New elicitation - recheck all points
+						RACS.recheckAllPoints(chebyshevDirections.getReferencePoints(), this.PC);
+						continueExecution = chebyshevDirections.modifyChebyshevDirections(generation, numGenerations, PC);
 					}
 				}
-				
-				Population bestChebyshevSolutions = chebyshevDirections.selectKChebyshevPoints(population, populationSize/2);
-				// TODO - this looks bad. Associatie should not be called here in this way. You should refactor this in future. 
-				// Associate needs to be called before modifySolutionDirections, since it uses associations
-				NicheCountSelection.associate(population, solutionDirections);
-				solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
+				if(continueExecution){
+					Population bestChebyshevSolutions = chebyshevDirections.selectKChebyshevPoints(population, populationSize/2);
+					// TODO - this looks bad. Associatie should not be called here in this way. You should refactor this in future. 
+					// Associate needs to be called before modifySolutionDirections, since it uses associations
+					NicheCountSelection.associate(population, solutionDirections);
+					solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
+				}
 			}
 			//TODO NOTE just for testing purpose. 22 = ceil(log_2(1E-6) + 1)
-			if(RACS.getRacsCalls() > 0) System.out.println(RACS.getRacsCalls());
+			//if(RACS.getRacsCalls() > 0) System.out.println(RACS.getRacsCalls());
 			assert RACS.getRacsCalls() < 22 * populationSize;
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
@@ -155,7 +148,6 @@ public class NSGAIII extends EA {
 			Population kPoints = new Population();
 			int K = populationSize - allButLastFront.size();
 			int numSpreadingPoints = (int) (this.spreadingPointsPercent * K); 
-			//TODO verify if 2Phases help
 			spreadingPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, numSpreadingPoints, originalHyperplane);
 			//TODO - take care, risky operation since equals in Solution is overloaded. Might delete solutions which are not exactly equal but only very close. Might affect niching.
 			allFronts.removeSolutions(spreadingPoints);

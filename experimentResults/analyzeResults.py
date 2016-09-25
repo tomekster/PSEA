@@ -20,7 +20,7 @@ numObj      = 0
 numElicit   = 0
 
 algNames        = ["NSGAIII_", "SingleCrit_"]
-problemNames    = ["DTLZ1_", "DTLZ2_", "DTLZ3_", "DTLZ4_"]
+problemNames    = ["DTLZ1_", "DTLZ2_", "DTLZ3_", "DTLZ4_","WFG6_", "WFG7_"]
 objs          = [3, 5, 8, 10, 15]
 
 for problemName in problemNames:
@@ -31,9 +31,7 @@ for problemName in problemNames:
 
             res = []
             for filename in filelist:
-                print filename
                 f = open(filename);
-                print filename
                 numGen, popSize, numSolDir, numVar, numObj, numElicit = [int(x) for x in readNLines(1, f)[0].split()];
                 if len(res) == 0:
                     res = [0.0 for x in range(numGen)]
@@ -42,10 +40,11 @@ for problemName in problemNames:
             res = [x/len(filelist) for x in res]
             outFile = open("RES_" + algName + problemName + str(obj), 'w')
             if len(res) > 0:
-                for r in res:
-                    outFile.write(str(r))
+                #for r in res:
+                #    outFile.write(str(r))
                 x = range(len(res));
                 plt.plot(x, res)
                 plt.savefig(problemName + str(obj) + '.pdf', bbox_inches='tight')
+        print problemName + str(obj)
         plt.show()
         plt.clf()
