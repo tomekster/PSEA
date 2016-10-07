@@ -177,7 +177,7 @@ public class RACS {
 			cplex.setParam(IloCplex.BooleanParam.PreInd, false);
 			cplex.setOut(null);
 			IloNumVar eps = cplex.numVar(-Double.MAX_VALUE, Double.MAX_VALUE);
-			IloNumVar rho = cplex.numVar(0, 0.5);
+			IloNumVar rho = cplex.numVar(0, 0.001);
 			cplex.addMaximize(eps);
 			for (Comparison cmp : pc.getComparisons()) {
 				Solution a = cmp.getBetter();

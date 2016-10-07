@@ -21,15 +21,11 @@ public class ChebyshevDirections extends Hyperplane{
 		super(M);
 	}
 	
-	public Population selectKChebyshevPoints(Population pop, int k) {
-		boolean anyIsCoherent = false;
+	public Population selectKSolutionsByChebyshevBordaRanking(Population pop, int k) {
 		HashMap <Solution, Integer> map = new HashMap <Solution, Integer>();
 		HashMap <ReferencePoint, ArrayList <Solution>> solutionRankings = new HashMap<ReferencePoint, ArrayList <Solution>>();
 		for(ReferencePoint cd : referencePoints){
-			if(!cd.isCoherent()){
-				continue;
-			}
-			anyIsCoherent = true;
+//			System.out.println("Num violations: " + cd.getNumViolations());
 			ArrayList <Solution> ranking = buildSolutionsRanking(cd, pop); 
 			solutionRankings.put(cd, ranking);
 			assert ranking.size() == pop.size();
@@ -41,7 +37,7 @@ public class ChebyshevDirections extends Hyperplane{
 				map.put(s, map.get(s) + ranking.size() - i);
 			}
 		}
-		assert anyIsCoherent;
+//		System.out.println();
 
 		ArrayList <Pair<Solution, Integer>> pairs = new ArrayList <Pair<Solution, Integer>> ();
 		
@@ -173,5 +169,8 @@ public class ChebyshevDirections extends Hyperplane{
 		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(begP, endP, end)); 
 		return res;
 	}
-
+	
+	public void setReferencePoints(ArrayList <ReferencePoint> refPoints){
+		this.referencePoints = refPoints;
+	}
 }

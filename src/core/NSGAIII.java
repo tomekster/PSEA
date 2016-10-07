@@ -2,6 +2,8 @@ package core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,13 +12,20 @@ import core.hyperplane.ReferencePoint;
 import core.hyperplane.SolutionDirections;
 import igd.IGD;
 import igd.TargetFrontGenerator;
+import operators.CrossoverOperator;
+import operators.MutationOperator;
+import operators.SelectionOperator;
+import operators.impl.crossover.SBX;
+import operators.impl.mutation.PolynomialMutation;
+import operators.impl.selection.BinaryTournament;
+import preferences.Comparison;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
 import utils.Pair;
-import utils.RACS;
 
 public class NSGAIII extends EA {
 
@@ -27,12 +36,10 @@ public class NSGAIII extends EA {
 	private boolean interactive;
 	private PreferenceCollector PC;
 	private SolutionDirections solutionDirections;
-	private SolutionDirections originalHyperplane;
 	private ChebyshevDirections chebyshevDirections;
-	private double spreadingPointsPercent;
 	private ChebyshevRanker chebyshevRanker;
 
-	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval, double spreadingPointsPercent) {
+	public NSGAIII(Problem problem, int numGenerations, boolean interactive, int elicitationInterval) {
 		super(problem, numGenerations, 0);
 		// Hyperplane is one of basic constructs used in NSGA-III algorithm. It is responsible 
 		// for keeping solutions uniformly spread among objective space. 
@@ -40,10 +47,9 @@ public class NSGAIII extends EA {
 		// from DM's point of view, based on preference information elicitated during algorithm run 
 		this.solutionDirections = new SolutionDirections(problem.getNumObjectives());
 		
-		this.originalHyperplane= new SolutionDirections(problem.getNumObjectives());
-		
 		// Chebyshev directions is a new idea in modified NSGA-III. It is supposed to store information 
-		// about Chebyshev function directions which are coherent with user's preferences
+		// about Chebyshev function directions which are coherent with user's
+		// preferences
 		this.chebyshevDirections = new ChebyshevDirections(problem.getNumObjectives());
 
 		// Number of solutions in every generation. Depends on Hyperplane because number 
@@ -55,7 +61,6 @@ public class NSGAIII extends EA {
 		// Parameters of algorithm execution
 		this.interactive = interactive;
 		this.elicitationInterval = elicitationInterval;
-		this.spreadingPointsPercent = spreadingPointsPercent;
 		this.chebyshevRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(problem.getNumObjectives());
 		
 		// Structure for storing intermediate state of algorithm for further
@@ -75,34 +80,24 @@ public class NSGAIII extends EA {
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
-		boolean continueExecution = true;
-		for (int generation = 0; generation < numGenerations; generation++) {
-			RACS.setRacsCalls(0);
-			nextGeneration();
 
+		for (int generation = 0; generation < numGenerations; generation++) {
+			nextGeneration();
 			if(interactive){
 				if(generation % elicitationInterval == 0) {
 					System.out.println("GENERATION: " + generation);
 					Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
 					if (firstFront.size() > 1){
 						elicitate(firstFront);
-						
-						//New elicitation - recheck all points
-						RACS.recheckAllPoints(chebyshevDirections.getReferencePoints(), this.PC);
-						continueExecution = chebyshevDirections.modifyChebyshevDirections(generation, numGenerations, PC);
 					}
 				}
-				if(continueExecution){
-					Population bestChebyshevSolutions = chebyshevDirections.selectKChebyshevPoints(population, populationSize/2);
-					// TODO - this looks bad. Associatie should not be called here in this way. You should refactor this in future. 
-					// Associate needs to be called before modifySolutionDirections, since it uses associations
-					NicheCountSelection.associate(population, solutionDirections);
-					solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
-				}
+				
+				evolveChebyshevDirections(generation % elicitationInterval == 0);
+				Population bestChebyshevSolutions = chebyshevDirections.selectKSolutionsByChebyshevBordaRanking(population, populationSize/2);
+				NicheCountSelection.associate(population, solutionDirections);
+				solutionDirections.modifySolutionDirections(generation, numGenerations, populationSize, bestChebyshevSolutions);
 			}
-			//TODO NOTE just for testing purpose. 22 = ceil(log_2(1E-6) + 1)
-			//if(RACS.getRacsCalls() > 0) System.out.println(RACS.getRacsCalls());
-			assert RACS.getRacsCalls() < 22 * populationSize;
+			
 			problem.evaluate(population);
 			history.addGeneration(population.copy());
 			history.addSolutionDirections(solutionDirections.getReferencePoints());
@@ -111,16 +106,141 @@ public class NSGAIII extends EA {
 		}
 	}
 
+	private void evolveChebyshevDirections(boolean newElicitation) {			
+		Population chebDirs = new Population();
+		Population offspring = new Population();
+		double arr[] = new double[1];
+		for(ReferencePoint rp : chebyshevDirections.getReferencePoints()){
+			Solution s = new Solution(rp.getDim(), arr);
+			chebDirs.addSolution(s);
+		}
+		//If new elicitation just happened - use initial uniform cheb points distribution as offspring 
+		if(newElicitation){
+			ChebyshevDirections cd = new ChebyshevDirections(problem.getNumObjectives());
+			for(ReferencePoint rp : cd.getReferencePoints()){
+				chebDirs.addSolution(new Solution(rp.getDim(),arr));
+			}
+		}
+		
+		offspring = createChebOffspring(chebDirs);
+		
+		Population combinedPopulation = new Population();
+		combinedPopulation.addSolutions(chebDirs);
+		combinedPopulation.addSolutions(offspring);
+		ArrayList <ReferencePoint> evaluatedCombinedPopulation = new ArrayList<>();
+		for(Solution s : combinedPopulation.getSolutions()){
+			ReferencePoint chebDir = new ReferencePoint(s.getVariables());
+			evaluateChebDir(chebDir);
+			evaluatedCombinedPopulation.add(chebDir);
+		}
+		Collections.sort(evaluatedCombinedPopulation, new Comparator<ReferencePoint>() {
+			@Override
+			public int compare(ReferencePoint o1, ReferencePoint o2) {
+				if(o1.getNumViolations() == o2.getNumViolations()){ //Constraint violation: smaller = better
+					return Double.compare(o1.getPenalty(), o2.getPenalty()); //Penalty: smaller = better
+				}
+				return Integer.compare(o1.getNumViolations(), o2.getNumViolations());
+			}
+		});
+		
+		ArrayList <ReferencePoint> result = new ArrayList<>();
+		for(int i=0; i < chebyshevDirections.getReferencePoints().size(); i++){
+			result.add(evaluatedCombinedPopulation.get(i));
+		}
+		
+//		int tab[] = new int[3];
+//		for(ReferencePoint rp : result){
+//			if(rp.getNumViolations() < 3){
+//				tab[rp.getNumViolations()]++;
+//			}
+//		}
+		int min = 1000;
+		for(ReferencePoint rp : result){
+			if(rp.getNumViolations() < min) min = rp.getNumViolations();
+		}
+		System.out.println("Min violations: " + min);
+		
+		chebyshevDirections.setReferencePoints(result);
+	}
+
+	private Population createChebOffspring(Population chebDirs) {
+		Population offspring = new Population();
+		Population matingPopulation = new Population();
+
+		double lowerBound[] = new double[problem.getNumObjectives()];
+		double upperBound[] = new double[problem.getNumObjectives()];
+		
+		for(int i=0; i<problem.getNumObjectives(); i++){
+			lowerBound[i] = Geometry.EPS;
+			upperBound[i] = 1.0;
+		}
+		
+		SelectionOperator chebSelectionOperator = new BinaryTournament();
+		CrossoverOperator chebCrossoverOperator = new SBX(1.0, 30.0, lowerBound, upperBound);
+		MutationOperator chebMutationOperator = new PolynomialMutation(1.0 / problem.getNumObjectives(), 20.0, lowerBound, upperBound);
+		
+		while (matingPopulation.size() < chebDirs.size() + (chebDirs.size() % 2)) {
+			matingPopulation.addSolution(chebSelectionOperator.execute(chebDirs));
+		}
+
+		for (int i = 0; i < matingPopulation.size(); i += 2) {
+			ArrayList<Solution> parents = new ArrayList<Solution>(2);
+			parents.add(matingPopulation.getSolution(i));
+			parents.add(matingPopulation.getSolution(i + 1));
+			ArrayList<Solution> children = chebCrossoverOperator.execute(parents);
+
+			chebMutationOperator.execute(children.get(0));
+			chebMutationOperator.execute(children.get(1));
+
+			offspring.addSolution(children.get(0));
+			offspring.addSolution(children.get(1));
+		}
+		
+		for(Solution s : offspring.getSolutions()){
+			double norm[] = Geometry.normalize(s.getVariables());
+			for(int i =0; i < norm.length; i++){
+				s.setVariable(i, norm[i]);
+			}
+		}
+		return offspring;
+	}
+
+	private void evaluateChebDir(ReferencePoint chebDir) {
+		int numViolations = 0;
+		double reward = 1, penalty = 1;
+		for(Comparison c : PC.getComparisons()){
+			Solution better = c.getBetter(), worse = c.getWorse();
+			double a = -1, b = -1;
+			for(int i = 0; i<chebDir.getNumDimensions(); i++){
+				a = Double.max(a, chebDir.getDim(i) * better.getVariable(i));
+				b = Double.max(b, chebDir.getDim(i) * worse.getVariable(i));
+			}
+			double eps = b-a;
+			if(eps < 0){
+				numViolations++;
+				double newPenalty = penalty*(1-eps);
+				assert newPenalty >= penalty;
+				penalty = newPenalty;
+			} else if(eps > 0){
+				double newReward = reward*(1+eps);
+				assert newReward >= reward;
+				reward = newReward;
+			}
+		}
+		
+		chebDir.setReward(reward);
+		chebDir.setPenalty(penalty);
+		chebDir.setNumViolations(numViolations);
+	}
+
 	@Override
 	public Population selectNewPopulation(Population pop) {
 		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
 
-		Population spreadingPoints;
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();
 		Population lastFront = null;
 		
-		//TODO - refactor allFronts, allButLastFront and lastFront finding loop like in Hyperplane.getfronts... 
 		for (Population front : fronts) {
 			if (allButLastFront.size() + front.size() >= populationSize) {
 				lastFront = front;
@@ -147,16 +267,8 @@ public class NSGAIII extends EA {
 			res = new Population();
 			Population kPoints = new Population();
 			int K = populationSize - allButLastFront.size();
-			int numSpreadingPoints = (int) (this.spreadingPointsPercent * K); 
-			spreadingPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, numSpreadingPoints, originalHyperplane);
-			//TODO - take care, risky operation since equals in Solution is overloaded. Might delete solutions which are not exactly equal but only very close. Might affect niching.
-			allFronts.removeSolutions(spreadingPoints);
-			
-			allButLastFront.removeSolutions(spreadingPoints);
-			allButLastFront.removeSolutions(lastFront);
-			kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K - numSpreadingPoints, solutionDirections);
+			kPoints = NicheCountSelection.selectKPoints(allFronts, allButLastFront, lastFront, K, solutionDirections);
 			res.addSolutions(allButLastFront.copy());
-			res.addSolutions(spreadingPoints.copy());
 			res.addSolutions(kPoints.copy());
 		}
 			

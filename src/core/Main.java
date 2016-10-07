@@ -542,7 +542,7 @@ public class Main {
 		NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval, 0);
+			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval);
 			alg.run();
 			executedGenerations = alg.getNumGenerations();
 			history = alg.getHistory();

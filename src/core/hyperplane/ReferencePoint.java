@@ -13,6 +13,9 @@ public class ReferencePoint {
 	private double rho;
 	//Maximum eps achievable in RACS Linear Programming task
 	private double eps;
+	private double reward;
+	private double penalty;
+	private int numViolations;
 
 	public ReferencePoint(int numDimensions) {
 		this.numDimensions = numDimensions;
@@ -136,5 +139,29 @@ public class ReferencePoint {
 
 	public void setEps(double eps) {
 		this.eps = eps;
+	}
+
+	public double getReward(){
+		return this.reward;
+	}
+	
+	public void setReward(double reward) {
+		this.reward = reward;
+	}
+
+	public double getPenalty(){
+		return this.penalty;
+	}
+	
+	public void setPenalty(double penalty) {
+		this.penalty = penalty;
+	}
+
+	public int getNumViolations(){
+		return this.numViolations;
+	}
+	
+	public void setNumViolations(int numViolations) {
+		this.numViolations = numViolations;
 	}
 }

@@ -22,6 +22,10 @@ public class Population{
 		this.solutions.add(solution);
 	}
 	
+	/**
+	 * Add all solutions from population p to give Population. Deepcopy.
+	 * @param p
+	 */
 	public void addSolutions(Population p){
 		for(Solution s : p.getSolutions()){
 			addSolution(s);
@@ -42,7 +46,11 @@ public class Population{
 	public boolean empty(){
 		return this.solutions.size() == 0;
 	}
-
+	
+	/**
+	 * 
+	 * @return shallow copy of population
+	 */
 	public Population copy() {
 		return new Population(this);
 	}

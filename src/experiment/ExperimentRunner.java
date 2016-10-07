@@ -15,14 +15,10 @@ import core.SingleObjectiveEA;
 import core.Solution;
 import core.hyperplane.ReferencePoint;
 import history.NSGAIIIHistory;
-import problems.wfg.WFG1;
-import problems.wfg.WFG2;
-import problems.wfg.WFG3;
-import problems.wfg.WFG4;
-import problems.wfg.WFG5;
-import problems.wfg.WFG6;
-import problems.wfg.WFG7;
-import problems.wfg.WFG8;
+import problems.dtlz.DTLZ1;
+import problems.dtlz.DTLZ2;
+import problems.dtlz.DTLZ3;
+import problems.dtlz.DTLZ4;
 import solutionRankers.ChebyshevRankerBuilder;
 import utils.Pair;
 
@@ -44,7 +40,8 @@ public class ExperimentRunner {
 	}
 
 	private static void runNSGAIIIExperiment(Problem p, int runId) {
-		NSGAIII alg = new NSGAIII(p, /*numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives()))*/1000, true, 25, 0);
+		//NSGAIII alg = new NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())) 1000, true, 25);
+		NSGAIII alg = new NSGAIII(p, 1000, true, 25);
 		alg.run();
 		saveHistory(alg.getHistory(), "NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
 	}
@@ -59,15 +56,15 @@ public class ExperimentRunner {
 	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = { 3, 5, 8, 10, 15  };
+		int numObjectives[] = { /*3, 5,*/ 8, 10, 15  };
 		for (int no : numObjectives) {
 //			problems.add(new DTLZ1(no));
-//			problems.add(new DTLZ2(no)); 
+			problems.add(new DTLZ2(no)); 
 //			problems.add(new DTLZ3(no));
-//			problems.add(new DTLZ4(no));
+			problems.add(new DTLZ4(no));
 
-			problems.add(new WFG6(no));
-			problems.add(new WFG7(no));
+//			problems.add(new WFG6(no));
+//			problems.add(new WFG7(no));
 		}
 
 		// Map from <ProblemName, NumObjectives> to NumGenerations

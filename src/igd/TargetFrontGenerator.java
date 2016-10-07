@@ -49,6 +49,8 @@ public class TargetFrontGenerator {
 				res.addSolution(new Solution(var, obj));
 			}
 			break;
+		default:
+			
 		}
 		
 		return res;
