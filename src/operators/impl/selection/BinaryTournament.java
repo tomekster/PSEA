@@ -1,7 +1,7 @@
 package operators.impl.selection;
 
 import core.Population;
-import core.Solution;
+import core.points.Solution;
 import operators.SelectionOperator;
 import solutionRankers.NonDominationRanker;
 import utils.NSGAIIIRandom;

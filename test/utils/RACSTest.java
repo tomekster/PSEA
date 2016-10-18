@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import core.Population;
-import core.Solution;
+import core.points.Solution;
 import preferences.Comparison;
 import preferences.PreferenceCollector;
 public class RACSTest {

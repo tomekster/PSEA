@@ -1,10 +1,15 @@
 package core.hyperplane;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
+import core.Population;
+import core.points.ReferencePoint;
+import core.points.Solution;
 import utils.Geometry;
+import utils.NSGAIIIRandom;
 
-public abstract class Hyperplane {
+public class Hyperplane {
 
 	protected ArrayList<ReferencePoint> referencePoints;
 	protected int dim;
@@ -13,8 +18,8 @@ public abstract class Hyperplane {
 		this.dim = M;
 		referencePoints = new ArrayList<ReferencePoint>();
 		generateReferencePoints();
-		for(ReferencePoint rp : referencePoints){
-			for(int i=0; i<rp.getNumDimensions(); i++){
+		for (ReferencePoint rp : referencePoints) {
+			for (int i = 0; i < rp.getNumDimensions(); i++) {
 				rp.setDim(i, Double.max(Geometry.EPS, rp.getDim(i)));
 			}
 		}
@@ -32,7 +37,7 @@ public abstract class Hyperplane {
 			p = partitions.get(1);
 			ReferencePoint rp = new ReferencePoint(dim);
 			generateRecursive(rp, 0.5 / p, 0, p, insideLayer);
-			
+
 			referencePoints.addAll(insideLayer);
 		}
 	}
@@ -55,62 +60,7 @@ public abstract class Hyperplane {
 			rp.incrDim(startDim, step);
 		}
 	}
-
-	public ArrayList<ReferencePoint> getReferencePoints() {
-		return this.referencePoints;
-	}
-
-	protected ReferencePoint getRandomNeighbour(ReferencePoint centralPoint, double radius) {
-		ReferencePoint newPoint = new ReferencePoint(dim);
-		double p[] = new double[dim - 1];
-		double q[] = new double[dim];
-		p = Geometry.randomPointOnSphere(dim-1, radius);
-		for(int i=0; i<dim-1; i++){
-			q[i] = p[i];
-		}
-		q[dim-1] = 0;
-		q = Geometry.mapOnHyperplane(q);
-		for (int i = 0; i < dim; i++) {
-			q[i] += centralPoint.getDim(i);
-		}
-		for(int i=0; i<dim; i++){
-			if(q[i] < 0){
-				q = binarySearchNonnegative(centralPoint.getDim(), q, 0, 1);
-				break;
-			}
-		}
-		newPoint.setDimensions(q);
-		return newPoint;
-	}
-
-	private double[] binarySearchNonnegative(double[] pos, double[] cur, double beg, double end) {
-		//TODO - NOTE just arbitrary threshold - can be customized
-		double thresh = 1E-6;
-		while(end - beg > thresh){
-			double mid = (beg+end)/2;
-			double [] midDim = Geometry.linearCombination(pos, cur, mid);
-			//Check if any of dimensions has negative value
-			double min = Double.MIN_VALUE;
-			for(double d : midDim){
-				min = Double.min(min, d);
-			}
-			if(min >= 0){
-				end = mid;
-			} else {
-				beg = mid;
-			}
-		}
-		return Geometry.linearCombination(pos, cur, end); 
-	}
-
-	public void cloneReferencePoints() {
-		ArrayList <ReferencePoint> newReferencePoints = new ArrayList<>();
-		for(ReferencePoint rp : referencePoints){
-			newReferencePoints.add(rp.copy());
-		}
-		this.referencePoints = newReferencePoints;
-	}
-
+	
 	private ArrayList<Integer> getNumPartitions(int numObjectives) {
 		ArrayList<Integer> res = new ArrayList<>();
 		switch (numObjectives) {
@@ -138,8 +88,83 @@ public abstract class Hyperplane {
 		}
 		return res;
 	}
-	
-	public int getDim(){
+
+	/**
+	 * Set Niche count of every RP to 0 and clear list o associated solutions
+	 */
+	public void resetAssociations() {
+		for (ReferencePoint rp : referencePoints) {
+			rp.resetAssociation();
+		}
+	}
+
+	public void modifySolutionDirections(int generation, Population pop, int totalNumGenerations, int populationSize) {
+		assert referencePoints.size() == populationSize - (referencePoints.size() % 2);
+		System.out.println(pop.size() + " " + populationSize);
+		assert pop.size() == populationSize / 2;
+
+		double alpha = (double) generation / totalNumGenerations;
+		//TODO arbitrary function - can be modified
+		double radius = 0.25 * (1 - alpha);
+		
+		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
+		ArrayList<ReferencePoint> associatedWithTop50 = new ArrayList<>();
+		ArrayList<ReferencePoint> notAssociatedWithTop50 = new ArrayList<>();
+
+		int numAssociations = 0;
+		for (ReferencePoint rp : referencePoints) {
+			boolean associated = false;
+			numAssociations += rp.getAssociatedSolutionsQueue().size();
+			for (Association as : rp.getAssociatedSolutionsQueue()) {
+				if (isTop50(as.getSolution(), pop)) {
+					associated = true;
+					break;
+				}
+			}
+
+			if (associated) {
+				associatedWithTop50.add(rp);
+			} else {
+				notAssociatedWithTop50.add(rp);
+			}
+		}
+
+		assert numAssociations == populationSize;
+		assert associatedWithTop50.size() + notAssociatedWithTop50.size() == referencePoints.size();
+		assert!associatedWithTop50.isEmpty();
+		assert!notAssociatedWithTop50.isEmpty();
+
+		Collections.shuffle(associatedWithTop50);
+		Collections.shuffle(notAssociatedWithTop50);
+
+		for (int i = 0; i < Integer.min(populationSize / 2, notAssociatedWithTop50.size()); i++) {
+			int associatedId = NSGAIIIRandom.getInstance().nextInt(associatedWithTop50.size());
+			int notAssociatedId = NSGAIIIRandom.getInstance().nextInt(notAssociatedWithTop50.size());
+			newReferencePoints.add(Geometry.getRandomNeighbour(dim, associatedWithTop50.get(associatedId), radius));
+			notAssociatedWithTop50.remove(notAssociatedId);
+		}
+		newReferencePoints.addAll(associatedWithTop50);
+		newReferencePoints.addAll(notAssociatedWithTop50);
+
+		assert newReferencePoints.size() == populationSize - (referencePoints.size() % 2);
+
+		this.referencePoints = newReferencePoints;
+	}
+
+	private boolean isTop50(Solution candidate, Population top50) {
+		for (Solution s : top50.getSolutions()) {
+			if (candidate.equals(s)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int getDim() {
 		return this.dim;
+	}
+	
+	public ArrayList<ReferencePoint> getReferencePoints() {
+		return this.referencePoints;
 	}
 }

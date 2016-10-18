@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import core.Solution;
+import core.points.Solution;
 
 public class WFG7 extends WFG {
 	public WFG7(Integer M){

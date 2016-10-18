@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import core.points.Solution;
+
 public class Population{
 	private ArrayList <Solution> solutions = null;
 	
@@ -18,16 +20,16 @@ public class Population{
 		}
 	}
 
-	public void addSolution(Solution solution){
-		this.solutions.add(solution);
+	public void addSolution(Solution sol){
+		this.solutions.add(sol);
 	}
 	
 	/**
-	 * Add all solutions from population p to give Population. Deepcopy.
+	 * Add all points from population p to give Population. Deepcopy.
 	 * @param p
 	 */
-	public void addSolutions(Population p){
-		for(Solution s : p.getSolutions()){
+	public void addSolutions(Population pop){
+		for(Solution s : pop.getSolutions()){
 			addSolution(s);
 		}
 	}

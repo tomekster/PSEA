@@ -2,7 +2,8 @@ package utils;
 
 import java.util.HashMap;
 
-import core.Solution;
+import core.points.ReferencePoint;
+import core.points.Solution;
 
 public class Geometry {
 
@@ -260,5 +261,52 @@ public class Geometry {
 			res[i] = v[i] / denom;
 		}
 		return res;
+	}
+	
+	public static long choose(long total, long choose){
+	    if(total < choose)
+	        return 0;
+	    if(choose == 0 || choose == total)
+	        return 1;
+	    return choose(total-1,choose-1)+choose(total-1,choose);
+	}
+	
+	public static double[] nonnegativeSegmentPoint(double[] beg, double[] pos) {
+		double v[] = new double[beg.length];
+		double res[] = new double[beg.length];
+		double mult = 0;
+		for(int i=0; i<beg.length; i++){
+			v[i] = pos[i] - beg[i];
+			if(beg[i] < 0){
+				mult = Double.max(mult, -beg[i] / v[i]);
+			}
+		}
+		for(int i=0; i < beg.length; i++){
+			res[i] = beg[i] + mult * v[i];
+		}
+		return res;
+	}
+	
+	public static ReferencePoint getRandomNeighbour(int dim, ReferencePoint centralPoint, double radius) {
+		ReferencePoint newPoint = new ReferencePoint(dim);
+		double p[] = new double[dim - 1];
+		double q[] = new double[dim];
+		p = Geometry.randomPointOnSphere(dim - 1, radius);
+		for (int i = 0; i < dim - 1; i++) {
+			q[i] = p[i];
+		}
+		q[dim - 1] = 0;
+		q = Geometry.mapOnHyperplane(q);
+		for (int i = 0; i < dim; i++) {
+			q[i] += centralPoint.getDim(i);
+		}
+		for (int i = 0; i < dim; i++) {
+			if (q[i] < 0) {
+				q = Geometry.nonnegativeSegmentPoint(q, centralPoint.getDim());
+				break;
+			}
+		}
+		newPoint.setDim(q);
+		return newPoint;
 	}
 }

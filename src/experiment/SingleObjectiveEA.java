@@ -1,5 +1,9 @@
-package core;
+package experiment;
 
+import core.EA;
+import core.Population;
+import core.Problem;
+import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
 import utils.Pair;
 
@@ -24,7 +28,7 @@ public class SingleObjectiveEA extends EA {
 
 	@Override
 	protected Pair<Solution, Double> evaluateGeneration(Population pop) {
-		return cr.getMinChebVal(pop);
+		return cr.getBestSolutionVal(pop);
 	}
 
 }

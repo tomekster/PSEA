@@ -3,8 +3,8 @@ package utils;
 import java.util.ArrayList;
 
 import core.Population;
-import core.Solution;
-import core.hyperplane.ReferencePoint;
+import core.points.ReferencePoint;
+import core.points.Solution;
 import ilog.concert.IloException;
 import ilog.concert.IloNumVar;
 import ilog.cplex.IloCplex;

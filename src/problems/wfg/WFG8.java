@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import core.Solution;
+import core.points.Solution;
 
 /**
  * Creates a default WFG8 problem with

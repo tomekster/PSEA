@@ -1,7 +1,7 @@
 package problems.dtlz;
 
 import core.Problem;
-import core.Solution;
+import core.points.Solution;
 
 public class DTLZ1 extends Problem {
 

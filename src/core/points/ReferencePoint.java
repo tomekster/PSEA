@@ -1,25 +1,23 @@
-package core.hyperplane;
+package core.points;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-public class ReferencePoint {
-	private double dimensions[];
-	private int numDimensions;
+import core.hyperplane.Association;
+
+public class ReferencePoint extends Solution{
 	private int nicheCount;
 	private boolean coherent;
 	private PriorityQueue<Association> associatedSolutions;
-	//Rho value maximizing eps in RACS Linear Programming task
-	private double rho;
 	//Maximum eps achievable in RACS Linear Programming task
 	private double eps;
+	private double rho;
 	private double reward;
 	private double penalty;
 	private int numViolations;
 
-	public ReferencePoint(int numDimensions) {
-		this.numDimensions = numDimensions;
-		this.dimensions = new double[numDimensions];
+	public ReferencePoint(int numVariables) {
+		super(new double [numVariables], new double[1]);
 		this.associatedSolutions = new PriorityQueue<Association>( new Comparator <Association>() {
 			@Override
 			public int compare(Association o1, Association o2) {
@@ -27,14 +25,11 @@ public class ReferencePoint {
 			}
 		});
 		this.coherent = false;
-		for (int i = 0; i < numDimensions; i++){
-			this.dimensions[i] = 0.0;
-		}
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
 		this(rp.getNumDimensions());
-		this.dimensions = rp.getDim().clone();
+		this.variables = rp.getDim().clone();
 		this.associatedSolutions = new PriorityQueue<Association> (rp.getAssociatedSolutionsQueue());
 		this.coherent = rp.isCoherent();
 		this.nicheCount = rp.getNicheCount();
@@ -42,23 +37,7 @@ public class ReferencePoint {
 	
 	public ReferencePoint(double []dimensions) {
 		this(dimensions.length);
-		this.dimensions = dimensions.clone();
-	}
-
-	public double getDim(int index) {
-		return this.dimensions[index];
-	}
-	
-	public void setDim(int index, double val) {
-		this.dimensions[index] = val;
-	}
-	
-	public void incrDim(int index, double value) {
-		this.dimensions[index] += value;
-	}
-
-	public void decrDim(int index, double value) {
-		this.dimensions[index] += value;
+		this.variables = dimensions.clone();
 	}
 
 	public void incrNicheCount() {
@@ -74,11 +53,19 @@ public class ReferencePoint {
 	}
 
 	public int getNumDimensions() {
-		return this.numDimensions;
+		return variables.length;
 	}
 
 	public double[] getDim() {
-		return this.dimensions;
+		return variables;
+	}
+	
+	public double getDim(int i){
+		return getVariable(i);
+	}
+	
+	public void setDim(int i, double val){
+		setVariable(i, val);
 	}
 
 	public void setNicheCount(int i) {
@@ -98,16 +85,6 @@ public class ReferencePoint {
 		return associatedSolutions;
 	}
 
-	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("Dim:");
-		for (double d : dimensions) {
-			sb.append(" " + d);
-		}
-		return sb.toString();
-	}
-
 	public boolean isCoherent() {
 		return coherent;
 	}
@@ -119,18 +96,6 @@ public class ReferencePoint {
 	public ReferencePoint copy() {
 		ReferencePoint rp = new ReferencePoint(this);
 		return rp;
-	}
-	
-	public void setDimensions(double dim[]){
-		this.dimensions = dim;
-	}
-	
-	public double getRho(){
-		return this.rho;
-	}
-
-	public void setRho(double rho) {
-		this.rho = rho;
 	}
 	
 	public double getEps(){
@@ -163,5 +128,17 @@ public class ReferencePoint {
 	
 	public void setNumViolations(int numViolations) {
 		this.numViolations = numViolations;
+	}
+
+	public void setDim(double[] q) {
+		variables = q;
+	}
+
+	public void incrDim(int pos, double d) {
+		variables[pos] += d; 
+	}
+
+	public void setRho(Double rho) {
+		this.rho = rho;
 	}
 }

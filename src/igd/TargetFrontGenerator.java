@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import core.Population;
 import core.Problem;
-import core.Solution;
-import core.hyperplane.ReferencePoint;
+import core.points.ReferencePoint;
+import core.points.Solution;
 
 public class TargetFrontGenerator {
 

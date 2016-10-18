@@ -34,8 +34,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jzy3d.analysis.AnalysisLauncher;
 
-import core.hyperplane.ReferencePoint;
-import history.NSGAIIIHistory;
+import core.points.ReferencePoint;
+import core.points.Solution;
+import history.ExecutionHistory;
 import preferences.Comparison;
 import problems.dtlz.DTLZ1;
 import solutionRankers.NonDominationRanker;
@@ -48,7 +49,7 @@ import utils.MySeries;
 public class Main {
 
 	private int currentPopulationId;
-	private NSGAIIIHistory history;
+	private ExecutionHistory history;
 	private static final String title = "NSGAIII";
 	private ChartPanel chartPanel;
 	private ChartPanel chartPanelReferencePlane;
@@ -56,7 +57,7 @@ public class Main {
 	private boolean showTargetPoints;
 	private boolean showSolDir;
 	private boolean showGeneration;
-	private boolean showChebDir;
+	private boolean showLambda;
 	private Constructor problemConstructor;
 	private int numGenerations;
 	private int elicitationInterval;
@@ -84,7 +85,7 @@ public class Main {
 		this.showTargetPoints = true;
 		this.showSolDir = true;
 		this.showGeneration = true;
-		this.showChebDir= true;
+		this.showLambda= true;
 		this.chartPanel = createChart();
 		this.chartPanelReferencePlane = createChartReferencePlane();
 		this.labelIGD = new JLabel("IGD: --");
@@ -314,9 +315,9 @@ public class Main {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (traceCmds[0].equals(chebDirCB.getSelectedItem())) {
-					showChebDir = true;
+					showLambda = true;
 				} else {
-					showChebDir= false;
+					showLambda= false;
 				}
 				resetChart();
 			}
@@ -398,7 +399,7 @@ public class Main {
 
 	private XYDataset createDataset() {
 		Population pop;
-		pop = history.getGeneration(currentPopulationId);
+		pop = history.getPreferenceGeneration(currentPopulationId);
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
 		if (showTargetPoints) {
@@ -421,16 +422,18 @@ public class Main {
 	}
 
 	private XYDataset createDatasetReferencePlane() {
-		ArrayList<Population> generationsHistory = history.getGenerations();
+		ArrayList<Population> preferenceGenerationsHistory = history.getPreferenceGenerations();
+		ArrayList<Population> spreadGenerationsHistory = history.getPreferenceGenerations();
 		ArrayList<ArrayList<ReferencePoint>> solutionDirectionsHistory = history.getSolutionDirectionsHistory();
 		ArrayList<ArrayList<ReferencePoint>> chebyshevDirectionsHistory = history.getChebyshevDirectionsHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (solutionDirectionsHistory != null && chebyshevDirectionsHistory != null) {
-			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
+			ArrayList<Solution> preferenceGeneration = preferenceGenerationsHistory.get(currentPopulationId).getSolutions();
+			ArrayList<Solution> spreadGeneration = spreadGenerationsHistory.get(currentPopulationId).getSolutions();
 			ArrayList<ReferencePoint> solutionDirections = solutionDirectionsHistory.get(currentPopulationId);
 			ArrayList<ReferencePoint> chebyshevDirections= chebyshevDirectionsHistory.get(currentPopulationId);
-			ArrayList<XYSeries> series = createReferencePointsSeries(generation, solutionDirections, chebyshevDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval)));
+			ArrayList<XYSeries> series = createReferencePointsSeries(preferenceGeneration, spreadGeneration, solutionDirections, chebyshevDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval)));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -452,38 +455,38 @@ public class Main {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ArrayList<ReferencePoint> solutionDirections, ArrayList<ReferencePoint> chebyshevDirections, ArrayList<Comparison> comparisons) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> preferenceGeneration, ArrayList<Solution> spreadGeneration, ArrayList<ReferencePoint> solutionDirections, ArrayList<ReferencePoint> lambda, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
-		XYSeries generationSeries= new XYSeries("Generation solutions");
-		XYSeries solutionSeries= new XYSeries("Solution directions");
-		XYSeries coherentChSeries = new XYSeries("Coherent chebyshev directions");
-		XYSeries incoherentChSeries = new XYSeries("Incoherent chebyshev directions");
+		XYSeries preferenceSeries= new XYSeries("Preference generation");
+		XYSeries spreadSeries= new XYSeries("Spread generation");
+		XYSeries solutionDirectionSeries= new XYSeries("Solution directions");
+		XYSeries lambdaSeries = new XYSeries("Lambdas");
 		XYSeries preferedSolutions = new XYSeries("Prefered solutions");
 		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
 		Solution t;
 		
 		if(showGeneration){
-			for(Solution s : generation){
+			for(Solution s : preferenceGeneration){
 				t = Geometry.cast3dPointToPlane(s.getObjectives());
-				generationSeries.add(t.getObjective(0), t.getObjective(1));	
+				preferenceSeries.add(t.getObjective(0), t.getObjective(1));	
+			}
+			
+			for(Solution s : spreadGeneration){
+				t = Geometry.cast3dPointToPlane(s.getObjectives());
+				spreadSeries.add(t.getObjective(0), t.getObjective(1));	
 			}
 		}
 		
 		if(showSolDir){
 			for (ReferencePoint rp : solutionDirections) {
 				t = Geometry.cast3dPointToPlane(rp.getDim());
-				solutionSeries.add(t.getObjective(0), t.getObjective(1));		
+				solutionDirectionSeries.add(t.getObjective(0), t.getObjective(1));		
 			}
 		}
-		if(showChebDir){
-			for (ReferencePoint rp : chebyshevDirections) {
-				if(rp.isCoherent()){
-					t = Geometry.cast3dPointToPlane(rp.getDim());
-					coherentChSeries.add(t.getObjective(0), t.getObjective(1));		
-				} else{
-					t = Geometry.cast3dPointToPlane(rp.getDim());
-					incoherentChSeries.add(t.getObjective(0), t.getObjective(1));
-				}
+		if(showLambda){
+			for (ReferencePoint rp : lambda) {
+				t = Geometry.cast3dPointToPlane(rp.getDim());
+				lambdaSeries.add(t.getObjective(0), t.getObjective(1));		
 			}
 		}
 		for (Comparison c : comparisons) {
@@ -493,12 +496,11 @@ public class Main {
 				nonPreferedSolutions.add(t.getObjective(0), t.getObjective(1));
 		}
 		
-		result.add(solutionSeries);
-		result.add(coherentChSeries);
-		result.add(incoherentChSeries);
+		result.add(solutionDirectionSeries);
+		result.add(lambdaSeries);
 		result.add(preferedSolutions);
 		result.add(nonPreferedSolutions);
-		result.add(generationSeries);
+		result.add(preferenceSeries);
 		return result;
 	}
 
@@ -532,19 +534,19 @@ public class Main {
 	}
 
 	private MySeries createJZY3DDataset() {
-		Population pop = history.getGeneration(currentPopulationId);
+		Population pop = history.getPreferenceGeneration(currentPopulationId);
 		ArrayList <ReferencePoint> rp = history.getSolutionDirectionsHistory().get(currentPopulationId);
 		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval));		
 		return new MySeries(pop.getSolutions(), rp, comparisons);
 	}
 
 	double runNSGAIIIOnce() {
-		NSGAIII alg;
+		RST_NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, interactive, elicitationInterval);
+			alg = new RST_NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, elicitationInterval);
 			alg.run();
-			executedGenerations = alg.getNumGenerations();
+			executedGenerations = alg.getGeneration();
 			history = alg.getHistory();
 			resIGD = alg.evaluateFinalResult(alg.getPopulation());
 			updateSlider();

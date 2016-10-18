@@ -3,7 +3,7 @@ package solutionRankers;
 import java.util.ArrayList;
 
 import core.Population;
-import core.Solution;
+import core.points.Solution;
 
 public class NonDominationRanker{
 

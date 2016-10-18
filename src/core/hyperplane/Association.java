@@ -1,6 +1,6 @@
 package core.hyperplane;
 
-import core.Solution;
+import core.points.Solution;
 
 public class Association {
 	private Solution solution;

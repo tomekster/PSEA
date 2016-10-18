@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import core.Population;
-import core.Solution;
+import core.points.ReferencePoint;
+import core.points.Solution;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
 
 public class SolutionDirections extends Hyperplane {
@@ -62,7 +64,7 @@ public class SolutionDirections extends Hyperplane {
 		for(int i=0; i<Integer.min(populationSize/2, notAssociatedWithTop50.size()); i++){
 			int associatedId = NSGAIIIRandom.getInstance().nextInt(associatedWithTop50.size());
 			int notAssociatedId = NSGAIIIRandom.getInstance().nextInt(notAssociatedWithTop50.size());
-			newReferencePoints.add(getRandomNeighbour(associatedWithTop50.get(associatedId), radius));
+			newReferencePoints.add(Geometry.getRandomNeighbour(dim, associatedWithTop50.get(associatedId), radius));
 			notAssociatedWithTop50.remove(notAssociatedId);
 		}
 		newReferencePoints.addAll(associatedWithTop50);

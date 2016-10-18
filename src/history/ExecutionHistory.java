@@ -3,70 +3,77 @@ package history;
 import java.util.ArrayList;
 
 import core.Population;
-import core.Solution;
-import core.hyperplane.ReferencePoint;
+import core.points.ReferencePoint;
+import core.points.Solution;
 import preferences.PreferenceCollector;
 import utils.Pair;
 
-public class NSGAIIIHistory {
+public class ExecutionHistory {
 	
-	private int numGenerations;
 	private int populationSize;
-	private int numSolutionDirections;
 	private int numVariables;
 	private int numObjectives;
 	
 	private Population targetPoints;
-	private ArrayList<Population> generations;
-	private ArrayList< ArrayList<ReferencePoint> > solutionDirectionsHistory;
-	private ArrayList< ArrayList<ReferencePoint> > chebyshevDirectionsHistory;
+	private ArrayList<Population> preferenceGenerations;
+	private ArrayList<Population> spreadGenerations;
+	private ArrayList< ArrayList<ReferencePoint> > solutionDirectionsGenerations;
+	private ArrayList< ArrayList<ReferencePoint> > lambdaGenerations;
 	private ArrayList<Solution> bestChebSol;
-	private ArrayList<Double> bestChebVal;
-	private ArrayList<Integer> RACSCount;
-	
+	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
 	
-	public NSGAIIIHistory(int numGenerations){
-		this.generations = new ArrayList<>(numGenerations);
-		this.solutionDirectionsHistory = new ArrayList< ArrayList<ReferencePoint> >();
-		this.chebyshevDirectionsHistory = new ArrayList< ArrayList<ReferencePoint> >();
+	public ExecutionHistory(){
+		this.preferenceGenerations = new ArrayList<>();
+		this.spreadGenerations = new ArrayList<>();
+		this.solutionDirectionsGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		this.lambdaGenerations = new ArrayList< ArrayList<ReferencePoint> >();
 		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
-		this.RACSCount= new ArrayList <Integer>();
 	}
+	
 	public Population getTargetPoints() {
 		return targetPoints;
 	}
 	public void setTargetPoints(Population targetPoints) {
 		this.targetPoints = targetPoints;
 	}
-	public ArrayList<Population> getGenerations() {
-		return generations;
+	public ArrayList<Population> getPreferenceGenerations() {
+		return preferenceGenerations;
 	}
-	public Population getGeneration(int pos){
-		return generations.get(pos);
+	public Population getPreferenceGeneration(int pos){
+		return preferenceGenerations.get(pos);
 	}
-	public void addGeneration(Population pop){
-		this.generations.add(pop);
+	public void addPreferenceGeneration(Population pop){
+		this.preferenceGenerations.add(pop);
+	}
+	public ArrayList<Population> getSpreadGenerations() {
+		return spreadGenerations;
+	}
+	public Population getSpreadGeneration(int pos){
+		return spreadGenerations.get(pos);
+	}
+	public void addSpreadGeneration(Population pop){
+		this.spreadGenerations.add(pop);
 	}
 	public ArrayList< ArrayList<ReferencePoint> > getSolutionDirectionsHistory() {
-		return solutionDirectionsHistory;
+		return solutionDirectionsGenerations;
 	}
 	public ArrayList<ReferencePoint> getSolutionDirections(int id){
-		return solutionDirectionsHistory.get(id);
+		return solutionDirectionsGenerations.get(id);
 	}
 	public void addSolutionDirections(ArrayList<ReferencePoint>  solutionDirections){
-		this.solutionDirectionsHistory.add(solutionDirections);
+		this.solutionDirectionsGenerations.add(solutionDirections);
 	}
 
 	public ArrayList< ArrayList<ReferencePoint> > getChebyshevDirectionsHistory() {
-		return chebyshevDirectionsHistory;
+		return lambdaGenerations;
 	}
 	public ArrayList<ReferencePoint> getChebyshevDirections(int id){
-		return chebyshevDirectionsHistory.get(id);
+		return lambdaGenerations.get(id);
 	}
-	public void addChebyshevDirections(ArrayList<ReferencePoint>  chebyshevDirections){
-		this.chebyshevDirectionsHistory.add(chebyshevDirections);
+	public void addLambdas(ArrayList<ReferencePoint>  chebyshevDirections){
+		this.lambdaGenerations.add(chebyshevDirections);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
@@ -84,28 +91,12 @@ public class NSGAIIIHistory {
 		this.pc = pc;
 	}
 
-	public int getNumGenerations() {
-		return numGenerations;
-	}
-
-	public void setNumGenerations(int numGenerations) {
-		this.numGenerations = numGenerations;
-	}
-
 	public int getPopulationSize() {
 		return populationSize;
 	}
 
 	public void setPopulationSize(int populationSize) {
 		this.populationSize = populationSize;
-	}
-
-	public int getNumSolutionDirections() {
-		return numSolutionDirections;
-	}
-
-	public void setNumSolutionDirections(int numSolutionDirections) {
-		this.numSolutionDirections = numSolutionDirections;
 	}
 
 	public int getNumVariables() {
@@ -123,15 +114,7 @@ public class NSGAIIIHistory {
 	public void setNumObjectives(int numObjectives) {
 		this.numObjectives = numObjectives;
 	}
-	public ArrayList <Integer> getRACSCount(){
-		return this.RACSCount;
-	}
-	public int getRACSCount(int pos) {
-		return this.RACSCount.get(pos);
-	}
-	public void addRACSCount(int numRACSChecks) {
-		this.RACSCount.add(numRACSChecks);
-	}
+
 	public Solution getBestChebSol(int pos) {
 		return this.bestChebSol.get(pos);
 	}

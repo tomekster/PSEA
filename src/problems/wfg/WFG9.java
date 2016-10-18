@@ -5,7 +5,7 @@
  */
 package problems.wfg;
 
-import core.Solution;
+import core.points.Solution;
 
 /**
  * Creates a default WFG9 problem with

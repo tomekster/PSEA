@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import core.points.ReferencePoint;
 import utils.Geometry;
 
 public class HyperplaneTest {
@@ -21,7 +22,7 @@ public class HyperplaneTest {
 	}
 
 	@Test
-	public void referencePointsGenerationTest() {
+	public void generateReferencePointsTest() {
 		SolutionDirections hp;
 		ArrayList<Integer> partitions = new ArrayList<>();
 

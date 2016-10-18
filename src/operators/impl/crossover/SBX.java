@@ -3,7 +3,7 @@ package operators.impl.crossover;
 import java.util.ArrayList;
 import java.util.Random;
 
-import core.Solution;
+import core.points.Solution;
 import operators.CrossoverOperator;
 import utils.Geometry;
 import utils.NSGAIIIRandom;

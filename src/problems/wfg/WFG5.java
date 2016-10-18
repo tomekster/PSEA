@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import core.Solution;
+import core.points.Solution;
 
 /**
  * This class implements the WFG5 problem

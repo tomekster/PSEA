@@ -24,7 +24,7 @@ package problems.wfg;
 import java.util.Random;
 
 import core.Problem;
-import core.Solution;
+import core.points.Solution;
 
 /**
  * Implements a reference abstract class for all wfg org.uma.test problem

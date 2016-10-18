@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import core.points.ReferencePoint;
 import utils.Geometry;
 
 public class ReferencePointTest {

@@ -11,10 +11,9 @@ import java.util.HashMap;
 import core.NSGAIII;
 import core.Population;
 import core.Problem;
-import core.SingleObjectiveEA;
-import core.Solution;
-import core.hyperplane.ReferencePoint;
-import history.NSGAIIIHistory;
+import core.points.ReferencePoint;
+import core.points.Solution;
+import history.ExecutionHistory;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ3;
@@ -106,7 +105,7 @@ public class ExperimentRunner {
 		popSizeMap.put(15, 136);
 	}
 
-	private static void saveHistory(NSGAIIIHistory history, String filename, boolean soea) {
+	private static void saveHistory(ExecutionHistory history, String filename, boolean soea) {
 		Path file = Paths.get("experimentResults/" + filename);
 		ArrayList<String> lines = new ArrayList<String>();
 
@@ -137,10 +136,10 @@ public class ExperimentRunner {
 		}
 	}
 
-	private static void saveSolutions(ArrayList<String> lines, NSGAIIIHistory history){
+	private static void saveSolutions(ArrayList<String> lines, ExecutionHistory history){
 		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getGenerations().size(); generationId++) {
-			Population p = history.getGeneration(generationId);
+		for (int generationId = 0; generationId < history.getPreferenceGenerations().size(); generationId++) {
+			Population p = history.getPreferenceGeneration(generationId);
 			for (int j = 0; j < p.size(); j++) {
 				Solution s = p.getSolution(j);
 				for (double var : s.getVariables()) {
@@ -158,9 +157,9 @@ public class ExperimentRunner {
 		lines.add(sb.toString());
 	}
 	
-	private static void saveSolutionDirs(ArrayList<String> lines, NSGAIIIHistory history) {
+	private static void saveSolutionDirs(ArrayList<String> lines, ExecutionHistory history) {
 		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getGenerations().size(); generationId++) {
+		for (int generationId = 0; generationId < history.getPreferenceGenerations().size(); generationId++) {
 			// Add solution directions
 			ArrayList<ReferencePoint> solDirs = history.getSolutionDirections(generationId);
 			for (int j = 0; j < solDirs.size(); j++) {
@@ -175,9 +174,9 @@ public class ExperimentRunner {
 		lines.add(sb.toString());
 	}
 
-	private static void saveChebyshevDirs(ArrayList<String> lines, NSGAIIIHistory history) {
+	private static void saveChebyshevDirs(ArrayList<String> lines, ExecutionHistory history) {
 		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getGenerations().size(); generationId++) {
+		for (int generationId = 0; generationId < history.getPreferenceGenerations().size(); generationId++) {
 			ArrayList<ReferencePoint> chebDirs = history.getSolutionDirections(generationId);
 			for (int j = 0; j < chebDirs.size(); j++) {
 				ReferencePoint chebDir = chebDirs.get(j);
@@ -191,7 +190,7 @@ public class ExperimentRunner {
 		lines.add(sb.toString());
 	}
 
-	private static void saveBestChebVal(ArrayList<String> lines, NSGAIIIHistory history) {
+	private static void saveBestChebVal(ArrayList<String> lines, ExecutionHistory history) {
 		StringBuffer sb = new StringBuffer();
 		for (int generationId = 0; generationId < history.getNumGenerations(); generationId++) {
 			sb.append(history.getBestChebVal(generationId));
@@ -200,7 +199,7 @@ public class ExperimentRunner {
 		lines.add(sb.toString());
 	}
 	
-	private static void saveBestChebSol(ArrayList<String> lines, NSGAIIIHistory history) {
+	private static void saveBestChebSol(ArrayList<String> lines, ExecutionHistory history) {
 		StringBuffer sb = new StringBuffer();
 		for (int generationId = 0; generationId < history.getNumGenerations(); generationId++) {
 			sb.append(history.getBestChebSol(generationId));
@@ -209,7 +208,7 @@ public class ExperimentRunner {
 		lines.add(sb.toString());
 	}
 	
-	private static void saveRacsCount(ArrayList<String> lines, NSGAIIIHistory history) {
+	private static void saveRacsCount(ArrayList<String> lines, ExecutionHistory history) {
 		StringBuffer sb = new StringBuffer();
 		for (int racsCount : history.getRACSCount()) {
 			sb.append(racsCount);

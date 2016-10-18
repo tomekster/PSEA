@@ -2,8 +2,8 @@ package utils;
 
 import java.util.ArrayList;
 
-import core.Solution;
-import core.hyperplane.ReferencePoint;
+import core.points.ReferencePoint;
+import core.points.Solution;
 import preferences.Comparison;
 
 public class MySeries {

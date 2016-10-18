@@ -2,7 +2,7 @@ package operators.impl.mutation;
 
 import java.util.Random;
 
-import core.Solution;
+import core.points.Solution;
 
 /**
  * This class implements a polynomial mutation operator
@@ -34,15 +34,15 @@ public class PolynomialMutation implements MutationOperator {
 		this.upperBound = upperBound;
 	}
 
-	public void execute(Solution solution) {
+	public void execute(Solution soultion) {
 		double rnd, delta1, delta2, mutPow, deltaq;
 		double y, yl, yu, val, xy;
 
 		Random random = NSGAIIIRandom.getInstance();
 
-		for (int i = 0; i < solution.getNumVariables(); i++) {
+		for (int i = 0; i < soultion.getNumVariables(); i++) {
 			if (random.nextDouble() <= probability) {
-				y = solution.getVariable(i);
+				y = soultion.getVariable(i);
 				yl = lowerBound[i];
 				yu = upperBound[i];
 				
@@ -64,7 +64,7 @@ public class PolynomialMutation implements MutationOperator {
 				y = y + deltaq * (yu - yl);
 				y = Double.max(y, lowerBound[i]);
 				y = Double.min(y, upperBound[i]);
-				solution.setVariable(i, y);
+				soultion.setVariable(i, y);
 			}
 		}
 	}

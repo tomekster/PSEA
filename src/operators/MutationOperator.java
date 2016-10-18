@@ -1,6 +1,6 @@
 package operators;
 
-import core.Solution;
+import core.points.Solution;
 
 public interface MutationOperator {
 

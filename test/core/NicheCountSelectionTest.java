@@ -4,7 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import core.hyperplane.ReferencePoint;
+import core.points.ReferencePoint;
+import core.points.Solution;
 
 public class NicheCountSelectionTest {
 	
