@@ -97,11 +97,35 @@ public class Hyperplane {
 			rp.resetAssociation();
 		}
 	}
+	
+	public void associate(Population population) {
+		resetAssociations();
+
+		for(Solution s : population.getSolutions()){
+			double minDist = Double.MAX_VALUE;
+			ReferencePoint bestRefPoint = null;
+			for (ReferencePoint curRefPoint : referencePoints) {
+				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
+				if (dist < minDist) {
+					minDist = dist;
+					bestRefPoint = curRefPoint;
+				}
+			}
+			bestRefPoint.addAssociation(new Association(s, minDist));
+		}
+	}
 
 	public void modifySolutionDirections(int generation, Population pop, int totalNumGenerations, int populationSize) {
+		resetAssociations();
+		associate(pop);
+		
 		assert referencePoints.size() == populationSize - (referencePoints.size() % 2);
-		System.out.println(pop.size() + " " + populationSize);
-		assert pop.size() == populationSize / 2;
+		assert pop.size() == populationSize;
+		
+		Population top50solutions = new Population();
+		for(int i=0; i<populationSize/2; i++){
+			top50solutions.addSolution(pop.getSolution(i));
+		}
 
 		double alpha = (double) generation / totalNumGenerations;
 		//TODO arbitrary function - can be modified
@@ -116,7 +140,7 @@ public class Hyperplane {
 			boolean associated = false;
 			numAssociations += rp.getAssociatedSolutionsQueue().size();
 			for (Association as : rp.getAssociatedSolutionsQueue()) {
-				if (isTop50(as.getSolution(), pop)) {
+				if (isTop50(as.getSolution(), top50solutions)) {
 					associated = true;
 					break;
 				}
@@ -128,7 +152,6 @@ public class Hyperplane {
 				notAssociatedWithTop50.add(rp);
 			}
 		}
-
 		assert numAssociations == populationSize;
 		assert associatedWithTop50.size() + notAssociatedWithTop50.size() == referencePoints.size();
 		assert!associatedWithTop50.isEmpty();
@@ -153,7 +176,7 @@ public class Hyperplane {
 
 	private boolean isTop50(Solution candidate, Population top50) {
 		for (Solution s : top50.getSolutions()) {
-			if (candidate.equals(s)) {
+			if(candidate.sameSolution(s)){
 				return true;
 			}
 		}

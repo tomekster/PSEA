@@ -1,12 +1,9 @@
 package core;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
-
-import javax.swing.plaf.synth.SynthSeparatorUI;
 
 import core.hyperplane.Association;
 import core.hyperplane.Hyperplane;
@@ -14,7 +11,6 @@ import core.points.ReferencePoint;
 import core.points.Solution;
 import utils.DegeneratedMatrixException;
 import utils.GaussianElimination;
-import utils.Geometry;
 
 /***
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
@@ -25,42 +21,40 @@ public class NicheCountSelection {
 
 	public static Population selectKPoints(int numObjectives, Population allFronts, Population allButLastFront, Population lastFront, 
 			int k, Hyperplane hyperplane) throws DegeneratedMatrixException {
-		Population normalizedPopulation = normalize(numObjectives, allFronts);
-		associate(normalizedPopulation, hyperplane);
+		normalize(numObjectives, allFronts);
+		hyperplane.associate(allFronts);
 		Population kPoints = niching(allButLastFront, lastFront, k, hyperplane);
 		return kPoints;
 	}
 
-	public static Population normalize(int numObjectives, Population allFronts) {
-		Population resPop = allFronts.copy();
+	private static void normalize(int numObjectives, Population allFronts) {
 		double z_min[] = new double[numObjectives];
-		for (int j = 0; j < numObjectives; j++) {
-			double min = Double.MAX_VALUE;
-			for (Solution s : resPop.getSolutions()) {
-				min = Double.min(s.getObjective(j), min);
-			}
-			z_min[j] = min;
+		
+		for(int i=0; i<numObjectives; i++){
+			z_min[i] = Double.MAX_VALUE;
 		}
-
-		// Move all points to new origin
-		for (Solution s : resPop.getSolutions()) {
-			for (int j = 0; j < numObjectives; j++) {
-				s.setObjective(j, s.getObjective(j) - z_min[j]);
+		
+		for(Solution s : allFronts.getSolutions()){
+			for(int i=0; i<numObjectives; i++){
+				z_min[i] = Double.min(z_min[i], s.getObjective(i));
 			}
 		}
+		for(Solution s : allFronts.getSolutions()){
+			for(int i=0; i<numObjectives; i++){
+				double newObj = s.getObjective(i) - z_min[i];
+				assert newObj >= 0;
+				s.setObjective(i, newObj);
+			}
+		}
 
-		Population extremePoints = computeExtremePoints(resPop, numObjectives);
+		Population extremePoints = computeExtremePoints(allFronts, numObjectives);
 
 		double invertedIntercepts[] = new double[extremePoints.size()];
 
 		try {
 			invertedIntercepts = findIntercepts(extremePoints);
 		} catch (DegeneratedMatrixException e) {
-			for (int i = 0; i < extremePoints.size(); i++) {
-				double worstObjectives[] = findWorstObjectives(numObjectives, allFronts);
-				invertedIntercepts[i] = 1.0 / worstObjectives[i];
-			}
-			e.printStackTrace();
+			invertedIntercepts = null;
 		}
 		if(invertedIntercepts == null){
 			invertedIntercepts = new double[extremePoints.size()];
@@ -70,7 +64,7 @@ public class NicheCountSelection {
 			}
 		}
 		
-		for (Solution s : resPop.getSolutions()) {
+		for (Solution s : allFronts.getSolutions()) {
 			for (int i = 0; i < numObjectives; i++) {
 				/**
 				 * Multiplication instead of division - explained in
@@ -79,12 +73,13 @@ public class NicheCountSelection {
 				s.setObjective(i, s.getObjective(i) * invertedIntercepts[i]);
 			}
 		}
-
-		return resPop;
 	}
 
 	private static double[] findWorstObjectives(int numObjectives, Population allFronts) {
 		double res[] = new double[numObjectives];
+		for(int i=0; i<numObjectives; i++){
+			res[i] = -Double.MAX_VALUE;
+		}
 		for(Solution s : allFronts.getSolutions()){
 			for(int i=0; i<numObjectives; i++){
 				res[i] = Double.max(res[i], s.getObjective(i));
@@ -140,35 +135,15 @@ public class NicheCountSelection {
 
 		return coef;
 	}
-	
-	public static void associate(Population population, Hyperplane hyperplane) {
-		hyperplane.resetAssociations();
-		ArrayList<ReferencePoint> refPoints = hyperplane.getReferencePoints();
-
-		for(int i=0; i<population.getSolutions().size(); i++){
-			Solution s = population.getSolutions().get(i);
-			double minDist = Double.MAX_VALUE;
-			ReferencePoint bestRefPoint = null;
-			for (int j = 0; j < refPoints.size(); j++) {
-				ReferencePoint curRefPoint = refPoints.get(j);
-				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
-				if (dist < minDist) {
-					minDist = dist;
-					bestRefPoint = curRefPoint;
-				}
-			}
-			bestRefPoint.addAssociation(new Association(s, minDist));
-		}
-	}
 
 	private static Population niching(Population allButLastFront, Population lastFront, int K, Hyperplane hyperplane) {
 		Population kPoints = new Population();
-		HashMap<double[], Boolean> isLastFront = new HashMap<>();
+		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
 		for (Solution s : allButLastFront.getSolutions()) {
-			isLastFront.put(s.getVariables(), false);
+			isLastFront.put(s, false);
 		}
 		for (Solution s : lastFront.getSolutions()) {
-			isLastFront.put(s.getVariables(), true);
+			isLastFront.put(s, true);
 		}
 		
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(new Comparator <ReferencePoint>() {
@@ -188,17 +163,7 @@ public class NicheCountSelection {
 					.getAssociatedSolutionsQueue();
 			while (!associatedSolutionsQueue.isEmpty()) {
 				Solution s = associatedSolutionsQueue.poll().getSolution();
-//				System.out.println("ALL BUT LAST: ");
-//				for(Solution x : allButLastFront.getSolutions()){
-//					System.out.println(x.hashCode());
-//				}
-//				System.out.println("LAST: ");
-//				for(Solution x : lastFront.getSolutions()){
-//					System.out.println(x.hashCode());
-//				}
-//				System.out.println("SOLUTION: ");
-//				System.out.println(s.hashCode());
-				if (isLastFront.get(s.getVariables())) {
+				if (isLastFront.get(s)) {
 					kPoints.addSolution(s);
 					smallestNicheCountRefPoint.incrNicheCount();
 					refPQ.add(smallestNicheCountRefPoint);

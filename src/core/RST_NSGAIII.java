@@ -17,6 +17,7 @@ import preferences.Elicitator;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
+import utils.Geometry;
 import utils.Pair;
 
 public class RST_NSGAIII extends EA implements Runnable {
@@ -80,6 +81,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		// analysis, display, etc.
 		this.history = new ExecutionHistory(); 
 		history.addPreferenceGeneration(population.copy());
+		history.addSpreadGeneration(nsgaiii.getPopulation());
 		history.addSolutionDirections(this.hyperplane.getReferencePoints());
 		history.addLambdas(lambda.getLambdas());
 		history.setTargetPoints(TargetFrontGenerator.generate(this.hyperplane.getReferencePoints(), problem));
@@ -93,6 +95,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 		for (generation = 0; generation < numGenerations; generation++) {
 			if(generation % elicitationInterval == 0) {
+				System.out.println("GENERATION: " + generation);
 				Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
 				if (firstFront.size() > 1){
 					Elicitator.elicitate(firstFront, decisionMakerRanker, lambda.getPreferenceCollector());
@@ -101,12 +104,15 @@ public class RST_NSGAIII extends EA implements Runnable {
 			}
 				
 			nsgaiii.nextGeneration();
-			lambda.nextGeneration();
-			population.addSolutions(nsgaiii.getPopulation());
-			nextGeneration();
+			//TODO
+//			lambda.nextGeneration();
+//			population.addSolutions(nsgaiii.getPopulation());
+//			assert population.size() == 2*populationSize;
+//			nextGeneration();
 					
 			//problem.evaluate(population);
 			history.addPreferenceGeneration(population.copy());
+			history.addSpreadGeneration(nsgaiii.getPopulation());
 			history.addSolutionDirections(hyperplane.getReferencePoints());
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
 			history.addBestChebVal(evaluateGeneration(population));

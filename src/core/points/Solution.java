@@ -8,8 +8,9 @@ public class Solution {
 	protected double[] objectives;
 
 	public Solution(double vars[], double obj[]) {
-		this.variables = vars;
-		this.objectives = obj;
+		this.variables = vars.clone();
+		this.objectives = obj.clone();
+
 	}
 
 	public Solution(Solution solution) {
@@ -82,5 +83,12 @@ public class Solution {
 
 	public void setObjective(int pos, double objective) {
 		this.objectives[pos] = objective;
+	}
+
+	public boolean sameSolution(Solution s) {
+		for(int i=0; i<variables.length; i++){
+			if( Double.compare(s.getVariable(i), variables[i]) != 0) return false;
+		}
+		return true;
 	}
 }

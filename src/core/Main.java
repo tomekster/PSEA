@@ -72,9 +72,9 @@ public class Main {
 	public Main() {
 		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 50;
+		this.numGenerations = 350;
 		this.elicitationInterval = 25;
-		this.numObjectives = 2;
+		this.numObjectives = 3;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -399,7 +399,8 @@ public class Main {
 
 	private XYDataset createDataset() {
 		Population pop;
-		pop = history.getPreferenceGeneration(currentPopulationId);
+		pop = history.getSpreadGeneration(currentPopulationId);
+		//pop = history.getPreferenceGeneration(currentPopulationId);
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
 		if (showTargetPoints) {
@@ -423,7 +424,7 @@ public class Main {
 
 	private XYDataset createDatasetReferencePlane() {
 		ArrayList<Population> preferenceGenerationsHistory = history.getPreferenceGenerations();
-		ArrayList<Population> spreadGenerationsHistory = history.getPreferenceGenerations();
+		ArrayList<Population> spreadGenerationsHistory = history.getSpreadGenerations();
 		ArrayList<ArrayList<ReferencePoint>> solutionDirectionsHistory = history.getSolutionDirectionsHistory();
 		ArrayList<ArrayList<ReferencePoint>> chebyshevDirectionsHistory = history.getChebyshevDirectionsHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
@@ -501,6 +502,7 @@ public class Main {
 		result.add(preferedSolutions);
 		result.add(nonPreferedSolutions);
 		result.add(preferenceSeries);
+		result.add(spreadSeries);
 		return result;
 	}
 

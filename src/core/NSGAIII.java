@@ -46,6 +46,7 @@ public class NSGAIII extends EA {
 
 	@Override
 	public Population selectNewPopulation(Population pop) {
+		assert pop.size() == 2*populationSize;
 		problem.evaluate(pop);
 		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
 
@@ -58,13 +59,9 @@ public class NSGAIII extends EA {
 				lastFront = front;
 				break;
 			}
-			for (Solution s : front.getSolutions()) {
-				allButLastFront.addSolution(s.copy());
-			}
+			allButLastFront.addSolutions(front);
 		}
-		
-		// Note - allFronts, allButLastFront, lastFront should store
-		// reference to the same Solution objects - not separate copies
+
 		allFronts.addSolutions(allButLastFront);
 		allFronts.addSolutions(lastFront);
 			
