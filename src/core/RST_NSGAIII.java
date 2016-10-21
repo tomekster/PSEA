@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.jfree.date.SpreadsheetDate;
+
 import core.hyperplane.Hyperplane;
 import core.points.ReferencePoint;
 import core.points.Solution;
@@ -17,7 +19,6 @@ import preferences.Elicitator;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
-import utils.Geometry;
 import utils.Pair;
 
 public class RST_NSGAIII extends EA implements Runnable {
@@ -110,9 +111,9 @@ public class RST_NSGAIII extends EA implements Runnable {
 //			assert population.size() == 2*populationSize;
 //			nextGeneration();
 					
-			//problem.evaluate(population);
+			problem.evaluate(population);
 			history.addPreferenceGeneration(population.copy());
-			history.addSpreadGeneration(nsgaiii.getPopulation());
+			history.addSpreadGeneration(nsgaiii.getPopulation().copy());
 			history.addSolutionDirections(hyperplane.getReferencePoints());
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
 			history.addBestChebVal(evaluateGeneration(population));

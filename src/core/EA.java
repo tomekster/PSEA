@@ -24,7 +24,7 @@ public abstract class EA {
 		this.mutationOperator = mutationOperator;
 	}
 
-	public Population nextGeneration() {
+	public void nextGeneration() {
 		assert population.size() % 2 == 0;
 		Population offspring = createOffspring(population);
 		Population combinedPopulation = new Population();
@@ -33,7 +33,7 @@ public abstract class EA {
 		combinedPopulation.addSolutions(offspring);
 
 		population = selectNewPopulation(combinedPopulation);
-		return population;
+		System.out.println("New population: " + population);
 	}
 
 

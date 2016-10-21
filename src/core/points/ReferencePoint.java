@@ -8,7 +8,8 @@ import core.hyperplane.Association;
 public class ReferencePoint extends Solution{
 	private int nicheCount;
 	private boolean coherent;
-	private PriorityQueue<Association> associatedSolutions;
+	private PriorityQueue<Association> nichedAssociations;
+	private PriorityQueue<Association> lastFrontAssociations;
 	//Maximum eps achievable in RACS Linear Programming task
 	private double eps;
 	private double rho;
@@ -18,7 +19,13 @@ public class ReferencePoint extends Solution{
 
 	public ReferencePoint(int numVariables) {
 		super(new double [numVariables], new double[1]);
-		this.associatedSolutions = new PriorityQueue<Association>( new Comparator <Association>() {
+		this.nichedAssociations = new PriorityQueue<Association>( new Comparator <Association>() {
+			@Override
+			public int compare(Association o1, Association o2) {
+				return Double.compare(o1.getDist(), o2.getDist());
+			}
+		});
+		this.lastFrontAssociations = new PriorityQueue<Association>( new Comparator <Association>() {
 			@Override
 			public int compare(Association o1, Association o2) {
 				return Double.compare(o1.getDist(), o2.getDist());
@@ -30,7 +37,8 @@ public class ReferencePoint extends Solution{
 	public ReferencePoint(ReferencePoint rp) {
 		this(rp.getNumDimensions());
 		this.variables = rp.getDim().clone();
-		this.associatedSolutions = new PriorityQueue<Association> (rp.getAssociatedSolutionsQueue());
+		this.nichedAssociations = new PriorityQueue<Association> (rp.getNichedAssociationsQueue());
+		this.lastFrontAssociations = new PriorityQueue<Association> (rp.getLastFrontAssociationsQueue());
 		this.coherent = rp.isCoherent();
 		this.nicheCount = rp.getNicheCount();
 	}
@@ -74,15 +82,25 @@ public class ReferencePoint extends Solution{
 
 	public void resetAssociation() {
 		this.nicheCount = 0;
-		this.associatedSolutions.clear();
+		this.nichedAssociations.clear();
+		this.lastFrontAssociations.clear();
 	}
 
-	public void addAssociation(Association association) {
-		this.associatedSolutions.add(association);
+	public void addNichedAssociation(Association association) {
+		this.nichedAssociations.add(association);
+		incrNicheCount();
 	}
 
-	public PriorityQueue<Association> getAssociatedSolutionsQueue() {
-		return associatedSolutions;
+	public PriorityQueue<Association> getNichedAssociationsQueue() {
+		return nichedAssociations;
+	}
+	
+	public void addLastFrontAssociation(Association association) {
+		this.lastFrontAssociations.add(association);
+	}
+
+	public PriorityQueue<Association> getLastFrontAssociationsQueue() {
+		return lastFrontAssociations;
 	}
 
 	public boolean isCoherent() {

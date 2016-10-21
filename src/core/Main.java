@@ -72,7 +72,7 @@ public class Main {
 	public Main() {
 		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 350;
+		this.numGenerations = 2;
 		this.elicitationInterval = 25;
 		this.numObjectives = 3;
 		try {
@@ -550,7 +550,7 @@ public class Main {
 			alg.run();
 			executedGenerations = alg.getGeneration();
 			history = alg.getHistory();
-			resIGD = alg.evaluateFinalResult(alg.getPopulation());
+			resIGD = alg.evaluateFinalResult(history.getSpreadGeneration(executedGenerations));
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {

@@ -1,7 +1,6 @@
 package core;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.PriorityQueue;
 import java.util.logging.Logger;
 
@@ -11,7 +10,6 @@ import core.points.ReferencePoint;
 import core.points.Solution;
 import utils.DegeneratedMatrixException;
 import utils.GaussianElimination;
-import utils.Pair;
 
 /***
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
@@ -22,10 +20,13 @@ public class NicheCountSelection {
 
 	public static Population selectKPoints(int numObjectives, Population allFronts, Population allButLastFront, Population lastFront, 
 			int k, Hyperplane hyperplane) throws DegeneratedMatrixException {
+		System.out.println("ALL FRONTS: " + allFronts);
 		normalize(numObjectives, allFronts);
-		hyperplane.associate(allFronts);
-		Population kPoints = niching(allButLastFront, lastFront, k, hyperplane);
-		return kPoints;
+		System.out.println("NORMALIZED ALL FRONTS: " + allFronts);
+		hyperplane.associate(allButLastFront, lastFront);
+		Population res = niching(allButLastFront, lastFront, k, hyperplane);
+		System.out.println("RES POP: " + res);
+		return res;
 	}
 
 	public static void normalize(int numObjectives, Population allFronts) {
@@ -139,21 +140,8 @@ public class NicheCountSelection {
 
 	private static Population niching(Population allButLastFront, Population lastFront, int K, Hyperplane hyperplane) {
 		Population kPoints = new Population();
-		HashMap<Solution, Boolean> isLastFront = new HashMap<>();
-		for (Solution s : allButLastFront.getSolutions()) {
-			isLastFront.put(s, false);
-		}
-		for (Solution s : lastFront.getSolutions()) {
-			isLastFront.put(s, true);
-		}
 		
-		for(ReferencePoint rp : hyperplane.getReferencePoints()){
-			for(Association a : rp.getAssociatedSolutionsQueue()){
-				if(!isLastFront.get(a.getSolution())){
-					rp.incrNicheCount();
-				}
-			}
-		}
+		int nicheCount=0, lastFrontCount=0;
 		
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(new Comparator <ReferencePoint>() {
 			@Override
@@ -164,21 +152,22 @@ public class NicheCountSelection {
 		
 		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
 			refPQ.add(rp);
+			nicheCount += rp.getNicheCount();
+			lastFrontCount += rp.getLastFrontAssociationsQueue().size();
 		}
-
+		assert nicheCount == allButLastFront.size();
+		assert lastFrontCount == lastFront.size();
+		assert K <= lastFront.size();
+		
 		while (kPoints.size() < K) {
 			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
-			PriorityQueue<Association> associatedSolutionsQueue = smallestNicheCountRefPoint
-					.getAssociatedSolutionsQueue();
-			while (!associatedSolutionsQueue.isEmpty()) {
-				Solution s = associatedSolutionsQueue.poll().getSolution();
-				if (isLastFront.get(s)) {
-					kPoints.addSolution(s);
-					smallestNicheCountRefPoint.incrNicheCount();
-					refPQ.add(smallestNicheCountRefPoint);
-					break;
-				}
-			}
+			PriorityQueue<Association> associatedLastFrontSolutions = smallestNicheCountRefPoint
+					.getLastFrontAssociationsQueue();
+			if(associatedLastFrontSolutions.isEmpty()) continue;
+			Solution s = associatedLastFrontSolutions.poll().getSolution();
+			kPoints.addSolution(s);
+			smallestNicheCountRefPoint.incrNicheCount();
+			refPQ.add(smallestNicheCountRefPoint);
 		}
 		return kPoints;
 	}

@@ -4,19 +4,24 @@ import org.junit.runners.Suite;
 
 import core.NicheCountSelectionTest;
 import core.PopulationTest;
+import core.hyperplane.HyperplaneTest;
+import core.points.ReferencePointTest;
+import core.points.SolutionTest;
 import problems.DTLZ1Test;
+import utils.GeometryTest;
 import utils.NonDominatedSortTest;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-   //HyperplaneTest.class,
+   HyperplaneTest.class,
+   ReferencePointTest.class,
+   SolutionTest.class,
    NicheCountSelectionTest.class,
-   //ReferencePointTest.class,
-   //NSGAIIITest.class,
    PopulationTest.class,
    DTLZ1Test.class,
    //ComparatorTest.class,
    //GaussianEliminationTest.class,
    //GeometryTest.class,
+   GeometryTest.class,
    NonDominatedSortTest.class
 })
 public class JunitTestSuite {

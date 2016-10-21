@@ -1,4 +1,4 @@
-package core.hyperplane;
+package core.points;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -22,15 +22,14 @@ public class ReferencePointTest {
 		rp1 = new ReferencePoint(numDimensions);
 		double val = 0.3;
 		for(int i=0; i<numDimensions; i++){
-			rp1.setNormDim(i, val);
-			val *= 3;
+			rp1.setDim(i, val);
 		}
 		
 		rp2 = new ReferencePoint(rp1);
 		
 		assertEquals(rp1.getNumDimensions(), rp2.getNumDimensions());
 		for(int i=0; i < rp1.getNumDimensions(); i++){
-			assertEquals(rp1.getNormDim(i), rp2.getNormDim(i), EPS);
+			assertEquals(rp1.getDim(i), rp2.getDim(i), EPS);
 		}
 		assertNotEquals(rp1, rp2);
 	}
@@ -40,7 +39,7 @@ public class ReferencePointTest {
 		ReferencePoint rp = new ReferencePoint(5);
 		assertEquals(5, rp.getNumDimensions());
 		double array[] = {0,0,0,0,0};
-		assertArrayEquals(array, rp.getNormDimensions(),1E-9);
+		assertArrayEquals(array, rp.getDim(),1E-9);
 		assertTrue(rp.getAssociatedSolutionsQueue().isEmpty());
 	}
 	

@@ -115,8 +115,11 @@ public class HyperplaneTest {
 		pop.addSolution(s4);
 		pop.addSolution(s5);
 		
-		hp.associate(pop);
+		assertEquals(0, rp.get(0).getNicheCount());
+		assertEquals(0, rp.get(1).getNicheCount());
 		
+		hp.associate(pop);
+
 		rp = hp.getReferencePoints();
 		assertEquals(2, rp.get(0).getAssociatedSolutionsQueue().size());
 		assertEquals(3, rp.get(1).getAssociatedSolutionsQueue().size());

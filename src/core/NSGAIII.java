@@ -37,13 +37,6 @@ public class NSGAIII extends EA {
 		this.population = problem.createPopulation(populationSize);
 	}
 
-	public void run() {
-		LOGGER.setLevel(Level.INFO);
-		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
-				+ " objectives.");
-		nextGeneration();
-	}
-
 	@Override
 	public Population selectNewPopulation(Population pop) {
 		assert pop.size() == 2*populationSize;
@@ -82,10 +75,12 @@ public class NSGAIII extends EA {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			assert kPoints.size() == K; 
+			assert K + allButLastFront.size() == populationSize; 
 			res.addSolutions(allButLastFront.copy());
 			res.addSolutions(kPoints.copy());
 		}
-			
+		problem.evaluate(res);	
 		return res;
 	}
 }

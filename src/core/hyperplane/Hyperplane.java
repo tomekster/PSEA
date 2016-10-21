@@ -98,9 +98,13 @@ public class Hyperplane {
 		}
 	}
 	
-	public void associate(Population population) {
+	public void associate(Population nichedSolutions, Population lastFrontSolutions){
 		resetAssociations();
-
+		associate(nichedSolutions, false);
+		associate(lastFrontSolutions, true);
+	}
+	
+	public void associate(Population population, boolean lastFront) {
 		for(Solution s : population.getSolutions()){
 			double minDist = Double.MAX_VALUE;
 			ReferencePoint bestRefPoint = null;
@@ -111,7 +115,11 @@ public class Hyperplane {
 					bestRefPoint = curRefPoint;
 				}
 			}
-			bestRefPoint.addAssociation(new Association(s, minDist));
+			if(lastFront){
+				bestRefPoint.addLastFrontAssociation(new Association(s, minDist));
+			} else{
+				bestRefPoint.addNichedAssociation(new Association(s, minDist));
+			}
 		}
 	}
 
