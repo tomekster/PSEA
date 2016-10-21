@@ -190,4 +190,8 @@ public class Hyperplane {
 	public ArrayList<ReferencePoint> getReferencePoints() {
 		return this.referencePoints;
 	}
+	
+	public void setReferencePoints(ArrayList <ReferencePoint> rp){
+		this.referencePoints = rp;
+	}
 }

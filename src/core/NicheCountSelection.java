@@ -11,6 +11,7 @@ import core.points.ReferencePoint;
 import core.points.Solution;
 import utils.DegeneratedMatrixException;
 import utils.GaussianElimination;
+import utils.Pair;
 
 /***
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
@@ -27,7 +28,7 @@ public class NicheCountSelection {
 		return kPoints;
 	}
 
-	private static void normalize(int numObjectives, Population allFronts) {
+	public static void normalize(int numObjectives, Population allFronts) {
 		double z_min[] = new double[numObjectives];
 		
 		for(int i=0; i<numObjectives; i++){
@@ -146,10 +147,18 @@ public class NicheCountSelection {
 			isLastFront.put(s, true);
 		}
 		
+		for(ReferencePoint rp : hyperplane.getReferencePoints()){
+			for(Association a : rp.getAssociatedSolutionsQueue()){
+				if(!isLastFront.get(a.getSolution())){
+					rp.incrNicheCount();
+				}
+			}
+		}
+		
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(new Comparator <ReferencePoint>() {
 			@Override
 			public int compare(ReferencePoint o1, ReferencePoint o2) {
-				return Double.compare(o1.getNicheCount(), o2.getNicheCount());
+				return Double.compare(o1.getNicheCount(), o2.getNicheCount()); //Sort increasingly by nichecount
 			}
 		});
 		
