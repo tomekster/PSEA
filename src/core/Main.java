@@ -86,7 +86,7 @@ public class Main {
 		this.currentPopulationId = numGenerations;
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
-		this.showSolDir = true;
+		this.showSolDir = false;
 		this.showSpreadSolutions = true;
 		this.showPreferenceGeneration = true;
 		this.showLambda= true;
@@ -238,7 +238,7 @@ public class Main {
 	}
 
 	private JCheckBox createFirstFrontCB() {
-		final JCheckBox firstFrontCB = new JCheckBox("First front only", false);
+		final JCheckBox firstFrontCB = new JCheckBox("First front only", firstFrontOnly);
 		firstFrontCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -250,7 +250,7 @@ public class Main {
 	}
 
 	private JCheckBox createTargetPointsSeriesCB() {
-		final JCheckBox targetPointsCB = new JCheckBox("Show target points", true);
+		final JCheckBox targetPointsCB = new JCheckBox("Show target points", showTargetPoints);
 		targetPointsCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -262,7 +262,7 @@ public class Main {
 	}
 	
 	private JCheckBox createSolDirSeriesCB() {
-		final JCheckBox solDirCB = new JCheckBox("Show solution directions", true);
+		final JCheckBox solDirCB = new JCheckBox("Show solution directions", showSolDir);
 		solDirCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -274,7 +274,7 @@ public class Main {
 	}
 	
 	private JCheckBox createShowSpreadSeriesCB() {
-		final JCheckBox showSpreadCB = new JCheckBox("Show spread solutions", true);
+		final JCheckBox showSpreadCB = new JCheckBox("Show spread solutions", showSpreadSolutions);
 		showSpreadCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -286,7 +286,7 @@ public class Main {
 	}
 	
 	private JCheckBox createShowPreferenceSeriesCB() {
-		final JCheckBox showPreferenceCB = new JCheckBox("Show preference solutions", true);
+		final JCheckBox showPreferenceCB = new JCheckBox("Show preference solutions", showPreferenceGeneration);
 		showPreferenceCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -298,7 +298,7 @@ public class Main {
 	}
 	
 	private JCheckBox createChebDirSeriesCB() {
-		final JCheckBox chebDirCB = new JCheckBox("Show chebyshev directions", true);
+		final JCheckBox chebDirCB = new JCheckBox("Show chebyshev directions", showLambda);
 		chebDirCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -310,7 +310,7 @@ public class Main {
 	}
 	
 	private JCheckBox createComparisonSeriesCB() {
-		final JCheckBox comparisonsCB = new JCheckBox("Show comparisons", true);
+		final JCheckBox comparisonsCB = new JCheckBox("Show comparisons", showComparisons);
 		comparisonsCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

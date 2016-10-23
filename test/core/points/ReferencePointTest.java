@@ -40,7 +40,7 @@ public class ReferencePointTest {
 		assertEquals(5, rp.getNumDimensions());
 		double array[] = {0,0,0,0,0};
 		assertArrayEquals(array, rp.getDim(),1E-9);
-		assertTrue(rp.getAssociatedSolutionsQueue().isEmpty());
+		assertTrue(rp.getNichedAssociationsQueue().isEmpty());
 	}
 	
 	@Test

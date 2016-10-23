@@ -8,6 +8,7 @@ import core.hyperplane.HyperplaneTest;
 import core.points.ReferencePointTest;
 import core.points.SolutionTest;
 import problems.DTLZ1Test;
+import utils.GaussianEliminationTest;
 import utils.GeometryTest;
 import utils.NonDominatedSortTest;
 @RunWith(Suite.class)
@@ -18,9 +19,8 @@ import utils.NonDominatedSortTest;
    NicheCountSelectionTest.class,
    PopulationTest.class,
    DTLZ1Test.class,
-   //ComparatorTest.class,
-   //GaussianEliminationTest.class,
-   //GeometryTest.class,
+   GaussianEliminationTest.class,
+   GeometryTest.class,
    GeometryTest.class,
    NonDominatedSortTest.class
 })

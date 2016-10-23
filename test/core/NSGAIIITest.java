@@ -7,9 +7,7 @@ import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import problems.TrivialProblem;
-import utils.Geometry;
-
-import static org.junit.Assert.*;
+import solutionRankers.NonDominationRanker;
 
 public class NSGAIIITest {
 
@@ -17,7 +15,7 @@ public class NSGAIIITest {
 	public void selectNewPopulation(){
 		Problem problem = new TrivialProblem();
 		NSGAIII alg = new NSGAIII(	problem, 
-				new BinaryTournament(),
+				new BinaryTournament(new NonDominationRanker()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new PolynomialMutation(1.0 / problem.getNumObjectives(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
 		Population pop = new Population();
@@ -35,9 +33,7 @@ public class NSGAIIITest {
 			pop.addSolution(new Solution(objVar[i][0], objVar[i][1]));
 		}
 		
-		System.out.println(pop);
 		Population res = alg.selectNewPopulation(pop);
-		System.out.println(res);
 //		for(int i=1; i<9; i++){
 //			assertEquals(5, res.getSolution(0).getVariable(0), Geometry.EPS);
 //			assertEquals(1, res.getSolution(0).getVariable(1), Geometry.EPS);

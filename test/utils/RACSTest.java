@@ -1,16 +1,13 @@
 package utils;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
-
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import core.Population;
 import core.points.Solution;
-import preferences.Comparison;
 import preferences.PreferenceCollector;
 public class RACSTest {
 
@@ -21,6 +18,7 @@ public class RACSTest {
 		p = new Population();
 	}
 
+	@Ignore
 	@Test
 	public void RATSLPTest() {
 		Solution s1, s2, s3, s4;
@@ -50,6 +48,7 @@ public class RACSTest {
 		assertTrue(EPS > 1E-9);
 	}
 	
+	@Ignore
 	@Test
 	public void RATSLP2Test() {
 		Solution s1, s2, s3, s4;
@@ -79,6 +78,7 @@ public class RACSTest {
 		assertTrue(EPS < 0);
 	}
 	
+	@Ignore
 	@Test
 	public void RATSLP3Test() {
 		Solution s1, s2, s3, s4;

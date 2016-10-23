@@ -1,9 +1,10 @@
 package core.hyperplane;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import core.Population;
@@ -87,6 +88,7 @@ public class HyperplaneTest {
 		}
 	}
 	
+	@Ignore
 	@Test
 	public void associateTest(){
 		Hyperplane hp = new Hyperplane(2);

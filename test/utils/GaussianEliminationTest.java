@@ -4,8 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import exceptions.DegeneratedMatrixException;
-import utils.comparators.MyComparator;
+import utils.DegeneratedMatrixException;
 
 public class GaussianEliminationTest {
 
@@ -19,7 +18,7 @@ public class GaussianEliminationTest {
 		
 		double res[] = {2,3,-1};
 		try {
-			assertArrayEquals(res, GaussianElimination.execute(A, B),MyComparator.EPS );
+			assertArrayEquals(res, GaussianElimination.execute(A, B),Geometry.EPS );
 		} catch (DegeneratedMatrixException e) {
 			e.printStackTrace();
 		}
@@ -38,7 +37,7 @@ public class GaussianEliminationTest {
 		
 		double res[] = {-4,-5,2};
 		try {
-			assertArrayEquals(res, GaussianElimination.execute(A, B),MyComparator.EPS );
+			assertArrayEquals(res, GaussianElimination.execute(A, B),Geometry.EPS );
 		} catch (DegeneratedMatrixException e) {
 			e.printStackTrace();
 		}

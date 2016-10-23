@@ -92,6 +92,7 @@ public class Lambda extends EA {
 
 		// If new elicitation just happened - include initial uniform lambdas as potential candidates
 		if(elicitated) {
+			elicitated = false;
 			Hyperplane tmp = new Hyperplane(numObjectives);
 			for (ReferencePoint rp : tmp.getReferencePoints()) {
 				evaluateLambda(rp);
@@ -105,7 +106,15 @@ public class Lambda extends EA {
 			newLambdas.add(lambda);
 		}
 		
-		LambdaCVRanker.sortLambdasByCV(newLambdas);
+//		int min = 1000000, max = -1000000;
+//		for(ReferencePoint rp : newLambdas){
+//			min = Integer.min(min, rp.getNumViolations());
+//			max = Integer.max(max, rp.getNumViolations());
+//		}
+//		System.out.println("MIN: " + min);
+//		System.out.println("MAX: " + max);
+		
+		Collections.sort(newLambdas, new LambdaCVRanker());
 
 		Population result = new Population();
 		for (int i = 0; i < population.size(); i++) {

@@ -126,7 +126,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 	public Population selectNewPopulation(Population pop) {
 		problem.evaluate(pop);
 		Population sortedNewPopulation = lambda.selectKSolutionsByChebyshevBordaRanking(population, populationSize);
-		hyperplane.modifySolutionDirections(generation, sortedNewPopulation, numGenerations, populationSize);
 		return sortedNewPopulation;
 	}
 

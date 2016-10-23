@@ -15,6 +15,7 @@ import solutionRankers.NonDominationRanker;
 public class NonDominatedSortTest {
 
 	Population p;
+	private NonDominationRanker ndr = new NonDominationRanker();
 
 	@Before
 	public void init() {
@@ -30,7 +31,7 @@ public class NonDominatedSortTest {
 
 		s1 = new Solution(var1,obj1);
 		p.addSolution(s1);
-		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(p);
+		ArrayList<Population> fronts = ndr.sortPopulation(p);
 		assertEquals(1, fronts.size());
 		assertEquals(1, fronts.get(0).size());
 		assertTrue(s1.equals(fronts.get(0).getSolution(0)));
@@ -51,7 +52,7 @@ public class NonDominatedSortTest {
 
 		p.addSolution(s1);
 		p.addSolution(s2);
-		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(p);
+		ArrayList<Population> fronts = ndr.sortPopulation(p);
 		assertEquals(2, fronts.size());
 		assertEquals(1, fronts.get(0).size());
 		assertEquals(1, fronts.get(1).size());
@@ -74,7 +75,7 @@ public class NonDominatedSortTest {
 
 		p.addSolution(s1);
 		p.addSolution(s2);
-		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(p);
+		ArrayList<Population> fronts = ndr.sortPopulation(p);
 		assertEquals(1, fronts.size());
 		assertEquals(2, fronts.get(0).size());
 	}
@@ -120,7 +121,7 @@ public class NonDominatedSortTest {
 		p.addSolution(s6);
 		p.addSolution(s7);
 		
-		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(p);
+		ArrayList<Population> fronts = ndr.sortPopulation(p);
 		
 		assertEquals(4, fronts.size());
 		assertEquals(3, fronts.get(0).size());
@@ -173,7 +174,7 @@ public class NonDominatedSortTest {
 			p.addSolution(s6);
 			p.addSolution(s7);
 			
-			ArrayList<Population> fronts = NonDominationRanker.sortPopulation(p);
+			ArrayList<Population> fronts = ndr.sortPopulation(p);
 			
 			assertEquals(4, fronts.size());
 			assertEquals(3, fronts.get(0).size());
