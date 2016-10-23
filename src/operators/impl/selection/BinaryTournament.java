@@ -1,12 +1,19 @@
 package operators.impl.selection;
 
+import java.util.Comparator;
+
 import core.Population;
 import core.points.Solution;
 import operators.SelectionOperator;
-import solutionRankers.NonDominationRanker;
 import utils.NSGAIIIRandom;
 
 public class BinaryTournament implements SelectionOperator {
+	
+	private Comparator <Solution> comparator;
+	
+	public BinaryTournament(Comparator comparator){
+		this.comparator = comparator;
+	}
 	
 	public Solution execute(Population population){
 		NSGAIIIRandom random = NSGAIIIRandom.getInstance();
@@ -16,7 +23,7 @@ public class BinaryTournament implements SelectionOperator {
 		Solution candidate1 = population.getSolution(pos1).copy();
 		Solution candidate2 = population.getSolution(pos2).copy();
 		
-		int flag = NonDominationRanker.compareSolutions(candidate1, candidate2);
+		int flag = comparator.compare(candidate1, candidate2);
 		if(flag == -1) return candidate1;
 		else if(flag == 1) return candidate2;
 		else {

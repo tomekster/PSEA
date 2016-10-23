@@ -1,12 +1,14 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.logging.Logger;
 
 import core.points.Solution;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
+import utils.NSGAIIIRandom;
 
 public abstract class EA {
 
@@ -33,18 +35,15 @@ public abstract class EA {
 		combinedPopulation.addSolutions(offspring);
 
 		population = selectNewPopulation(combinedPopulation);
-		System.out.println("New population: " + population);
 	}
 
 
 	protected Population createOffspring(Population population) {
 		Population offspring = new Population();
 		Population matingPopulation = new Population();
-
 		while (matingPopulation.size() < population.size()) {
 			matingPopulation.addSolution(selectionOperator.execute(population));
 		}
-
 		for (int i = 0; i < population.size(); i += 2) {
 			ArrayList<Solution> parents = new ArrayList<Solution>(2);
 			parents.add(matingPopulation.getSolution(i));

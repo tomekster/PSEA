@@ -125,7 +125,7 @@ public class Hyperplane {
 
 	public void modifySolutionDirections(int generation, Population pop, int totalNumGenerations, int populationSize) {
 		resetAssociations();
-		associate(pop);
+		associate(pop,false);
 		
 		assert referencePoints.size() == populationSize - (referencePoints.size() % 2);
 		assert pop.size() == populationSize;
@@ -146,8 +146,8 @@ public class Hyperplane {
 		int numAssociations = 0;
 		for (ReferencePoint rp : referencePoints) {
 			boolean associated = false;
-			numAssociations += rp.getAssociatedSolutionsQueue().size();
-			for (Association as : rp.getAssociatedSolutionsQueue()) {
+			numAssociations += rp.getNichedAssociationsQueue().size();
+			for (Association as : rp.getNichedAssociationsQueue()) {
 				if (isTop50(as.getSolution(), top50solutions)) {
 					associated = true;
 					break;

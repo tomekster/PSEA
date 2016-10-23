@@ -56,7 +56,8 @@ public class Main {
 	private boolean firstFrontOnly;
 	private boolean showTargetPoints;
 	private boolean showSolDir;
-	private boolean showGeneration;
+	private boolean showSpreadGeneration;
+	private boolean showPreferenceGeneration;
 	private boolean showLambda;
 	private Constructor problemConstructor;
 	private int numGenerations;
@@ -72,9 +73,9 @@ public class Main {
 	public Main() {
 		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 2;
+		this.numGenerations = 50;
 		this.elicitationInterval = 25;
-		this.numObjectives = 3;
+		this.numObjectives = 2;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
 		} catch (NoSuchMethodException | SecurityException e) {
@@ -84,7 +85,8 @@ public class Main {
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
 		this.showSolDir = true;
-		this.showGeneration = true;
+		this.showSpreadGeneration = true;
+		this.showPreferenceGeneration = true;
 		this.showLambda= true;
 		this.chartPanel = createChart();
 		this.chartPanelReferencePlane = createChartReferencePlane();
@@ -126,7 +128,8 @@ public class Main {
 		panel.add(createNumGenerationsCB());
 		panel.add(createNumberOfRunsCB());
 		panel.add(createFirstFrontCB());
-		panel.add(createShowGenSeriesCB());
+		panel.add(createShowSpreadSeriesCB());
+		panel.add(createShowPreferenceSeriesCB());
 		panel.add(createTargetPointsSeriesCB());
 		panel.add(createSolDirSeriesCB());
 		panel.add(createChebDirSeriesCB());
@@ -287,23 +290,42 @@ public class Main {
 		return solDirCB;
 	}
 	
-	private JComboBox createShowGenSeriesCB() {
-		final JComboBox showGenCB = new JComboBox();
-		final String[] traceCmds = { "Show generation solutions", "Hide generation solutions" };
-		showGenCB.setModel(new DefaultComboBoxModel(traceCmds));
-		showGenCB.addActionListener(new ActionListener() {
+	private JComboBox createShowSpreadSeriesCB() {
+		final JComboBox showSpreadCB = new JComboBox();
+		final String[] traceCmds = { "Show spread solutions", "Hide spread solutions" };
+		showSpreadCB.setModel(new DefaultComboBoxModel(traceCmds));
+		showSpreadCB.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(showGenCB.getSelectedItem())) {
-					showGeneration = true;
+				if (traceCmds[0].equals(showSpreadCB.getSelectedItem())) {
+					showSpreadGeneration = true;
 				} else {
-					showGeneration = false;
+					showSpreadGeneration = false;
 				}
 				resetChart();
 			}
 		});
-		return showGenCB;
+		return showSpreadCB;
+	}
+	
+	private JComboBox createShowPreferenceSeriesCB() {
+		final JComboBox showPreferenceCB = new JComboBox();
+		final String[] traceCmds = { "Show preference solutions", "Hide preference solutions" };
+		showPreferenceCB.setModel(new DefaultComboBoxModel(traceCmds));
+		showPreferenceCB.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (traceCmds[0].equals(showPreferenceCB.getSelectedItem())) {
+					showPreferenceGeneration = true;
+				} else {
+					showPreferenceGeneration = false;
+				}
+				resetChart();
+			}
+		});
+		return showPreferenceCB;
 	}
 	
 	private JComboBox createChebDirSeriesCB() {
@@ -426,15 +448,15 @@ public class Main {
 		ArrayList<Population> preferenceGenerationsHistory = history.getPreferenceGenerations();
 		ArrayList<Population> spreadGenerationsHistory = history.getSpreadGenerations();
 		ArrayList<ArrayList<ReferencePoint>> solutionDirectionsHistory = history.getSolutionDirectionsHistory();
-		ArrayList<ArrayList<ReferencePoint>> chebyshevDirectionsHistory = history.getChebyshevDirectionsHistory();
+		ArrayList<ArrayList<ReferencePoint>> lambdaDirectionsHistory = history.getLambdaDirectionsHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
-		if (solutionDirectionsHistory != null && chebyshevDirectionsHistory != null) {
+		if (solutionDirectionsHistory != null && lambdaDirectionsHistory != null) {
 			ArrayList<Solution> preferenceGeneration = preferenceGenerationsHistory.get(currentPopulationId).getSolutions();
 			ArrayList<Solution> spreadGeneration = spreadGenerationsHistory.get(currentPopulationId).getSolutions();
 			ArrayList<ReferencePoint> solutionDirections = solutionDirectionsHistory.get(currentPopulationId);
-			ArrayList<ReferencePoint> chebyshevDirections= chebyshevDirectionsHistory.get(currentPopulationId);
-			ArrayList<XYSeries> series = createReferencePointsSeries(preferenceGeneration, spreadGeneration, solutionDirections, chebyshevDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval)));
+			ArrayList<ReferencePoint> lambdaDirections= lambdaDirectionsHistory.get(currentPopulationId);
+			ArrayList<XYSeries> series = createReferencePointsSeries(preferenceGeneration, spreadGeneration, solutionDirections, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -466,15 +488,17 @@ public class Main {
 		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
 		Solution t;
 		
-		if(showGeneration){
-			for(Solution s : preferenceGeneration){
-				t = Geometry.cast3dPointToPlane(s.getObjectives());
-				preferenceSeries.add(t.getObjective(0), t.getObjective(1));	
-			}
-			
+		if(showSpreadGeneration){
 			for(Solution s : spreadGeneration){
 				t = Geometry.cast3dPointToPlane(s.getObjectives());
 				spreadSeries.add(t.getObjective(0), t.getObjective(1));	
+			}
+		}
+		
+		if(showPreferenceGeneration){
+			for(Solution s : preferenceGeneration){
+				t = Geometry.cast3dPointToPlane(s.getObjectives());
+				preferenceSeries.add(t.getObjective(0), t.getObjective(1));	
 			}
 		}
 		

@@ -18,7 +18,9 @@ import operators.impl.selection.BinaryTournament;
 import preferences.Elicitator;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
+import solutionRankers.LambdaCVRanker;
 import solutionRankers.NonDominationRanker;
+import utils.NSGAIIIRandom;
 import utils.Pair;
 
 public class RST_NSGAIII extends EA implements Runnable {
@@ -39,15 +41,14 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private Lambda lambda;
 
 	public RST_NSGAIII(Problem problem, int numGenerations, int elicitationInterval) {
-		super(  new BinaryTournament(),
+		super(  new BinaryTournament(new NonDominationRanker()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
-				new PolynomialMutation(1.0 / problem.getNumObjectives(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
+				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
 		
 		this.nsgaiii = new NSGAIII(	problem, 
-									new BinaryTournament(),
+									new BinaryTournament(new NonDominationRanker()),
 									new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
-									new PolynomialMutation(1.0 / problem.getNumObjectives(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
-		
+									new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
 		double lambdaLowerBound[] = new double[problem.getNumObjectives()];
 		double lambdaUpperBound[] = new double[problem.getNumObjectives()];
 		for(int i=0; i<problem.getNumObjectives(); i++){
@@ -56,7 +57,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		}
 		
 		this.lambda = new Lambda(	problem.getNumObjectives(),
-									new BinaryTournament(),
+									new BinaryTournament(new LambdaCVRanker()),
 									new SBX(1.0, 30.0, lambdaLowerBound, lambdaUpperBound),
 									new PolynomialMutation(1.0 / problem.getNumObjectives(), 20.0, lambdaLowerBound, lambdaUpperBound));
 
@@ -95,9 +96,10 @@ public class RST_NSGAIII extends EA implements Runnable {
 				+ " objectives, and " + numGenerations + " generations.");
 
 		for (generation = 0; generation < numGenerations; generation++) {
-			if(generation % elicitationInterval == 0) {
+			if(generation > 0 && generation % elicitationInterval == 0) {
 				System.out.println("GENERATION: " + generation);
-				Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
+				NonDominationRanker ndr = new NonDominationRanker();
+				Population firstFront = ndr.sortPopulation(population).get(0);
 				if (firstFront.size() > 1){
 					Elicitator.elicitate(firstFront, decisionMakerRanker, lambda.getPreferenceCollector());
 					lambda.setElicitated(true);
@@ -105,17 +107,20 @@ public class RST_NSGAIII extends EA implements Runnable {
 			}
 				
 			nsgaiii.nextGeneration();
-			//TODO
-//			lambda.nextGeneration();
-//			population.addSolutions(nsgaiii.getPopulation());
-//			assert population.size() == 2*populationSize;
-//			nextGeneration();
+			lambda.nextGeneration();
+			assert nsgaiii.getPopulation().size() == populationSize;
+			population.addSolutions(nsgaiii.getPopulation());
+			assert population.size() == 2*populationSize;
+			nextGeneration();
 					
 			problem.evaluate(population);
 			history.addPreferenceGeneration(population.copy());
 			history.addSpreadGeneration(nsgaiii.getPopulation().copy());
 			history.addSolutionDirections(hyperplane.getReferencePoints());
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
+			for(ReferencePoint lambda : lambda.getLambdas()){
+				System.out.println(lambda + " " + this.lambda.getPreferenceCollector().getComparisons().size() + " " + lambda.getNumViolations());
+			}
 			history.addBestChebVal(evaluateGeneration(population));
 		}
 	}
@@ -123,9 +128,9 @@ public class RST_NSGAIII extends EA implements Runnable {
 	@Override
 	public Population selectNewPopulation(Population pop) {
 		problem.evaluate(pop);
-		Population newPopulation = lambda.selectKSolutionsByChebyshevBordaRanking(population, populationSize);
-		hyperplane.modifySolutionDirections(generation, newPopulation, numGenerations, populationSize);
-		return newPopulation;
+		Population sortedNewPopulation = lambda.selectKSolutionsByChebyshevBordaRanking(population, populationSize);
+		hyperplane.modifySolutionDirections(generation, sortedNewPopulation, numGenerations, populationSize);
+		return sortedNewPopulation;
 	}
 
 	public Pair<Solution, Double> evaluateGeneration(Population pop) {

@@ -1,13 +1,14 @@
 package solutionRankers;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import core.Population;
 import core.points.Solution;
 
-public class NonDominationRanker{
+public class NonDominationRanker implements Comparator <Solution>{
 
-	public static ArrayList<Population> sortPopulation(Population population) {
+	public ArrayList<Population> sortPopulation(Population population) {
 		ArrayList<Population> fronts = new ArrayList<Population>();
 		ArrayList<Integer> front = new ArrayList<Integer>();
 		ArrayList<Integer> nextFront = new ArrayList<Integer>();
@@ -30,7 +31,7 @@ public class NonDominationRanker{
 					continue;
 				}
 				Solution q = population.getSolution(j);
-				int flag = compareSolutions(p, q);
+				int flag = compare(p, q);
 				if (flag == -1) {
 					dominatedBySolutions.get(i).add(j);
 				} else if (flag == 1) {
@@ -71,7 +72,8 @@ public class NonDominationRanker{
 	 * @return 0 if neither of solutions dominates other ; -1 if solution1
 	 *         dominates solution2 ; 1 if solution2 dominates solution1
 	 */
-	public static int compareSolutions(Solution solution1, Solution solution2) {
+	@Override
+	public int compare(Solution solution1, Solution solution2) {
 
 		if (solution1.getNumObjectives() != solution2.getNumObjectives()) {
 			throw new RuntimeException("Incomparable solutions. Different number of dimensions");

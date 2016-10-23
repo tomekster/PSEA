@@ -15,6 +15,7 @@ import operators.SelectionOperator;
 import preferences.Comparison;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
+import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
 import utils.Pair;
 
@@ -93,6 +94,7 @@ public class Lambda extends EA {
 		if(elicitated) {
 			Hyperplane tmp = new Hyperplane(numObjectives);
 			for (ReferencePoint rp : tmp.getReferencePoints()) {
+				evaluateLambda(rp);
 				newLambdas.add(rp);
 			}
 		}
@@ -103,15 +105,7 @@ public class Lambda extends EA {
 			newLambdas.add(lambda);
 		}
 		
-		Collections.sort(newLambdas, new Comparator<ReferencePoint>() {
-			@Override
-			public int compare(ReferencePoint o1, ReferencePoint o2) {
-				if (o1.getNumViolations() == o2.getNumViolations()) { // Constraint violation: smaller = better
-					return Double.compare(o1.getPenalty(), o2.getPenalty()); // Penalty: smaller = better
-				}
-				return Integer.compare(o1.getNumViolations(), o2.getNumViolations());
-			}
-		});
+		LambdaCVRanker.sortLambdasByCV(newLambdas);
 
 		Population result = new Population();
 		for (int i = 0; i < population.size(); i++) {
@@ -144,7 +138,7 @@ public class Lambda extends EA {
 		Collections.sort(pairs, new Comparator<Pair<Solution, Integer>>() {
 			@Override
 			public int compare(final Pair<Solution, Integer> o1, final Pair<Solution, Integer> o2) {
-				return Integer.compare(o2.second, o1.second); // Sort DESC
+				return Integer.compare(o2.second, o1.second); // Sort DESC by Borda points
 			}
 		});
 

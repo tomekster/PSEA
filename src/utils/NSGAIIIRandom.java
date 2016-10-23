@@ -8,10 +8,7 @@ public class NSGAIIIRandom extends Random {
 
 	private static NSGAIIIRandom instance = null;
 
-	private NSGAIIIRandom() {
-		//TODO - remove seed
-		this.setSeed(0);
-	}
+	private NSGAIIIRandom() { }
 
 	public static NSGAIIIRandom getInstance() {
 		if (instance == null) {

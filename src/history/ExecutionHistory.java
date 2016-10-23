@@ -66,14 +66,14 @@ public class ExecutionHistory {
 		this.solutionDirectionsGenerations.add(solutionDirections);
 	}
 
-	public ArrayList< ArrayList<ReferencePoint> > getChebyshevDirectionsHistory() {
+	public ArrayList< ArrayList<ReferencePoint> > getLambdaDirectionsHistory() {
 		return lambdaGenerations;
 	}
-	public ArrayList<ReferencePoint> getChebyshevDirections(int id){
+	public ArrayList<ReferencePoint> getLambdaDirections(int id){
 		return lambdaGenerations.get(id);
 	}
-	public void addLambdas(ArrayList<ReferencePoint>  chebyshevDirections){
-		this.lambdaGenerations.add(chebyshevDirections);
+	public void addLambdas(ArrayList<ReferencePoint>  lambdaDirections){
+		this.lambdaGenerations.add(lambdaDirections);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);

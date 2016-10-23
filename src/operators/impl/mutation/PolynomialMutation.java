@@ -34,15 +34,15 @@ public class PolynomialMutation implements MutationOperator {
 		this.upperBound = upperBound;
 	}
 
-	public void execute(Solution soultion) {
+	public void execute(Solution solution) {
 		double rnd, delta1, delta2, mutPow, deltaq;
 		double y, yl, yu, val, xy;
 
 		Random random = NSGAIIIRandom.getInstance();
 
-		for (int i = 0; i < soultion.getNumVariables(); i++) {
+		for (int i = 0; i < solution.getNumVariables(); i++) {
 			if (random.nextDouble() <= probability) {
-				y = soultion.getVariable(i);
+				y = solution.getVariable(i);
 				yl = lowerBound[i];
 				yu = upperBound[i];
 				
@@ -64,7 +64,7 @@ public class PolynomialMutation implements MutationOperator {
 				y = y + deltaq * (yu - yl);
 				y = Double.max(y, lowerBound[i]);
 				y = Double.min(y, upperBound[i]);
-				soultion.setVariable(i, y);
+				solution.setVariable(i, y);
 			}
 		}
 	}

@@ -1,11 +1,9 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import core.hyperplane.Hyperplane;
-import core.points.Solution;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
@@ -41,7 +39,8 @@ public class NSGAIII extends EA {
 	public Population selectNewPopulation(Population pop) {
 		assert pop.size() == 2*populationSize;
 		problem.evaluate(pop);
-		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
+		NonDominationRanker ndr= new NonDominationRanker();
+		ArrayList<Population> fronts = ndr.sortPopulation(pop);
 
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();

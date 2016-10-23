@@ -20,12 +20,9 @@ public class NicheCountSelection {
 
 	public static Population selectKPoints(int numObjectives, Population allFronts, Population allButLastFront, Population lastFront, 
 			int k, Hyperplane hyperplane) throws DegeneratedMatrixException {
-		System.out.println("ALL FRONTS: " + allFronts);
 		normalize(numObjectives, allFronts);
-		System.out.println("NORMALIZED ALL FRONTS: " + allFronts);
 		hyperplane.associate(allButLastFront, lastFront);
 		Population res = niching(allButLastFront, lastFront, k, hyperplane);
-		System.out.println("RES POP: " + res);
 		return res;
 	}
 
