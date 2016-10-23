@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -56,8 +57,9 @@ public class Main {
 	private boolean firstFrontOnly;
 	private boolean showTargetPoints;
 	private boolean showSolDir;
-	private boolean showSpreadGeneration;
+	private boolean showSpreadSolutions;
 	private boolean showPreferenceGeneration;
+	private boolean showComparisons;
 	private boolean showLambda;
 	private Constructor problemConstructor;
 	private int numGenerations;
@@ -85,9 +87,10 @@ public class Main {
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
 		this.showSolDir = true;
-		this.showSpreadGeneration = true;
+		this.showSpreadSolutions = true;
 		this.showPreferenceGeneration = true;
 		this.showLambda= true;
+		this.showComparisons = true;
 		this.chartPanel = createChart();
 		this.chartPanelReferencePlane = createChartReferencePlane();
 		this.labelIGD = new JLabel("IGD: --");
@@ -133,6 +136,7 @@ public class Main {
 		panel.add(createTargetPointsSeriesCB());
 		panel.add(createSolDirSeriesCB());
 		panel.add(createChebDirSeriesCB());
+		panel.add(createComparisonSeriesCB());
 		panel.add(createTrace());
 		panel.add(slider);
 		panel.add(createZoom());
@@ -233,118 +237,88 @@ public class Main {
 		return numRunsCB;
 	}
 
-	private JComboBox createFirstFrontCB() {
-		final JComboBox firstFrontCB = new JComboBox();
-		final String[] traceCmds = { "All fronts", "First fron only" };
-		firstFrontCB.setModel(new DefaultComboBoxModel(traceCmds));
+	private JCheckBox createFirstFrontCB() {
+		final JCheckBox firstFrontCB = new JCheckBox("First front only", false);
 		firstFrontCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(firstFrontCB.getSelectedItem())) {
-					firstFrontOnly = false;
-				} else {
-					firstFrontOnly = true;
-				}
+				firstFrontOnly = firstFrontCB.isSelected();
 				resetChart();
 			}
 		});
 		return firstFrontCB;
 	}
 
-	private JComboBox createTargetPointsSeriesCB() {
-		final JComboBox targetPointsCB = new JComboBox();
-		final String[] traceCmds = { "Show target points", "Hide target points" };
-		targetPointsCB.setModel(new DefaultComboBoxModel(traceCmds));
+	private JCheckBox createTargetPointsSeriesCB() {
+		final JCheckBox targetPointsCB = new JCheckBox("Show target points", true);
 		targetPointsCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(targetPointsCB.getSelectedItem())) {
-					showTargetPoints = true;
-				} else {
-					showTargetPoints = false;
-				}
+				showTargetPoints = targetPointsCB.isSelected();
 				resetChart();
 			}
 		});
 		return targetPointsCB;
 	}
 	
-	private JComboBox createSolDirSeriesCB() {
-		final JComboBox solDirCB = new JComboBox();
-		final String[] traceCmds = { "Show solution directions", "Hide solution directions" };
-		solDirCB.setModel(new DefaultComboBoxModel(traceCmds));
+	private JCheckBox createSolDirSeriesCB() {
+		final JCheckBox solDirCB = new JCheckBox("Show solution directions", true);
 		solDirCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(solDirCB.getSelectedItem())) {
-					showSolDir = true;
-				} else {
-					showSolDir = false;
-				}
+				showSolDir = solDirCB.isSelected();
 				resetChart();
 			}
 		});
 		return solDirCB;
 	}
 	
-	private JComboBox createShowSpreadSeriesCB() {
-		final JComboBox showSpreadCB = new JComboBox();
-		final String[] traceCmds = { "Show spread solutions", "Hide spread solutions" };
-		showSpreadCB.setModel(new DefaultComboBoxModel(traceCmds));
+	private JCheckBox createShowSpreadSeriesCB() {
+		final JCheckBox showSpreadCB = new JCheckBox("Show spread solutions", true);
 		showSpreadCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(showSpreadCB.getSelectedItem())) {
-					showSpreadGeneration = true;
-				} else {
-					showSpreadGeneration = false;
-				}
+				showSpreadSolutions = showSpreadCB.isSelected();
 				resetChart();
 			}
 		});
 		return showSpreadCB;
 	}
 	
-	private JComboBox createShowPreferenceSeriesCB() {
-		final JComboBox showPreferenceCB = new JComboBox();
-		final String[] traceCmds = { "Show preference solutions", "Hide preference solutions" };
-		showPreferenceCB.setModel(new DefaultComboBoxModel(traceCmds));
+	private JCheckBox createShowPreferenceSeriesCB() {
+		final JCheckBox showPreferenceCB = new JCheckBox("Show preference solutions", true);
 		showPreferenceCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(showPreferenceCB.getSelectedItem())) {
-					showPreferenceGeneration = true;
-				} else {
-					showPreferenceGeneration = false;
-				}
+				showPreferenceGeneration = showPreferenceCB.isSelected();
 				resetChart();
 			}
 		});
 		return showPreferenceCB;
 	}
 	
-	private JComboBox createChebDirSeriesCB() {
-		final JComboBox chebDirCB = new JComboBox();
-		final String[] traceCmds = { "Show chebyshev directions", "Hide chebyshev directions" };
-		chebDirCB.setModel(new DefaultComboBoxModel(traceCmds));
+	private JCheckBox createChebDirSeriesCB() {
+		final JCheckBox chebDirCB = new JCheckBox("Show chebyshev directions", true);
 		chebDirCB.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (traceCmds[0].equals(chebDirCB.getSelectedItem())) {
-					showLambda = true;
-				} else {
-					showLambda= false;
-				}
+				showLambda = chebDirCB.isSelected();
 				resetChart();
 			}
 		});
 		return chebDirCB;
+	}
+	
+	private JCheckBox createComparisonSeriesCB() {
+		final JCheckBox comparisonsCB = new JCheckBox("Show comparisons", true);
+		comparisonsCB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showComparisons = comparisonsCB.isSelected();
+				resetChart();
+			}
+		});
+		return comparisonsCB;
 	}
 
 	private JComboBox createTrace() {
@@ -406,7 +380,7 @@ public class Main {
 	private ChartPanel createChartReferencePlane() {
 		XYDataset dataset = new XYSeriesCollection();
 		if (this.interactive && history != null) {
-			dataset = createDatasetReferencePlane();
+			dataset = createDatasetOnHyperplane();
 		}
 		JFreeChart chart = ChartFactory.createScatterPlot("NSGAIII", "X", "Y", dataset, PlotOrientation.VERTICAL, true, // include
 				true, // tooltips
@@ -444,7 +418,7 @@ public class Main {
 		return result;
 	}
 
-	private XYDataset createDatasetReferencePlane() {
+	private XYDataset createDatasetOnHyperplane() {
 		ArrayList<Population> preferenceGenerationsHistory = history.getPreferenceGenerations();
 		ArrayList<Population> spreadGenerationsHistory = history.getSpreadGenerations();
 		ArrayList<ArrayList<ReferencePoint>> solutionDirectionsHistory = history.getSolutionDirectionsHistory();
@@ -488,7 +462,7 @@ public class Main {
 		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
 		Solution t;
 		
-		if(showSpreadGeneration){
+		if(showSpreadSolutions){
 			for(Solution s : spreadGeneration){
 				t = Geometry.cast3dPointToPlane(s.getObjectives());
 				spreadSeries.add(t.getObjective(0), t.getObjective(1));	
@@ -514,11 +488,13 @@ public class Main {
 				lambdaSeries.add(t.getObjective(0), t.getObjective(1));		
 			}
 		}
-		for (Comparison c : comparisons) {
-				t = Geometry.cast3dPointToPlane(c.getBetter().getObjectives());
-				preferedSolutions.add(t.getObjective(0), t.getObjective(1));
-				t = Geometry.cast3dPointToPlane(c.getWorse().getObjectives());
-				nonPreferedSolutions.add(t.getObjective(0), t.getObjective(1));
+		if(showComparisons){
+			for (Comparison c : comparisons) {
+					t = Geometry.cast3dPointToPlane(c.getBetter().getObjectives());
+					preferedSolutions.add(t.getObjective(0), t.getObjective(1));
+					t = Geometry.cast3dPointToPlane(c.getWorse().getObjectives());
+					nonPreferedSolutions.add(t.getObjective(0), t.getObjective(1));
+			}
 		}
 		
 		result.add(solutionDirectionSeries);
@@ -540,7 +516,7 @@ public class Main {
 		if (this.interactive && this.numObjectives == 3) {
 			JFreeChart chartRP = chartPanelReferencePlane.getChart();
 			XYPlot plotRP = (XYPlot) chartRP.getPlot();
-			plotRP.setDataset(createDatasetReferencePlane());
+			plotRP.setDataset(createDatasetOnHyperplane());
 		}
 	}
 

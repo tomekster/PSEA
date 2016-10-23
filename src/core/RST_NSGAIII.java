@@ -118,9 +118,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 			history.addSpreadGeneration(nsgaiii.getPopulation().copy());
 			history.addSolutionDirections(hyperplane.getReferencePoints());
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
-			for(ReferencePoint lambda : lambda.getLambdas()){
-				System.out.println(lambda + " " + this.lambda.getPreferenceCollector().getComparisons().size() + " " + lambda.getNumViolations());
-			}
 			history.addBestChebVal(evaluateGeneration(population));
 		}
 	}
