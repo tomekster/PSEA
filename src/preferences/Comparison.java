@@ -1,6 +1,6 @@
 package preferences;
 
-import core.Solution;
+import core.points.Solution;
 
 public class Comparison {
 	private Solution better, worse;

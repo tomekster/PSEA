@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class GeometryTest {
 
-	private double EPS = MyComparator.EPS;
+	private double EPS = Geometry.EPS;
 
 	@Test
 	public void testEuclideanDistance() {

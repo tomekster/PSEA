@@ -1,7 +1,8 @@
 package operators;
 
 import java.util.ArrayList;
-import core.Solution;
+
+import core.points.Solution;
 
 public interface CrossoverOperator {
 

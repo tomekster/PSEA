@@ -1,7 +1,5 @@
 package utils;
 
-import exceptions.DegeneratedMatrixException;
-
 /*
  * Copyright © 2000–2011, Robert Sedgewick and Kevin Wayne.
  * Last updated: Sun Aug 2 18:43:37 EDT 2015. 
@@ -33,7 +31,7 @@ public class GaussianElimination {
 				}
 			}
 
-			if (max < MyComparator.EPS) {
+			if (max < utils.Geometry.EPS) {
 				System.out.println("ROW: " + i);
 				printMatrix(A2);
 				throw new DegeneratedMatrixException();

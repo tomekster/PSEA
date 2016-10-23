@@ -2,7 +2,7 @@ package operators.impl.mutation;
 
 import java.util.Random;
 
-import core.Solution;
+import core.points.Solution;
 
 /**
  * This class implements a polynomial mutation operator

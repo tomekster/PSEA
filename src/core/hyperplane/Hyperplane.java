@@ -1,21 +1,28 @@
 package core.hyperplane;
 
 import java.util.ArrayList;
-import java.util.PriorityQueue;
+import java.util.Collections;
 
+import core.Population;
+import core.points.ReferencePoint;
+import core.points.Solution;
 import utils.Geometry;
-import utils.MyComparator;
 import utils.NSGAIIIRandom;
 
 public class Hyperplane {
 
-	private ArrayList<ReferencePoint> referencePoints;
-	private int dim;
+	protected ArrayList<ReferencePoint> referencePoints;
+	protected int dim;
 
 	public Hyperplane(int M) {
 		this.dim = M;
 		referencePoints = new ArrayList<ReferencePoint>();
 		generateReferencePoints();
+		for (ReferencePoint rp : referencePoints) {
+			for (int i = 0; i < rp.getNumDimensions(); i++) {
+				rp.setDim(i, Double.max(Geometry.EPS, rp.getDim(i)));
+			}
+		}
 	}
 
 	private void generateReferencePoints() {
@@ -30,6 +37,7 @@ public class Hyperplane {
 			p = partitions.get(1);
 			ReferencePoint rp = new ReferencePoint(dim);
 			generateRecursive(rp, 0.5 / p, 0, p, insideLayer);
+
 			referencePoints.addAll(insideLayer);
 		}
 	}
@@ -42,89 +50,17 @@ public class Hyperplane {
 		}
 
 		if (startDim == rp.getNumDimensions() - 1) {
-			rp.incrNormDim(startDim, step * left);
+			rp.incrDim(startDim, step * left);
 			layer.add(rp);
 			return;
 		}
 
 		for (int i = 0; i <= left; i++) {
 			generateRecursive(new ReferencePoint(rp), step, startDim + 1, left - i, layer);
-			rp.incrNormDim(startDim, step);
+			rp.incrDim(startDim, step);
 		}
 	}
-
-	public ArrayList<ReferencePoint> getReferencePoints() {
-		return this.referencePoints;
-	}
-
-	/**
-	 * Set Niche count of every RP to 0 and clear list o associated solutions
-	 */
-	public void resetAssociations() {
-		for (ReferencePoint rp : referencePoints) {
-			rp.resetAssociation();
-		}
-	}
-
-	public boolean modifyReferencePoints(int generation, int totalNumGenerations) {
-		double alpha = (double) generation / totalNumGenerations;
-		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
-
-		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(MyComparator.referencePointComparatorDesc);
-		for (ReferencePoint rp : referencePoints){ 
-			if(rp.isCoherent()){
-				ReferencePoint rpCopy = new ReferencePoint(rp.getNumDimensions());
-				rpCopy.setNormDimensions(rp.getNormDimensions().clone());
-				newReferencePoints.add(rpCopy);
-				refPQ.add(rp);
-			}
-		}
-		if(refPQ.isEmpty() || refPQ.size() == referencePoints.size()){
-			return false;
-		}
-		
-		int numIncoherentPoints = referencePoints.size() - newReferencePoints.size();
-		//double radius = NSGAIIIRandom.getInstance().nextDouble() * (Math.E - Math.exp(alpha)) / (Math.E - 1) * 0.5;
-		double radius = 0.25 * (1 - alpha);
-		for (int i = 0; i < numIncoherentPoints; i++) {
-			ReferencePoint largestNicheCountRefPoint = refPQ.poll();
-			ReferencePoint n = getRandomNormNeighbour(largestNicheCountRefPoint, radius);
-			newReferencePoints.add(n);
-			largestNicheCountRefPoint.decrNicheCount();
-			refPQ.add(largestNicheCountRefPoint);
-		}
-		this.referencePoints = newReferencePoints;
-		return true;
-	}
-
-	private ReferencePoint getRandomNormNeighbour(ReferencePoint rp, double radius) {
-		ReferencePoint res = new ReferencePoint(dim);
-		double p[] = new double[dim];
-		boolean positive;
-		do {
-			positive = true;
-			p = Geometry.randomPointOnSphere(dim, radius);
-			for (int i = 0; i < dim; i++) {
-				p[i] += rp.getNormDim(i);
-				if (p[i] < 0) {
-					positive = false;
-					break;
-				}
-			}
-			p = Geometry.normalize(p);
-		} while (!positive);
-		res.setNormDimensions(p);
-		return res;
-	}
-
-	public void cloneReferencePoints() {
-		ArrayList <ReferencePoint> newReferencePoints = new ArrayList<>();
-		for(ReferencePoint rp : referencePoints){
-			newReferencePoints.add(rp.copy());
-		}
-		this.referencePoints = newReferencePoints;
-	}
-
+	
 	private ArrayList<Integer> getNumPartitions(int numObjectives) {
 		ArrayList<Integer> res = new ArrayList<>();
 		switch (numObjectives) {
@@ -152,8 +88,118 @@ public class Hyperplane {
 		}
 		return res;
 	}
+
+	/**
+	 * Set Niche count of every RP to 0 and clear list o associated solutions
+	 */
+	public void resetAssociations() {
+		for (ReferencePoint rp : referencePoints) {
+			rp.resetAssociation();
+		}
+	}
 	
-	public int getDim(){
+	public void associate(Population nichedSolutions, Population lastFrontSolutions){
+		resetAssociations();
+		associate(nichedSolutions, false);
+		associate(lastFrontSolutions, true);
+	}
+	
+	public void associate(Population population, boolean lastFront) {
+		for(Solution s : population.getSolutions()){
+			double minDist = Double.MAX_VALUE;
+			ReferencePoint bestRefPoint = null;
+			for (ReferencePoint curRefPoint : referencePoints) {
+				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
+				if (dist < minDist) {
+					minDist = dist;
+					bestRefPoint = curRefPoint;
+				}
+			}
+			if(lastFront){
+				bestRefPoint.addLastFrontAssociation(new Association(s, minDist));
+			} else{
+				bestRefPoint.addNichedAssociation(new Association(s, minDist));
+			}
+		}
+	}
+
+	public void modifySolutionDirections(int generation, Population pop, int totalNumGenerations, int populationSize) {
+		resetAssociations();
+		associate(pop,false);
+		
+		assert referencePoints.size() == populationSize - (referencePoints.size() % 2);
+		assert pop.size() == populationSize;
+		
+		Population top50solutions = new Population();
+		for(int i=0; i<populationSize/2; i++){
+			top50solutions.addSolution(pop.getSolution(i));
+		}
+
+		double alpha = (double) generation / totalNumGenerations;
+		//TODO arbitrary function - can be modified
+		double radius = 0.25 * (1 - alpha);
+		
+		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
+		ArrayList<ReferencePoint> associatedWithTop50 = new ArrayList<>();
+		ArrayList<ReferencePoint> notAssociatedWithTop50 = new ArrayList<>();
+
+		int numAssociations = 0;
+		for (ReferencePoint rp : referencePoints) {
+			boolean associated = false;
+			numAssociations += rp.getNichedAssociationsQueue().size();
+			for (Association as : rp.getNichedAssociationsQueue()) {
+				if (isTop50(as.getSolution(), top50solutions)) {
+					associated = true;
+					break;
+				}
+			}
+
+			if (associated) {
+				associatedWithTop50.add(rp);
+			} else {
+				notAssociatedWithTop50.add(rp);
+			}
+		}
+		assert numAssociations == populationSize;
+		assert associatedWithTop50.size() + notAssociatedWithTop50.size() == referencePoints.size();
+		assert!associatedWithTop50.isEmpty();
+		assert!notAssociatedWithTop50.isEmpty();
+
+		Collections.shuffle(associatedWithTop50);
+		Collections.shuffle(notAssociatedWithTop50);
+
+		for (int i = 0; i < Integer.min(populationSize / 2, notAssociatedWithTop50.size()); i++) {
+			int associatedId = NSGAIIIRandom.getInstance().nextInt(associatedWithTop50.size());
+			int notAssociatedId = NSGAIIIRandom.getInstance().nextInt(notAssociatedWithTop50.size());
+			newReferencePoints.add(Geometry.getRandomNeighbour(dim, associatedWithTop50.get(associatedId), radius));
+			notAssociatedWithTop50.remove(notAssociatedId);
+		}
+		newReferencePoints.addAll(associatedWithTop50);
+		newReferencePoints.addAll(notAssociatedWithTop50);
+
+		assert newReferencePoints.size() == populationSize - (referencePoints.size() % 2);
+
+		this.referencePoints = newReferencePoints;
+	}
+
+	private boolean isTop50(Solution candidate, Population top50) {
+		for (Solution s : top50.getSolutions()) {
+			if(candidate.sameSolution(s)){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public int getDim() {
 		return this.dim;
+	}
+	
+	public ArrayList<ReferencePoint> getReferencePoints() {
+		return this.referencePoints;
+	}
+	
+	public void setReferencePoints(ArrayList <ReferencePoint> rp){
+		this.referencePoints = rp;
 	}
 }

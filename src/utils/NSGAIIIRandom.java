@@ -8,8 +8,7 @@ public class NSGAIIIRandom extends Random {
 
 	private static NSGAIIIRandom instance = null;
 
-	private NSGAIIIRandom() {
-	}
+	private NSGAIIIRandom() { }
 
 	public static NSGAIIIRandom getInstance() {
 		if (instance == null) {

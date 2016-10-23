@@ -1,6 +1,10 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+
+import core.points.Solution;
 
 public class Population{
 	private ArrayList <Solution> solutions = null;
@@ -16,12 +20,16 @@ public class Population{
 		}
 	}
 
-	public void addSolution(Solution solution){
-		this.solutions.add(solution);
+	public void addSolution(Solution sol){
+		this.solutions.add(sol);
 	}
 	
-	public void addSolutions(Population p){
-		for(Solution s : p.getSolutions()){
+	/**
+	 * Add all points from population p to give Population. Deepcopy.
+	 * @param p
+	 */
+	public void addSolutions(Population pop){
+		for(Solution s : pop.getSolutions()){
 			addSolution(s);
 		}
 	}
@@ -40,7 +48,11 @@ public class Population{
 	public boolean empty(){
 		return this.solutions.size() == 0;
 	}
-
+	
+	/**
+	 * 
+	 * @return shallow copy of population
+	 */
 	public Population copy() {
 		return new Population(this);
 	}
@@ -55,5 +67,15 @@ public class Population{
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+
+	public void removeSolutions(Population solutionsToRemove) {
+		for (Iterator<Solution> it = solutions.iterator(); it.hasNext();){
+			Solution s = it.next();
+			if(Arrays.asList(solutionsToRemove).contains(s)){
+				it.remove();
+			}
+		}
+		
 	}
 }

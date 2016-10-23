@@ -1,7 +1,7 @@
 package solver;
 
 import core.Population;
-import core.Solution;
+import core.points.Solution;
 import ilog.concert.IloException;
 import ilog.concert.IloLinearNumExpr;
 import ilog.concert.IloNumVar;

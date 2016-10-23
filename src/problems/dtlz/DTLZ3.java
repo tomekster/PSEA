@@ -1,7 +1,7 @@
-package problems;
+package problems.dtlz;
 
 import core.Problem;
-import core.Solution;
+import core.points.Solution;
 
 public class DTLZ3 extends Problem {
 	// Parameter used in Deb's original paper
@@ -14,7 +14,6 @@ public class DTLZ3 extends Problem {
 	
 	public DTLZ3(int numVariables, int numObjectives) {
 		super(numVariables, numObjectives, 0, "DTLZ3");
-		setBoundsOnVariables();
 	}
 
 	/** Evaluate() method */

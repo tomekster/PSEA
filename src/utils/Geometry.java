@@ -1,10 +1,13 @@
 package utils;
 
-import core.Solution;
+import java.util.HashMap;
+
+import core.points.ReferencePoint;
+import core.points.Solution;
 
 public class Geometry {
 
-	private static double EPS = MyComparator.EPS;
+	public static double EPS = 1E-9;
 
 	/**
 	 * 
@@ -103,8 +106,9 @@ public class Geometry {
 		double sum = 0;
 		
 		for(int i=0; i<dim; i++){
-			res[i] = rand.nextGaussian();
-			sum += res[i] * res[i];
+			double r = rand.nextGaussian(); 
+			res[i] = r;
+			sum += r * r;
 		}
 		sum = Math.sqrt(sum);
 		for(int i=0; i<dim; i++){
@@ -113,6 +117,12 @@ public class Geometry {
 		return res;
 	}
 	
+	/**
+	 * Maps input point on hyperplane parallel to one used in NSGA-III.
+	 * The one used here is given by equation SUM(x_i) = 1
+	 * @param a
+	 * @return
+	 */
 	public static double[] normalize(double[] a){
 		double res[] = new double[a.length];
 		double sum = 0;
@@ -125,5 +135,178 @@ public class Geometry {
 			res[i] /= sum;
 		}
 		return res;
+	}
+
+	public static double[] invert(double[] dimensions) {
+		int len = dimensions.length;
+		double lambda[] = new double[len];
+		for (int i = 0; i < len; i++) {
+			lambda[i] = 1 / dimensions[i];
+		}
+		return lambda;
+	}
+	
+	/**
+	 * Takes two input vectors a, b of same size and returns their linear combination given by equation:
+	 * 	alpha * a + (1-alpha) * b 
+	 * @param a
+	 * @param b
+	 * @param alpha
+	 * @return
+	 */
+	public static double[] linearCombination(double[] a, double[] b, double alpha){
+		assert a.length == b.length;
+		assert alpha >= 0;
+		assert alpha <= 1;
+		
+		double res[] = new double[a.length];
+		for(int i =0; i<a.length; i++){
+			res[i] = alpha * a[i] +  (1-alpha) * b[i];
+		}
+		return res;
+	}
+
+	private static HashMap<Integer, double[][]> hyperplaneTransformationMaps = new HashMap<>();
+	
+	/**
+	 * Maps hypersphere orthogonal to last dimension axis to hyperplane parallel to one used in NSGA-III. 
+	 * The one used here is given by equation SUM(x_i) = 0; 
+	 * 
+	 * @param q - Input point lying on hyperplane orthogonal to last dimension axis
+	 * @return 
+	 */
+	public static double[] mapOnHyperplane(double[] q) {
+		if(!hyperplaneTransformationMaps.containsKey(q.length)){
+			hyperplaneTransformationMaps.put(q.length, genHypTransMap(q.length));
+		}
+		return transformHyperplanePoint(q, hyperplaneTransformationMaps.get(q.length));
+	}
+	
+	/**
+	 * Multiply point by matrix to map it to hyperplane
+	 * @param q
+	 * @param M
+	 * @return
+	 */
+	private static double[] transformHyperplanePoint(double[] q, double[][] M) {
+		assert q.length == M.length;
+		double res[] = new double[q.length];
+		for(int i=0; i<M[0].length; i++){
+			res[i] = 0;
+			for(int j=0; j<q.length; j++){
+				res[i] += q[j] * M[j][i]; 
+			}
+		}
+		
+		//Just check
+		double sum = 0;
+		for(double d : res){
+			sum += d;
+		}
+		assert sum < EPS;
+		
+		return res;
+	}
+
+	/**
+	 * Method geneartes transformation matrix which transforms n-1 dimesional hyperplane, 
+	 * orthogonal to n-th dimension axis, to hyperplane which crosses axis in points 
+	 * (1,0,0,...), (0,1,0,...), (0,0,1,...). 
+	 * 
+	 * 
+	 * The axis is of the form 
+	 * |1 -1  0  0  0 ... |
+	 * |1  1 -2  0  0 ... |
+	 * |1  1  1 -3  0 ... |
+	 * 			....
+	 * 
+	 * Each row has to normalized to length one
+	 * 	
+	 * @param n - resulting matrix size n x n
+	 * @return
+	 */
+	private static double[][] genHypTransMap(int n) {
+		double res[][] = new double[n][n];
+		for(int i=0; i<n; i++){
+			for(int j=0; j<n; j++){
+				if(j<=i){
+					res[i][j] = 1;
+				} else if(j==i+1){
+					res[i][j] = -(i+1); 
+				} else{
+					res[i][j] = 0;
+				}
+			}
+			res[i] = vectorNormalize(res[i]);
+		}
+		return res;
+	}
+
+	/**
+	 * Normalize vector to length 1.0
+	 * @param v Input vector - arbitrary length
+	 * @return 	Output vector - length 1.0
+	 */
+	private static double[] vectorNormalize(double[] v) {
+		int n = v.length;
+		double sum = 0;
+		double[] res = new double[n];
+		
+		for(int i=0; i<n; i++){
+			sum += v[i] * v[i];
+		}
+		
+		double denom = Math.sqrt(sum);
+		for(int i=0; i<n; i++){
+			res[i] = v[i] / denom;
+		}
+		return res;
+	}
+	
+	public static long choose(long total, long choose){
+	    if(total < choose)
+	        return 0;
+	    if(choose == 0 || choose == total)
+	        return 1;
+	    return choose(total-1,choose-1)+choose(total-1,choose);
+	}
+	
+	public static double[] nonnegativeSegmentPoint(double[] beg, double[] pos) {
+		double v[] = new double[beg.length];
+		double res[] = new double[beg.length];
+		double mult = 0;
+		for(int i=0; i<beg.length; i++){
+			v[i] = pos[i] - beg[i];
+			if(beg[i] < 0){
+				mult = Double.max(mult, -beg[i] / v[i]);
+			}
+		}
+		for(int i=0; i < beg.length; i++){
+			res[i] = beg[i] + mult * v[i];
+		}
+		return res;
+	}
+	
+	public static ReferencePoint getRandomNeighbour(int dim, ReferencePoint centralPoint, double radius) {
+		ReferencePoint newPoint = new ReferencePoint(dim);
+		double p[] = new double[dim - 1];
+		double q[] = new double[dim];
+		p = Geometry.randomPointOnSphere(dim - 1, radius);
+		for (int i = 0; i < dim - 1; i++) {
+			q[i] = p[i];
+		}
+		q[dim - 1] = 0;
+		q = Geometry.mapOnHyperplane(q);
+		for (int i = 0; i < dim; i++) {
+			q[i] += centralPoint.getDim(i);
+		}
+		for (int i = 0; i < dim; i++) {
+			if (q[i] < 0) {
+				q = Geometry.nonnegativeSegmentPoint(q, centralPoint.getDim());
+				break;
+			}
+		}
+		newPoint.setDim(q);
+		return newPoint;
 	}
 }

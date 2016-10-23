@@ -1,5 +1,6 @@
 package core;
 
+import core.points.Solution;
 import utils.NSGAIIIRandom;
 
 public abstract class Problem {
@@ -21,6 +22,7 @@ public abstract class Problem {
 			lowerBound[i] = Double.MIN_VALUE;
 			upperBound[i] = Double.MAX_VALUE;
 		}
+		setBoundsOnVariables();
 	}
 
 	public Solution createSolution() {
@@ -33,19 +35,31 @@ public abstract class Problem {
 		Solution s = new Solution(var,obj);
 		return s;
 	}
+	
+	public Population createPopulation(int size){
+		Population population = new Population();
+		for(int i=0; i<size; i++){
+			population.addSolution( createSolution() );
+		}
+		evaluate(population);
+		return population;
+	}
 
 	public abstract void evaluate(Solution solution);
 
 	public void evaluate(Population pop) {
-		for(Solution s : pop.getSolutions()){
+		for(Solution p : pop.getSolutions()){
+			Solution s = (Solution) p;
 			evaluate(s);
 		}
 	}
 
 	// TODO
 	public abstract void evaluateConstraints(Solution solution);
-
-	public abstract void setBoundsOnVariables();
+	
+	public void setBoundsOnVariables(){
+		//To be overriden by subclasses
+	}
 
 	public String getName() {
 		return name;

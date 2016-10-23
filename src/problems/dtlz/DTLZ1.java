@@ -1,7 +1,7 @@
-package problems;
+package problems.dtlz;
 
 import core.Problem;
-import core.Solution;
+import core.points.Solution;
 
 public class DTLZ1 extends Problem {
 
@@ -15,7 +15,6 @@ public class DTLZ1 extends Problem {
 
 	public DTLZ1(int numVariables, int numObjectives) {
 		super(numVariables, numObjectives, 0, "DTLZ1");
-		setBoundsOnVariables();
 	}
 
 	@Override
