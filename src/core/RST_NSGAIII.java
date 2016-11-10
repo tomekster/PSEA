@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jfree.date.SpreadsheetDate;
-
 import core.hyperplane.Hyperplane;
 import core.points.ReferencePoint;
 import core.points.Solution;
@@ -20,7 +18,8 @@ import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.LambdaCVRanker;
 import solutionRankers.NonDominationRanker;
-import utils.NSGAIIIRandom;
+import utils.Geometry;
+import utils.MyMath;
 import utils.Pair;
 
 public class RST_NSGAIII extends EA implements Runnable {
@@ -77,7 +76,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		this.numGenerations = numGenerations;
 		this.problem = problem;
 		this.elicitationInterval = elicitationInterval;
-		this.decisionMakerRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(problem.getNumObjectives());
+		this.decisionMakerRanker = ChebyshevRankerBuilder.getMinXZChebyshevRanker(problem.getNumObjectives());
 		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
@@ -88,6 +87,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		history.addLambdas(lambda.getLambdas());
 		history.setTargetPoints(TargetFrontGenerator.generate(this.hyperplane.getReferencePoints(), problem));
 		history.setPreferenceCollector(lambda.getPreferenceCollector());
+		history.setChebyshevRanker(decisionMakerRanker);
 	}
 
 	public void run() {
@@ -109,8 +109,10 @@ public class RST_NSGAIII extends EA implements Runnable {
 			nsgaiii.nextGeneration();
 			lambda.nextGeneration();
 			assert nsgaiii.getPopulation().size() == populationSize;
-			population.addSolutions(nsgaiii.getPopulation());
-			assert population.size() == 2*populationSize;
+			if(generation % elicitationInterval == 0){
+				population.addSolutions(nsgaiii.getPopulation());
+				assert population.size() == 2*populationSize;
+			}
 			nextGeneration();
 					
 			problem.evaluate(population);
@@ -125,7 +127,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 	@Override
 	public Population selectNewPopulation(Population pop) {
 		problem.evaluate(pop);
-		Population sortedNewPopulation = lambda.selectKSolutionsByChebyshevBordaRanking(population, populationSize);
+		Population sortedNewPopulation = lambda.selectKSolutionsByChebyshevBordaRanking(pop, populationSize);
 		return sortedNewPopulation;
 	}
 
@@ -133,10 +135,54 @@ public class RST_NSGAIII extends EA implements Runnable {
 		return decisionMakerRanker.getBestSolutionVal(pop);
 	}
 	
-	public double evaluateFinalResult(Population result){
+	public double evaluateFinalResult(Population spreadResult, Population prefResult){
 		ArrayList<ReferencePoint> referencePoints = this.hyperplane.getReferencePoints();
-		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), result);
+		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), spreadResult);
+		evaluateRun(problem, decisionMakerRanker, spreadResult, prefResult);
 		return igd;
+	}
+	
+	private void evaluateRun(Problem prob, ChebyshevRanker dmr, Population spreadResult, Population prefResult) {
+		String pname = prob.getName();
+		double targetPoint[] = {};
+
+		switch(pname){
+			case "DTLZ1":
+				targetPoint = Geometry.lineCrossDTLZ1HyperplanePoint(Geometry.invert(dmr.getLambda()));
+				break;
+			case "DTLZ2":
+			case "DTLZ3":
+			case "DTLZ4":
+				targetPoint = Geometry.lineCrossDTLZ234HyperspherePoint(Geometry.invert(dmr.getLambda()));
+				break;
+		}
+		System.out.println("TARGET POINT: ");
+		for(double d : targetPoint){
+			System.out.print(d + " ");
+		}
+		System.out.println();
+		
+		System.out.println("PREF: ");
+		for(int i=0; i<prefResult.getSolution(0).getNumObjectives(); i++){
+			double min = Double.MAX_VALUE, sum = 0, max = -Double.MAX_VALUE;
+			for(Solution s : prefResult.getSolutions()){
+				double o = s.getObjective(i);
+				min = Double.min(min, o);
+				max = Double.max(max, o);
+				sum += o;
+			}
+			
+			System.out.println(i + ": " + min + ", " + sum/prefResult.getSolutions().size() + ", " + max);
+			
+		}
+		history.setFinalSpreadMinDist(MyMath.getMinDist(targetPoint, spreadResult));
+		history.setFinalSpreadAvgDist(MyMath.getAvgDist(targetPoint, spreadResult));
+		history.setFinalPrefMinDist(MyMath.getMinDist(targetPoint, prefResult));
+		history.setFinalPrefAvgDist(MyMath.getAvgDist(targetPoint, prefResult));
+	}
+
+	public Hyperplane getHyperplane(){
+		return hyperplane;
 	}
 	
 	int getGeneration(){

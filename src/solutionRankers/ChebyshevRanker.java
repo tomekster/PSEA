@@ -78,4 +78,8 @@ public class ChebyshevRanker{
 		assert res != null;
 		return res;
 	}
+
+	public double[] getLambda() {
+		return lambda;
+	}
 }

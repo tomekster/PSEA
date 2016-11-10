@@ -10,8 +10,8 @@ public class LambdaCVRanker implements Comparator <ReferencePoint>{
 	public int compare(ReferencePoint lambda1, ReferencePoint lambda2) {
 		return lambda1.getNumViolations() == lambda2.getNumViolations() ? 
 				//TODO
-				Double.compare(lambda1.getPenalty(), lambda2.getPenalty()) //Bigger reward = better
+				Double.compare(lambda1.getPenalty(), lambda2.getPenalty()) //Smaller penalty = better
 				: 
-				Integer.compare(lambda1.getNumViolations(), lambda2.getNumViolations()); //Smaller num violations = better
+				Integer.compare(lambda1.getNumViolations(), lambda2.getNumViolations()); //Smaller numViolations = better
 	}
 }

@@ -58,8 +58,8 @@ public class Lambda extends EA {
 			Solution better = c.getBetter(), worse = c.getWorse();
 			double a = -1, b = -1;
 			for(int i = 0; i<lambda.getNumDimensions(); i++){
-				a = Double.max(a, lambda.getDim(i) * better.getVariable(i));
-				b = Double.max(b, lambda.getDim(i) * worse.getVariable(i));
+				a = Double.max(a, (1/lambda.getDim(i)) * better.getObjective(i));
+				b = Double.max(b, (1/lambda.getDim(i)) * worse.getObjective(i));
 			}
 			double eps = b-a;
 			if(eps < 0){
@@ -134,7 +134,7 @@ public class Lambda extends EA {
 				if (!solutionBordaPointsMap.containsKey(s)) {
 					solutionBordaPointsMap.put(s, 0);
 				}
-				solutionBordaPointsMap.put(s, solutionBordaPointsMap.get(s) + ranking.size() - i);
+				solutionBordaPointsMap.put(s, solutionBordaPointsMap.get(s) + (ranking.size() - i)/(lambda.getNumViolations() + 1));
 			}
 		}
 
@@ -153,12 +153,12 @@ public class Lambda extends EA {
 
 		Population res = new Population();
 		for (int i = 0; i < k; i++) {
-			res.addSolution(pairs.get(i).first);
+			res.addSolution(pairs.get(i).first.copy());
 		}
 		return res;
 	}
 
-	public ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambda, Population pop) {
+	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambda, Population pop) {
 		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
 		for (Solution s : pop.getSolutions()) {
 			double chebyshevValue = ChebyshevRanker.eval(s, null, Geometry.invert(lambda.getDim()), 0);
@@ -194,5 +194,9 @@ public class Lambda extends EA {
 
 	public void setElicitated(boolean elicitated) {
 		this.elicitated = elicitated;
+	}
+	
+	public void setPopulation(Population pop){ 
+		this.population = pop;
 	}
 }

@@ -2,6 +2,7 @@ package testSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import core.LambdaTest;
 import core.NicheCountSelectionTest;
 import core.PopulationTest;
 import core.hyperplane.HyperplaneTest;
@@ -22,7 +23,8 @@ import utils.NonDominatedSortTest;
    GaussianEliminationTest.class,
    GeometryTest.class,
    GeometryTest.class,
-   NonDominatedSortTest.class
+   NonDominatedSortTest.class,
+   LambdaTest.class
 })
 public class JunitTestSuite {
 }  	

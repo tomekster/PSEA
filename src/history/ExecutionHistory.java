@@ -6,6 +6,7 @@ import core.Population;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.PreferenceCollector;
+import solutionRankers.ChebyshevRanker;
 import utils.Pair;
 
 public class ExecutionHistory {
@@ -22,6 +23,11 @@ public class ExecutionHistory {
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
+	private ChebyshevRanker chebyshevRanker;
+	private double finalPrefMinDist;
+	private double finalPrefAvgDist;
+	private double finalSpreadMinDist;
+	private double finalSpreadAvgDist;
 	
 	public ExecutionHistory(){
 		this.preferenceGenerations = new ArrayList<>();
@@ -120,5 +126,45 @@ public class ExecutionHistory {
 	}
 	public void addBestChebSol(Solution s) {
 		this.bestChebSol.add(s);
+	}
+	
+	public void setChebyshevRanker(ChebyshevRanker chebRank){
+		this.chebyshevRanker = chebRank;
+	}
+	
+	public ChebyshevRanker getChebyshevRanker(){
+		return this.chebyshevRanker;
+	}
+
+	public void setFinalSpreadMinDist(double minDist) {
+		this.finalSpreadMinDist = minDist;
+	}
+
+	public void setFinalSpreadAvgDist(double avgDist) {
+		this.finalSpreadAvgDist = avgDist;
+	}
+	
+	public void setFinalPrefMinDist(double minDist) {
+		this.finalPrefMinDist = minDist;
+	}
+
+	public void setFinalPrefAvgDist(double avgDist) {
+		this.finalPrefAvgDist = avgDist;
+	}
+	
+	public double getFinalSpreadMinDist(){
+		return this.finalSpreadMinDist;
+	}
+	
+	public double getFinalSpreadAvgDist(){
+		return this.finalSpreadAvgDist;
+	}
+	
+	public double getFinalPrefMinDist(){
+		return this.finalPrefMinDist;
+	}
+	
+	public double getFinalPrefAvgDist(){
+		return this.finalPrefAvgDist;
 	}
 }

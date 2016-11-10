@@ -394,9 +394,9 @@ public class Main {
 	}
 
 	private XYDataset createDataset() {
-		Population pop;
-		pop = history.getSpreadGeneration(currentPopulationId);
-		//pop = history.getPreferenceGeneration(currentPopulationId);
+		Population spreadPop, prefPop;
+		spreadPop = history.getSpreadGeneration(currentPopulationId);
+		prefPop = history.getPreferenceGeneration(currentPopulationId);
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
 		if (showTargetPoints) {
@@ -405,12 +405,20 @@ public class Main {
 			}
 		}
 		result.addSeries(refPointsSeries);
-		if (pop.getSolutions() != null) {
-			ArrayList<XYSeries> frontSeries = createpopulationSeries(pop);
+		if (spreadPop.getSolutions() != null) {
+			ArrayList<XYSeries> frontSpreadSeries = createpopulationSeries(spreadPop, "SpreadPop");
+			ArrayList<XYSeries> frontPrefSeries = createpopulationSeries(prefPop, "PrefPop");
 			if (firstFrontOnly) {
-				result.addSeries(frontSeries.get(0));
+				result.addSeries(frontSpreadSeries.get(0));
 			} else {
-				for (XYSeries xys : frontSeries) {
+				for (XYSeries xys : frontSpreadSeries) {
+					result.addSeries(xys);
+				}
+			}
+			if (firstFrontOnly) {
+				result.addSeries(frontPrefSeries.get(0));
+			} else {
+				for (XYSeries xys : frontPrefSeries) {
 					result.addSeries(xys);
 				}
 			}
@@ -438,12 +446,12 @@ public class Main {
 		return result;
 	}
 
-	private ArrayList<XYSeries> createpopulationSeries(Population pop) {
+	private ArrayList<XYSeries> createpopulationSeries(Population pop, String popName) {
 		NonDominationRanker ndr = new NonDominationRanker();
 		ArrayList<Population> fronts = ndr.sortPopulation(pop);
 		ArrayList<XYSeries> resultSeries = new ArrayList<>();
 		for (int frontId = 0; frontId < fronts.size(); frontId++) {
-			XYSeries frontSeries = new XYSeries("Front " + frontId);
+			XYSeries frontSeries = new XYSeries(popName + " front " + frontId);
 			for (Solution s : fronts.get(frontId).getSolutions()) {
 				frontSeries.add(s.getObjective(0), s.getObjective(1));
 			}
@@ -550,7 +558,7 @@ public class Main {
 			alg.run();
 			executedGenerations = alg.getGeneration();
 			history = alg.getHistory();
-			resIGD = alg.evaluateFinalResult(history.getSpreadGeneration(executedGenerations));
+			resIGD = alg.evaluateFinalResult(history.getSpreadGeneration(executedGenerations), history.getPreferenceGeneration(executedGenerations));
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
@@ -573,6 +581,11 @@ public class Main {
 
 		labelIGD.setText("[" + resWorse + ", " + resMed + ", " + resBest + "]");
 		System.out.println(labelIGD.getText());
+		
+		System.out.println("Spread min: " + history.getFinalSpreadMinDist());
+		System.out.println("Spread avg: " + history.getFinalSpreadAvgDist());
+		System.out.println("Pref min: " + history.getFinalPrefMinDist());
+		System.out.println("Pref avg: " + history.getFinalPrefAvgDist());
 		resetChart();
 	}
 

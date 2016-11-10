@@ -309,4 +309,28 @@ public class Geometry {
 		newPoint.setDim(q);
 		return newPoint;
 	}
+
+	public static double[] lineCrossDTLZ1HyperplanePoint(double[] lambda) {
+		double point[] = new double[lambda.length];
+		double sum = 0;
+		for (double d : lambda) {
+			sum += d;
+		}
+		for(int i=0; i< lambda.length; i++){
+			point[i] = lambda[i] * (0.5 / sum);
+		}
+		return point;
+	}
+
+	public static double[] lineCrossDTLZ234HyperspherePoint(double[] lambda) {
+		double point[] = new double[lambda.length], sqr_sum = 0;
+		for (double d : lambda) {
+			sqr_sum += d*d;
+		}
+		double div = Math.sqrt(sqr_sum);
+		for (int i = 0; i < lambda.length; i++) {
+			point[i] = lambda[i] / div;
+		}
+		return point;
+	}
 }

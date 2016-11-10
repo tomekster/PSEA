@@ -4,10 +4,13 @@ import core.points.Solution;
 
 public class Comparison {
 	private Solution better, worse;
-
-	public Comparison(Solution a, Solution b) {
+	private double maxEpsilon, minEpsilon;
+	
+	public Comparison(Solution a, Solution b, double maxEps, double minEps) {
 		better = a;
 		worse = b;
+		maxEpsilon = maxEps;
+		minEpsilon = minEps;
 	}
 
 	public Solution getBetter() {
@@ -24,5 +27,21 @@ public class Comparison {
 
 	public void setWorse(Solution worse) {
 		this.worse = worse;
+	}
+
+	public double getMaxEpsilon() {
+		return maxEpsilon;
+	}
+
+	public void setMaxEpsilon(double maxEpsilon) {
+		this.maxEpsilon = maxEpsilon;
+	}
+
+	public double getMinEpsilon() {
+		return minEpsilon;
+	}
+
+	public void setMinEpsilon(double minEpsilon) {
+		this.minEpsilon = minEpsilon;
 	}
 }
