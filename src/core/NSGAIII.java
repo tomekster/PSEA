@@ -65,21 +65,27 @@ public class NSGAIII extends EA {
 		if (allFronts.size() == populationSize) {
 			res = allFronts.copy();
 		} else {
-			res = new Population();
-			Population kPoints = new Population();
-			int K = populationSize - allButLastFront.size();
-			try {
-				kPoints = NicheCountSelection.selectKPoints(problem.getNumObjectives(), allFronts, allButLastFront, lastFront, K, hyperplane);
-			} catch (DegeneratedMatrixException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			assert kPoints.size() == K; 
-			assert K + allButLastFront.size() == populationSize; 
-			res.addSolutions(allButLastFront.copy());
-			res.addSolutions(kPoints.copy());
+			res = splitLastFront(allFronts, allButLastFront, lastFront);
 		}
 		problem.evaluate(res);	
+		return res;
+	}
+
+	private Population splitLastFront(Population allFronts, Population allButLastFront, Population lastFront) {
+		Population res;
+		res = new Population();
+		Population kPoints = new Population();
+		int K = populationSize - allButLastFront.size();
+		try {
+			kPoints = NicheCountSelection.selectKPoints(problem.getNumObjectives(), allFronts, allButLastFront, lastFront, K, hyperplane);
+		} catch (DegeneratedMatrixException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assert kPoints.size() == K; 
+		assert K + allButLastFront.size() == populationSize; 
+		res.addSolutions(allButLastFront.copy());
+		res.addSolutions(kPoints.copy());
 		return res;
 	}
 }

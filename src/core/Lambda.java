@@ -81,16 +81,10 @@ public class Lambda extends EA {
 	
 	@Override
 	protected Population selectNewPopulation(Population pop) {
-		for (Solution s : pop.getSolutions()) {
-			double norm[] = Geometry.normalize(s.getVariables());
-			for (int i = 0; i < norm.length; i++) {
-				s.setVariable(i, norm[i]);
-			}
-		}
-		
 		ArrayList <ReferencePoint> newLambdas = new ArrayList <>();
 
-		// If new elicitation just happened - include initial uniform lambdas as potential candidates
+		// If new elicitation just happened - add initial uniform distribution of lambdas as 
+		// candidates for next generation
 		if(elicitated) {
 			elicitated = false;
 			Hyperplane tmp = new Hyperplane(numObjectives);
@@ -101,6 +95,7 @@ public class Lambda extends EA {
 		}
 
 		for(Solution sol : pop.getSolutions()){
+			sol.setVariables(Geometry.normalize(sol.getVariables()));
 			ReferencePoint lambda = new ReferencePoint(sol.getVariables());
 			evaluateLambda(lambda);
 			newLambdas.add(lambda);
@@ -124,24 +119,12 @@ public class Lambda extends EA {
 	}
 
 	public Population selectKSolutionsByChebyshevBordaRanking(Population pop, int k) {
-		HashMap<Solution, Integer> solutionBordaPointsMap = new HashMap<Solution, Integer>();
-		for (Solution lambdaSolution : population.getSolutions()) {
-			ReferencePoint lambda = (ReferencePoint) lambdaSolution;
-			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
-			assert ranking.size() == pop.size();
-			for (int i = 0; i < ranking.size(); i++) {
-				Solution s = ranking.get(i);
-				if (!solutionBordaPointsMap.containsKey(s)) {
-					solutionBordaPointsMap.put(s, 0);
-				}
-				solutionBordaPointsMap.put(s, solutionBordaPointsMap.get(s) + (ranking.size() - i)/(lambda.getNumViolations() + 1));
-			}
-		}
-
+		HashMap<Solution, Integer> bordaPointsMap = getBordaPointsForSolutions(pop);
+		
 		ArrayList<Pair<Solution, Integer>> pairs = new ArrayList<Pair<Solution, Integer>>();
 
-		for (Solution s : solutionBordaPointsMap.keySet()) {
-			pairs.add(new Pair<Solution, Integer>(s, solutionBordaPointsMap.get(s)));
+		for (Solution s : bordaPointsMap.keySet()) {
+			pairs.add(new Pair<Solution, Integer>(s, bordaPointsMap.get(s)));
 		}
 
 		Collections.sort(pairs, new Comparator<Pair<Solution, Integer>>() {
@@ -156,6 +139,23 @@ public class Lambda extends EA {
 			res.addSolution(pairs.get(i).first.copy());
 		}
 		return res;
+	}
+
+	private HashMap<Solution, Integer> getBordaPointsForSolutions(Population pop) {
+		HashMap<Solution, Integer> bordaPointsMap = new HashMap<>();
+		for (Solution lambdaSolution : population.getSolutions()) {
+			ReferencePoint lambda = (ReferencePoint) lambdaSolution;
+			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
+			assert ranking.size() == pop.size();
+			for (int i = 0; i < ranking.size(); i++) {
+				Solution s = ranking.get(i);
+				if (!bordaPointsMap.containsKey(s)) {
+					bordaPointsMap.put(s, 0);
+				}
+				bordaPointsMap.put(s, bordaPointsMap.get(s) + (ranking.size() - i)/(lambda.getNumViolations() + 1));
+			}
+		}
+		return bordaPointsMap;
 	}
 
 	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambda, Population pop) {

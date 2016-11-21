@@ -80,6 +80,10 @@ public class Solution {
 	public void setVariable(int pos, double val) {
 		variables[pos] = val;
 	}
+	
+	public void setVariables(double[] val) {
+		variables = val.clone();
+	}
 
 	public void setObjective(int pos, double objective) {
 		this.objectives[pos] = objective;

@@ -96,23 +96,19 @@ public class RST_NSGAIII extends EA implements Runnable {
 				+ " objectives, and " + numGenerations + " generations.");
 
 		for (generation = 0; generation < numGenerations; generation++) {
-			if(generation > 0 && generation % elicitationInterval == 0) {
-				System.out.println("GENERATION: " + generation);
-				NonDominationRanker ndr = new NonDominationRanker();
-				Population firstFront = ndr.sortPopulation(population).get(0);
-				if (firstFront.size() > 1){
-					Elicitator.elicitate(firstFront, decisionMakerRanker, lambda.getPreferenceCollector());
-					lambda.setElicitated(true);
-				}
-			}
+			if(generation > 0 && generation % elicitationInterval == 0) elicitate();
 				
 			nsgaiii.nextGeneration();
 			lambda.nextGeneration();
+			
 			assert nsgaiii.getPopulation().size() == populationSize;
+			
+			//Mix RST-NSGAIII population with NSGA-III population to avoid degeneration in high-dimensional spaces
 			if(generation % elicitationInterval == 0){
 				population.addSolutions(nsgaiii.getPopulation());
 				assert population.size() == 2*populationSize;
 			}
+			
 			nextGeneration();
 					
 			problem.evaluate(population);
@@ -122,6 +118,16 @@ public class RST_NSGAIII extends EA implements Runnable {
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
 			history.addBestChebVal(evaluateGeneration(population));
 		}
+	}
+
+	private void elicitate() {
+		System.out.println("GENERATION: " + generation);
+		NonDominationRanker ndr = new NonDominationRanker();
+		Population firstFront = ndr.sortPopulation(population).get(0);
+		if (firstFront.size() > 1){
+			Elicitator.elicitate(firstFront, decisionMakerRanker, lambda.getPreferenceCollector());
+			lambda.setElicitated(true);
+		}	
 	}
 
 	@Override
