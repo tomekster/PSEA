@@ -80,7 +80,9 @@ public class RST_NSGAIII extends EA implements Runnable {
 		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
-		this.history = new ExecutionHistory(); 
+		this.history = new ExecutionHistory();
+		history.setNumVariables(problem.getNumVariables());
+		history.setNumObjectives(problem.getNumObjectives());
 		history.addPreferenceGeneration(population.copy());
 		history.addSpreadGeneration(nsgaiii.getPopulation());
 		history.addSolutionDirections(this.hyperplane.getReferencePoints());
@@ -191,11 +193,11 @@ public class RST_NSGAIII extends EA implements Runnable {
 		return hyperplane;
 	}
 	
-	int getGeneration(){
+	public int getGeneration(){
 		return generation;
 	}
 	
-	ExecutionHistory getHistory(){
+	public ExecutionHistory getHistory(){
 		return history;
 	}
 }

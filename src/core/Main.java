@@ -34,6 +34,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jzy3d.analysis.AnalysisLauncher;
+import org.mediavirus.parvis.gui.MainFrame;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
@@ -49,6 +50,7 @@ import utils.MySeries;
  */
 public class Main {
 
+	private MainFrame parallelSolutionCoordinates, parallelLambdaCoordinates;
 	private int currentPopulationId;
 	private ExecutionHistory history;
 	private static final String title = "NSGAIII";
@@ -73,6 +75,11 @@ public class Main {
 	private Plot3D plot;
 
 	public Main() {
+//		parallelSolutionCoordinates = new MainFrame();
+//		parallelSolutionCoordinates.show();
+//		parallelLambdaCoordinates = new MainFrame();
+//		parallelLambdaCoordinates.show();
+		
 		this.interactive = true;
 		this.numRuns = 1;
 		this.numGenerations = 50;
@@ -226,7 +233,7 @@ public class Main {
 
 	private JComboBox createNumberOfRunsCB() {
 		final JComboBox numRunsCB = new JComboBox();
-		final String[] traceCmds = { "1", "20" };
+		final String[] traceCmds = { "1", "20" };	
 		numRunsCB.setModel(new DefaultComboBoxModel(traceCmds));
 		numRunsCB.addActionListener(new ActionListener() {
 			@Override
@@ -397,6 +404,7 @@ public class Main {
 		Population spreadPop, prefPop;
 		spreadPop = history.getSpreadGeneration(currentPopulationId);
 		prefPop = history.getPreferenceGeneration(currentPopulationId);
+		
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
 		if (showTargetPoints) {
@@ -438,6 +446,30 @@ public class Main {
 			ArrayList<Solution> spreadGeneration = spreadGenerationsHistory.get(currentPopulationId).getSolutions();
 			ArrayList<ReferencePoint> solutionDirections = solutionDirectionsHistory.get(currentPopulationId);
 			ArrayList<ReferencePoint> lambdaDirections= lambdaDirectionsHistory.get(currentPopulationId);
+			
+			if(parallelSolutionCoordinates != null){
+				float tab[] = new float[history.getNumObjectives()];
+				ArrayList <float[]> points = new ArrayList<>();
+				for(Solution s : preferenceGeneration){
+					for(int i = 0; i< s.getNumObjectives(); i++){
+						tab[i] = (float) s.getObjective(i);
+					}
+					points.add(tab.clone());
+				}
+				parallelSolutionCoordinates.setRSTNSGAIIIData(history.getNumObjectives(), points);
+			}
+			if(parallelLambdaCoordinates != null){
+				float tab[] = new float[history.getNumObjectives()];
+				ArrayList <float[]> points = new ArrayList<>();
+				for(ReferencePoint r : lambdaDirections){
+					for(int i = 0; i< r.getNumDimensions(); i++){
+						tab[i] = (float) r.getDim(i);
+					}
+					points.add(tab.clone());
+				}
+				parallelLambdaCoordinates.setRSTNSGAIIIData(history.getNumObjectives(), points);
+			}
+			
 			ArrayList<XYSeries> series = createReferencePointsSeries(preferenceGeneration, spreadGeneration, solutionDirections, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
@@ -515,6 +547,7 @@ public class Main {
 	}
 
 	private void resetChart() {
+		
 		JFreeChart chart = chartPanel.getChart();
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
@@ -558,6 +591,7 @@ public class Main {
 			alg.run();
 			executedGenerations = alg.getGeneration();
 			history = alg.getHistory();
+			
 			resIGD = alg.evaluateFinalResult(history.getSpreadGeneration(executedGenerations), history.getPreferenceGeneration(executedGenerations));
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException

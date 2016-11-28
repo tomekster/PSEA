@@ -11,6 +11,7 @@ import java.util.HashMap;
 import core.NSGAIII;
 import core.Population;
 import core.Problem;
+import core.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
@@ -27,22 +28,30 @@ public class ExperimentRunner {
 	private static HashMap<Integer, Integer> popSizeMap = new HashMap<>();
 	
 	public static void main(String[] args) {
-		int numRuns = 1;
+		int numRuns = 5;
 		initExecutionData();
 		for (Problem p : problems) {
 			for (int runId = 1; runId <= numRuns; runId++) {
 				System.out.println("Run " + runId + "/" + numRuns );
 				runNSGAIIIExperiment(p, runId);
-				runSingleObjectiveEA(p, runId);
+				//runSingleObjectiveEA(p, runId);
 			}
 		}
 	}
 
 	private static void runNSGAIIIExperiment(Problem p, int runId) {
 		//NSGAIII alg = new NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())) 1000, true, 25);
-		NSGAIII alg = new NSGAIII(p, 1000, true, 25);
+		RST_NSGAIII alg = new RST_NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), 20);
 		alg.run();
-		saveHistory(alg.getHistory(), "NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
+		
+		ExecutionHistory history = alg.getHistory(); 
+		alg.evaluateFinalResult(history.getSpreadGeneration(alg.getGeneration()), history.getPreferenceGeneration(alg.getGeneration()));
+		System.out.println(p.getName() + " " + p.getNumObjectives() + " " + p.getNumVariables());
+		System.out.println("Spread min: " + history.getFinalSpreadMinDist());
+		System.out.println("Spread avg: " + history.getFinalSpreadAvgDist());
+		System.out.println("Pref min: " + history.getFinalPrefMinDist());
+		System.out.println("Pref avg: " + history.getFinalPrefAvgDist());
+		//saveHistory(alg.getHistory(), "RST_NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
 	}
 
 	private static void runSingleObjectiveEA(Problem p, int runId) {
@@ -55,11 +64,11 @@ public class ExperimentRunner {
 	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = { /*3, 5,*/ 8, 10, 15  };
+		int numObjectives[] = {3, 5, 8, 10, 15  };
 		for (int no : numObjectives) {
-//			problems.add(new DTLZ1(no));
+			problems.add(new DTLZ1(no));
 			problems.add(new DTLZ2(no)); 
-//			problems.add(new DTLZ3(no));
+			problems.add(new DTLZ3(no));
 			problems.add(new DTLZ4(no));
 
 //			problems.add(new WFG6(no));
