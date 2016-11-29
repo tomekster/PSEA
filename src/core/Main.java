@@ -83,7 +83,7 @@ public class Main {
 		this.interactive = true;
 		this.numRuns = 1;
 		this.numGenerations = 50;
-		this.elicitationInterval = 25;
+		this.elicitationInterval = 20;
 		this.numObjectives = 2;
 		try {
 			this.problemConstructor = DTLZ1.class.getConstructor(Integer.class);
@@ -401,9 +401,8 @@ public class Main {
 	}
 
 	private XYDataset createDataset() {
-		Population spreadPop, prefPop;
-		spreadPop = history.getSpreadGeneration(currentPopulationId);
-		prefPop = history.getPreferenceGeneration(currentPopulationId);
+		Population pop;
+		pop = history.getGeneration(currentPopulationId);
 		
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
@@ -413,20 +412,12 @@ public class Main {
 			}
 		}
 		result.addSeries(refPointsSeries);
-		if (spreadPop.getSolutions() != null) {
-			ArrayList<XYSeries> frontSpreadSeries = createpopulationSeries(spreadPop, "SpreadPop");
-			ArrayList<XYSeries> frontPrefSeries = createpopulationSeries(prefPop, "PrefPop");
+		if (pop.getSolutions() != null) {
+			ArrayList<XYSeries> frontGenerationSeries = createpopulationSeries(pop, "SpreadPop");
 			if (firstFrontOnly) {
-				result.addSeries(frontSpreadSeries.get(0));
+				result.addSeries(frontGenerationSeries.get(0));
 			} else {
-				for (XYSeries xys : frontSpreadSeries) {
-					result.addSeries(xys);
-				}
-			}
-			if (firstFrontOnly) {
-				result.addSeries(frontPrefSeries.get(0));
-			} else {
-				for (XYSeries xys : frontPrefSeries) {
+				for (XYSeries xys : frontGenerationSeries) {
 					result.addSeries(xys);
 				}
 			}
@@ -435,22 +426,18 @@ public class Main {
 	}
 
 	private XYDataset createDatasetOnHyperplane() {
-		ArrayList<Population> preferenceGenerationsHistory = history.getPreferenceGenerations();
-		ArrayList<Population> spreadGenerationsHistory = history.getSpreadGenerations();
-		ArrayList<ArrayList<ReferencePoint>> solutionDirectionsHistory = history.getSolutionDirectionsHistory();
+		ArrayList<Population> generationsHistory = history.getGenerations();
 		ArrayList<ArrayList<ReferencePoint>> lambdaDirectionsHistory = history.getLambdaDirectionsHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
-		if (solutionDirectionsHistory != null && lambdaDirectionsHistory != null) {
-			ArrayList<Solution> preferenceGeneration = preferenceGenerationsHistory.get(currentPopulationId).getSolutions();
-			ArrayList<Solution> spreadGeneration = spreadGenerationsHistory.get(currentPopulationId).getSolutions();
-			ArrayList<ReferencePoint> solutionDirections = solutionDirectionsHistory.get(currentPopulationId);
+		if (lambdaDirectionsHistory != null) {
+			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
 			ArrayList<ReferencePoint> lambdaDirections= lambdaDirectionsHistory.get(currentPopulationId);
 			
 			if(parallelSolutionCoordinates != null){
 				float tab[] = new float[history.getNumObjectives()];
 				ArrayList <float[]> points = new ArrayList<>();
-				for(Solution s : preferenceGeneration){
+				for(Solution s : generation){
 					for(int i = 0; i< s.getNumObjectives(); i++){
 						tab[i] = (float) s.getObjective(i);
 					}
@@ -470,7 +457,7 @@ public class Main {
 				parallelLambdaCoordinates.setRSTNSGAIIIData(history.getNumObjectives(), points);
 			}
 			
-			ArrayList<XYSeries> series = createReferencePointsSeries(preferenceGeneration, spreadGeneration, solutionDirections, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
+			ArrayList<XYSeries> series = createReferencePointsSeries(generation, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -492,36 +479,21 @@ public class Main {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> preferenceGeneration, ArrayList<Solution> spreadGeneration, ArrayList<ReferencePoint> solutionDirections, ArrayList<ReferencePoint> lambda, ArrayList<Comparison> comparisons) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ArrayList<ReferencePoint> lambda, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
-		XYSeries preferenceSeries= new XYSeries("Preference generation");
-		XYSeries spreadSeries= new XYSeries("Spread generation");
-		XYSeries solutionDirectionSeries= new XYSeries("Solution directions");
+		XYSeries generationSeries= new XYSeries("Preference generation");
 		XYSeries lambdaSeries = new XYSeries("Lambdas");
 		XYSeries preferedSolutions = new XYSeries("Prefered solutions");
 		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
 		Solution t;
 		
 		if(showSpreadSolutions){
-			for(Solution s : spreadGeneration){
+			for(Solution s : generation){
 				t = Geometry.cast3dPointToPlane(s.getObjectives());
-				spreadSeries.add(t.getObjective(0), t.getObjective(1));	
+				generationSeries.add(t.getObjective(0), t.getObjective(1));	
 			}
 		}
 		
-		if(showPreferenceGeneration){
-			for(Solution s : preferenceGeneration){
-				t = Geometry.cast3dPointToPlane(s.getObjectives());
-				preferenceSeries.add(t.getObjective(0), t.getObjective(1));	
-			}
-		}
-		
-		if(showSolDir){
-			for (ReferencePoint rp : solutionDirections) {
-				t = Geometry.cast3dPointToPlane(rp.getDim());
-				solutionDirectionSeries.add(t.getObjective(0), t.getObjective(1));		
-			}
-		}
 		if(showLambda){
 			for (ReferencePoint rp : lambda) {
 				t = Geometry.cast3dPointToPlane(rp.getDim());
@@ -537,12 +509,10 @@ public class Main {
 			}
 		}
 		
-		result.add(solutionDirectionSeries);
 		result.add(lambdaSeries);
 		result.add(preferedSolutions);
 		result.add(nonPreferedSolutions);
-		result.add(preferenceSeries);
-		result.add(spreadSeries);
+		result.add(generationSeries);
 		return result;
 	}
 
@@ -577,10 +547,9 @@ public class Main {
 	}
 
 	private MySeries createJZY3DDataset() {
-		Population pop = history.getPreferenceGeneration(currentPopulationId);
-		ArrayList <ReferencePoint> rp = history.getSolutionDirectionsHistory().get(currentPopulationId);
+		Population pop = history.getGeneration(currentPopulationId);
 		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval));		
-		return new MySeries(pop.getSolutions(), rp, comparisons);
+		return new MySeries(pop.getSolutions(), comparisons);
 	}
 
 	double runNSGAIIIOnce() {
@@ -592,7 +561,7 @@ public class Main {
 			executedGenerations = alg.getGeneration();
 			history = alg.getHistory();
 			
-			resIGD = alg.evaluateFinalResult(history.getSpreadGeneration(executedGenerations), history.getPreferenceGeneration(executedGenerations));
+			alg.evaluateFinalResult(history.getGeneration(executedGenerations));
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
@@ -616,10 +585,8 @@ public class Main {
 		labelIGD.setText("[" + resWorse + ", " + resMed + ", " + resBest + "]");
 		System.out.println(labelIGD.getText());
 		
-		System.out.println("Spread min: " + history.getFinalSpreadMinDist());
-		System.out.println("Spread avg: " + history.getFinalSpreadAvgDist());
-		System.out.println("Pref min: " + history.getFinalPrefMinDist());
-		System.out.println("Pref avg: " + history.getFinalPrefAvgDist());
+		System.out.println("Generation min: " + history.getFinalMinDist());
+		System.out.println("Generation avg: " + history.getFinalAvgDist());
 		resetChart();
 	}
 

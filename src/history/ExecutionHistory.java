@@ -15,24 +15,20 @@ public class ExecutionHistory {
 	private int numVariables;
 	private int numObjectives;
 	
+	private int numNsgaiiiGenerations;
 	private Population targetPoints;
-	private ArrayList<Population> preferenceGenerations;
-	private ArrayList<Population> spreadGenerations;
-	private ArrayList< ArrayList<ReferencePoint> > solutionDirectionsGenerations;
+	private ArrayList<Population> generations;
 	private ArrayList< ArrayList<ReferencePoint> > lambdaGenerations;
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
 	private ChebyshevRanker chebyshevRanker;
-	private double finalPrefMinDist;
-	private double finalPrefAvgDist;
-	private double finalSpreadMinDist;
-	private double finalSpreadAvgDist;
+	private double finalMinDist;
+	private double finalAvgDist;
+	private int secondPhaseId;
 	
 	public ExecutionHistory(){
-		this.preferenceGenerations = new ArrayList<>();
-		this.spreadGenerations = new ArrayList<>();
-		this.solutionDirectionsGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		this.generations = new ArrayList<>();
 		this.lambdaGenerations = new ArrayList< ArrayList<ReferencePoint> >();
 		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
@@ -44,32 +40,14 @@ public class ExecutionHistory {
 	public void setTargetPoints(Population targetPoints) {
 		this.targetPoints = targetPoints;
 	}
-	public ArrayList<Population> getPreferenceGenerations() {
-		return preferenceGenerations;
+	public ArrayList<Population> getGenerations() {
+		return generations;
 	}
-	public Population getPreferenceGeneration(int pos){
-		return preferenceGenerations.get(pos);
+	public void addGeneration(Population pop){
+		this.generations.add(pop);
 	}
-	public void addPreferenceGeneration(Population pop){
-		this.preferenceGenerations.add(pop);
-	}
-	public ArrayList<Population> getSpreadGenerations() {
-		return spreadGenerations;
-	}
-	public Population getSpreadGeneration(int pos){
-		return spreadGenerations.get(pos);
-	}
-	public void addSpreadGeneration(Population pop){
-		this.spreadGenerations.add(pop);
-	}
-	public ArrayList< ArrayList<ReferencePoint> > getSolutionDirectionsHistory() {
-		return solutionDirectionsGenerations;
-	}
-	public ArrayList<ReferencePoint> getSolutionDirections(int id){
-		return solutionDirectionsGenerations.get(id);
-	}
-	public void addSolutionDirections(ArrayList<ReferencePoint>  solutionDirections){
-		this.solutionDirectionsGenerations.add(solutionDirections);
+	public Population getGeneration(int pos){
+		return generations.get(pos);
 	}
 
 	public ArrayList< ArrayList<ReferencePoint> > getLambdaDirectionsHistory() {
@@ -136,35 +114,27 @@ public class ExecutionHistory {
 		return this.chebyshevRanker;
 	}
 
-	public void setFinalSpreadMinDist(double minDist) {
-		this.finalSpreadMinDist = minDist;
+	public void setFinalMinDist(double minDist) {
+		this.finalMinDist = minDist;
 	}
 
-	public void setFinalSpreadAvgDist(double avgDist) {
-		this.finalSpreadAvgDist = avgDist;
+	public void setFinalAvgDist(double avgDist) {
+		this.finalAvgDist = avgDist;
 	}
 	
-	public void setFinalPrefMinDist(double minDist) {
-		this.finalPrefMinDist = minDist;
+	public double getFinalMinDist(){
+		return this.finalMinDist;
+	}
+	
+	public double getFinalAvgDist(){
+		return this.finalAvgDist;
 	}
 
-	public void setFinalPrefAvgDist(double avgDist) {
-		this.finalPrefAvgDist = avgDist;
+	public void setSecondPhaseId(int id) {
+		this.secondPhaseId = id;
 	}
 	
-	public double getFinalSpreadMinDist(){
-		return this.finalSpreadMinDist;
-	}
-	
-	public double getFinalSpreadAvgDist(){
-		return this.finalSpreadAvgDist;
-	}
-	
-	public double getFinalPrefMinDist(){
-		return this.finalPrefMinDist;
-	}
-	
-	public double getFinalPrefAvgDist(){
-		return this.finalPrefAvgDist;
+	public int getSecondPhaseId() {
+		return this.secondPhaseId;
 	}
 }

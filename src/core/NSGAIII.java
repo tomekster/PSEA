@@ -88,4 +88,8 @@ public class NSGAIII extends EA {
 		res.addSolutions(kPoints.copy());
 		return res;
 	}
+
+	public Hyperplane getHyperplane() {
+		return hyperplane;
+	}
 }

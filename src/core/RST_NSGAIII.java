@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,6 +26,8 @@ import utils.Pair;
 public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
+
+	private static final double SPREAD_THRESHOLD = 0.9;
 
 	private Problem problem;
 	private int numGenerations;
@@ -68,10 +71,9 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 		// Number of solutions in every generation. Depends on Hyperplane because number 
 		// of solutions in population should be close to number of Reference Points on Hyperplane
-		populationSize = hyperplane.getReferencePoints().size();
-		populationSize += populationSize % 2;
-		population = problem.createPopulation(populationSize);
-
+		this.population = nsgaiii.getPopulation();
+		this.populationSize = population.size();
+		
 		// Parameters of algorithm execution
 		this.numGenerations = numGenerations;
 		this.problem = problem;
@@ -83,9 +85,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		this.history = new ExecutionHistory();
 		history.setNumVariables(problem.getNumVariables());
 		history.setNumObjectives(problem.getNumObjectives());
-		history.addPreferenceGeneration(population.copy());
-		history.addSpreadGeneration(nsgaiii.getPopulation());
-		history.addSolutionDirections(this.hyperplane.getReferencePoints());
+		history.addGeneration(nsgaiii.getPopulation());
 		history.addLambdas(lambda.getLambdas());
 		history.setTargetPoints(TargetFrontGenerator.generate(this.hyperplane.getReferencePoints(), problem));
 		history.setPreferenceCollector(lambda.getPreferenceCollector());
@@ -97,26 +97,26 @@ public class RST_NSGAIII extends EA implements Runnable {
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
 
+		boolean secondPhase = false;
 		for (generation = 0; generation < numGenerations; generation++) {
-			if(generation > 0 && generation % elicitationInterval == 0) elicitate();
-				
-			nsgaiii.nextGeneration();
-			lambda.nextGeneration();
 			
-			assert nsgaiii.getPopulation().size() == populationSize;
-			
-			//Mix RST-NSGAIII population with NSGA-III population to avoid degeneration in high-dimensional spaces
-			if(generation % elicitationInterval == 0){
-				population.addSolutions(nsgaiii.getPopulation());
-				assert population.size() == 2*populationSize;
+			if(!secondPhase && nsgaiii.getHyperplane().getNumNiched() > nsgaiii.getHyperplane().getReferencePoints().size() * SPREAD_THRESHOLD){
+				System.out.println("SECOND PHASE: " + generation);
+				secondPhase = true;
+				history.setSecondPhaseId(generation);
 			}
 			
-			nextGeneration();
-					
+			if(secondPhase){
+				if(generation > 0 && generation % elicitationInterval == 0) elicitate();
+				lambda.nextGeneration();
+				nextGeneration();
+			} else{
+				nsgaiii.nextGeneration();
+				this.population = nsgaiii.getPopulation();
+			}
+			
 			problem.evaluate(population);
-			history.addPreferenceGeneration(population.copy());
-			history.addSpreadGeneration(nsgaiii.getPopulation().copy());
-			history.addSolutionDirections(hyperplane.getReferencePoints());
+			history.addGeneration(population.copy());
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
 			history.addBestChebVal(evaluateGeneration(population));
 		}
@@ -143,14 +143,12 @@ public class RST_NSGAIII extends EA implements Runnable {
 		return decisionMakerRanker.getBestSolutionVal(pop);
 	}
 	
-	public double evaluateFinalResult(Population spreadResult, Population prefResult){
+	public void evaluateFinalResult(Population res){
 		ArrayList<ReferencePoint> referencePoints = this.hyperplane.getReferencePoints();
-		double igd = IGD.execute(TargetFrontGenerator.generate(referencePoints, problem), spreadResult);
-		evaluateRun(problem, decisionMakerRanker, spreadResult, prefResult);
-		return igd;
+		evaluateRun(problem, decisionMakerRanker, res);
 	}
 	
-	private void evaluateRun(Problem prob, ChebyshevRanker dmr, Population spreadResult, Population prefResult) {
+	private void evaluateRun(Problem prob, ChebyshevRanker dmr, Population res) {
 		String pname = prob.getName();
 		double targetPoint[] = {};
 
@@ -171,22 +169,20 @@ public class RST_NSGAIII extends EA implements Runnable {
 		System.out.println();
 		
 		System.out.println("PREF: ");
-		for(int i=0; i<prefResult.getSolution(0).getNumObjectives(); i++){
+		for(int i=0; i< prob.getNumObjectives(); i++){
 			double min = Double.MAX_VALUE, sum = 0, max = -Double.MAX_VALUE;
-			for(Solution s : prefResult.getSolutions()){
+			for(Solution s : res.getSolutions()){
 				double o = s.getObjective(i);
 				min = Double.min(min, o);
 				max = Double.max(max, o);
 				sum += o;
 			}
 			
-			System.out.println(i + ": " + min + ", " + sum/prefResult.getSolutions().size() + ", " + max);
+			System.out.println(i + ": " + min + ", " + sum/res.getSolutions().size() + ", " + max);
 			
 		}
-		history.setFinalSpreadMinDist(MyMath.getMinDist(targetPoint, spreadResult));
-		history.setFinalSpreadAvgDist(MyMath.getAvgDist(targetPoint, spreadResult));
-		history.setFinalPrefMinDist(MyMath.getMinDist(targetPoint, prefResult));
-		history.setFinalPrefAvgDist(MyMath.getAvgDist(targetPoint, prefResult));
+		history.setFinalMinDist(MyMath.getMinDist(targetPoint, res));
+		history.setFinalAvgDist(MyMath.getAvgDist(targetPoint, res));
 	}
 
 	public Hyperplane getHyperplane(){

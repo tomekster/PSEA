@@ -111,6 +111,7 @@ public class Hyperplane {
 			assert !referencePoints.isEmpty();
 			for (ReferencePoint curRefPoint : referencePoints) {
 				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
+				assert dist != Double.NaN;
 				if (dist < minDist) {
 					minDist = dist;
 					bestRefPoint = curRefPoint;
@@ -203,5 +204,13 @@ public class Hyperplane {
 	
 	public void setReferencePoints(ArrayList <ReferencePoint> rp){
 		this.referencePoints = rp;
+	}
+
+	public double getNumNiched() {
+		int res = 0;
+		for(ReferencePoint rp : referencePoints){
+			 res += rp.getNicheCount() > 0 ? 1 : 0;
+		}
+		return res;
 	}
 }

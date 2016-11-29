@@ -11,9 +11,8 @@ public class MySeries {
 	private ArrayList <Point> referencePointSeries;
 	private ArrayList <Pair<Point, Point>> comparisonSeries;
 	
-	public MySeries(ArrayList<Solution> s, ArrayList <ReferencePoint> rp, ArrayList<Comparison> c){
+	public MySeries(ArrayList<Solution> s, ArrayList<Comparison> c){
 		setSolutionSeries(s);
-		setReferencePointSeries(rp);
 		setComparisonSeries(c);
 	}
 	
