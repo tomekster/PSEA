@@ -12,6 +12,7 @@ import history.ExecutionHistory;
 import igd.IGD;
 import igd.TargetFrontGenerator;
 import operators.impl.crossover.SBX;
+import operators.impl.crossover.noCrossover;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.Elicitator;
@@ -27,7 +28,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
 
-	private static final double SPREAD_THRESHOLD = 0.9;
+	private static final double SPREAD_THRESHOLD = 0.8;
 
 	private Problem problem;
 	private int numGenerations;
@@ -44,6 +45,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	public RST_NSGAIII(Problem problem, int numGenerations, int elicitationInterval) {
 		super(  new BinaryTournament(new NonDominationRanker()),
+				//new noCrossover(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
 		
@@ -78,7 +80,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		this.numGenerations = numGenerations;
 		this.problem = problem;
 		this.elicitationInterval = elicitationInterval;
-		this.decisionMakerRanker = ChebyshevRankerBuilder.getMinXZChebyshevRanker(problem.getNumObjectives());
+		this.decisionMakerRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(problem.getNumObjectives());
 		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
@@ -98,19 +100,28 @@ public class RST_NSGAIII extends EA implements Runnable {
 				+ " objectives, and " + numGenerations + " generations.");
 
 		boolean secondPhase = false;
+		boolean switchPhase = false;
 		for (generation = 0; generation < numGenerations; generation++) {
-			
+			switchPhase = false;
 			if(!secondPhase && nsgaiii.getHyperplane().getNumNiched() > nsgaiii.getHyperplane().getReferencePoints().size() * SPREAD_THRESHOLD){
 				System.out.println("SECOND PHASE: " + generation);
+				switchPhase = true;
 				secondPhase = true;
 				history.setSecondPhaseId(generation);
 			}
 			
+			if (switchPhase) for(int i=0; i<problem.getNumObjectives() * 3; i++) elicitate();
+			
 			if(secondPhase){
-				if(generation > 0 && generation % elicitationInterval == 0) elicitate();
+				if(generation > 0 && generation % elicitationInterval == 0){
+					for(int i=0; i<problem.getNumObjectives()/2; i++){
+						elicitate();
+					}
+				}
 				lambda.nextGeneration();
 				nextGeneration();
-			} else{
+			}
+			else{
 				nsgaiii.nextGeneration();
 				this.population = nsgaiii.getPopulation();
 			}

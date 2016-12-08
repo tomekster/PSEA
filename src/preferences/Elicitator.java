@@ -5,20 +5,21 @@ import javax.swing.JOptionPane;
 import core.Population;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
+import utils.Pair;
 
 public class Elicitator {
 
 	public static void elicitate(Population firstFront, ChebyshevRanker decisionMakerRanker, PreferenceCollector PC) {
-		Solution s1 = null, s2 = null;
-		int i,j;
-		i= NSGAIIIRandom.getInstance().nextInt(firstFront.size());
-		j = NSGAIIIRandom.getInstance().nextInt(firstFront.size()-1);
-		if(j >= i) j++;
+		Pair<Solution, Solution> p = getComparedSolutions(firstFront);
+//		Pair<Solution, Solution> p = getComparedSolutions2(firstFront, PC.getComparisons().size());
+		Solution s1 = p.first;
+		Solution s2 = p.second;
+		assert s1 != null;
+		assert s2 != null;
+				
 		
-		s1 = firstFront.getSolution(i);
-		s2 = firstFront.getSolution(j);
-
 		if (decisionMakerRanker != null) {
 			int comparisonResult = decisionMakerRanker.compareSolutions(s1, s2);
 			if (comparisonResult == -1) {
@@ -31,6 +32,42 @@ public class Elicitator {
 		} else {
 			elicitateDialog(s1,s2,PC);
 		}
+	}
+
+	private static Pair<Solution, Solution> getComparedSolutions(Population pop) {
+		int i= NSGAIIIRandom.getInstance().nextInt(pop.size());
+		int j = NSGAIIIRandom.getInstance().nextInt(pop.size()-1);
+		if(j >= i) j++;
+		return new Pair<Solution, Solution>(pop.getSolution(i), pop.getSolution(j));
+	}
+	
+	private static Pair<Solution, Solution> getComparedSolutions2(Population pop, int numComparisons) {
+		int numObjectives = pop.getSolution(0).getNumObjectives();
+		double grad[] = new double[numObjectives];
+		for(int i=0; i<numObjectives; i++){
+			if(i == numComparisons % (numObjectives - 1)){
+				grad[i] = 1;
+			}
+			else grad[i] = 0;
+		}
+		
+		Solution s1 = null, s2 = null;
+		Geometry.mapOnHyperplane(grad);
+		
+		double maxCos =  -Double.MAX_VALUE;
+		for(int i=0; i < pop.size(); i++){
+			for(int j=i+1; j < pop.size(); j++){
+				double vect[] = Geometry.getVect(pop.getSolution(i).getObjectives(), pop.getSolution(j).getObjectives());
+				double cosVal = Math.abs(Geometry.dot(grad, vect)) / (Geometry.getLen(grad) * Geometry.getLen(vect));
+				
+				if(cosVal > maxCos){
+					maxCos = cosVal;
+					s1 = pop.getSolution(i);
+					s2 = pop.getSolution(j);
+				}
+			}
+		}
+		return new Pair<Solution, Solution>(s1, s2);
 	}
 
 	private static void elicitateDialog(Solution s1, Solution s2, PreferenceCollector PC) {

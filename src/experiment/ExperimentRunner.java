@@ -45,23 +45,21 @@ public class ExperimentRunner {
 		alg.run();
 		
 		ExecutionHistory history = alg.getHistory(); 
-		alg.evaluateFinalResult(history.getSpreadGeneration(alg.getGeneration()), history.getPreferenceGeneration(alg.getGeneration()));
+		alg.evaluateFinalResult(history.getGeneration(alg.getGeneration()));
 		System.out.println(p.getName() + " " + p.getNumObjectives() + " " + p.getNumVariables());
-		System.out.println("Spread min: " + history.getFinalSpreadMinDist());
-		System.out.println("Spread avg: " + history.getFinalSpreadAvgDist());
-		System.out.println("Pref min: " + history.getFinalPrefMinDist());
-		System.out.println("Pref avg: " + history.getFinalPrefAvgDist());
+		System.out.println("Final min: " + history.getFinalMinDist());
+		System.out.println("Fonal avg: " + history.getFinalAvgDist());
 		//saveHistory(alg.getHistory(), "RST_NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
 	}
 
-	private static void runSingleObjectiveEA(Problem p, int runId) {
-		int numObj = p.getNumObjectives();
-		SingleObjectiveEA soea = new SingleObjectiveEA(p,
-				/*numGenerationsMap.get(new Pair<String, Integer>(p.getName(), numObj))*/ 1000, popSizeMap.get(numObj),
-				ChebyshevRankerBuilder.getCentralChebyshevRanker(numObj));
-		soea.run();
-		saveHistory(soea.getHistory(), "SingleCrit_" + p.getName() + '_' + numObj + '_' + runId, true);
-	}
+//	private static void runSingleObjectiveEA(Problem p, int runId) {
+//		int numObj = p.getNumObjectives();
+//		SingleObjectiveEA soea = new SingleObjectiveEA(p,
+//				/*numGenerationsMap.get(new Pair<String, Integer>(p.getName(), numObj))*/ 1000, popSizeMap.get(numObj),
+//				ChebyshevRankerBuilder.getCentralChebyshevRanker(numObj));
+//		soea.run();
+//		saveHistory(soea.getHistory(), "SingleCrit_" + p.getName() + '_' + numObj + '_' + runId, true);
+//	}
 
 	private static void initExecutionData() {
 		int numObjectives[] = {3, 5, 8, 10, 15  };
@@ -119,11 +117,9 @@ public class ExperimentRunner {
 		ArrayList<String> lines = new ArrayList<String>();
 
 		// Add data description
-		lines.add(history.getNumGenerations() + " " + history.getPopulationSize() + " "
-				+ history.getNumSolutionDirections()+ " "
+		lines.add(history.getGenerations().size() + " " + history.getPopulationSize() + " "
 				+ history.getNumVariables() + " "
-				+ history.getNumObjectives() + " "
-				+ history.getRACSCount().size());
+				+ history.getNumObjectives() + " ");
 		
 		//saveSolutions(lines, history);
 		
@@ -132,10 +128,6 @@ public class ExperimentRunner {
 			//saveSolutionDirs(lines, history);
 			//saveChebyshevDirs(lines, history);
 		}
-		
-		saveBestChebVal(lines, history);
-		saveBestChebSol(lines, history);
-		saveRacsCount(lines, history);
 		
 		try {
 			Files.write(file, lines, Charset.forName("UTF-8"));
@@ -147,8 +139,8 @@ public class ExperimentRunner {
 
 	private static void saveSolutions(ArrayList<String> lines, ExecutionHistory history){
 		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getPreferenceGenerations().size(); generationId++) {
-			Population p = history.getPreferenceGeneration(generationId);
+		for (int generationId = 0; generationId < history.getGenerations().size(); generationId++) {
+			Population p = history.getGeneration(generationId);
 			for (int j = 0; j < p.size(); j++) {
 				Solution s = p.getSolution(j);
 				for (double var : s.getVariables()) {
@@ -162,66 +154,6 @@ public class ExperimentRunner {
 				}
 				sb.append("\n");
 			}
-		}
-		lines.add(sb.toString());
-	}
-	
-	private static void saveSolutionDirs(ArrayList<String> lines, ExecutionHistory history) {
-		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getPreferenceGenerations().size(); generationId++) {
-			// Add solution directions
-			ArrayList<ReferencePoint> solDirs = history.getSolutionDirections(generationId);
-			for (int j = 0; j < solDirs.size(); j++) {
-				ReferencePoint solDir = solDirs.get(j);
-				for (double dim : solDir.getDim()) {
-					sb.append(dim);
-					sb.append(" ");
-				}
-				sb.append("\n");
-			}
-		}
-		lines.add(sb.toString());
-	}
-
-	private static void saveChebyshevDirs(ArrayList<String> lines, ExecutionHistory history) {
-		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getPreferenceGenerations().size(); generationId++) {
-			ArrayList<ReferencePoint> chebDirs = history.getSolutionDirections(generationId);
-			for (int j = 0; j < chebDirs.size(); j++) {
-				ReferencePoint chebDir = chebDirs.get(j);
-				for (double dim : chebDir.getDim()) {
-					sb.append(dim);
-					sb.append(" ");
-				}
-				sb.append("\n");
-			}
-		}
-		lines.add(sb.toString());
-	}
-
-	private static void saveBestChebVal(ArrayList<String> lines, ExecutionHistory history) {
-		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getNumGenerations(); generationId++) {
-			sb.append(history.getBestChebVal(generationId));
-			sb.append("\n");
-		}
-		lines.add(sb.toString());
-	}
-	
-	private static void saveBestChebSol(ArrayList<String> lines, ExecutionHistory history) {
-		StringBuffer sb = new StringBuffer();
-		for (int generationId = 0; generationId < history.getNumGenerations(); generationId++) {
-			sb.append(history.getBestChebSol(generationId));
-			sb.append("\n");
-		}
-		lines.add(sb.toString());
-	}
-	
-	private static void saveRacsCount(ArrayList<String> lines, ExecutionHistory history) {
-		StringBuffer sb = new StringBuffer();
-		for (int racsCount : history.getRACSCount()) {
-			sb.append(racsCount);
-			sb.append("\n");
 		}
 		lines.add(sb.toString());
 	}

@@ -68,6 +68,12 @@ public class Geometry {
 
 		return Math.sqrt(sum);
 	}
+	
+	public static double getLen(double[] vect){
+		double sum = 0;
+		for(int i=0; i<vect.length; i++) sum += vect[i] * vect[i];
+		return Math.sqrt(sum);
+	}
 
 	public static double dot(double[] A, double[] B) {
 		if (A.length != B.length) {
@@ -76,6 +82,17 @@ public class Geometry {
 		double res = 0;
 		for (int i = 0; i < A.length; i++) {
 			res += A[i] * B[i];
+		}
+		return res;
+	}
+	
+	public static double[] getVect(double[] A, double[] B) {
+		if (A.length != B.length) {
+			throw new RuntimeException("Vectors have different dimensionality");
+		}
+		double res[] = new double[A.length];
+		for (int i = 0; i < A.length; i++) {
+			res[i] = B[i] - A[i];
 		}
 		return res;
 	}

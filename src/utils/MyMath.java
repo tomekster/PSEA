@@ -12,9 +12,20 @@ public class MyMath {
 	 */
 	public static double getMinDist(double point[], Population pop){
 		double min = Double.MAX_VALUE;
+		Solution nearest = null;
 		for(Solution s : pop.getSolutions()){
-			min = Double.min(min, Geometry.euclideanDistance(point, s.getObjectives()));
+			double d = Double.min(min, Geometry.euclideanDistance(point, s.getObjectives()));
+			if(d < min){
+				min = d;
+				nearest = s;
+			}
 		}
+		
+		System.out.print("Nearest: ");
+		for(double x : nearest.getObjectives()){
+			System.out.print(x + ", ");
+		}
+		
 		return min;
 	}
 	

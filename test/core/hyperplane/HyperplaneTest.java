@@ -120,16 +120,16 @@ public class HyperplaneTest {
 		assertEquals(0, rp.get(0).getNicheCount());
 		assertEquals(0, rp.get(1).getNicheCount());
 		
-		hp.associate(pop);
+		hp.associate(null,pop);
 
 		rp = hp.getReferencePoints();
-		assertEquals(2, rp.get(0).getAssociatedSolutionsQueue().size());
-		assertEquals(3, rp.get(1).getAssociatedSolutionsQueue().size());
+		assertEquals(2, rp.get(0).getLastFrontAssociationsQueue().size());
+		assertEquals(3, rp.get(1).getLastFrontAssociationsQueue().size());
 		
-		assertEquals(s2, rp.get(0).getAssociatedSolutionsQueue().poll().getSolution());
-		assertEquals(s1, rp.get(0).getAssociatedSolutionsQueue().poll().getSolution());
-		assertEquals(s5, rp.get(1).getAssociatedSolutionsQueue().poll().getSolution());
-		assertEquals(s3, rp.get(1).getAssociatedSolutionsQueue().poll().getSolution());
-		assertEquals(s4, rp.get(1).getAssociatedSolutionsQueue().poll().getSolution());
+		assertEquals(s2, rp.get(0).getLastFrontAssociationsQueue().poll().getSolution());
+		assertEquals(s1, rp.get(0).getLastFrontAssociationsQueue().poll().getSolution());
+		assertEquals(s5, rp.get(1).getLastFrontAssociationsQueue().poll().getSolution());
+		assertEquals(s3, rp.get(1).getLastFrontAssociationsQueue().poll().getSolution());
+		assertEquals(s4, rp.get(1).getLastFrontAssociationsQueue().poll().getSolution());
 	}
 }
