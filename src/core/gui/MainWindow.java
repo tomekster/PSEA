@@ -1,9 +1,8 @@
-package core;
+package core.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -33,9 +33,10 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jzy3d.analysis.AnalysisLauncher;
-import org.mediavirus.parvis.gui.MainFrame;
 
+import core.Population;
+import core.Problem;
+import core.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
@@ -48,9 +49,8 @@ import utils.MySeries;
 /**
  * @see http://stackoverflow.com/questions/5522575
  */
-public class Main {
+public class MainWindow {
 
-	private MainFrame parallelSolutionCoordinates, parallelLambdaCoordinates;
 	private int currentPopulationId;
 	private ExecutionHistory history;
 	private static final String title = "NSGAIII";
@@ -72,9 +72,8 @@ public class Main {
 	private JLabel labelIGD;
 	private JSlider slider;
 	private boolean interactive;
-	private Plot3D plot;
 
-	public Main() {
+	public MainWindow() {
 //		parallelSolutionCoordinates = new MainFrame();
 //		parallelSolutionCoordinates.show();
 //		parallelLambdaCoordinates = new MainFrame();
@@ -110,7 +109,6 @@ public class Main {
 				resetChart();
 			}
 		});
-		this.plot = null;
 
 		JFrame f = new JFrame(title);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -434,29 +432,6 @@ public class Main {
 			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
 			ArrayList<ReferencePoint> lambdaDirections= lambdaDirectionsHistory.get(currentPopulationId);
 			
-			if(parallelSolutionCoordinates != null){
-				float tab[] = new float[history.getNumObjectives()];
-				ArrayList <float[]> points = new ArrayList<>();
-				for(Solution s : generation){
-					for(int i = 0; i< s.getNumObjectives(); i++){
-						tab[i] = (float) s.getObjective(i);
-					}
-					points.add(tab.clone());
-				}
-				parallelSolutionCoordinates.setRSTNSGAIIIData(history.getNumObjectives(), points);
-			}
-			if(parallelLambdaCoordinates != null){
-				float tab[] = new float[history.getNumObjectives()];
-				ArrayList <float[]> points = new ArrayList<>();
-				for(ReferencePoint r : lambdaDirections){
-					for(int i = 0; i< r.getNumDimensions(); i++){
-						tab[i] = (float) r.getDim(i);
-					}
-					points.add(tab.clone());
-				}
-				parallelLambdaCoordinates.setRSTNSGAIIIData(history.getNumObjectives(), points);
-			}
-			
 			ArrayList<XYSeries> series = createReferencePointsSeries(generation, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
@@ -531,21 +506,6 @@ public class Main {
 		}
 	}
 
-	private void plot3D() {
-		if(this.plot == null){
-			this.plot = new Plot3D(createJZY3DDataset());
-			try {
-				AnalysisLauncher.open(this.plot);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		else{
-			this.plot.update(createJZY3DDataset());
-		}
-	}
-
 	private MySeries createJZY3DDataset() {
 		Population pop = history.getGeneration(currentPopulationId);
 		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval));		
@@ -591,11 +551,9 @@ public class Main {
 	}
 
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
-			public void run() {
-				Main cpd = new Main();
-			}
+			public void run() { new MainWindow(); }
 		});
 	}
 }
