@@ -38,7 +38,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 	
 	private Hyperplane hyperplane;
 	private ChebyshevRanker decisionMakerRanker;
-	private ExecutionHistory history;
 	
 	private NSGAIII nsgaiii;
 	private Lambda lambda;
@@ -84,7 +83,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
-		this.history = new ExecutionHistory();
+		ExecutionHistory history = ExecutionHistory.getInstance();
 		history.setNumVariables(problem.getNumVariables());
 		history.setNumObjectives(problem.getNumObjectives());
 		history.addGeneration(nsgaiii.getPopulation());
@@ -95,6 +94,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 	}
 
 	public void run() {
+		ExecutionHistory history = ExecutionHistory.getInstance();
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations + " generations.");
@@ -192,8 +192,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 			System.out.println(i + ": " + min + ", " + sum/res.getSolutions().size() + ", " + max);
 			
 		}
-		history.setFinalMinDist(MyMath.getMinDist(targetPoint, res));
-		history.setFinalAvgDist(MyMath.getAvgDist(targetPoint, res));
+		ExecutionHistory.getInstance().setFinalMinDist(MyMath.getMinDist(targetPoint, res));
+		ExecutionHistory.getInstance().setFinalAvgDist(MyMath.getAvgDist(targetPoint, res));
 	}
 
 	public Hyperplane getHyperplane(){

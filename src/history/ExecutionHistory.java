@@ -10,12 +10,27 @@ import solutionRankers.ChebyshevRanker;
 import utils.Pair;
 
 public class ExecutionHistory {
+	private static ExecutionHistory instance = null;
+
+	protected ExecutionHistory(){
+		// Exists only to defeat instantiation.
+		this.generations = new ArrayList<>();
+		this.lambdaGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		this.bestChebSol = new ArrayList <Solution>();
+		this.bestChebVal = new ArrayList <Double>();
+	}
+
+	public static ExecutionHistory getInstance() {
+		if (instance == null) {
+			instance = new ExecutionHistory();
+		}
+		return instance;
+	}
 	
 	private int populationSize;
 	private int numVariables;
 	private int numObjectives;
 	
-	private int numNsgaiiiGenerations;
 	private Population targetPoints;
 	private ArrayList<Population> generations;
 	private ArrayList< ArrayList<ReferencePoint> > lambdaGenerations;
@@ -26,13 +41,6 @@ public class ExecutionHistory {
 	private double finalMinDist;
 	private double finalAvgDist;
 	private int secondPhaseId;
-	
-	public ExecutionHistory(){
-		this.generations = new ArrayList<>();
-		this.lambdaGenerations = new ArrayList< ArrayList<ReferencePoint> >();
-		this.bestChebSol = new ArrayList <Solution>();
-		this.bestChebVal = new ArrayList <Double>();
-	}
 	
 	public Population getTargetPoints() {
 		return targetPoints;
