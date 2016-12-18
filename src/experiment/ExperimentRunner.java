@@ -8,18 +8,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import core.NSGAIII;
 import core.Population;
 import core.Problem;
 import core.RST_NSGAIII;
-import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
-import solutionRankers.ChebyshevRankerBuilder;
 import utils.Pair;
 
 public class ExperimentRunner {
@@ -44,7 +41,7 @@ public class ExperimentRunner {
 		RST_NSGAIII alg = new RST_NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), 20);
 		alg.run();
 		
-		ExecutionHistory history = alg.getHistory(); 
+		ExecutionHistory history = ExecutionHistory.getInstance();
 		alg.evaluateFinalResult(history.getGeneration(alg.getGeneration()));
 		System.out.println(p.getName() + " " + p.getNumObjectives() + " " + p.getNumVariables());
 		System.out.println("Final min: " + history.getFinalMinDist());

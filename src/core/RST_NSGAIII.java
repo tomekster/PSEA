@@ -1,7 +1,6 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.ServiceConfigurationError;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,10 +8,8 @@ import core.hyperplane.Hyperplane;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
-import igd.IGD;
 import igd.TargetFrontGenerator;
 import operators.impl.crossover.SBX;
-import operators.impl.crossover.noCrossover;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.Elicitator;
@@ -202,9 +199,5 @@ public class RST_NSGAIII extends EA implements Runnable {
 	
 	public int getGeneration(){
 		return generation;
-	}
-	
-	public ExecutionHistory getHistory(){
-		return history;
 	}
 }

@@ -101,6 +101,7 @@ public class MainWindow {
 		this.chartPanelReferencePlane = createChartReferencePlane();
 		this.labelIGD = new JLabel("IGD: --");
 		this.slider = new JSlider(JSlider.HORIZONTAL, 0, numGenerations, 0);
+		this.history = ExecutionHistory.getInstance();
 		slider.addChangeListener(new ChangeListener() {
 
 			@Override
@@ -519,7 +520,6 @@ public class MainWindow {
 			alg = new RST_NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, elicitationInterval);
 			alg.run();
 			executedGenerations = alg.getGeneration();
-			history = alg.getHistory();
 			
 			alg.evaluateFinalResult(history.getGeneration(executedGenerations));
 			updateSlider();

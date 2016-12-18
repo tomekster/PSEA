@@ -129,7 +129,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		this.delimiter = userPreferences.getDelimiter();
 		if (userPreferences.isTreatConsecutiveAsOne())
 			this.delimiter = this.delimiter + "+";
-		importData(pathToInputFile, dataHasHeaders, progressMonitor);
+		if(pathToInputFile != null){
+			importData(pathToInputFile, dataHasHeaders, progressMonitor);
+		} else{
+			
+		}
 		boolean continueChecking = true;
 		for (int i = 0; i < this.parameters.size(); i++) {
 			if (this.parameters.get(i).isMixed() && continueChecking) {
