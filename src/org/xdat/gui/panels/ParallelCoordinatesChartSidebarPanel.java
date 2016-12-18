@@ -43,9 +43,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.ProgressMonitor;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.SliderUI;
 
 import org.xdat.Main;
 import org.xdat.UserPreferences;
@@ -54,8 +56,11 @@ import org.xdat.chart.ParallelCoordinatesChart;
 import org.xdat.data.Cluster;
 import org.xdat.data.ClusterListener;
 import org.xdat.data.ClusterSet;
+import org.xdat.data.DataSheet;
 import org.xdat.gui.buttons.ColorChoiceButton;
 import org.xdat.gui.frames.ChartFrame;
+
+import history.ExecutionHistory;
 
 /**
  * Panel to modify display settings for a
@@ -117,6 +122,11 @@ public class ParallelCoordinatesChartSidebarPanel extends SidebarPanel {
 	 */
 	private HashMap<Cluster, JSlider> clusterAlphaSliders;
 
+	/**
+	 * Generations slider
+	 */
+	private JSlider generationsSlider;
+	
 	/**
 	 * Keeps track of all registered cluster listeners. (Needed for cleanup)
 	 */
@@ -194,7 +204,22 @@ public class ParallelCoordinatesChartSidebarPanel extends SidebarPanel {
 			this.activeDesignAlphaSlider.setValue(255);
 			this.activeDesignAlphaSlider.setEnabled(false);
 		}
-
+		
+		this.generationsSlider = new JSlider(JSlider.HORIZONTAL, 0, ExecutionHistory.getInstance().getNumGenerations() - 1, 0);
+		
+		this.generationsSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				ProgressMonitor pm = new ProgressMonitor(parentPanel, "Updating chart", "in progress...", 0, 100);
+				chart.updateChart( ((JSlider) e.getSource()).getValue(), pm);
+			}
+		});
+		this.generationsSlider.setMaximum(ExecutionHistory.getInstance().getNumGenerations());
+		this.generationsSlider.setLabelTable(generationsSlider.createStandardLabels(this.generationsSlider.getMaximum()/5));
+		this.generationsSlider.setPaintLabels(true);
+		parentPanel.add(generationsSlider);
+		
 		linkColorButtonToSlider(this.activeDesignColorButton, this.activeDesignAlphaSlider);
 		this.updateClusterList(getMainWindow().getDataSheet().getClusterSet());
 		this.validate();

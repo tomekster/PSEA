@@ -43,6 +43,10 @@ import org.xdat.chart.ParallelCoordinatesChart;
 import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
+import core.Population;
+import core.points.Solution;
+import history.ExecutionHistory;
+
 /**
  * A representation of the data imported from a text file.
  * <p>
@@ -129,11 +133,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		this.delimiter = userPreferences.getDelimiter();
 		if (userPreferences.isTreatConsecutiveAsOne())
 			this.delimiter = this.delimiter + "+";
-		if(pathToInputFile != null){
-			importData(pathToInputFile, dataHasHeaders, progressMonitor);
-		} else{
-			
-		}
+		importData(pathToInputFile, dataHasHeaders, progressMonitor);
 		boolean continueChecking = true;
 		for (int i = 0; i < this.parameters.size(); i++) {
 			if (this.parameters.get(i).isMixed() && continueChecking) {
@@ -142,6 +142,26 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 
 			}
 		}
+	}
+	
+	/**
+	 * Instantiates a new data sheet and fills it with NSGAIII execution data stored in ExecutionHistory singleton class.
+	 * <p>
+	 * Uses {@link #importData(String, boolean, ProgressMonitor) } for the step
+	 * of reading the data.
+	 *
+	 * * @param generationId 
+	 * 				id of population generation
+	 * @param mainWindow 
+	 * 				the main window
+	 * @param progressMonitor
+	 * 				the progress monitor 
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public DataSheet(int generationId, ProgressMonitor progressMonitor){
+		this.clusterSet = new ClusterSet(this);
+		importData(generationId, progressMonitor);
 	}
 
 	/**
@@ -202,6 +222,59 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			throw e;
 		}
 		f.close();
+		if (progressMonitor.isCanceled()) {
+			this.data = buffer;
+		}
+
+		// this loop ensures that all discrete levels are known to the parameter
+		// so it returns the right double values
+		for (int i = 0; i < this.parameters.size(); i++) {
+			if (!this.parameters.get(i).isNumeric()) {
+				this.parameters.get(i).getMaxValue();
+			}
+		}
+	}
+	
+	/**
+	 * Fills the DataSheet with data from a given file and assigns Parameter
+	 * names.r
+	 * <p>
+	 * If dataHasHeaders is true, the Parameter names are read from the first
+	 * line. Otherwise the parameter names are created automatically.
+	 * 
+	 * @param generationId
+	 * 				Id of generation to be displayed
+	 * @param progressMonitor
+	 *            the progress monitor.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	private void importData(int generationId, ProgressMonitor progressMonitor){
+		Vector<Design> buffer = new Vector<Design>(0, 1);
+		
+		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
+
+		int idCounter = 1;
+		Population pop = ExecutionHistory.getInstance().getGeneration(generationId);
+
+		Design newDesign = new Design(idCounter++);
+		for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+			this.parameters.add(new Parameter("f" + (i+1), this));
+			newDesign.setValue(this.parameters.get(i), "0.0");
+		}
+		this.data.add(newDesign);
+		this.designIdsMap.put(newDesign.getId(), newDesign);
+
+		for(Solution s : pop.getSolutions()){
+			progressMonitor.setProgress(idCounter - 1);
+			newDesign = new Design(idCounter++);
+			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+				newDesign.setValue(this.parameters.get(i), String.valueOf(s.getObjective(i)));
+			}
+			this.data.add(newDesign);
+			this.designIdsMap.put(newDesign.getId(), newDesign);
+		}
+
 		if (progressMonitor.isCanceled()) {
 			this.data = buffer;
 		}
@@ -306,6 +379,75 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		if (progressMonitor.isCanceled()) {
 			this.data = buffer;
 			this.designIdsMap = idbuffer;
+		}
+
+		// this loop ensures that all discrete levels are known to the parameter
+		// so it returns the right double values
+		for (int i = 0; i < this.parameters.size(); i++) {
+			if (!this.parameters.get(i).isNumeric()) {
+				this.parameters.get(i).getMaxValue();
+			}
+		}
+		fireTableChanged(0, this.data.size(), -1, false, true, true, initialiseBooleanArray(true), initialiseBooleanArray(true), initialiseBooleanArray(true));
+
+	}
+	
+	
+	/**
+	 * Updates the DataSheet with Data from a given file and assigns Parameter
+	 * names.
+	 * <p>
+	 * If dataHasHeaders is true, the Parameter names are read from the first
+	 * line. Otherwise the parameter names are created automatically.
+	 * <p>
+	 * The difference of updating vs. importing is that all Charts are kept.
+	 * This requires the new data to have the same number of parameters as the
+	 * previous one. Otherwise the InconsistentDataException is thrown.
+	 * <p>
+	 * 
+	 * @param pathToInputFile
+	 *            the path to the input file
+	 * @param dataHasHeaders
+	 *            specifies whether the data has headers to read the Parameter
+	 *            names from.
+	 * @param progressMonitor
+	 *            the progress monitor.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws InconsistentDataException
+	 *             if the user tries to import data that does not have the same
+	 *             number of columns as the current DataSheet.
+	 */
+	public void updateData(int generationId, ProgressMonitor progressMonitor){
+		Vector<Design> buffer = (Vector<Design>) this.data.clone();
+		
+		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
+
+		int idCounter = 1;
+		Population pop = ExecutionHistory.getInstance().getGeneration(generationId);
+		
+		progressMonitor.setMaximum(pop.size());
+
+		this.data.clear();
+		this.designIdsMap.clear();
+		log("updateData: bufferlength: " + buffer.size());
+		for (int i = 0; i < this.parameters.size(); i++) {
+			this.parameters.get(i).resetDiscreteLevelsAndState();
+		}
+
+		Design newDesign = new Design(idCounter);
+		for(Solution s : pop.getSolutions()){
+			progressMonitor.setProgress(idCounter);
+			newDesign = new Design(idCounter++);
+			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+				newDesign.setValue(this.parameters.get(i), String.valueOf(s.getObjective(i)));
+			}
+			this.data.add(newDesign);
+			this.designIdsMap.put(newDesign.getId(), newDesign);
+		}
+
+		if (progressMonitor.isCanceled()) {
+			this.data = buffer;
 		}
 
 		// this loop ensures that all discrete levels are known to the parameter

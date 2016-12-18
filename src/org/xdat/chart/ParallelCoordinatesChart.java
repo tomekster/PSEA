@@ -250,7 +250,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 			}
 			// log("constructor: filters created. ");
 		}
-
 	}
 
 	/**
@@ -367,7 +366,6 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 	 * @return the Axis with index index
 	 */
 	public Axis getAxis(int index) {
-
 		return axes.get(index);
 	}
 
@@ -811,6 +809,13 @@ public class ParallelCoordinatesChart extends Chart implements Serializable {
 		for (int i = 0; i < axes.size(); i++) {
 			axes.get(i).resetSettingsToDefault();
 		}
+	}
+	
+	/**
+	 * Update chart with new data.
+	 */
+	public void updateChart(int generationId, ProgressMonitor progressMonitor) {
+		this.getDataSheet().updateData(generationId, progressMonitor);
 	}
 
 	/**

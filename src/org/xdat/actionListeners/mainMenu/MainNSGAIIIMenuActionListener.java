@@ -22,25 +22,18 @@ package org.xdat.actionListeners.mainMenu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.ProgressMonitor;
 
 import org.xdat.Main;
-import org.xdat.UserPreferences;
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.menus.mainWIndow.MainNSGAIIIMenu;
-import org.xdat.workerThreads.DataSheetCreationThread;
+import org.xdat.workerThreads.NSGAIIIDataSheetCreationThread;
 import org.xdat.workerThreads.ParallelCoordinatesChartCreationThread;
 
-import core.NSGAIIIParameters;
 import core.NSGAIIIRunnner;
-import core.Problem;
-import core.RST_NSGAIII;
+import history.ExecutionHistory;
 
 /**
  * ActionListener for a {@link MainNSGAIIIMenu}.
@@ -81,7 +74,7 @@ public class MainNSGAIIIMenuActionListener implements ActionListener {
 
 				ProgressMonitor progressMonitor = new ProgressMonitor(mainWindow, "", "Building Chart...", 0, 100);
 				progressMonitor.setProgress(0);
-				DataSheetCreationThread dataCreationThread = new DataSheetCreationThread(null, false, this.mainWindow, progressMonitor);
+				NSGAIIIDataSheetCreationThread dataCreationThread = new NSGAIIIDataSheetCreationThread(ExecutionHistory.getInstance().getNumGenerations() - 1, this.mainWindow, progressMonitor);
 				dataCreationThread.execute();				
 				progressMonitor.setProgress(0);
 				ParallelCoordinatesChartCreationThread parallelCoordinatesChartCreationThread = new ParallelCoordinatesChartCreationThread(mainWindow, progressMonitor);

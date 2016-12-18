@@ -133,7 +133,6 @@ public class Design implements Serializable {
 	 *             if the parameter is unknown to the design.
 	 */
 	public double getDoubleValue(Parameter param) {
-
 		if (stringParameterValues.containsKey(param)) {
 			return param.getDoubleValueOf(stringParameterValues.get(param));
 		} else if (numericalParameterValues.containsKey(param) && param.isNumeric()) {

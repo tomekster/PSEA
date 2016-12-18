@@ -145,4 +145,8 @@ public class ExecutionHistory {
 	public int getSecondPhaseId() {
 		return this.secondPhaseId;
 	}
+
+	public int getNumGenerations() {
+		return this.generations.size();
+	}
 }
