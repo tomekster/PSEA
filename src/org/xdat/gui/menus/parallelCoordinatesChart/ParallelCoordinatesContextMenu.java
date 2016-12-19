@@ -157,6 +157,12 @@ public class ParallelCoordinatesContextMenu extends JPopupMenu {
 		resetAllFiltersMenuItem.setActionCommand("resetAllFilters");
 		resetAllFiltersMenuItem.addActionListener(cmd);
 		this.add(resetAllFiltersMenuItem);
+		
+		// set all filters as new axis range
+		JMenuItem setAllFiltersAsRangeMenuItem = new JMenuItem("Set all filters as axis range");
+		setAllFiltersAsRangeMenuItem.setActionCommand("setAllFiltersAsAxis");
+		setAllFiltersAsRangeMenuItem.addActionListener(cmd);
+		this.add(setAllFiltersAsRangeMenuItem);
 
 		// increase distance
 		JMenuItem increaseDistanceAllAxesMenuItem = new JMenuItem("Increase spacing all axes                               ");

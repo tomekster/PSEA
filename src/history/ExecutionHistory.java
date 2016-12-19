@@ -55,14 +55,14 @@ public class ExecutionHistory {
 		this.generations.add(pop);
 	}
 	public Population getGeneration(int pos){
-		return generations.get(pos);
+		return generations.get(Integer.min(pos, generations.size()-1));
 	}
 
 	public ArrayList< ArrayList<ReferencePoint> > getLambdaDirectionsHistory() {
 		return lambdaGenerations;
 	}
 	public ArrayList<ReferencePoint> getLambdaDirections(int id){
-		return lambdaGenerations.get(id);
+		return lambdaGenerations.get(Integer.min(id,lambdaGenerations.size()-1));
 	}
 	public void addLambdas(ArrayList<ReferencePoint>  lambdaDirections){
 		this.lambdaGenerations.add(lambdaDirections);

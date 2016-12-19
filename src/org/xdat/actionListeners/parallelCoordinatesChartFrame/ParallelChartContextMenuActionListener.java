@@ -143,6 +143,13 @@ public class ParallelChartContextMenuActionListener implements ActionListener {
 				chart.getAxis(i).resetFilters();
 			}
 			this.chartFrame.repaint();
+		} else if (actionCommand.equals("setAllFiltersAsAxis")) {
+			ParallelCoordinatesChart chart = this.axis.getChart();
+			for (int i = 0; i < chart.getAxisCount(); i++) {
+				chart.getAxis(i).setFilterAsNewRange();
+				this.chartFrame.repaint();
+			}
+			this.chartFrame.repaint();
 		} else if (actionCommand.equals("reduceDistanceAllAxes")) {
 			ParallelCoordinatesChart chart = this.axis.getChart();
 			for (int i = 0; i < chart.getAxisCount(); i++) {

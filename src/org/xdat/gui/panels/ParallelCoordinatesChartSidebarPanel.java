@@ -205,7 +205,7 @@ public class ParallelCoordinatesChartSidebarPanel extends SidebarPanel {
 			this.activeDesignAlphaSlider.setEnabled(false);
 		}
 		
-		this.generationsSlider = new JSlider(JSlider.HORIZONTAL, 0, ExecutionHistory.getInstance().getNumGenerations() - 1, 0);
+		this.generationsSlider = new JSlider(JSlider.HORIZONTAL, 0, ExecutionHistory.getInstance().getNumGenerations()-1, 0);
 		
 		this.generationsSlider.addChangeListener(new ChangeListener() {
 			

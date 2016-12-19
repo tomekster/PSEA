@@ -44,6 +44,7 @@ import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
 import core.Population;
+import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
 
@@ -257,13 +258,10 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		int idCounter = 1;
 		Population pop = ExecutionHistory.getInstance().getGeneration(generationId);
 
-		Design newDesign = new Design(idCounter++);
 		for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
 			this.parameters.add(new Parameter("f" + (i+1), this));
-			newDesign.setValue(this.parameters.get(i), "0.0");
 		}
-		this.data.add(newDesign);
-		this.designIdsMap.put(newDesign.getId(), newDesign);
+		Design newDesign = new Design(idCounter++);
 
 		for(Solution s : pop.getSolutions()){
 			progressMonitor.setProgress(idCounter - 1);
@@ -274,6 +272,27 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
+		
+		for(ReferencePoint rp : ExecutionHistory.getInstance().getLambdaDirections(generationId)){
+			progressMonitor.setProgress(idCounter);
+			newDesign = new Design(idCounter++);
+			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+				newDesign.setValue(this.parameters.get(i), String.valueOf(rp.getDim(i)));
+			}
+			this.data.add(newDesign);
+			this.designIdsMap.put(newDesign.getId(), newDesign);
+		}
+		
+		Design zero = new Design(idCounter + 1);
+		Design one = new Design(idCounter + 2);
+		for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+			zero.setValue(this.parameters.get(i), "0.0");
+			one.setValue(this.parameters.get(i), "1.0");
+		}
+		this.data.add(zero);
+		this.data.add(one);
+		this.designIdsMap.put(zero.getId(), zero);
+		this.designIdsMap.put(one.getId(), one);
 
 		if (progressMonitor.isCanceled()) {
 			this.data = buffer;
@@ -423,7 +442,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		
 		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
 
-		int idCounter = 1;
+		int idCounter = 0;
 		Population pop = ExecutionHistory.getInstance().getGeneration(generationId);
 		
 		progressMonitor.setMaximum(pop.size());
@@ -445,6 +464,27 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
+		
+		for(ReferencePoint rp : ExecutionHistory.getInstance().getLambdaDirections(generationId)){
+			progressMonitor.setProgress(idCounter);
+			newDesign = new Design(idCounter++);
+			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+				newDesign.setValue(this.parameters.get(i), String.valueOf(rp.getDim(i)));
+			}
+			this.data.add(newDesign);
+			this.designIdsMap.put(newDesign.getId(), newDesign);
+		}
+		
+		Design zero = new Design(idCounter + 1);
+		Design one = new Design(idCounter + 2);
+		for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+			zero.setValue(this.parameters.get(i), "0.0");
+			one.setValue(this.parameters.get(i), "1.0");
+		}
+		this.data.add(zero);
+		this.data.add(one);
+		this.designIdsMap.put(zero.getId(), zero);
+		this.designIdsMap.put(one.getId(), one);
 
 		if (progressMonitor.isCanceled()) {
 			this.data = buffer;
