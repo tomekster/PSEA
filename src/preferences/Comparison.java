@@ -44,4 +44,9 @@ public class Comparison {
 	public void setMinEpsilon(double minEpsilon) {
 		this.minEpsilon = minEpsilon;
 	}
+	
+	@Override
+	public String toString(){
+		return this.better + "\n>\n" + this.worse;
+	}
 }

@@ -14,14 +14,16 @@ public class ChebyshevRanker{
 	private double lambda[];
 	private double rho;
 	private double refPoint[];
-		
-	public ChebyshevRanker(double refPoint[], double lambda[], double rho){
+	private String name;
+
+	public ChebyshevRanker(double refPoint[], double lambda[], double rho, String name){
 		if(refPoint.length != lambda.length){
 			throw new RuntimeException();
 		}
 		this.refPoint = refPoint;
 		this.lambda = lambda;
 		this.rho = rho;
+		this.setName(name);
 	}
 	
 	public double eval(Solution s){
@@ -81,5 +83,13 @@ public class ChebyshevRanker{
 
 	public double[] getLambda() {
 		return lambda;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

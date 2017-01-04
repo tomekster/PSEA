@@ -6,15 +6,17 @@ public class Solution {
 	
 	protected double[] variables;
 	protected double[] objectives;
+	private boolean dominated;
 
 	public Solution(double vars[], double obj[]) {
 		this.variables = vars.clone();
 		this.objectives = obj.clone();
-
+		setDominated(false);
 	}
 
 	public Solution(Solution solution) {
 		this(solution.getVariables(), solution.getObjectives());
+		this.dominated = solution.isDominated();
 	}
 
 	public Solution copy() {
@@ -94,5 +96,13 @@ public class Solution {
 			if( Double.compare(s.getVariable(i), variables[i]) != 0) return false;
 		}
 		return true;
+	}
+
+	public boolean isDominated() {
+		return dominated;
+	}
+
+	public void setDominated(boolean dominated) {
+		this.dominated = dominated;
 	}
 }

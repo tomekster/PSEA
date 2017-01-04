@@ -77,33 +77,6 @@ public class NSGAIIISettingsDialog extends JDialog {
 	}
 
 	/**
-	 * Instantiates a new display settings dialog.
-	 * 
-	 * @param mainWindow
-	 *            the main window
-	 * @param chart
-	 *            the chart
-	 * @param chartFrame
-	 *            the chart frame
-	 * @throws HeadlessException
-	 *             the headless exception
-	 */
-	public NSGAIIISettingsDialog(Main mainWindow, ParallelCoordinatesChart chart, ChartFrame chartFrame) throws HeadlessException {
-		super(chartFrame, "Display Settings");
-		this.setModal(true);
-		this.mainWindow = mainWindow;
-
-		nSGAIIISettingsPanel = new NSGAIIISettingsPanel(this.mainWindow, this, chartFrame);
-		nSGAIIISettingsPanel.setActionListener(new NSGAIIISettingsActionListener(mainWindow, nSGAIIISettingsPanel, chart, this));
-
-		buildDialog();
-
-		log("preferred size : " + this.getPreferredSize().width + ", " + this.getPreferredSize().getHeight());
-		this.setVisible(true);
-
-	}
-
-	/**
 	 * Builds the dialog.
 	 */
 	private void buildDialog() {

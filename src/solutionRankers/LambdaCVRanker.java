@@ -3,6 +3,7 @@ package solutionRankers;
 import java.util.Comparator;
 
 import core.points.ReferencePoint;
+import utils.MyMath;
 
 public class LambdaCVRanker implements Comparator <ReferencePoint>{
 
@@ -11,6 +12,7 @@ public class LambdaCVRanker implements Comparator <ReferencePoint>{
 		return lambda1.getNumViolations() == lambda2.getNumViolations() ? 
 				//TODO
 				Double.compare(lambda1.getPenalty(), lambda2.getPenalty()) //Smaller penalty = better
+//				Double.compare(MyMath.variance(lambda1.getDim()), MyMath.variance(lambda2.getDim())) //Smaller variance = better
 				: 
 				Integer.compare(lambda1.getNumViolations(), lambda2.getNumViolations()); //Smaller numViolations = better
 	}

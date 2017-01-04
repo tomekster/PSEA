@@ -101,14 +101,6 @@ public class Lambda extends EA {
 			newLambdas.add(lambda);
 		}
 		
-//		int min = 1000000, max = -1000000;
-//		for(ReferencePoint rp : newLambdas){
-//			min = Integer.min(min, rp.getNumViolations());
-//			max = Integer.max(max, rp.getNumViolations());
-//		}
-//		System.out.println("MIN: " + min);
-//		System.out.println("MAX: " + max);
-		
 		Collections.sort(newLambdas, new LambdaCVRanker());
 
 		Population result = new Population();
@@ -198,5 +190,15 @@ public class Lambda extends EA {
 	
 	public void setPopulation(Population pop){ 
 		this.population = pop;
+	}
+	
+	@Override
+	public String toString(){
+		String res="";
+		for(Solution s : this.getPopulation().getSolutions()){
+			ReferencePoint rp = (ReferencePoint) s;
+			res += rp.toString() + "\n" + rp.getNumViolations() + "\n";
+		}
+		return res;
 	}
 }

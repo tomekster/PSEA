@@ -25,7 +25,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
 
-	private static final double SPREAD_THRESHOLD = 0.8;
+	private static final double SPREAD_THRESHOLD = 0.9;
 
 	private Problem problem;
 	private int numGenerations;
@@ -39,7 +39,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private NSGAIII nsgaiii;
 	private Lambda lambda;
 
-	public RST_NSGAIII(Problem problem, int numGenerations, int elicitationInterval) {
+	public RST_NSGAIII(Problem problem, int numGenerations, int elicitationInterval, ChebyshevRanker decisionMakerRanker) {
 		super(  new BinaryTournament(new NonDominationRanker()),
 				//new noCrossover(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
@@ -76,10 +76,11 @@ public class RST_NSGAIII extends EA implements Runnable {
 		this.numGenerations = numGenerations;
 		this.problem = problem;
 		this.elicitationInterval = elicitationInterval;
-		this.decisionMakerRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(problem.getNumObjectives());
+		this.decisionMakerRanker = decisionMakerRanker;
 		
 		// Structure for storing intermediate state of algorithm for further
 		// analysis, display, etc.
+		ExecutionHistory.clear();
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		history.setNumVariables(problem.getNumVariables());
 		history.setNumObjectives(problem.getNumObjectives());
@@ -94,13 +95,16 @@ public class RST_NSGAIII extends EA implements Runnable {
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
-				+ " objectives, and " + numGenerations + " generations.");
+				+ " objectives, and " + numGenerations + " generations, for DecisionMaker: ." + decisionMakerRanker.getName());
 
 		boolean secondPhase = false;
 		boolean switchPhase = false;
 		for (generation = 0; generation < numGenerations; generation++) {
 			switchPhase = false;
-			if(!secondPhase && nsgaiii.getHyperplane().getNumNiched() > nsgaiii.getHyperplane().getReferencePoints().size() * SPREAD_THRESHOLD){
+			if(!secondPhase){
+				System.out.println(nsgaiii.getHyperplane().getNumNiched() + "/" + nsgaiii.getPopulation().size() + " (" + nsgaiii.getHyperplane().getNumNiched() * 100.0 / nsgaiii.getPopulation().size() + "%)");
+			}
+			if(!secondPhase && nsgaiii.getHyperplane().getNumNiched() >= nsgaiii.getHyperplane().getReferencePoints().size() * SPREAD_THRESHOLD){
 				System.out.println("SECOND PHASE: " + generation);
 				switchPhase = true;
 				secondPhase = true;
@@ -128,6 +132,10 @@ public class RST_NSGAIII extends EA implements Runnable {
 			history.addLambdas((ArrayList <ReferencePoint>)lambda.getLambdas().clone());
 			history.addBestChebVal(evaluateGeneration(population));
 		}
+		
+		evaluateFinalResult(population);
+		System.out.println("Generation min: " + history.getFinalMinDist());
+		System.out.println("Generation avg: " + history.getFinalAvgDist());
 	}
 
 	private void elicitate() {
@@ -186,7 +194,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 				sum += o;
 			}
 			
-			System.out.println(i + ": " + min + ", " + sum/res.getSolutions().size() + ", " + max);
+			System.out.println(i + ": " + min + ", " + sum/res.getSolutions().size() + ", ");
 			
 		}
 		ExecutionHistory.getInstance().setFinalMinDist(MyMath.getMinDist(targetPoint, res));

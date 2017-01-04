@@ -149,4 +149,8 @@ public class ExecutionHistory {
 	public int getNumGenerations() {
 		return this.generations.size();
 	}
+
+	public static void clear() {
+		instance = new ExecutionHistory();
+	}
 }

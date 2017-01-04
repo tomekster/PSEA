@@ -12,6 +12,7 @@ import problems.DTLZ1Test;
 import utils.GaussianEliminationTest;
 import utils.GeometryTest;
 import utils.NonDominatedSortTest;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
    HyperplaneTest.class,
@@ -22,9 +23,9 @@ import utils.NonDominatedSortTest;
    DTLZ1Test.class,
    GaussianEliminationTest.class,
    GeometryTest.class,
-   GeometryTest.class,
    NonDominatedSortTest.class,
-   LambdaTest.class
+   LambdaTest.class,
+   
 })
 public class JunitTestSuite {
 }  	

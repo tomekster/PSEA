@@ -11,7 +11,7 @@ public class ChebyshevRankerBuilder{
 			lambda[i] = 0.5;
 		}
 		
-		return new ChebyshevRanker(refPoint, lambda, rho);
+		return new ChebyshevRanker(refPoint, lambda, rho, "CentralChebyshevRanker");
 	}
 	
 	public static ChebyshevRanker getMinYZChebyshevRanker(int dim){
@@ -25,7 +25,7 @@ public class ChebyshevRankerBuilder{
 		}
 		lambda[0] = 1;
 		
-		return new ChebyshevRanker(refPoint, lambda, rho);
+		return new ChebyshevRanker(refPoint, lambda, rho, "MinYZChebyshevRanker");
 	}
 	
 	public static ChebyshevRanker getMinXZChebyshevRanker(int dim){
@@ -39,6 +39,6 @@ public class ChebyshevRankerBuilder{
 		}
 		lambda[1] = 1;
 		
-		return new ChebyshevRanker(refPoint, lambda, rho);
+		return new ChebyshevRanker(refPoint, lambda, rho, "MinXZChebyshevRanker");
 	}
 }

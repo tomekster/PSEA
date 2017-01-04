@@ -17,28 +17,38 @@ import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
+import solutionRankers.ChebyshevRanker;
+import solutionRankers.ChebyshevRankerBuilder;
 import utils.Pair;
 
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();
 	private static HashMap<Pair<String, Integer>, Integer> numGenerationsMap = new HashMap<>();
 	private static HashMap<Integer, Integer> popSizeMap = new HashMap<>();
-	
+	private static ArrayList<Integer> decisionMakerRankers = new ArrayList<Integer>();
 	public static void main(String[] args) {
 		int numRuns = 5;
 		initExecutionData();
-		for (Problem p : problems) {
-			for (int runId = 1; runId <= numRuns; runId++) {
-				System.out.println("Run " + runId + "/" + numRuns );
-				runNSGAIIIExperiment(p, runId);
-				//runSingleObjectiveEA(p, runId);
+		for(Integer rankerId : decisionMakerRankers){
+			for (Problem p : problems) {
+				for (int runId = 1; runId <= numRuns; runId++) {
+					System.out.println("Run " + runId + "/" + numRuns );
+					ChebyshevRanker decisionMakerRanker = null;
+					if(rankerId == 0){
+						decisionMakerRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(p.getNumObjectives());
+					} else if(rankerId == 1){
+						decisionMakerRanker = ChebyshevRankerBuilder.getMinXZChebyshevRanker(p.getNumObjectives());
+					}
+					runNSGAIIIExperiment(p, runId, decisionMakerRanker);
+					//runSingleObjectiveEA(p, runId);
+				}
 			}
 		}
 	}
 
-	private static void runNSGAIIIExperiment(Problem p, int runId) {
+	private static void runNSGAIIIExperiment(Problem p, int runId, ChebyshevRanker decisionMakerRanker) {
 		//NSGAIII alg = new NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())) 1000, true, 25);
-		RST_NSGAIII alg = new RST_NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), 20);
+		RST_NSGAIII alg = new RST_NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())), 20, decisionMakerRanker);
 		alg.run();
 		
 		ExecutionHistory history = ExecutionHistory.getInstance();
@@ -59,7 +69,9 @@ public class ExperimentRunner {
 //	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = {3, 5, 8, 10, 15  };
+		decisionMakerRankers.add(0);
+		decisionMakerRankers.add(1);
+		int numObjectives[] = {3, 5, 8, 10, 15 };
 		for (int no : numObjectives) {
 			problems.add(new DTLZ1(no));
 			problems.add(new DTLZ2(no)); 

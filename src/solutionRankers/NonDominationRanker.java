@@ -60,6 +60,16 @@ public class NonDominationRanker implements Comparator <Solution>{
 				}
 			}
 		}
+		
+		for(Solution s : fronts.get(0).getSolutions()){
+			s.setDominated(false);
+		}
+		
+		for(int i=1; i<fronts.size(); i++){
+			for(Solution s : fronts.get(i).getSolutions()){
+				s.setDominated(true);
+			}
+		}
 
 		return fronts;
 	}

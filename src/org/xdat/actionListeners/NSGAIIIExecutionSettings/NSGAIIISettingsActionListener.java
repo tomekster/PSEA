@@ -54,20 +54,6 @@ public class NSGAIIISettingsActionListener implements ActionListener {
 	/** The panel on which the settings controls are located. */
 	private NSGAIIISettingsPanel panel;
 
-	private String problemName;
-
-	private int numberObjectives;
-
-	private int numberGenerations;
-
-	private int numberRuns;
-	
-	private boolean showTargetPoints;
-	
-	private boolean showLambdas;
-	
-	private boolean showComparisons;
-
 	/**
 	 * Instantiates a new chart display settings action listener to edit default
 	 * settings.
@@ -84,13 +70,7 @@ public class NSGAIIISettingsActionListener implements ActionListener {
 		this.dialog = dialog;
 		this.userPreferences = UserPreferences.getInstance();
 		this.panel = panel;
-		this.problemName = NSGAIIIParameters.getInstance().getProblemName();
-		this.numberObjectives = NSGAIIIParameters.getInstance().getNumberObjectives();
-		this.numberGenerations = NSGAIIIParameters.getInstance().getNumberGenerations();
-		this.numberRuns = NSGAIIIParameters.getInstance().getNumberRuns();
-		this.showTargetPoints= NSGAIIIParameters.getInstance().isShowTargetPoints();
-		this.showLambdas= NSGAIIIParameters.getInstance().isShowLambdas();
-		this.showComparisons= NSGAIIIParameters.getInstance().isShowComparisons();
+
 	}
 
 	/**
@@ -123,7 +103,6 @@ public class NSGAIIISettingsActionListener implements ActionListener {
 	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
-//		String actionCommand = e.getActionCommand();
 //		if (actionCommand == "Background Color") {
 //			Color newColor = JColorChooser.showDialog(dialog, "Background Color", this.backGroundColor);
 //			if (newColor != null)
@@ -176,34 +155,4 @@ public class NSGAIIISettingsActionListener implements ActionListener {
 			System.out.println(this.getClass().getName() + "." + message);
 		}
 	}
-
-	public String getProblemName() {
-		return problemName;
-	}
-
-	public int getNumberObjectives() {
-		return numberObjectives;
-	}
-
-	public int getNumberGenerations() {
-		return numberGenerations;
-	}
-
-	public int getNumberRuns() {
-		return numberRuns;
-	}
-
-	public boolean isShowTargetPoints() {
-		return showTargetPoints;
-	}
-
-	public boolean isShowLambdas() {
-		return showLambdas;
-	}
-
-	public boolean isShowComparisons() {
-		return showComparisons;
-	}
-
-
 }

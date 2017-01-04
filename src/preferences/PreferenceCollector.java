@@ -17,4 +17,13 @@ public class PreferenceCollector {
 	public ArrayList<Comparison> getComparisons(){
 		return comparisonsList;
 	}
+	
+	@Override
+	public String toString(){
+		String res = "";
+		for(Comparison c : this.comparisonsList){
+			res += c + "\n";
+		}
+		return res;
+	}
 }

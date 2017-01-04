@@ -42,9 +42,9 @@ import core.points.Solution;
 import history.ExecutionHistory;
 import preferences.Comparison;
 import problems.dtlz.DTLZ1;
+import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
 import utils.Geometry;
-import utils.MySeries;
 
 /**
  * @see http://stackoverflow.com/questions/5522575
@@ -507,17 +507,11 @@ public class MainWindow {
 		}
 	}
 
-	private MySeries createJZY3DDataset() {
-		Population pop = history.getGeneration(currentPopulationId);
-		ArrayList <Comparison> comparisons = new ArrayList<Comparison>(history.getPreferenceCollector().getComparisons().subList(0, Integer.max(0,(currentPopulationId + elicitationInterval-1))/elicitationInterval));		
-		return new MySeries(pop.getSolutions(), comparisons);
-	}
-
 	double runNSGAIIIOnce() {
 		RST_NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new RST_NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, elicitationInterval);
+			alg = new RST_NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, elicitationInterval, ChebyshevRankerBuilder.getCentralChebyshevRanker(numObjectives));
 			alg.run();
 			executedGenerations = alg.getGeneration();
 			

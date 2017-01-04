@@ -6,7 +6,6 @@ import java.util.PriorityQueue;
 import core.hyperplane.Association;
 
 public class ReferencePoint extends Solution{
-	private int nicheCount;
 	private boolean coherent;
 	private PriorityQueue<Association> nichedAssociations;
 	private PriorityQueue<Association> lastFrontAssociations;
@@ -40,7 +39,6 @@ public class ReferencePoint extends Solution{
 		this.nichedAssociations = new PriorityQueue<Association> (rp.getNichedAssociationsQueue());
 		this.lastFrontAssociations = new PriorityQueue<Association> (rp.getLastFrontAssociationsQueue());
 		this.coherent = rp.isCoherent();
-		this.nicheCount = rp.getNicheCount();
 	}
 	
 	public ReferencePoint(double []dimensions) {
@@ -48,16 +46,8 @@ public class ReferencePoint extends Solution{
 		this.variables = dimensions.clone();
 	}
 
-	public void incrNicheCount() {
-		this.nicheCount++;
-	}
-	
-	public void decrNicheCount() {
-		this.nicheCount--;
-	}
-
 	public int getNicheCount() {
-		return nicheCount;
+		return this.nichedAssociations.size();
 	}
 
 	public int getNumDimensions() {
@@ -75,20 +65,14 @@ public class ReferencePoint extends Solution{
 	public void setDim(int i, double val){
 		setVariable(i, val);
 	}
-
-	public void setNicheCount(int i) {
-		this.nicheCount = i;
-	}
-
+	
 	public void resetAssociation() {
-		this.nicheCount = 0;
 		this.nichedAssociations.clear();
 		this.lastFrontAssociations.clear();
 	}
 
 	public void addNichedAssociation(Association association) {
 		this.nichedAssociations.add(association);
-		incrNicheCount();
 	}
 
 	public PriorityQueue<Association> getNichedAssociationsQueue() {

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.jzy3d.maths.TestUtils;
 
 import core.points.ReferencePoint;
 import core.points.Solution;

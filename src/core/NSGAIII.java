@@ -41,7 +41,7 @@ public class NSGAIII extends EA {
 		problem.evaluate(pop);
 		NonDominationRanker ndr= new NonDominationRanker();
 		ArrayList<Population> fronts = ndr.sortPopulation(pop);
-
+		
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();
 		Population lastFront = null;

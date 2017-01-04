@@ -161,9 +161,9 @@ public class NicheCountSelection {
 			PriorityQueue<Association> associatedLastFrontSolutions = smallestNicheCountRefPoint
 					.getLastFrontAssociationsQueue();
 			if(associatedLastFrontSolutions.isEmpty()) continue;
-			Solution s = associatedLastFrontSolutions.poll().getSolution();
-			kPoints.addSolution(s);
-			smallestNicheCountRefPoint.incrNicheCount();
+			Association a = associatedLastFrontSolutions.poll();
+			kPoints.addSolution(a.getSolution());
+			smallestNicheCountRefPoint.addNichedAssociation(a);
 			refPQ.add(smallestNicheCountRefPoint);
 		}
 		return kPoints;

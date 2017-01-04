@@ -43,6 +43,8 @@ import org.xdat.gui.buttons.MinMaxSpinnerModel;
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.frames.ChartFrame;
 
+import core.NSGAIIIParameters;
+
 /**
  * Panel to modify display settings for a
  * {@link org.xdat.org.xdat.chart.ParallelCoordinatesChart}.
@@ -123,23 +125,33 @@ public class NSGAIIISettingsPanel extends JPanel {
 
 		buildPanel();
 		// set states
-//		this.axisLabelVerticalOffsetCheckbox.setSelected(UserPreferences.getInstance().isParallelCoordinatesVerticallyOffsetAxisLabels());
-//		this.antiasingCheckbox.setSelected(UserPreferences.getInstance().isAntiAliasing());
-//		this.numGenerationsComboBox.setSelected(UserPreferences.getInstance().isUseAlpha());
-//		this.setShowFilteredDesignsSelection(UserPreferences.getInstance().isParallelCoordinatesShowFilteredDesigns());
-//		this.setShowDesignIDsSelection(UserPreferences.getInstance().isParallelCoordinatesShowDesignIDs());
-//		this.designLabelFontSizeSpinner.setValue(UserPreferences.getInstance().getParallelCoordinatesDesignLabelFontSize());
-//		this.designLineThicknessSpinner.setValue(UserPreferences.getInstance().getParallelCoordinatesLineThickness());
-//		this.selectedDesignLineThicknessSpinner.setValue(UserPreferences.getInstance().getParallelCoordinatesSelectedDesignLineThickness());
-//		this.numRunsComboBox.setCurrentColor(UserPreferences.getInstance().getParallelCoordinatesDefaultBackgroundColor());
-//		this.activeDesignColorButton.setCurrentColor(UserPreferences.getInstance().getParallelCoordinatesActiveDesignDefaultColor());
-//		this.selectedDesignColorButton.setCurrentColor(UserPreferences.getInstance().getParallelCoordinatesSelectedDesignDefaultColor());
-//		this.filteredDesignColorButton.setCurrentColor(UserPreferences.getInstance().getParallelCoordinatesFilteredDesignDefaultColor());
-//		this.filterColorButton.setCurrentColor(UserPreferences.getInstance().getParallelCoordinatesFilterDefaultColor());
-//		this.showOnlySelectedDesignsCheckBox.setSelected(UserPreferences.getInstance().isParallelCoordinatesShowOnlySelectedDesigns());
-//		this.filterWidthSpinner.setValue(UserPreferences.getInstance().getParallelCoordinatesFilterWidth());
-//		this.filterHeightSpinner.setValue(UserPreferences.getInstance().getParallelCoordinatesFilterHeight());
-
+		problemsComboBox.setName("problemsComboBox");
+		numObjectivesComboBox.setName("numObjectivesComboBox");
+		this.problemsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getProblemName());
+		this.numObjectivesComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberObjectives());
+		this.numGenerationsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberGenerations());
+		this.numRunsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberRuns());
+		this.elicitationFrequencySpinner.setValue(NSGAIIIParameters.getInstance().getElicitationInterval());
+		if(NSGAIIIParameters.getInstance().isShowTargetPoints()){
+			this.showTargetPointsTrueButton.setSelected(true);
+		}
+		else{
+			this.showTargetPointsFalseButton.setSelected(true);
+		}
+		
+		if(NSGAIIIParameters.getInstance().isShowLambdas()){
+			this.showLambdasTrueButton.setSelected(true);
+		}
+		else{
+			this.showLambdasFalseButton.setSelected(true);
+		}
+		
+		if(NSGAIIIParameters.getInstance().isShowComparisons()){
+			this.showComparisonsTrueButton.setSelected(true);
+		}
+		else{
+			this.showComparisonsFalseButton.setSelected(true);
+		}
 	}
 
 	/**
@@ -287,6 +299,11 @@ public class NSGAIIISettingsPanel extends JPanel {
 	 */
 	public void setActionListener(NSGAIIISettingsActionListener cmd) {
 		this.cmd = cmd;
+		problemsComboBox.addActionListener(cmd);
+		numObjectivesComboBox.addActionListener(cmd);
+		numGenerationsComboBox.addActionListener(cmd);
+		numRunsComboBox.addActionListener(cmd);
+		//TODO SPINNER?
 		showTargetPointsTrueButton.addActionListener(cmd);
 		showTargetPointsFalseButton.addActionListener(cmd);
 		showLambdasTrueButton.addActionListener(cmd);

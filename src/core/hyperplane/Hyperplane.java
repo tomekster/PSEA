@@ -6,6 +6,7 @@ import java.util.Collections;
 import core.Population;
 import core.points.ReferencePoint;
 import core.points.Solution;
+import solutionRankers.NonDominationRanker;
 import utils.Geometry;
 import utils.NSGAIIIRandom;
 
@@ -126,74 +127,6 @@ public class Hyperplane {
 		}
 	}
 
-	public void modifySolutionDirections(int generation, Population pop, int totalNumGenerations, int populationSize) {
-		resetAssociations();
-		associate(pop,false);
-		
-		assert referencePoints.size() == populationSize - (referencePoints.size() % 2);
-		assert pop.size() == populationSize;
-		
-		Population top50solutions = new Population();
-		for(int i=0; i<populationSize/2; i++){
-			top50solutions.addSolution(pop.getSolution(i));
-		}
-
-		double alpha = (double) generation / totalNumGenerations;
-		//TODO arbitrary function - can be modified
-		double radius = 0.25 * (1 - alpha);
-		
-		ArrayList<ReferencePoint> newReferencePoints = new ArrayList<>();
-		ArrayList<ReferencePoint> associatedWithTop50 = new ArrayList<>();
-		ArrayList<ReferencePoint> notAssociatedWithTop50 = new ArrayList<>();
-
-		int numAssociations = 0;
-		for (ReferencePoint rp : referencePoints) {
-			boolean associated = false;
-			numAssociations += rp.getNichedAssociationsQueue().size();
-			for (Association as : rp.getNichedAssociationsQueue()) {
-				if (isTop50(as.getSolution(), top50solutions)) {
-					associated = true;
-					break;
-				}
-			}
-
-			if (associated) {
-				associatedWithTop50.add(rp);
-			} else {
-				notAssociatedWithTop50.add(rp);
-			}
-		}
-		assert numAssociations == populationSize;
-		assert associatedWithTop50.size() + notAssociatedWithTop50.size() == referencePoints.size();
-		assert!associatedWithTop50.isEmpty();
-		assert!notAssociatedWithTop50.isEmpty();
-
-		Collections.shuffle(associatedWithTop50);
-		Collections.shuffle(notAssociatedWithTop50);
-
-		for (int i = 0; i < Integer.min(populationSize / 2, notAssociatedWithTop50.size()); i++) {
-			int associatedId = NSGAIIIRandom.getInstance().nextInt(associatedWithTop50.size());
-			int notAssociatedId = NSGAIIIRandom.getInstance().nextInt(notAssociatedWithTop50.size());
-			newReferencePoints.add(Geometry.getRandomNeighbour(dim, associatedWithTop50.get(associatedId), radius));
-			notAssociatedWithTop50.remove(notAssociatedId);
-		}
-		newReferencePoints.addAll(associatedWithTop50);
-		newReferencePoints.addAll(notAssociatedWithTop50);
-
-		assert newReferencePoints.size() == populationSize - (referencePoints.size() % 2);
-
-		this.referencePoints = newReferencePoints;
-	}
-
-	private boolean isTop50(Solution candidate, Population top50) {
-		for (Solution s : top50.getSolutions()) {
-			if(candidate.sameSolution(s)){
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public int getDim() {
 		return this.dim;
 	}
@@ -206,10 +139,15 @@ public class Hyperplane {
 		this.referencePoints = rp;
 	}
 
-	public double getNumNiched() {
+	public int getNumNiched() {
 		int res = 0;
 		for(ReferencePoint rp : referencePoints){
-			 res += rp.getNicheCount() > 0 ? 1 : 0;
+			for(Association a : rp.getNichedAssociationsQueue()){
+				if( ! a.getSolution().isDominated() ){
+					res ++;
+					break;
+				}
+			}
 		}
 		return res;
 	}
