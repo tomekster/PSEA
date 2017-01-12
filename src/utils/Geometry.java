@@ -1,6 +1,9 @@
 package utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
@@ -349,5 +352,52 @@ public class Geometry {
 			point[i] = lambda[i] / div;
 		}
 		return point;
+	}
+	
+	public static class Line2D implements Comparable{
+		Double a, b;
+		public Line2D(double a, double b){
+			this.a = a;
+			this.b = b;
+		}
+		public Line2D(Pair <Double, Double> line){
+			this.a = line.first;
+			this.b = line.second;
+		}
+		public double evalX(double x) {
+			return a*x + b;
+		}
+		public double crossX(Line2D l2){
+			if( Math.abs(a - l2.a) < EPS){
+				return Double.POSITIVE_INFINITY;
+			}
+			return (l2.b - b) / (a - l2.a);
+		}
+		@Override
+		public int compareTo(Object arg0) {
+			Line2D l2 = (Line2D) arg0;
+			if( a < l2.a ) return -1;
+			else if( a == l2.a ){
+				return b  > l2.b ? -1 : 1;
+			}
+			else{
+				return 1;
+			}
+		}
+	}
+	
+	public static ArrayList< Line2D> linesSetUpperEnvelope(ArrayList < Line2D > lines){
+		Collections.sort(lines);
+		LinkedList <Line2D> orderedMaxLines = dnew LinkedList<>(lines);
+		int removed = 0;
+		for(int i=1; i<lines.size()-1; i++){
+			Line2D l1 = lines.get(i-1);
+			Line2D l2 = lines.get(i);
+			Line2D l3 = lines.get(i+1);
+			if(Math.abs(l1.a - l2.a) < EPS || l2.crossX(l1) >= l2.crossX(l3)){
+				orderedMaxLines.add(lines.get(i));
+			}
+		}
+		return orderedMaxLines;
 	}
 }
