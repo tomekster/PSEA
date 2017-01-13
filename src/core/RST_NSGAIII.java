@@ -9,6 +9,7 @@ import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
 import igd.TargetFrontGenerator;
+import operators.SelectionOperator;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
@@ -26,6 +27,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
 
 	private static final double SPREAD_THRESHOLD = 0.9;
+
+	private final static int NUM_LAMBDAS = 10;
 
 	private Problem problem;
 	private int numGenerations;
@@ -56,10 +59,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 			lambdaUpperBound[i] = 1.0;
 		}
 		
-		this.lambda = new Lambda(	problem.getNumObjectives(),
-									new BinaryTournament(new LambdaCVRanker()),
-									new SBX(1.0, 30.0, lambdaLowerBound, lambdaUpperBound),
-									new PolynomialMutation(1.0 / problem.getNumObjectives(), 20.0, lambdaLowerBound, lambdaUpperBound));
+		this.lambda = new Lambda( problem.getNumObjectives(), NUM_LAMBDAS );
 
 		// Hyperplane is one of basic constructs used in NSGA-III algorithm. It is responsible 
 		// for keeping solutions uniformly spread among objective space. 

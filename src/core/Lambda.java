@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,33 +18,50 @@ import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
+import utils.MyMath;
+import utils.NSGAIIIRandom;
 import utils.Pair;
 
-public class Lambda extends EA {
+public class Lambda {
 
 	private final static Logger LOGGER = Logger.getLogger(Lambda.class.getName());
 
 	private PreferenceCollector PC;
 	private boolean elicitated;
 	private int numObjectives;
+	private int numLambdas;
+	private ArrayList <ReferencePoint> lambdas;
 	
-	protected Lambda(int numObjectives, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator,
-			MutationOperator mutationOperator) {
-		super(selectionOperator, crossoverOperator, mutationOperator);
+	protected Lambda(int numObjectives, int numLambdas) {
 		this.PC = new PreferenceCollector();
 		this.numObjectives = numObjectives;
-		this.population = new Population();
-		Hyperplane tmp = new Hyperplane(numObjectives);
-		for (ReferencePoint rp : tmp.getReferencePoints()) {
-			population.addSolution(rp);
+		this.numLambdas = numLambdas;
+		lambdas = new ArrayList<>();
+		for (int i=0; i<numLambdas; i++) {
+			lambdas.add(this.getRandomLambda());
 		}
-		if(population.size() % 2 != 0){
-			double dim[] = new double[numObjectives];
-			for(int i=0; i<numObjectives; i++){
-				dim[i] = 1.0/numObjectives;
-			}
-			population.addSolution(new ReferencePoint(dim));
+	}
+
+	private ReferencePoint getRandomLambda() {
+		ArrayList <Double> breakPoints = new ArrayList<>();
+		ArrayList <Double> dimensions = new ArrayList<>();
+		breakPoints.add(0.0);
+		breakPoints.add(1.0);
+		for(int i=0; i<numObjectives-1; i++){ 
+			breakPoints.add(NSGAIIIRandom.getInstance().nextDouble()); 
 		}
+		Collections.sort(breakPoints);
+		
+		for(int i=1; i < dimensions.size(); i++){
+			dimensions.add(breakPoints.get(i) - breakPoints.get(i-1));
+		}
+		Collections.shuffle(dimensions);
+		double dims[] = new double[this.numObjectives];
+		for(int i=0; i<dimensions.size();i++){
+			dims[i] = dimensions.get(i);
+		}
+		
+		return new ReferencePoint(dims);
 	}
 
 	/**
@@ -79,35 +97,12 @@ public class Lambda extends EA {
 		lambda.setNumViolations(numViolations);
 	}
 	
-	@Override
-	protected Population selectNewPopulation(Population pop) {
-		ArrayList <ReferencePoint> newLambdas = new ArrayList <>();
-
-		// If new elicitation just happened - add initial uniform distribution of lambdas as 
-		// candidates for next generation
-		if(elicitated) {
-			elicitated = false;
-			Hyperplane tmp = new Hyperplane(numObjectives);
-			for (ReferencePoint rp : tmp.getReferencePoints()) {
-				evaluateLambda(rp);
-				newLambdas.add(rp);
-			}
+	protected ArrayList <ReferencePoint> selectNewLambdas(ArrayList <ReferencePoint> lambdasPop) {
+		for(ReferencePoint rp : lambdasPop){
+			evaluateLambda(rp);
 		}
-
-		for(Solution sol : pop.getSolutions()){
-			sol.setVariables(Geometry.normalize(sol.getVariables()));
-			ReferencePoint lambda = new ReferencePoint(sol.getVariables());
-			evaluateLambda(lambda);
-			newLambdas.add(lambda);
-		}
-		
-		Collections.sort(newLambdas, new LambdaCVRanker());
-
-		Population result = new Population();
-		for (int i = 0; i < population.size(); i++) {
-			result.addSolution(newLambdas.get(i));
-		}
-		return result;
+		Collections.sort(lambdasPop, new LambdaCVRanker());
+		return new ArrayList<ReferencePoint>(lambdasPop.subList(0, numLambdas));
 	}
 
 	public Population selectKSolutionsByChebyshevBordaRanking(Population pop, int k) {
@@ -135,8 +130,7 @@ public class Lambda extends EA {
 
 	private HashMap<Solution, Integer> getBordaPointsForSolutions(Population pop) {
 		HashMap<Solution, Integer> bordaPointsMap = new HashMap<>();
-		for (Solution lambdaSolution : population.getSolutions()) {
-			ReferencePoint lambda = (ReferencePoint) lambdaSolution;
+		for (ReferencePoint lambda : lambdas) {
 			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
 			assert ranking.size() == pop.size();
 			for (int i = 0; i < ranking.size(); i++) {
@@ -173,11 +167,7 @@ public class Lambda extends EA {
 	}
 
 	public ArrayList<ReferencePoint> getLambdas() {
-		ArrayList <ReferencePoint> res = new ArrayList<>();
-		for(Solution s : population.getSolutions()){
-			res.add((ReferencePoint) s);
-		}
-		return res;
+		return this.lambdas;
 	}
 
 	public PreferenceCollector getPreferenceCollector() {
@@ -188,17 +178,55 @@ public class Lambda extends EA {
 		this.elicitated = elicitated;
 	}
 	
-	public void setPopulation(Population pop){ 
-		this.population = pop;
+	public void lambdas(ArrayList <ReferencePoint> lambdas){ 
+		this.lambdas = lambdas;
 	}
 	
 	@Override
 	public String toString(){
 		String res="";
-		for(Solution s : this.getPopulation().getSolutions()){
-			ReferencePoint rp = (ReferencePoint) s;
+		for(ReferencePoint rp : lambdas){
 			res += rp.toString() + "\n" + rp.getNumViolations() + "\n";
 		}
 		return res;
+	}
+
+	public void nextGeneration() {
+		ArrayList <ReferencePoint> allLambdas = new ArrayList<>();
+		allLambdas.addAll(lambdas);
+		for(int i=0; i<numLambdas; i++){
+			allLambdas.add(getRandomLambda());
+		}
+		this.lambdas = selectNewLambdas(improve(allLambdas));
+	}
+
+	private ReferencePoint improve(ReferencePoint randomLambda) {
+		double grad[] = new double[numObjectives];
+		for(int i=0; i<numObjectives; i++){
+			grad[i] = MyMath.smoothMaxGrad(a, lambda, i)
+		}
+	}
+
+	private ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
+		ArrayList < Pair<ReferencePoint, ReferencePoint>> res = new ArrayList<>();
+		
+		
+		for(ReferencePoint lambda : lambdasList){
+
+			double lambda2[] = lambda.getDim();
+			
+			for(Comparison cp : PC.getComparisons()){
+				Solution a = cp.getBetter(), b = cp.getWorse();
+				if(ChebyshevRanker.eval(a, null, lambda.getDim(), 0.0) > ChebyshevRanker.eval(b, null, lambda.getDim(), 0.0) ){
+					for(int i=0; i < numObjectives; i++){
+						lambda2[i] += MyMath.smoothMaxGrad(b.getObjectives(), lambda.getDim(), i) - MyMath.smoothMaxGrad(a.getObjectives(), lambda.getDim(), i) ;
+					}
+				}
+			}
+			lambda2 = Geometry.normalize(lambda2);
+			
+		}
+		
+		return null;
 	}
 }

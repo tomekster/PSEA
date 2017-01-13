@@ -3,7 +3,7 @@ package utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Stack;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
@@ -377,8 +377,8 @@ public class Geometry {
 		public int compareTo(Object arg0) {
 			Line2D l2 = (Line2D) arg0;
 			if( a < l2.a ) return -1;
-			else if( a == l2.a ){
-				return b  > l2.b ? -1 : 1;
+			else if( Math.abs(a - l2.a) < EPS ){
+				return (b > l2.b ? -1 : 1);
 			}
 			else{
 				return 1;
@@ -388,16 +388,29 @@ public class Geometry {
 	
 	public static ArrayList< Line2D> linesSetUpperEnvelope(ArrayList < Line2D > lines){
 		Collections.sort(lines);
-		LinkedList <Line2D> orderedMaxLines = dnew LinkedList<>(lines);
-		int removed = 0;
-		for(int i=1; i<lines.size()-1; i++){
-			Line2D l1 = lines.get(i-1);
-			Line2D l2 = lines.get(i);
-			Line2D l3 = lines.get(i+1);
-			if(Math.abs(l1.a - l2.a) < EPS || l2.crossX(l1) >= l2.crossX(l3)){
-				orderedMaxLines.add(lines.get(i));
+		Stack <Line2D> stack = new Stack<>();
+		stack.push(lines.get(0));
+		stack.push(lines.get(1));
+		for(int i=2; i<lines.size(); i++){
+			Line2D l1 = lines.get(i);
+			Line2D l2 = stack.pop();
+			Line2D l3 = stack.peek();
+			stack.push(l2);
+			
+			if(Math.abs(l1.a - l2.a) < EPS ) continue;
+			else {
+				while(stack.size() > 1 && l2.crossX(l3) >= l1.crossX(l3)){
+					stack.pop();
+					if(stack.size() > 1){
+						l2 = stack.pop();
+						l3 = stack.peek();
+						stack.push(l2);
+					}
+				}
+				stack.push(l1);
 			}
 		}
-		return orderedMaxLines;
+		
+		return new ArrayList<>(stack);
 	}
 }

@@ -58,7 +58,7 @@ public class LambdaTest {
 		Population lambdas = new Population();
 		lambdas.addSolution(new ReferencePoint(dim1));
 		lambdas.addSolution(new ReferencePoint(dim2));
-		Lambda LAMBDA = new Lambda(2, null, null, null);
+		Lambda LAMBDA = new Lambda(2, 10);
 		LAMBDA.setPopulation(lambdas);
 		Population res;
 		res = LAMBDA.selectKSolutionsByChebyshevBordaRanking(pop, 1);

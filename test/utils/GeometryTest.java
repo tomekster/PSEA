@@ -77,6 +77,7 @@ public class GeometryTest {
 			lines.add(new Line2D(-3,12));
 			lines.add(new Line2D(-0.5,3));
 			lines.add(new Line2D(0,4));
+			lines.add(new Line2D(0,3));
 			lines.add(new Line2D(-3,13));
 			lines.add(new Line2D(-2.0/3, 1));
 			

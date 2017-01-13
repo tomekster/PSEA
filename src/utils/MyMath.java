@@ -51,6 +51,7 @@ public class MyMath {
 		for(double v : a) res += (v-mean) * (v-mean);
 		return res;
 	}
+
 	
 	/**
 	 * Implements derivative defined here: https://en.wikipedia.org/wiki/Smooth_maximum  
@@ -60,7 +61,7 @@ public class MyMath {
 	 * @return
 	 */
 	
-	public double smoothMaxGrad(double a[], double lambda[], int i){
+	public static double smoothMaxGrad(double a[], double lambda[], int i){
 		double alpha = 20, nominator = 0, denominator = 0;
 		for(int j=0; j<a.length; j++){
 			nominator += a[j] * lambda[j] * Math.exp(a[j] * lambda[j] * alpha);
