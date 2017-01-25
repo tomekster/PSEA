@@ -309,7 +309,6 @@ public class Geometry {
 	
 	public static double[] getRandomNeighbour(double[] centralPoint, double radius) {
 		int dim = centralPoint.length;
-		ReferencePoint newPoint = new ReferencePoint(dim);
 		double p[] = new double[dim - 1];
 		double q[] = new double[dim];
 		p = Geometry.randomPointOnSphere(dim - 1, radius);
