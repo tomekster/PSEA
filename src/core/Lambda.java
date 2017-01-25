@@ -13,6 +13,7 @@ import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
+import utils.Geometry.Line2D;
 import utils.MyMath;
 import utils.NSGAIIIRandom;
 import utils.Pair;
@@ -187,42 +188,119 @@ public class Lambda {
 		for(int i=0; i<numLambdas; i++){
 			allLambdas.add(getRandomLambda());
 		}
-		allLambdas = improve(allLambdas);
-		this.lambdas = selectNewLambdas(allLambdas);
-		int tab[] = new int[100];
-		for(ReferencePoint rp : lambdas){
-			tab[rp.getNumViolations()]++;
+		this.lambdas = selectNewLambdas(improve(allLambdas));
+	}
+
+	private ReferencePoint improve(ReferencePoint lambda) {
+		double grad[] = getTotalPCGradient(lambda);
+		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambda.getDim(), grad);
+		double l1[] = simplexSegment.first, l2[] = simplexSegment.second;
+		
+		double m1 = 1, m2 = 1;
+		for(int i=0; i<numObjectives; i++){
+			assert l1[i] >= 0;
+			assert l1[i] <= 1;
+			assert l2[i] >= 0;
+			assert l2[i] <= 1;
+			if(l1[i] < m1) m1 = l1[i];
+			if(l2[i] < m2) m2 = l2[i];
 		}
-//		for(int i=0;i<50; i++){
-//			System.out.print(i + ":" + tab[i] + " ");
-//		}
-//		System.out.println();
+		assert Math.abs(m1) < Geometry.EPS;
+		assert Math.abs(m2) < Geometry.EPS;
+		
+		//Each pair is (t, [+,-] id), where t represents "time" on segment l1, l2 counted from l1 to l2
+		// while id represents comparison id which changes when lambda crosses this point. Positive id indicates 
+		//change from "reproduced" to "not reproduced" comparison, while negative id indicates opposite.
+		ArrayList < Pair<Double, Integer> > switches = getComparisonSwitchPoints(l1, l2);
+		
+		Collections.sort(switches, new Comparator<Pair<Double, Integer>>() {
+			@Override
+			public int compare(Pair<Double, Integer> o1, Pair<Double, Integer> o2) {
+				return Double.compare(o1.first, o2.first);
+			}
+		});
+		return new ReferencePoint(Geometry.linearCombination(l1, l2, findBestTime(switches)));
+	}
+
+	private double findBestTime(ArrayList < Pair<Double, Integer> > switches) {
+		int CV = 0, bestCV = Integer.MAX_VALUE;
+		double bestBeg=0, bestEnd=1;
+		
+		for(int i=0; i<switches.size(); i++){
+			Pair<Double, Integer> p = switches.get(i);
+			if(p.second < 0) CV++;
+			else if(p.second > 0) CV--;
+			if(p.first > 0 && p.first<1 && p.first > switches.get(i-1).first && CV < bestCV){
+				bestCV = CV;
+				bestBeg = switches.get(i-1).first;
+				bestEnd = switches.get(i).first;
+			}
+		}
+		return bestBeg + bestEnd/2;
+	}
+
+	private ArrayList<Pair<Double, Integer>> getComparisonSwitchPoints(double l1[], double l2[]) {
+		ArrayList <Pair<Double, Integer>> res = new ArrayList<>();
+		for(int cpId=0; cpId<PC.getComparisons().size(); cpId++){
+			Comparison cp = PC.getComparisons().get(cpId);
+			ArrayList <Line2D> lines = new ArrayList<>();
+			for(int i=0; i<numObjectives; i++){
+				lines.add(new Line2D(cp.getBetter().getObjective(i) * (l1[i] - l2[i]), cp.getBetter().getObjective(i) * l2[i], true ) );
+				lines.add(new Line2D(cp.getWorse().getObjective(i) * (l1[i] - l2[i]), cp.getWorse().getObjective(i) * l2[i], false ) );
+			}
+			ArrayList <Line2D> upperEnvelope = Geometry.linesSetUpperEnvelope(lines);
+
+			//Check comparisons on lambda1 (0 on time scale) to properly initialize switches array
+			if(ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getBetter(), null, l1, 0) < 0){
+				res.add(new Pair<Double, Integer>(.0, cpId));
+			}
+			else if(ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getBetter(), null, l1, 0) > 0){
+				res.add(new Pair<Double, Integer>(.0, -cpId));
+			}
+			
+			for(int i=1; i<upperEnvelope.size(); i++){
+				Line2D line1 = upperEnvelope.get(i-1);
+				Line2D line2 = upperEnvelope.get(i);
+				if( !(line1.isBetter() ^ line2.isBetter())) continue;
+				double crossX = line1.crossX(line2);
+				if(crossX < 0 || crossX > 1) continue;
+				if(line2.isBetter()){
+					res.add(new Pair<Double, Integer>(crossX, cpId+1));
+				}
+				else{
+					res.add(new Pair<Double, Integer>(crossX, -(cpId+1)));
+				}
+			}
+		}
+		return res;
+	}
+
+	protected double[] getTotalPCGradient(ReferencePoint lambda) {
+		double grad[] = new double[numObjectives];
+		for(Comparison cp : PC.getComparisons()){
+			Solution a = cp.getBetter(), b = cp.getWorse();
+			if(ChebyshevRanker.eval(a, null, lambda.getDim(), 0.0) >= ChebyshevRanker.eval(b, null, lambda.getDim(), 0.0) ){
+				for(int i=0; i < numObjectives; i++){
+					grad[i] = MyMath.smoothMaxGrad(b.getObjectives(), lambda.getDim(), i) - MyMath.smoothMaxGrad(a.getObjectives(), lambda.getDim(), i) ;
+				}
+			}
+		}
+		
+		double lambda2[] = lambda.getDim().clone();
+		for(int i=0; i< grad.length; i++){
+			lambda2[i] += grad[i];
+		}
+		lambda2 = Geometry.normalize(lambda2);
+		for(int i=0; i< grad.length; i++) grad[i] = lambda2[i] - lambda.getDim(i);
+		return grad;
 	}
 
 	private ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
-		ArrayList < Pair<ReferencePoint, ReferencePoint>> res = new ArrayList<>();
-		double grad[] = new double[numObjectives];
-
-		double mint1, mint2, maxt1, maxt2;
-		mint1 = mint2 = Double.MAX_VALUE;
-		maxt1 = maxt2 = -Double.MAX_VALUE;
-		
+		ArrayList <ReferencePoint> res = new ArrayList<>();
 		for(ReferencePoint lambda : lambdasList){
-			double lambda2[] = lambda.getDim();
-			for(Comparison cp : PC.getComparisons()){
-				Solution a = cp.getBetter(), b = cp.getWorse();
-				if(ChebyshevRanker.eval(a, null, lambda.getDim(), 0.0) > ChebyshevRanker.eval(b, null, lambda.getDim(), 0.0) ){
-					for(int i=0; i < numObjectives; i++){
-						grad[i] = MyMath.smoothMaxGrad(b.getObjectives(), lambda.getDim(), i) - MyMath.smoothMaxGrad(a.getObjectives(), lambda.getDim(), i) ;
-						lambda2[i] += grad[i];
-					}
-				}
-			}
-			lambda2 = Geometry.normalize(lambda2);
-			
+			res.add(improve(lambda));
 		}
-		
-		return null;
+		return res;
 	}
 	
 	public void setLambdas(ArrayList<ReferencePoint> lambdas){

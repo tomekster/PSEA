@@ -356,13 +356,15 @@ public class Geometry {
 	
 	public static class Line2D implements Comparable{
 		Double a, b;
+		boolean better;
+		
 		public Line2D(double a, double b){
+			this(a,b,false);
+		}
+		public Line2D(double a, double b, boolean better){
 			this.a = a;
 			this.b = b;
-		}
-		public Line2D(Pair <Double, Double> line){
-			this.a = line.first;
-			this.b = line.second;
+			this.better = better;
 		}
 		public double evalX(double x) {
 			return a*x + b;
@@ -383,6 +385,9 @@ public class Geometry {
 			else{
 				return 1;
 			}
+		}
+		public boolean isBetter(){
+			return better;
 		}
 	}
 	
@@ -412,5 +417,22 @@ public class Geometry {
 		}
 		
 		return new ArrayList<>(stack);
+	}
+
+	public static Pair<double[], double[]> getSimplexSegment(double[] dim, double[] grad) {
+		int numDim = dim.length;
+		double p1[] = new double[numDim], p2[] = new double[numDim];
+		double t1 = Double.MAX_VALUE, t2 = Double.MAX_VALUE;
+		
+		for(int i=0; i<numDim; i++){
+			if(grad[i] < 0) t1 = Double.min( t1, -dim[i]/grad[i]);
+			else t2 = Double.min( t2, dim[i]/grad[i]);
+		}
+		
+		for(int i=0; i<numDim; i++){
+			p1[i] = dim[i] + t1 * grad[i];
+			p2[i] = dim[i] - t2 * grad[i];
+		}
+		return new Pair <double[], double[]>(p1, p2);
 	}
 }

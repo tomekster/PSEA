@@ -11,6 +11,7 @@ import core.points.SolutionTest;
 import problems.DTLZ1Test;
 import utils.GaussianEliminationTest;
 import utils.GeometryTest;
+import utils.MyMathTest;
 import utils.NonDominatedSortTest;
 
 @RunWith(Suite.class)
@@ -25,6 +26,7 @@ import utils.NonDominatedSortTest;
    GeometryTest.class,
    NonDominatedSortTest.class,
    LambdaTest.class,
+   MyMathTest.class
    
 })
 public class JunitTestSuite {

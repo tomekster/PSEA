@@ -69,25 +69,51 @@ public class GeometryTest {
 	
 	//Wikipedia example http://wcipeg.com/wiki/Convex_hull_trick
 	//Extended with duplicated lines and lines with same slope value
-		@Test
-		public void linesSetUpperEnvelope2(){
-			ArrayList < Line2D > lines = new ArrayList<>();
-			lines.add(new Line2D(0,4));
-			lines.add(new Line2D(2.0/3,4.0/3));
-			lines.add(new Line2D(-3,12));
-			lines.add(new Line2D(-0.5,3));
-			lines.add(new Line2D(0,4));
-			lines.add(new Line2D(0,3));
-			lines.add(new Line2D(-3,13));
-			lines.add(new Line2D(-2.0/3, 1));
-			
-			ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
-			assertEquals(3, res.size());
-			assertEquals(-3, res.get(0).a, EPS);
-			assertEquals(13, res.get(0).b, EPS);
-			assertEquals(0, res.get(1).a, EPS);
-			assertEquals(4, res.get(1).b, EPS);
-			assertEquals(2.0/3, res.get(2).a, EPS);
-			assertEquals(4.0/3, res.get(2).b, EPS);	
-		}
+	@Test
+	public void linesSetUpperEnvelope2(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(0,4));
+		lines.add(new Line2D(2.0/3,4.0/3));
+		lines.add(new Line2D(-3,12));
+		lines.add(new Line2D(-0.5,3));
+		lines.add(new Line2D(0,4));
+		lines.add(new Line2D(0,3));
+		lines.add(new Line2D(-3,13));
+		lines.add(new Line2D(-2.0/3, 1));
+		
+		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		assertEquals(3, res.size());
+		assertEquals(-3, res.get(0).a, EPS);
+		assertEquals(13, res.get(0).b, EPS);
+		assertEquals(0, res.get(1).a, EPS);
+		assertEquals(4, res.get(1).b, EPS);
+		assertEquals(2.0/3, res.get(2).a, EPS);
+		assertEquals(4.0/3, res.get(2).b, EPS);	
+	}
+		
+	@Test
+	public void testGetSimplexSegment(){
+		double dim[] = {1.0/3, 1.0/3, 1.0/3};
+		double grad[] = {1.0/6, -1.0/3, 1.0/6};
+		
+		Pair<double[], double[]> res = Geometry.getSimplexSegment(dim, grad);
+		double p1[] = res.first;
+		double p2[] = res.second;
+		
+		assertEquals(0.5, 	p1[0],Geometry.EPS);
+		assertEquals(0, 	p1[1],Geometry.EPS);
+		assertEquals(0.5, 	p1[2],Geometry.EPS);
+		
+		assertEquals(0, p2[0],Geometry.EPS);
+		assertEquals(1, p2[1],Geometry.EPS);
+		assertEquals(0, p2[2],Geometry.EPS);
+	}
+
+	@Test
+	public void normalizeTest(){
+		double a[] = {-0.0004085602, 2.0008171204173157};
+		a = Geometry.normalize(a);
+		assertEquals(-0.00020423837, a[0], Geometry.EPS);
+		assertEquals(1.00020423838, a[1], Geometry.EPS);
+	}
 }
