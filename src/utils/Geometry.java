@@ -195,7 +195,7 @@ public class Geometry {
 	 * @param q - Input point lying on hyperplane orthogonal to last dimension axis
 	 * @return 
 	 */
-	public static double[] mapOnHyperplane(double[] q) {
+	public static double[] mapOnParallelHyperplane(double[] q) {
 		if(!hyperplaneTransformationMaps.containsKey(q.length)){
 			hyperplaneTransformationMaps.put(q.length, genHypTransMap(q.length));
 		}
@@ -307,7 +307,8 @@ public class Geometry {
 		return res;
 	}
 	
-	public static ReferencePoint getRandomNeighbour(int dim, ReferencePoint centralPoint, double radius) {
+	public static double[] getRandomNeighbour(double[] centralPoint, double radius) {
+		int dim = centralPoint.length;
 		ReferencePoint newPoint = new ReferencePoint(dim);
 		double p[] = new double[dim - 1];
 		double q[] = new double[dim];
@@ -316,18 +317,17 @@ public class Geometry {
 			q[i] = p[i];
 		}
 		q[dim - 1] = 0;
-		q = Geometry.mapOnHyperplane(q);
+		q = Geometry.mapOnParallelHyperplane(q);
 		for (int i = 0; i < dim; i++) {
-			q[i] += centralPoint.getDim(i);
+			q[i] += centralPoint[i];
 		}
 		for (int i = 0; i < dim; i++) {
 			if (q[i] < 0) {
-				q = Geometry.nonnegativeSegmentPoint(q, centralPoint.getDim());
+				q = Geometry.nonnegativeSegmentPoint(q, centralPoint);
 				break;
 			}
 		}
-		newPoint.setDim(q);
-		return newPoint;
+		return q;
 	}
 
 	public static double[] lineCrossDTLZ1HyperplanePoint(double[] lambda) {

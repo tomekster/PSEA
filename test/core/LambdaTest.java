@@ -55,11 +55,11 @@ public class LambdaTest {
 	
 	@Test
 	public void selectKSolutionsByChebyshevBordaRankingTest(){
-		Population lambdas = new Population();
-		lambdas.addSolution(new ReferencePoint(dim1));
-		lambdas.addSolution(new ReferencePoint(dim2));
+		ArrayList<ReferencePoint> lambdas = new ArrayList<ReferencePoint>();
+		lambdas.add(new ReferencePoint(dim1));
+		lambdas.add(new ReferencePoint(dim2));
 		Lambda LAMBDA = new Lambda(2, 10);
-		LAMBDA.setPopulation(lambdas);
+		LAMBDA.setLambdas(lambdas);
 		Population res;
 		res = LAMBDA.selectKSolutionsByChebyshevBordaRanking(pop, 1);
 		assertEquals(1, res.size());

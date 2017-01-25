@@ -28,7 +28,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private static final double SPREAD_THRESHOLD = 0.9;
 
-	private final static int NUM_LAMBDAS = 10;
+	private final static int NUM_LAMBDAS = 100;
 
 	private Problem problem;
 	private int numGenerations;
@@ -144,7 +144,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 		Population firstFront = ndr.sortPopulation(population).get(0);
 		if (firstFront.size() > 1){
 			Elicitator.elicitate(firstFront, decisionMakerRanker, lambda.getPreferenceCollector());
-			lambda.setElicitated(true);
 		}	
 	}
 

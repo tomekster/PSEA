@@ -1,18 +1,13 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import core.hyperplane.Hyperplane;
 import core.points.ReferencePoint;
 import core.points.Solution;
-import operators.CrossoverOperator;
-import operators.MutationOperator;
-import operators.SelectionOperator;
 import preferences.Comparison;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
@@ -27,7 +22,6 @@ public class Lambda {
 	private final static Logger LOGGER = Logger.getLogger(Lambda.class.getName());
 
 	private PreferenceCollector PC;
-	private boolean elicitated;
 	private int numObjectives;
 	private int numLambdas;
 	private ArrayList <ReferencePoint> lambdas;
@@ -52,7 +46,7 @@ public class Lambda {
 		}
 		Collections.sort(breakPoints);
 		
-		for(int i=1; i < dimensions.size(); i++){
+		for(int i=1; i < breakPoints.size(); i++){
 			dimensions.add(breakPoints.get(i) - breakPoints.get(i-1));
 		}
 		Collections.shuffle(dimensions);
@@ -60,8 +54,8 @@ public class Lambda {
 		for(int i=0; i<dimensions.size();i++){
 			dims[i] = dimensions.get(i);
 		}
-		
-		return new ReferencePoint(dims);
+		ReferencePoint rp = new ReferencePoint(dims);
+		return rp;
 	}
 
 	/**
@@ -174,10 +168,6 @@ public class Lambda {
 		return this.PC;
 	}
 
-	public void setElicitated(boolean elicitated) {
-		this.elicitated = elicitated;
-	}
-	
 	public void lambdas(ArrayList <ReferencePoint> lambdas){ 
 		this.lambdas = lambdas;
 	}
@@ -197,29 +187,34 @@ public class Lambda {
 		for(int i=0; i<numLambdas; i++){
 			allLambdas.add(getRandomLambda());
 		}
-		this.lambdas = selectNewLambdas(improve(allLambdas));
-	}
-
-	private ReferencePoint improve(ReferencePoint randomLambda) {
-		double grad[] = new double[numObjectives];
-		for(int i=0; i<numObjectives; i++){
-			grad[i] = MyMath.smoothMaxGrad(a, lambda, i)
+		allLambdas = improve(allLambdas);
+		this.lambdas = selectNewLambdas(allLambdas);
+		int tab[] = new int[100];
+		for(ReferencePoint rp : lambdas){
+			tab[rp.getNumViolations()]++;
 		}
+//		for(int i=0;i<50; i++){
+//			System.out.print(i + ":" + tab[i] + " ");
+//		}
+//		System.out.println();
 	}
 
 	private ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
 		ArrayList < Pair<ReferencePoint, ReferencePoint>> res = new ArrayList<>();
-		
+		double grad[] = new double[numObjectives];
+
+		double mint1, mint2, maxt1, maxt2;
+		mint1 = mint2 = Double.MAX_VALUE;
+		maxt1 = maxt2 = -Double.MAX_VALUE;
 		
 		for(ReferencePoint lambda : lambdasList){
-
 			double lambda2[] = lambda.getDim();
-			
 			for(Comparison cp : PC.getComparisons()){
 				Solution a = cp.getBetter(), b = cp.getWorse();
 				if(ChebyshevRanker.eval(a, null, lambda.getDim(), 0.0) > ChebyshevRanker.eval(b, null, lambda.getDim(), 0.0) ){
 					for(int i=0; i < numObjectives; i++){
-						lambda2[i] += MyMath.smoothMaxGrad(b.getObjectives(), lambda.getDim(), i) - MyMath.smoothMaxGrad(a.getObjectives(), lambda.getDim(), i) ;
+						grad[i] = MyMath.smoothMaxGrad(b.getObjectives(), lambda.getDim(), i) - MyMath.smoothMaxGrad(a.getObjectives(), lambda.getDim(), i) ;
+						lambda2[i] += grad[i];
 					}
 				}
 			}
@@ -228,5 +223,9 @@ public class Lambda {
 		}
 		
 		return null;
+	}
+	
+	public void setLambdas(ArrayList<ReferencePoint> lambdas){
+		this.lambdas = lambdas;
 	}
 }

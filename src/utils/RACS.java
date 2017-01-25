@@ -295,11 +295,9 @@ public class RACS {
 		return max;
 	}
 	public static double findMinEps(Solution s1, Solution s2) {
-		
 		return 0;
 	}
 	public static double findMaxEps(Solution s1, Solution s2) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 }

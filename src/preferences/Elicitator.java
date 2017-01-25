@@ -52,7 +52,7 @@ public class Elicitator {
 		}
 		
 		Solution s1 = null, s2 = null;
-		Geometry.mapOnHyperplane(grad);
+		Geometry.mapOnParallelHyperplane(grad);
 		
 		double maxCos =  -Double.MAX_VALUE;
 		for(int i=0; i < pop.size(); i++){
