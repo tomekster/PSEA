@@ -47,8 +47,8 @@ public class Lambda {
 		}
 		Collections.sort(breakPoints);
 		
-		for(int i=1; i < dimensions.size(); i++){
-			dimensions.add(breakPoints.get(i) - breakPoints.get(i-1));
+		for(int i=0; i < numObjectives; i++){
+			dimensions.add(breakPoints.get(i+1) - breakPoints.get(i));
 		}
 		Collections.shuffle(dimensions);
 		double dims[] = new double[this.numObjectives];
@@ -193,7 +193,15 @@ public class Lambda {
 	}
 
 	private ReferencePoint improve(ReferencePoint lambda) {
-		double grad[] = getTotalPCGradient(lambda);
+		//TODO
+		//double grad[] = getTotalPCGradient(lambda);
+		
+		double neigh[] = Geometry.getRandomNeighbour(lambda.getDim(), 1.0);
+		double grad[] = new double[numObjectives];
+		for(int i=0; i<numObjectives; i++){
+			grad[i] = neigh[i] - lambda.getDim(i);
+		}
+				
 		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambda.getDim(), grad);
 		double l1[] = simplexSegment.first, l2[] = simplexSegment.second;
 		
@@ -210,7 +218,7 @@ public class Lambda {
 		assert Math.abs(m2) < Geometry.EPS;
 		
 		//Each pair is (t, [+,-] id), where t represents "time" on segment l1, l2 counted from l1 to l2
-		// while id represents comparison id which changes when lambda crosses this point. Positive id indicates 
+		// while absolute value of id represents comparison id which changes when lambda crosses this point. Positive id indicates 
 		//change from "reproduced" to "not reproduced" comparison, while negative id indicates opposite.
 		ArrayList < Pair<Double, Integer> > switches = getComparisonSwitchPoints(l1, l2);
 		
