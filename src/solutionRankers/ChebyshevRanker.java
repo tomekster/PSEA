@@ -26,6 +26,10 @@ public class ChebyshevRanker{
 		this.setName(name);
 	}
 	
+	public ChebyshevRanker(double lambda[]){
+		this(new double[lambda.length], lambda, 0 , "");
+	}
+	
 	public double eval(Solution s){
 		return eval(s, this.refPoint, this.lambda, this.rho);
 	}

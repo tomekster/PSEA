@@ -13,6 +13,7 @@ import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.Elicitator;
+import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
 import utils.Geometry;
@@ -49,12 +50,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 									new BinaryTournament(new NonDominationRanker()),
 									new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 									new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
-		double lambdaLowerBound[] = new double[problem.getNumObjectives()];
-		double lambdaUpperBound[] = new double[problem.getNumObjectives()];
-		for(int i=0; i<problem.getNumObjectives(); i++){
-			lambdaLowerBound[i] = 0.0;
-			lambdaUpperBound[i] = 1.0;
-		}
 		
 		this.lambda = new Lambda( problem.getNumObjectives(), NUM_LAMBDAS );
 
@@ -84,7 +79,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		history.addGeneration(nsgaiii.getPopulation());
 		history.addLambdas(lambda.getLambdas());
 		history.setTargetPoints(TargetFrontGenerator.generate(this.hyperplane.getReferencePoints(), problem));
-		history.setPreferenceCollector(lambda.getPreferenceCollector());
+		history.setPreferenceCollector(PreferenceCollector.getInstance());
 		history.setChebyshevRanker(decisionMakerRanker);
 	}
 
@@ -140,7 +135,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		NonDominationRanker ndr = new NonDominationRanker();
 		Population firstFront = ndr.sortPopulation(population).get(0);
 		if (firstFront.size() > 1){
-			Elicitator.elicitate(firstFront, decisionMakerRanker, lambda.getPreferenceCollector());
+			Elicitator.elicitate(firstFront, decisionMakerRanker, PreferenceCollector.getInstance());
 		}	
 	}
 
@@ -156,7 +151,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 	}
 	
 	public void evaluateFinalResult(Population res){
-		ArrayList<ReferencePoint> referencePoints = this.hyperplane.getReferencePoints();
 		evaluateRun(problem, decisionMakerRanker, res);
 	}
 	

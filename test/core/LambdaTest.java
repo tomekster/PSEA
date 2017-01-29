@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
+import preferences.PreferenceCollector;
 import utils.Geometry;
 import utils.TestingUtils;
 
@@ -77,18 +78,4 @@ public class LambdaTest {
 //		TestingUtils.assertDoubleArrayEquals(obj3, res.getSolution(1).getObjectives());
 //		TestingUtils.assertDoubleArrayEquals(obj2, res.getSolution(2).getObjectives());
 //	}
-	
-	@Test
-	public void getTotalPCGradientTest(){
-		Lambda L = new Lambda(2, 1);
-		double vars[] = {0};
-		double obj1[] = {1,2};
-		double obj2[] = {2,1};
-		L.getPreferenceCollector().addComparison(new Solution(vars, obj1), new Solution(vars, obj2));
-		double rp[] = {0.5, 0.5};
-		ReferencePoint lambda = new ReferencePoint(rp);
-		double grad[] = L.getTotalPCGradient(lambda);
-		assertEquals(2.00122568062, grad[0], Geometry.EPS);
-		assertEquals(-2.00122568062, grad[1], Geometry.EPS);
-	}
 }
