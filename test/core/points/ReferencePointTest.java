@@ -42,9 +42,4 @@ public class ReferencePointTest {
 		assertArrayEquals(array, rp.getDim(),1E-9);
 		assertTrue(rp.getNichedAssociationsQueue().isEmpty());
 	}
-	
-	@Test
-	public void associationsHeapTest(){
-		//TODO
-	}
 }

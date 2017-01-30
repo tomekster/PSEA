@@ -159,11 +159,11 @@ public class Geometry {
 
 	public static double[] invert(double[] dimensions) {
 		int len = dimensions.length;
-		double lambda[] = new double[len];
+		double res[] = new double[len];
 		for (int i = 0; i < len; i++) {
-			lambda[i] = 1 / dimensions[i];
+			res[i] = 1 / dimensions[i];
 		}
-		return lambda;
+		return res;
 	}
 	
 	/**
@@ -211,10 +211,10 @@ public class Geometry {
 	private static double[] transformHyperplanePoint(double[] q, double[][] M) {
 		assert q.length == M.length;
 		double res[] = new double[q.length];
-		for(int i=0; i<M[0].length; i++){
-			res[i] = 0;
-			for(int j=0; j<q.length; j++){
-				res[i] += q[j] * M[j][i]; 
+		for(int colId=0; colId<M[0].length; colId++){
+			res[colId] = 0;
+			for(int rowId=0; rowId<q.length; rowId++){
+				res[colId] += q[rowId] * M[rowId][colId]; 
 			}
 		}
 		
@@ -245,19 +245,19 @@ public class Geometry {
 	 * @param n - resulting matrix size n x n
 	 * @return
 	 */
-	private static double[][] genHypTransMap(int n) {
+	public static double[][] genHypTransMap(int n) {
 		double res[][] = new double[n][n];
 		for(int i=0; i<n; i++){
 			for(int j=0; j<n; j++){
 				if(j<=i){
 					res[i][j] = 1;
 				} else if(j==i+1){
-					res[i][j] = -(i+1); 
+					res[i][j] = -j; 
 				} else{
 					res[i][j] = 0;
 				}
 			}
-			res[i] = vectorNormalize(res[i]);
+//			res[i] = vectorNormalize(res[i]);
 		}
 		return res;
 	}
@@ -307,8 +307,9 @@ public class Geometry {
 		return res;
 	}
 	
-	public static double[] getRandomNeighbour(double[] centralPoint, double radius) {
+	public static double [] getRandomNeighbour(double[] centralPoint, double radius) {
 		int dim = centralPoint.length;
+
 		double p[] = new double[dim - 1];
 		double q[] = new double[dim];
 		p = Geometry.randomPointOnSphere(dim - 1, radius);
@@ -329,28 +330,28 @@ public class Geometry {
 		return q;
 	}
 
-	public static double[] lineCrossDTLZ1HyperplanePoint(double[] lambda) {
-		double point[] = new double[lambda.length];
+	public static double[] lineCrossDTLZ1HyperplanePoint(double[] pointOnLine) {
+		double crossPoint[] = new double[pointOnLine.length];
 		double sum = 0;
-		for (double d : lambda) {
+		for (double d : pointOnLine) {
 			sum += d;
 		}
-		for(int i=0; i< lambda.length; i++){
-			point[i] = lambda[i] * (0.5 / sum);
+		for(int i=0; i< pointOnLine.length; i++){
+			crossPoint[i] = pointOnLine[i] * (0.5 / sum);
 		}
-		return point;
+		return crossPoint;
 	}
 
-	public static double[] lineCrossDTLZ234HyperspherePoint(double[] lambda) {
-		double point[] = new double[lambda.length], sqr_sum = 0;
-		for (double d : lambda) {
+	public static double[] lineCrossDTLZ234HyperspherePoint(double[] pointOnLine) {
+		double crossPoint[] = new double[pointOnLine.length], sqr_sum = 0;
+		for (double d : pointOnLine) {
 			sqr_sum += d*d;
 		}
 		double div = Math.sqrt(sqr_sum);
-		for (int i = 0; i < lambda.length; i++) {
-			point[i] = lambda[i] / div;
+		for (int i = 0; i < pointOnLine.length; i++) {
+			crossPoint[i] = pointOnLine[i] / div;
 		}
-		return point;
+		return crossPoint;
 	}
 	
 	public static class Line2D implements Comparable{
@@ -418,20 +419,21 @@ public class Geometry {
 		return new ArrayList<>(stack);
 	}
 
-	public static Pair<double[], double[]> getSimplexSegment(double[] dim, double[] grad) {
-		int numDim = dim.length;
+	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {
+		int numDim = point.length;
 		double p1[] = new double[numDim], p2[] = new double[numDim];
 		double t1 = Double.MAX_VALUE, t2 = Double.MAX_VALUE;
 		
 		for(int i=0; i<numDim; i++){
-			if(grad[i] < 0) t1 = Double.min( t1, -dim[i]/grad[i]);
-			else t2 = Double.min( t2, dim[i]/grad[i]);
+			if(grad[i] < 0) t1 = Double.min( t1, -point[i]/grad[i]);
+			else t2 = Double.min( t2, point[i]/grad[i]);
 		}
 		
 		for(int i=0; i<numDim; i++){
-			p1[i] = dim[i] + t1 * grad[i];
-			p2[i] = dim[i] - t2 * grad[i];
+			p1[i] = point[i] + t1 * grad[i];
+			p2[i] = point[i] - t2 * grad[i];
 		}
+		
 		return new Pair <double[], double[]>(p1, p2);
 	}
 }
