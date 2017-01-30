@@ -419,20 +419,21 @@ public class Geometry {
 		return new ArrayList<>(stack);
 	}
 
-	public static Pair<double[], double[]> getSimplexSegment(double[] dim, double[] grad) {
-		int numDim = dim.length;
+	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {
+		int numDim = point.length;
 		double p1[] = new double[numDim], p2[] = new double[numDim];
 		double t1 = Double.MAX_VALUE, t2 = Double.MAX_VALUE;
 		
 		for(int i=0; i<numDim; i++){
-			if(grad[i] < 0) t1 = Double.min( t1, -dim[i]/grad[i]);
-			else t2 = Double.min( t2, dim[i]/grad[i]);
+			if(grad[i] < 0) t1 = Double.min( t1, -point[i]/grad[i]);
+			else t2 = Double.min( t2, point[i]/grad[i]);
 		}
 		
 		for(int i=0; i<numDim; i++){
-			p1[i] = dim[i] + t1 * grad[i];
-			p2[i] = dim[i] - t2 * grad[i];
+			p1[i] = point[i] + t1 * grad[i];
+			p2[i] = point[i] - t2 * grad[i];
 		}
+		
 		return new Pair <double[], double[]>(p1, p2);
 	}
 }

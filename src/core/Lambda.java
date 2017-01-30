@@ -64,15 +64,15 @@ public class Lambda {
 	 * Sets lambda's penalty, reward and numViolations fields.
 	 * @param lambda
 	 */
-	public void evaluateLambda(ReferencePoint lambda) {
+	public static int evaluateLambda(ReferencePoint lambda) {
 		int numViolations = 0;
 		double reward = 1, penalty = 1;
 		for(Comparison c : PreferenceCollector.getInstance().getComparisons()){
 			Solution better = c.getBetter(), worse = c.getWorse();
 			double a = -1, b = -1;
 			for(int i = 0; i<lambda.getNumDimensions(); i++){
-				a = Double.max(a, (1/lambda.getDim(i)) * better.getObjective(i));
-				b = Double.max(b, (1/lambda.getDim(i)) * worse.getObjective(i));
+				a = Double.max(a, lambda.getDim(i) * better.getObjective(i));
+				b = Double.max(b, lambda.getDim(i) * worse.getObjective(i));
 			}
 			double eps = b-a;
 			if(eps < 0){
@@ -90,6 +90,7 @@ public class Lambda {
 		lambda.setReward(reward);
 		lambda.setPenalty(penalty);
 		lambda.setNumViolations(numViolations);
+		return numViolations;
 	}
 	
 	protected ArrayList <ReferencePoint> selectNewLambdas(ArrayList <ReferencePoint> lambdasPop) {
@@ -185,6 +186,8 @@ public class Lambda {
 			allLambdas.add(getRandomLambda());
 		}
 
-		this.lambdas = selectNewLambdas(GLS.improve(allLambdas));
+		ArrayList <ReferencePoint> newLambdas = selectNewLambdas(GLS.improve(allLambdas));
+		System.out.println(newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
+		this.lambdas = newLambdas;
 	}
 }

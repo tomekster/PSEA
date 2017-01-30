@@ -26,7 +26,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private static final double SPREAD_THRESHOLD = 0.9;
 
-	private final static int NUM_LAMBDAS = 20;
+	private final static int NUM_LAMBDAS = 50;
 
 	private Problem problem;
 	private int numGenerations;
@@ -102,7 +102,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 				secondPhase = true;
 				history.setSecondPhaseId(generation);
 			}
-			
 			if (switchPhase) for(int i=0; i<problem.getNumObjectives() * 3; i++) elicitate();
 			
 			if(secondPhase){

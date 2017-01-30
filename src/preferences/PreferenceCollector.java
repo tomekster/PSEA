@@ -39,4 +39,8 @@ public class PreferenceCollector {
 		}
 		return res;
 	}
+	
+	public void clear(){
+		this.comparisonsList.clear();
+	}
 }

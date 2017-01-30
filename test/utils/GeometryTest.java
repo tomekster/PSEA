@@ -99,14 +99,11 @@ public class GeometryTest {
 		Pair<double[], double[]> res = Geometry.getSimplexSegment(dim, grad);
 		double p1[] = res.first;
 		double p2[] = res.second;
-		
-		assertEquals(0.5, 	p1[0],Geometry.EPS);
-		assertEquals(0, 	p1[1],Geometry.EPS);
-		assertEquals(0.5, 	p1[2],Geometry.EPS);
-		
-		assertEquals(0, p2[0],Geometry.EPS);
-		assertEquals(1, p2[1],Geometry.EPS);
-		assertEquals(0, p2[2],Geometry.EPS);
+
+		double res1[] = {0.5, 0, 0.5};
+		double res2[] = {0, 1, 0};
+		assertArrayEquals(res1, p1, 1e-10);
+		assertArrayEquals(res2, p2, 1e-10);
 	}
 
 	@Test
