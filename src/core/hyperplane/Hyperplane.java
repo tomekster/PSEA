@@ -25,6 +25,17 @@ public class Hyperplane {
 			}
 		}
 	}
+	
+	public Hyperplane(int M, int p) {
+		this.dim = M;
+		referencePoints = new ArrayList<ReferencePoint>();
+		generateReferencePoints(p);
+		for (ReferencePoint rp : referencePoints) {
+			for (int i = 0; i < rp.getNumDimensions(); i++) {
+				rp.setDim(i, Double.max(Geometry.EPS, rp.getDim(i)));
+			}
+		}
+	}
 
 	private void generateReferencePoints() {
 		ArrayList<ReferencePoint> boundaryLayer = new ArrayList<>();
@@ -41,6 +52,12 @@ public class Hyperplane {
 
 			referencePoints.addAll(insideLayer);
 		}
+	}
+	
+	private void generateReferencePoints(int p) {
+		ArrayList<ReferencePoint> boundaryLayer = new ArrayList<>();
+		generateRecursive(new ReferencePoint(dim), 1.0 / p, 0, p, boundaryLayer);
+		referencePoints.addAll(boundaryLayer);
 	}
 
 	private void generateRecursive(ReferencePoint rp, double step, int startDim, int left,

@@ -17,6 +17,7 @@ import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
 import utils.Geometry;
+import utils.GradientLambdaSearch;
 import utils.MyMath;
 import utils.Pair;
 
@@ -188,6 +189,17 @@ public class RST_NSGAIII extends EA implements Runnable {
 		}
 		ExecutionHistory.getInstance().setFinalMinDist(MyMath.getMinDist(targetPoint, res));
 		ExecutionHistory.getInstance().setFinalAvgDist(MyMath.getAvgDist(targetPoint, res));
+		
+		Hyperplane hp = new Hyperplane(3, 100);
+		GradientLambdaSearch gls = new GradientLambdaSearch(3);
+		for(ReferencePoint rp : hp.getReferencePoints()){
+			double lambda[] = Geometry.normalize(Geometry.invert(rp.getDim()));
+			double point[] = gls.lambda2theta(lambda);
+			for(int i=0; i<3; i++){
+				System.out.print(point[i] + " ");
+			}
+			System.out.println(Lambda.evaluateLambda(new ReferencePoint(lambda)));
+		}
 	}
 
 	public Hyperplane getHyperplane(){
