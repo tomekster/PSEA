@@ -13,9 +13,7 @@ import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
-import utils.Geometry.Line2D;
 import utils.GradientLambdaSearch;
-import utils.MyMath;
 import utils.NSGAIIIRandom;
 import utils.Pair;
 
@@ -188,7 +186,7 @@ public class Lambda {
 		}
 
 		ArrayList <ReferencePoint> newLambdas = selectNewLambdas(GLS.improve(allLambdas));
-		System.out.println(newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
+		System.out.println("Best/worse CV:" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
 		this.lambdas = newLambdas;
 	}
 	

@@ -2,7 +2,9 @@ package preferences;
 
 import javax.swing.JOptionPane;
 
+import core.Lambda;
 import core.Population;
+import core.points.ReferencePoint;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
 import utils.Geometry;
@@ -11,14 +13,16 @@ import utils.Pair;
 
 public class Elicitator {
 
-	public static void elicitate(Population firstFront, ChebyshevRanker decisionMakerRanker, PreferenceCollector PC) {
-		Pair<Solution, Solution> p = getComparedSolutions(firstFront);
+	public static void elicitate(Population firstFront, ChebyshevRanker decisionMakerRanker, Lambda lambda, boolean pairsUsed[][]) {
+//		Pair<Solution, Solution> p = getComparedSolutions(firstFront);
 //		Pair<Solution, Solution> p = getComparedSolutions2(firstFront, PC.getComparisons().size());
-		Solution s1 = p.first;
-		Solution s2 = p.second;
-		assert s1 != null;
-		assert s2 != null;
-				
+		Pair<Integer, Integer> p = getComparedSolutions3(firstFront, lambda, pairsUsed);
+		pairsUsed[p.first][p.second] = true;
+		
+		Solution s1 = firstFront.getSolution(p.first);
+		Solution s2 = firstFront.getSolution(p.second);
+		System.out.println(s1 + " " + s2);
+		PreferenceCollector PC = PreferenceCollector.getInstance();		
 		
 		if (decisionMakerRanker != null) {
 			int comparisonResult = decisionMakerRanker.compareSolutions(s1, s2);
@@ -34,11 +38,11 @@ public class Elicitator {
 		}
 	}
 
-	private static Pair<Solution, Solution> getComparedSolutions(Population pop) {
-		int i= NSGAIIIRandom.getInstance().nextInt(pop.size());
-		int j = NSGAIIIRandom.getInstance().nextInt(pop.size()-1);
+	private static Pair<Integer, Integer> getRandomIds(int size) {
+		int i= NSGAIIIRandom.getInstance().nextInt(size);
+		int j = NSGAIIIRandom.getInstance().nextInt(size-1);
 		if(j >= i) j++;
-		return new Pair<Solution, Solution>(pop.getSolution(i), pop.getSolution(j));
+		return new Pair<Integer, Integer>(i, j);
 	}
 	
 	private static Pair<Solution, Solution> getComparedSolutions2(Population pop, int numComparisons) {
@@ -68,6 +72,38 @@ public class Elicitator {
 			}
 		}
 		return new Pair<Solution, Solution>(s1, s2);
+	}
+	
+	private static Pair<Integer, Integer> getComparedSolutions3(Population pop, Lambda lambda, boolean pairsUsed[][]) {
+		int maxSplit = -1;
+		int res1=-1,res2=-1,inc=-1;
+		int id1=-1, id2=-1;
+		
+		for(int i=0; i<pop.size(); i++){
+			for(int j=i+1; j<pop.size(); j++){
+				if(pairsUsed[i][j]) continue;
+				int score1=0, score2=0, incomparable=0;
+				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
+				for(ReferencePoint rp : lambda.getLambdas()){
+					int comparison = ChebyshevRanker.compareSolutions(s1,s2, null, rp.getDim(), 0);
+					if(comparison < 0) score1++;
+					else if(comparison > 0) score2++;
+					else incomparable++;
+				}
+				int split = Math.min(score1, score2);
+				if(split > maxSplit){
+					id1 = i;
+					id2 = j;
+					maxSplit = split;
+					res1 = score1;
+					res2 = score2;
+					inc = incomparable;
+				}
+			}
+		}
+		System.out.println("final split:" + res1 + " " + res2 + " " + inc);
+		if(maxSplit == 0) return getRandomIds(pop.size());
+		else return new Pair<Integer, Integer>(id1, id2);
 	}
 
 	private static void elicitateDialog(Solution s1, Solution s2, PreferenceCollector PC) {

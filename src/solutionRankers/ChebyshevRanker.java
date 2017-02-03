@@ -68,16 +68,13 @@ public class ChebyshevRanker{
 			Arrays.fill(refPoint, 0);
 		}
 		double res = -Double.MAX_VALUE;
-		for(int i=0; i<s.getNumObjectives(); i++){
-			res = Double.max(lambda[i] * (s.getObjective(i) - refPoint[i]), res);
-		}
 		double sum = 0;
 		for(int i=0; i<s.getNumObjectives(); i++){
-			sum += lambda[i] * (s.getObjective(i) - refPoint[i]);
+			double mult = lambda[i] * (s.getObjective(i) - refPoint[i]);
+			res = Double.max(mult, res);
+			sum += mult;
 		}
-		sum *= rho;
-		res += sum;
-		
+		res += sum * rho;
 		return res;
 	}
 	

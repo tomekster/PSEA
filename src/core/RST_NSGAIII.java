@@ -103,13 +103,12 @@ public class RST_NSGAIII extends EA implements Runnable {
 				secondPhase = true;
 				history.setSecondPhaseId(generation);
 			}
-			if (switchPhase) for(int i=0; i<problem.getNumObjectives() * 3; i++) elicitate();
+//			if (switchPhase) elicitate(problem.getNumObjectives() * 3);
 			
 			if(secondPhase){
-				if(generation > 0 && generation % elicitationInterval == 0){
-					for(int i=0; i<problem.getNumObjectives()/2; i++){
-						elicitate();
-					}
+//				if(generation % elicitationInterval == 0){
+				if(generation % elicitationInterval == 0){
+					elicitate(problem.getNumObjectives()/2);
 				}
 				lambda.nextGeneration();
 				nextGeneration();
@@ -130,13 +129,16 @@ public class RST_NSGAIII extends EA implements Runnable {
 		System.out.println("Generation avg: " + history.getFinalAvgDist());
 	}
 
-	private void elicitate() {
+	private void elicitate(int numToElicitate) {
 		System.out.println("GENERATION: " + generation);
 		NonDominationRanker ndr = new NonDominationRanker();
 		Population firstFront = ndr.sortPopulation(population).get(0);
-		if (firstFront.size() > 1){
-			Elicitator.elicitate(firstFront, decisionMakerRanker, PreferenceCollector.getInstance());
-		}	
+		boolean pairUsed[][] = new boolean[firstFront.size()][firstFront.size()];
+		for(int i=0; i<numToElicitate; i++){
+			if (firstFront.size() > 1){
+				Elicitator.elicitate(firstFront, decisionMakerRanker, lambda, pairUsed);
+			}	
+		}
 	}
 
 	@Override
@@ -190,15 +192,22 @@ public class RST_NSGAIII extends EA implements Runnable {
 		ExecutionHistory.getInstance().setFinalMinDist(MyMath.getMinDist(targetPoint, res));
 		ExecutionHistory.getInstance().setFinalAvgDist(MyMath.getAvgDist(targetPoint, res));
 		
-		Hyperplane hp = new Hyperplane(3, 100);
+		Hyperplane hp = new Hyperplane(3, 50);
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
 		for(ReferencePoint rp : hp.getReferencePoints()){
-			double lambda[] = Geometry.normalize(Geometry.invert(rp.getDim()));
+//			double lambda[] = Geometry.normalize(Geometry.invert(rp.getDim()));
+//			double point[] = gls.lambda2theta(lambda);
+//			for(int i=0; i<3; i++){
+//				System.out.print(point[i] + " ");
+//			}
+//			System.out.println(Lambda.evaluateLambda(new ReferencePoint(lambda)));
+			
+			double lambda[] = rp.getDim();
 			double point[] = gls.lambda2theta(lambda);
 			for(int i=0; i<3; i++){
 				System.out.print(point[i] + " ");
 			}
-			System.out.println(Lambda.evaluateLambda(new ReferencePoint(lambda)));
+			System.out.println(Lambda.evaluateLambda(rp));
 		}
 	}
 

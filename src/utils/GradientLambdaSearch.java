@@ -1,10 +1,12 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -185,7 +187,7 @@ public class GradientLambdaSearch {
 			}
 		}
 
-		assert CV == 0 || Geometry.getLen(gradTheta) > Geometry.EPS;
+		assert CV == 0 || DoubleStream.of(gradTheta).anyMatch(e -> Math.abs(e) > 0);
 		
 		double gradLambda[] = theta2lambda(gradTheta);
 		
