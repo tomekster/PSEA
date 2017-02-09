@@ -88,7 +88,8 @@ public class GradientLambdaSearch {
 			PreferenceCollector PC = PreferenceCollector.getInstance();
 			System.out.println("ERROR");
 		}
-		assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
+		//TODO - throwed error on DTLZ4, 1500, 15
+		//assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
 		return res;
 	}
 

@@ -107,10 +107,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 			
 			if(secondPhase){
 //				if(generation % elicitationInterval == 0){
-				if(generation % elicitationInterval == 0){
 					elicitate(problem.getNumObjectives()/2);
-				}
-				lambda.nextGeneration();
+//				}
 				nextGeneration();
 			}
 			else{
@@ -134,11 +132,19 @@ public class RST_NSGAIII extends EA implements Runnable {
 		NonDominationRanker ndr = new NonDominationRanker();
 		Population firstFront = ndr.sortPopulation(population).get(0);
 		boolean pairUsed[][] = new boolean[firstFront.size()][firstFront.size()];
-		for(int i=0; i<numToElicitate; i++){
-			if (firstFront.size() > 1){
-				Elicitator.elicitate(firstFront, decisionMakerRanker, lambda, pairUsed);
-			}	
+//		for(int i=0; i<numToElicitate; i++){
+		if (firstFront.size() > 1){
+			boolean cont = true;
+			int elicitated=0;
+			while(cont){
+				cont = Elicitator.elicitate(firstFront, decisionMakerRanker, lambda, pairUsed);
+				lambda.nextGeneration();
+				elicitated++;
+				if(elicitated >= 50) break;
+			}
+			System.out.println("Elicitated: " + elicitated);
 		}
+//		}
 	}
 
 	@Override
@@ -202,12 +208,12 @@ public class RST_NSGAIII extends EA implements Runnable {
 //			}
 //			System.out.println(Lambda.evaluateLambda(new ReferencePoint(lambda)));
 			
-			double lambda[] = rp.getDim();
-			double point[] = gls.lambda2theta(lambda);
-			for(int i=0; i<3; i++){
-				System.out.print(point[i] + " ");
-			}
-			System.out.println(Lambda.evaluateLambda(rp));
+//			double lambda[] = rp.getDim();
+//			double point[] = gls.lambda2theta(lambda);
+//			for(int i=0; i<3; i++){
+//				System.out.print(point[i] + " ");
+//			}
+//			System.out.println(Lambda.evaluateLambda(rp));
 		}
 	}
 

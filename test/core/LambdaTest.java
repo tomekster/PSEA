@@ -79,6 +79,7 @@ public class LambdaTest {
 //		TestingUtils.assertDoubleArrayEquals(obj2, res.getSolution(2).getObjectives());
 //	}
 	
+	@Test
 	public void selectKSolutionsByChebyshevBordaRankingTest(){
 		ArrayList<ReferencePoint> lambdas = new ArrayList<ReferencePoint>();
 		lambdas.add(new ReferencePoint(dim1));
@@ -100,5 +101,19 @@ public class LambdaTest {
 		TestingUtils.assertDoubleArrayEquals(obj1, res.getSolution(0).getObjectives());
 		TestingUtils.assertDoubleArrayEquals(obj3, res.getSolution(1).getObjectives());
 		TestingUtils.assertDoubleArrayEquals(obj2, res.getSolution(2).getObjectives());
+	}
+	
+	@Test
+	public void bestWorseCVTest(){
+		ArrayList<ReferencePoint> newLambdas = new ArrayList<>();
+		double dim[] = {0};
+		ReferencePoint rp1 = new ReferencePoint(dim);
+		ReferencePoint rp2 =new ReferencePoint(dim);
+		rp1.setNumViolations(1);
+		rp2.setNumViolations(2);
+		newLambdas.add(rp1);
+		newLambdas.add(rp2);
+		assertEquals(1, newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt());
+		assertEquals(2, newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
 	}
 }

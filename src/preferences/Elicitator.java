@@ -13,15 +13,16 @@ import utils.Pair;
 
 public class Elicitator {
 
-	public static void elicitate(Population firstFront, ChebyshevRanker decisionMakerRanker, Lambda lambda, boolean pairsUsed[][]) {
+	public static boolean elicitate(Population firstFront, ChebyshevRanker decisionMakerRanker, Lambda lambda, boolean pairsUsed[][]) {
 //		Pair<Solution, Solution> p = getComparedSolutions(firstFront);
 //		Pair<Solution, Solution> p = getComparedSolutions2(firstFront, PC.getComparisons().size());
 		Pair<Integer, Integer> p = getComparedSolutions3(firstFront, lambda, pairsUsed);
+		if(p.first==-1 && p.second==-1) return false;
 		pairsUsed[p.first][p.second] = true;
 		
 		Solution s1 = firstFront.getSolution(p.first);
 		Solution s2 = firstFront.getSolution(p.second);
-		System.out.println(s1 + " " + s2);
+//		System.out.println(s1 + " " + s2);
 		PreferenceCollector PC = PreferenceCollector.getInstance();		
 		
 		if (decisionMakerRanker != null) {
@@ -36,6 +37,7 @@ public class Elicitator {
 		} else {
 			elicitateDialog(s1,s2,PC);
 		}
+		return true;
 	}
 
 	private static Pair<Integer, Integer> getRandomIds(int size) {
@@ -102,7 +104,8 @@ public class Elicitator {
 			}
 		}
 		System.out.println("final split:" + res1 + " " + res2 + " " + inc);
-		if(maxSplit == 0) return getRandomIds(pop.size());
+//		if(maxSplit == 0) return getRandomIds(pop.size());
+		if(maxSplit == 0) return new Pair<Integer, Integer>(-1, -1);
 		else return new Pair<Integer, Integer>(id1, id2);
 	}
 

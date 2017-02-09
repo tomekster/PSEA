@@ -44,8 +44,9 @@ public class GradientLambdaSearchTest {
 	}
 	
 	@Test
-	public void getComparisonSwitchPoints(){
+	public void getComparisonSwitchPointsTest(){
 		PreferenceCollector PC = PreferenceCollector.getInstance();
+		PC.clear();
 		double var[] = {0};
 		double obj1[] = {0.311397000904097, 0.003796942733664, 0.201330694436395};
 		double obj2[] = {0.324203496628281,	0.108552933625122,	0.074641790760185};
@@ -72,7 +73,7 @@ public class GradientLambdaSearchTest {
 	}
 	
 	@Test
-	public void getComparisonSwitchPoints2(){
+	public void getComparisonSwitchPointsTest2(){
 		PreferenceCollector PC = PreferenceCollector.getInstance();
 		PC.clear();
 		double var[] = {0};
@@ -107,7 +108,7 @@ public class GradientLambdaSearchTest {
 	}
 	
 	@Test
-	public void getComparisonSwitchPoints3(){
+	public void getComparisonSwitchPointsTest3(){
 		PreferenceCollector PC = PreferenceCollector.getInstance();
 		PC.clear();
 		double var[] = {0};
