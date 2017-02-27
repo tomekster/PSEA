@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ public class Lambda {
 		for(int i=0; i<dimensions.size();i++){
 			dims[i] = dimensions.get(i);
 		}
+		assert( Math.abs(Arrays.stream(dims).sum() - 1) < Geometry.EPS);
 		ReferencePoint rp = new ReferencePoint(dims);
 		return rp;
 	}
@@ -94,6 +96,11 @@ public class Lambda {
 	
 	protected ArrayList <ReferencePoint> selectNewLambdas(ArrayList <ReferencePoint> lambdasPop) {
 		for(ReferencePoint rp : lambdasPop){
+			double dim[] = rp.getDim();
+			if(NSGAIIIRandom.getInstance().nextDouble() < 0.3){
+				dim = Geometry.getRandomNeighbour(dim, 0.03); //Mutate lambda just a little bit randomly
+			}
+			rp.setDim(dim);
 			evaluateLambda(rp);
 		}
 		Collections.sort(lambdasPop, new LambdaCVRanker());

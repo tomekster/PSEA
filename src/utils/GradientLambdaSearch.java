@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,11 +50,14 @@ public class GradientLambdaSearch {
 		return resLambda;
 	}
 	
-	private ReferencePoint improve(ReferencePoint lambda) {
-		double grad[] = getTotalPCGradient(lambda);
-		// If gradient is empty (for example lambda reproduces all comparisons) then no improvement is needed
-		if(Geometry.getLen(grad) < Geometry.EPS){
-			return lambda;
+	private ReferencePoint improve(ReferencePoint lambda, ReferencePoint bestLambda) {
+		double allUnsatisfiedGrad[] = getTotalPCGradient(lambda);
+		
+		double bestLambdaGrad[] = new double[lambda.getNumDimensions()];
+		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1 ) < Geometry.EPS );
+		for(int i=0; i<lambda.getNumDimensions(); i++){
+			bestLambdaGrad[i] = lambda.getDim(i) - bestLambda.getDim(i);
 		}
 		
 //		double neigh[] = Geometry.getRandomNeighbour(lambda.getDim(), 1.0);
@@ -61,35 +65,59 @@ public class GradientLambdaSearch {
 //		for(int i=0; i<numObjectives; i++){
 //			grad[i] = neigh[i] - lambda.getDim(i);
 //		}
-				
+		
+		ReferencePoint res1 = new ReferencePoint(lambda.getNumDimensions());
+		ReferencePoint res2 = new ReferencePoint(lambda.getNumDimensions());
+		ReferencePoint res3 = new ReferencePoint(lambda.getNumDimensions());
+		
+		// If gradient is empty (for example lambda reproduces all comparisons) then no improvement is needed
+		if(Geometry.getLen(allUnsatisfiedGrad) < Geometry.EPS){
+			res1.setNumViolations(Integer.MAX_VALUE);
+		}
+		else{
+			res1 = getBestOnGradientLine(lambda, allUnsatisfiedGrad);
+		}
+		
+		if(Geometry.getLen(bestLambdaGrad) < Geometry.EPS){
+			res2.setNumViolations(Integer.MAX_VALUE);
+		}
+		else{
+			res2 = getBestOnGradientLine(lambda, bestLambdaGrad);
+		}
+		
+		ArrayList<ReferencePoint> lambdas = new ArrayList<>();
+		lambdas.add(res1);
+		lambdas.add(res2);
+		lambdas.add( getBestOnGradientLine(lambda, Geometry.getRandomVectorOnHyperplane(lambda.getNumDimensions(), 1)) );
+		
+		return lambdas.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
+	}
+
+	private ReferencePoint getBestOnGradientLine(ReferencePoint lambda, double[] grad) {
+		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );
+		
 		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambda.getDim(), grad);
 		double l1[] = simplexSegment.first, l2[] = simplexSegment.second;
-		
-		double m1 = 1, m2 = 1;
-		
-		for(int i=0; i<numObjectives; i++){
-			assert l1[i] > -Geometry.EPS;
-			assert l1[i] < 1 + Geometry.EPS;
-			assert l2[i] > -Geometry.EPS;
-			assert l2[i] < 1 + Geometry.EPS;
-			if(l1[i] < m1) m1 = l1[i];
-			if(l2[i] < m2) m2 = l2[i];
-		}
-		assert Math.abs(m1) < Geometry.EPS;
-		assert Math.abs(m2) < Geometry.EPS;
 		
 		//Each pair is (t, [+,-] id), where t represents "time" on segment l1, l2 counted from l1 to l2
 		// while absolute value of id represents comparison id which changes when lambda crosses this point. Positive id indicates 
 		//change from "not reproduced" to "reproduced" comparison, while negative id indicates opposite.
 		ArrayList < Pair<Double, Integer> > switches = getComparisonSwitchPoints(l1, l2);
 		
+		assert( Math.abs( Arrays.stream(l1).sum() - 1 ) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(l2).sum() - 1 ) < Geometry.EPS );
 		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(l1, l2, findBestTime(switches)));
+		assert( Math.abs( Arrays.stream(res.getDim()).sum() - 1 ) < Geometry.EPS );
+		
+		//Debug
 		if(Lambda.evaluateLambda(res) > Lambda.evaluateLambda(lambda)){
 			PreferenceCollector PC = PreferenceCollector.getInstance();
 			System.out.println("ERROR");
 		}
-		//TODO - throwed error on DTLZ4, 1500, 15
+		//TODO - threw error on DTLZ4, 1500, 15
 		//assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
+		
+		
 		return res;
 	}
 
@@ -125,7 +153,8 @@ public class GradientLambdaSearch {
 			bestBeg = switches.get(switches.size()-1).first;
 		}
 		
-		return (bestBeg + bestEnd)/2;
+		//return (bestBeg + bestEnd)/2;
+		return bestBeg + (bestEnd - bestBeg) * NSGAIIIRandom.getInstance().nextDouble();
 	}
 
 	protected ArrayList<Pair<Double, Integer>> getComparisonSwitchPoints(double l1[], double l2[]) {
@@ -239,6 +268,7 @@ public class GradientLambdaSearch {
 	}
 	
 	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
-		return lambdasList.stream().map(l -> this.improve(l)).collect(Collectors.toCollection(ArrayList::new));
+		ReferencePoint bestLambda = lambdasList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
+		return lambdasList.stream().map(l -> this.improve(l, bestLambda)).collect(Collectors.toCollection(ArrayList::new));
 	}
 }

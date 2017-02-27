@@ -1,6 +1,7 @@
 package utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
@@ -10,7 +11,7 @@ import core.points.Solution;
 
 public class Geometry {
 
-	public static double EPS = 1E-9;
+	public static double EPS = 1E-6;
 
 	/**
 	 * 
@@ -307,17 +308,21 @@ public class Geometry {
 		return res;
 	}
 	
-	public static double [] getRandomNeighbour(double[] centralPoint, double radius) {
-		int dim = centralPoint.length;
-
+	public static double [] getRandomVectorOnHyperplane(int dim, double length){
 		double p[] = new double[dim - 1];
 		double q[] = new double[dim];
-		p = Geometry.randomPointOnSphere(dim - 1, radius);
+		p = Geometry.randomPointOnSphere(dim, length);
 		for (int i = 0; i < dim - 1; i++) {
 			q[i] = p[i];
 		}
 		q[dim - 1] = 0;
 		q = Geometry.mapOnParallelHyperplane(q);
+		return q;
+	}
+	
+	public static double [] getRandomNeighbour(double[] centralPoint, double radius) {
+		int dim = centralPoint.length;
+		double q[] = getRandomVectorOnHyperplane(dim, radius);
 		for (int i = 0; i < dim; i++) {
 			q[i] += centralPoint[i];
 		}
@@ -420,19 +425,53 @@ public class Geometry {
 	}
 
 	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {
+		assert( Math.abs( Arrays.stream(point).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
+		
 		int numDim = point.length;
 		double p1[] = new double[numDim], p2[] = new double[numDim];
 		double t1 = Double.MAX_VALUE, t2 = Double.MAX_VALUE;
 		
 		for(int i=0; i<numDim; i++){
-			if(grad[i] < 0) t1 = Double.min( t1, -point[i]/grad[i]);
-			else t2 = Double.min( t2, point[i]/grad[i]);
+			assert point[i] >= -Geometry.EPS;
+			assert point[i] <= 1+Geometry.EPS;
+			if(point[i] < 0) point[i]=0;
+			if(point[i] > 1) point[i]=1;
+			if(grad[i] < 0){
+				t1 = Double.min( t1, -point[i]/grad[i]);
+				t2 = Double.min( t2, -(1-point[i])/grad[i]);
+			}
+			else if(grad[i] > 0){
+				t1 = Double.min( t1, (1-point[i])/grad[i]);
+				t2 = Double.min( t2, point[i]/grad[i]);
+			}
 		}
 		
 		for(int i=0; i<numDim; i++){
 			p1[i] = point[i] + t1 * grad[i];
 			p2[i] = point[i] - t2 * grad[i];
 		}
+		assert( Math.abs( Arrays.stream(p1).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
+		
+		double m1 = 1, m2 = 1;
+		for(int i=0; i<p1.length; i++){
+			assert p1[i] > -Geometry.EPS;
+			assert p1[i] < 1 + Geometry.EPS;
+			assert p2[i] > -Geometry.EPS;
+			assert p2[i] < 1 + Geometry.EPS;
+			if(p1[i] > 1) p1[i] = 1;
+			if(p1[i] < 0) p1[i] = 0;
+			if(p2[i] > 1) p2[i] = 1;
+			if(p2[i] < 0) p2[i] = 0;
+			if(p1[i] < m1) m1 = p1[i];
+			if(p2[i] < m2) m2 = p2[i];
+		}
+		assert Math.abs(m1) < Geometry.EPS;
+		assert Math.abs(m2) < Geometry.EPS;
+		
+		assert( Math.abs( Arrays.stream(p1).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
 		
 		return new Pair <double[], double[]>(p1, p2);
 	}
