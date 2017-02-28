@@ -112,6 +112,7 @@ public class GradientLambdaSearch {
 		//Debug
 		if(Lambda.evaluateLambda(res) > Lambda.evaluateLambda(lambda)){
 			PreferenceCollector PC = PreferenceCollector.getInstance();
+			PC.getInstance();
 			System.out.println("ERROR");
 		}
 		//TODO - threw error on DTLZ4, 1500, 15
@@ -168,7 +169,7 @@ public class GradientLambdaSearch {
 			}
 			ArrayList <Line2D> upperEnvelope = Geometry.linesSetUpperEnvelope(lines);
 
-			//Check comparisons on lambda1 (0 on time scale corresponding to lambda2) to properly initialize switches array
+			//Check comparisonson for alpha=0 (linearCombination(lambda1, lambda2, 0) = lambda2) to properly initialize switches array
 			int zeroComparison = ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getWorse(), null, l2, 0);
 			if( zeroComparison < 0){
 				res.add(new Pair<Double, Integer>(.0, cpId+1));
@@ -180,14 +181,22 @@ public class GradientLambdaSearch {
 			for(int i=1; i<upperEnvelope.size(); i++){
 				Line2D line1 = upperEnvelope.get(i-1);
 				Line2D line2 = upperEnvelope.get(i);
-				if( !(line1.isBetter() ^ line2.isBetter())) continue;
-				double crossX = line1.crossX(line2);
-				if(crossX < 0 || crossX > 1) continue;
-				if(line2.isBetter()){
-					res.add(new Pair<Double, Integer>(crossX, -(cpId+1)));
-				}
-				else{
-					res.add(new Pair<Double, Integer>(crossX, cpId+1));
+				if( line1.isBetter() ^ line2.isBetter() ){
+					double crossX = line1.crossX(line2);
+					if(crossX < 0 || crossX > 1) continue;
+					if(line2.isBetter()){
+						res.add(new Pair<Double, Integer>(crossX, -(cpId+1)));
+					}
+					else{
+						res.add(new Pair<Double, Integer>(crossX, cpId+1));
+					}
+					
+					double lambda[] = Geometry.linearCombination(l1, l2, crossX);
+					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
+					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
+					if( ! ((M1-M2) < Geometry.EPS)){
+						 System.out.println("ERROR");
+					}
 				}
 			}
 		}

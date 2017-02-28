@@ -98,7 +98,7 @@ public class Lambda {
 		for(ReferencePoint rp : lambdasPop){
 			double dim[] = rp.getDim();
 			if(NSGAIIIRandom.getInstance().nextDouble() < 0.3){
-				dim = Geometry.getRandomNeighbour(dim, 0.03); //Mutate lambda just a little bit randomly
+				dim = Geometry.getRandomNeighbour(dim, 0.1); //Mutate lambda just a little bit randomly
 			}
 			rp.setDim(dim);
 			evaluateLambda(rp);

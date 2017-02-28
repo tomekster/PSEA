@@ -394,6 +394,11 @@ public class Geometry {
 		public boolean isBetter(){
 			return better;
 		}
+		
+		@Override
+		public String toString(){
+			return "(" + this.a + ", " + this.b + ")"; 
+		}
 	}
 	
 	public static ArrayList< Line2D> linesSetUpperEnvelope(ArrayList < Line2D > lines){

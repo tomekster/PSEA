@@ -90,6 +90,51 @@ public class GeometryTest {
 		assertEquals(2.0/3, res.get(2).a, EPS);
 		assertEquals(4.0/3, res.get(2).b, EPS);	
 	}
+	
+	//Wikipedia example http://wcipeg.com/wiki/Convex_hull_trick
+		//Extended with duplicated lines and lines with same slope value
+	@Test
+	public void linesSetUpperEnvelope3(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-1,-10));
+		lines.add(new Line2D(0,-6));
+		lines.add(new Line2D(-3,-33));
+		lines.add(new Line2D(-4,-40));
+		lines.add(new Line2D(-4,-24));
+		lines.add(new Line2D(1,-6));
+		lines.add(new Line2D(1,-8));
+			
+		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		assertEquals(4, res.size());
+		assertEquals(-4, res.get(0).a, EPS);
+		assertEquals(-24, res.get(0).b, EPS);
+		assertEquals(-1, res.get(1).a, EPS);
+		assertEquals(-10, res.get(1).b, EPS);
+		assertEquals(0, res.get(2).a, EPS);
+		assertEquals(-6, res.get(2).b, EPS);
+		assertEquals(1, res.get(3).a, EPS);
+		assertEquals(-6, res.get(3).b, EPS);
+	}
+	
+	@Test
+	public void linesSetUpperEnvelope4(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-0.11,0.11));
+		lines.add(new Line2D(-0.026,0.026));
+		lines.add(new Line2D(0,0.07));
+		lines.add(new Line2D(0,0.088));
+		lines.add(new Line2D(0.063,0));
+		lines.add(new Line2D(0.179,0));
+			
+		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		assertEquals(3, res.size());
+		assertEquals(-0.11, res.get(0).a, EPS);
+		assertEquals(0.11, res.get(0).b, EPS);
+		assertEquals(0, res.get(1).a, EPS);
+		assertEquals(0.088, res.get(1).b, EPS);
+		assertEquals(0.179, res.get(2).a, EPS);
+		assertEquals(0, res.get(2).b, EPS);
+	}
 		
 	@Test
 	public void testGetSimplexSegment(){
