@@ -8,6 +8,7 @@ import java.util.Stack;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
+import utils.Geometry.Line2D;
 
 public class Geometry {
 
@@ -375,7 +376,8 @@ public class Geometry {
 			return a*x + b;
 		}
 		public double crossX(Line2D l2){
-			if( Math.abs(a - l2.a) < EPS){
+			//if( Math.abs(a - l2.a) < EPS){
+			if(Double.compare(a, l2.a) == 0){
 				return Double.POSITIVE_INFINITY;
 			}
 			return (l2.b - b) / (a - l2.a);
@@ -383,13 +385,10 @@ public class Geometry {
 		@Override
 		public int compareTo(Object arg0) {
 			Line2D l2 = (Line2D) arg0;
-			if( a < l2.a ) return -1;
-			else if( Math.abs(a - l2.a) < EPS ){
-				return (b > l2.b ? -1 : 1);
-			}
-			else{
-				return 1;
-			}
+			//a - increasing
+			//b - decreasing
+			if( Double.compare(a,l2.a )==0 ) return -Double.compare(b, l2.b);
+			else{ return Double.compare(a, l2.a); }
 		}
 		public boolean isBetter(){
 			return better;
@@ -401,19 +400,28 @@ public class Geometry {
 		}
 	}
 	
-	public static ArrayList< Line2D> linesSetUpperEnvelope(ArrayList < Line2D > lines){
+	public static ArrayList< Line2D> linesUpperEnvelope(ArrayList < Line2D > lines){
 		Collections.sort(lines);
+//		System.out.println("Sorted:");
+//		for(Line2D L : lines){
+//			System.out.println(L.a + "  " + L.b);
+//		}
+//		System.out.println();
 		Stack <Line2D> stack = new Stack<>();
 		stack.push(lines.get(0));
-		stack.push(lines.get(1));
-		for(int i=2; i<lines.size(); i++){
+		
+		int j=1;
+//		while(j < lines.size() && Math.abs(lines.get(0).a - lines.get(j).a) < EPS ) j++;
+		stack.push(lines.get(j));
+		
+		for(int i=j+1; i<lines.size(); i++){
 			Line2D l1 = lines.get(i);
 			Line2D l2 = stack.pop();
 			Line2D l3 = stack.peek();
 			stack.push(l2);
 			
-			if(Math.abs(l1.a - l2.a) < EPS ) continue;
-			else {
+			if(l1.crossX(l2) == Double.POSITIVE_INFINITY && l1.b < l2.b) continue;
+			//else {
 				while(stack.size() > 1 && l2.crossX(l3) >= l1.crossX(l3)){
 					stack.pop();
 					if(stack.size() > 1){
@@ -423,10 +431,35 @@ public class Geometry {
 					}
 				}
 				stack.push(l1);
-			}
+			//}
 		}
 		
-		return new ArrayList<>(stack);
+		ArrayList <Line2D> res = new ArrayList<>(stack); 
+		
+//		ArrayList <Double> crossPoints = new ArrayList<>();
+//		for(int i=1; i<res.size(); i++){
+//			Line2D l1 = res.get(i-1);
+//			Line2D l2 = res.get(i);
+//			double x1 = l1.crossX(l2);
+//			double x2 = l2.crossX(l1);
+//			assert Math.abs(x1 - x2) < Geometry.EPS;
+//			if(crossPoints.isEmpty()) crossPoints.add(x1 - 0.1);
+//			crossPoints.add(x1);
+//		}
+//		crossPoints.add(crossPoints.get(crossPoints.size()-1) + 0.1); 
+//		for(int i=0;i<crossPoints.size()-1;i++){
+//			assert crossPoints.get(i) < crossPoints.get(i+1);
+//			double x = (crossPoints.get(i) + crossPoints.get(i+1))/2;
+//			double y = res.get(i).evalX(x);
+//			
+//			for(Line2D l : lines){
+//				//assert y >= l.evalX(x);
+//				if(y < l.evalX(x)){
+//					System.out.println("ERROR");
+//				}
+//			}
+//		}
+		return res;
 	}
 
 	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {

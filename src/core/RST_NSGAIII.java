@@ -25,7 +25,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
 
-	private static final double SPREAD_THRESHOLD = 0.9;
+	private static final double SPREAD_THRESHOLD = 0.95;
 
 	private final static int NUM_LAMBDAS = 50;
 
@@ -134,13 +134,11 @@ public class RST_NSGAIII extends EA implements Runnable {
 		boolean pairUsed[][] = new boolean[firstFront.size()][firstFront.size()];
 //		for(int i=0; i<numToElicitate; i++){
 		if (firstFront.size() > 1){
-			boolean cont = true;
 			int elicitated=0;
-			while(cont){
-				cont = Elicitator.elicitate(firstFront, decisionMakerRanker, lambda, pairUsed);
+			while(true){
+				if(elicitated >= 10 || ! Elicitator.elicitate(firstFront, decisionMakerRanker, lambda, pairUsed) ) break;
 				lambda.nextGeneration();
 				elicitated++;
-				if(elicitated >= 50) break;
 			}
 			System.out.println("Elicitated: " + elicitated);
 		}

@@ -10,8 +10,10 @@ import org.junit.Test;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
+import preferences.Comparison;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
+import utils.Geometry.Line2D;
 public class GradientLambdaSearchTest {
 	
 	@Test
@@ -61,7 +63,7 @@ public class GradientLambdaSearchTest {
 		double lambda1[] = {0.239218159637306, 0.760781840362694, 0};
 		double lambda2[] = {0, 0.484234692114499, 0.515765307885501};
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
- 		ArrayList < Pair<Double, Integer> > switchPoints = gls.getComparisonSwitchPoints(lambda1, lambda2) ;
+ 		ArrayList < Pair<Double, Integer> > switchPoints = gls.getAllSwitchPoints(lambda1, lambda2) ;
  		assertEquals(0, switchPoints.get(0).first, Geometry.EPS);
  		assertEquals(0, switchPoints.get(1).first, Geometry.EPS);
  		assertEquals(0.028277705388397, switchPoints.get(2).first, Geometry.EPS);
@@ -95,7 +97,7 @@ public class GradientLambdaSearchTest {
 		double lambda1[] = {0.28075525615251, 0, 0.71924474384749};
 		double lambda2[] = {0.077751763428363, 0.922248236571637, 0};
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
- 		ArrayList < Pair<Double, Integer> > switchPoints = gls.getComparisonSwitchPoints(lambda1, lambda2) ;
+ 		ArrayList < Pair<Double, Integer> > switchPoints = gls.getAllSwitchPoints(lambda1, lambda2) ;
  		assertEquals(0, switchPoints.get(0).first, Geometry.EPS);
  		assertEquals(0, switchPoints.get(1).first, Geometry.EPS);
  		assertEquals(0, switchPoints.get(2).first, Geometry.EPS);
@@ -126,11 +128,52 @@ public class GradientLambdaSearchTest {
 		double lambda1[] = {0, 0.630406655829493, 0.369593344170507};
 		double lambda2[] = {0.140510428179306, 0.859489571820694, 0};
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
- 		ArrayList < Pair<Double, Integer> > switchPoints = gls.getComparisonSwitchPoints(lambda1, lambda2) ;
+ 		ArrayList < Pair<Double, Integer> > switchPoints = gls.getAllSwitchPoints(lambda1, lambda2) ;
  		assertEquals(0.586813707588713, switchPoints.get(2).first, Geometry.EPS);
  		assertEquals(2, (long) switchPoints.get(2).second);
 //		True only when picking middle point from interval
 // 		double bestTime = gls.findBestTime(switchPoints);
 // 		assertEquals((1 + 0.586813707588713)/ 2, bestTime, Geometry.EPS);
 	}
+	
+//	@Test
+//	public void getComparisonSwitchPointsTest4(){
+//		double l1[] = {0.8907733, .0, 0.1092267};
+//		double l2[] = {0.9280113, 0.0729887, .0};
+//		
+//		int cpId = 0;
+//		
+//		double vars[] = {0};
+//		double obj1[] = {0.1451427, 0.3736858, .0};
+//		double obj2[] = {.0, 0.0720721, 0.4872119};
+//		Comparison cp = new Comparison(new Solution(vars, obj1), new Solution(vars, obj2), 0, 0);
+//		
+//		ArrayList <Line2D> upperEnvelope = new ArrayList<>();
+//		ArrayList <Pair<Double, Integer>> res = new ArrayList<>();
+//		upperEnvelope.add(new Line2D(-0.027, 0.027, true));
+//		upperEnvelope.add(new Line2D(-0.005, 0.134, true));
+//		upperEnvelope.add(new Line2D(0.053, 0.0, false));
+//		for(int i=1; i<upperEnvelope.size(); i++){
+//			Line2D line1 = upperEnvelope.get(i-1);
+//			Line2D line2 = upperEnvelope.get(i);
+//			if( line1.isBetter() ^ line2.isBetter() ){
+//				double crossX = line1.crossX(line2);
+//				if(crossX < 0 || crossX > 1) continue;
+//				if(line2.isBetter()){
+//					res.add(new Pair<Double, Integer>(crossX, -(cpId+1)));
+//				}
+//				else{
+//					res.add(new Pair<Double, Integer>(crossX, cpId+1));
+//				}
+//				
+//				double lambda[] = Geometry.linearCombination(l1, l2, crossX);
+//				double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
+//				double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
+//				System.out.println(M1 + " " + M2);
+//				if( ! ((M1-M2) < Geometry.EPS)){
+//					 System.out.println("ERROR");
+//				}
+//			}
+//		}
+//	}
 }

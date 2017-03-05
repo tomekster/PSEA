@@ -1,5 +1,7 @@
 package preferences;
 
+import java.util.stream.DoubleStream;
+
 import javax.swing.JOptionPane;
 
 import core.Lambda;
@@ -77,7 +79,8 @@ public class Elicitator {
 	}
 	
 	private static Pair<Integer, Integer> getComparedSolutions3(Population pop, Lambda lambda, boolean pairsUsed[][]) {
-		int maxSplit = -1;
+		double maxSplit = -1;
+		double maxMinDif = -1;
 		int res1=-1,res2=-1,inc=-1;
 		int id1=-1, id2=-1;
 		
@@ -86,6 +89,7 @@ public class Elicitator {
 				if(pairsUsed[i][j]) continue;
 				int score1=0, score2=0, incomparable=0;
 				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
+				
 				for(ReferencePoint rp : lambda.getLambdas()){
 					int comparison = ChebyshevRanker.compareSolutions(s1,s2, null, rp.getDim(), 0);
 					if(comparison < 0) score1++;
@@ -93,10 +97,19 @@ public class Elicitator {
 					else incomparable++;
 				}
 				int split = Math.min(score1, score2);
-				if(split > maxSplit){
+				
+				int numObjectives = s1.getNumObjectives();
+				double dif[] = new double[numObjectives];
+				for(int k=0; k<numObjectives; k++){
+					dif[k] = Math.abs(s1.getObjective(k) - s2.getObjective(k));
+				}
+				double minDif = DoubleStream.of(dif).min().getAsDouble();
+				
+				if( (split==maxSplit && minDif > maxMinDif) || split > maxSplit ){
 					id1 = i;
 					id2 = j;
 					maxSplit = split;
+					maxMinDif = minDif;
 					res1 = score1;
 					res2 = score2;
 					inc = incomparable;

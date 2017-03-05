@@ -57,7 +57,7 @@ public class GeometryTest {
 		lines.add(new Line2D(-3,12));
 		lines.add(new Line2D(-0.5,3));
 		
-		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
 		assertEquals(-3, res.get(0).a, EPS);
 		assertEquals(12, res.get(0).b, EPS);
@@ -81,7 +81,7 @@ public class GeometryTest {
 		lines.add(new Line2D(-3,13));
 		lines.add(new Line2D(-2.0/3, 1));
 		
-		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
 		assertEquals(-3, res.get(0).a, EPS);
 		assertEquals(13, res.get(0).b, EPS);
@@ -104,7 +104,7 @@ public class GeometryTest {
 		lines.add(new Line2D(1,-6));
 		lines.add(new Line2D(1,-8));
 			
-		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(4, res.size());
 		assertEquals(-4, res.get(0).a, EPS);
 		assertEquals(-24, res.get(0).b, EPS);
@@ -126,7 +126,7 @@ public class GeometryTest {
 		lines.add(new Line2D(0.063,0));
 		lines.add(new Line2D(0.179,0));
 			
-		ArrayList <Line2D> res = Geometry.linesSetUpperEnvelope(lines);
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
 		assertEquals(-0.11, res.get(0).a, EPS);
 		assertEquals(0.11, res.get(0).b, EPS);
@@ -135,7 +135,165 @@ public class GeometryTest {
 		assertEquals(0.179, res.get(2).a, EPS);
 		assertEquals(0, res.get(2).b, EPS);
 	}
+	
+	@Test
+	public void linesSetUpperEnvelope5(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-0.027,0.027));
+		lines.add(new Line2D(-0.005,0.005));
+		lines.add(new Line2D(-0.005,0.134));
+		lines.add(new Line2D(0,0));
+		lines.add(new Line2D(0,0));
+		lines.add(new Line2D(0.053,0));
+			
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
+//		System.out.println("RES:");
+//		for(Line2D L : res){
+//			System.out.println(L.a + "  " + L.b);
+//		}
 		
+		assertEquals(3, res.size());
+		assertEquals(-0.027, res.get(0).a, EPS);
+		assertEquals(0.027, res.get(0).b, EPS);
+		assertEquals(-0.005, res.get(1).a, EPS);
+		assertEquals(0.134, res.get(1).b, EPS);
+		assertEquals(0.053, res.get(2).a, EPS);
+		assertEquals(0.0, res.get(2).b, EPS);
+	}
+	
+	@Test
+	public void linesSetUpperEnvelope6(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-0.1779,0.1779));
+		lines.add(new Line2D(0,0));
+		lines.add(new Line2D(0,0.0238));
+		lines.add(new Line2D(0,0.3033));
+		lines.add(new Line2D(0.0259,0));
+		lines.add(new Line2D(0.1292,0));
+			
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
+		
+		assertEquals(3, res.size());
+		assertEquals(-0.1779, res.get(0).a, EPS);
+		assertEquals(0.1779, res.get(0).b, EPS);
+		assertEquals(0, res.get(1).a, EPS);
+		assertEquals(0.3033, res.get(1).b, EPS);
+		assertEquals(0.1292, res.get(2).a, EPS);
+		assertEquals(0.0, res.get(2).b, EPS);
+	}
+	
+	@Test
+	public void linesSetUpperEnvelope7(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-0.3352,0.3352));
+		lines.add(new Line2D(0,0));
+		lines.add(new Line2D(0.0174,0));
+		lines.add(new Line2D(0,0));
+		lines.add(new Line2D(0.1133,0));
+		lines.add(new Line2D(0.1133,0.0283));
+			
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
+		
+		assertEquals(2, res.size());
+		assertEquals(-0.3352, res.get(0).a, EPS);
+		assertEquals(0.3352, res.get(0).b, EPS);
+		assertEquals(0.1133, res.get(1).a, EPS);
+		assertEquals(0.0283, res.get(1).b, EPS);
+	}
+	
+	@Test
+	public void linesSetUpperEnvelope8(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-0.09,	0.09));
+		lines.add(new Line2D(-0.04,0.04));
+		lines.add(new Line2D(-0.04,0.12));
+		lines.add(new Line2D(-0.01,0.03));
+		lines.add(new Line2D(0.02,0));
+		lines.add(new Line2D(0.25,0));
+			
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
+		System.out.println(res.size());
+		assertEquals(-0.09, res.get(0).a, EPS);
+		assertEquals(0.09, res.get(0).b, EPS);
+		assertEquals(-0.04, res.get(1).a, EPS);
+		assertEquals(0.12, res.get(1).b, EPS);
+		assertEquals(0.25, res.get(2).a, EPS);
+		assertEquals(0, res.get(2).b, EPS);
+	}
+	
+	@Test
+	public void linesSetUpperEnvelope9(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(0.09936233736019646, 0));
+		lines.add(new Line2D(0.001352729625262398, 0.19317442946120894));
+		lines.add(new Line2D(0.0013526954488228974,0));
+		lines.add(new Line2D(1.6889104250885733E-5, 0.002411822005556264));
+		lines.add(new Line2D(-0.05828312356748756, 0.05828312356748756));
+		lines.add(new Line2D(-0.15088285990248482,	0.15088285990248482));
+		
+//		(-0.15088285990248482, 0.15088285990248482)
+//		(-0.05828312356748756, 0.05828312356748756)
+//		(1.6889104250885733E-5, 0.002411822005556264)
+//		(0.0013526954488228974, 0.0)
+//		(0.001352729625262398, 0.19317442946120894)
+//		(0.09936233736019646, 0.0)
+		
+//		lines.add(new Line2D(-0.15088285990248482,	0.15088285990248482));
+//		lines.add(new Line2D(-0.05828312356748756, 0.05828312356748756));
+//		lines.add(new Line2D(1.6889104250885733E-5, 0.002411822005556264));
+//		lines.add(new Line2D(0.0013526954488228974,0));
+//		lines.add(new Line2D(0.001352729625262398, 0.19317442946120894));
+//		lines.add(new Line2D(0.09936233736019646, 0));
+		
+//		(-0.15088285990248482, 0.15088285990248482)
+//		(-0.05828312356748756, 0.05828312356748756)
+//		(1.6889104250885733E-5, 0.002411822005556264)
+//		(0.001352729625262398, 0.19317442946120894)
+//		(0.0013526954488228974, 0.0)
+//		(0.09936233736019646, 0.0)
+		
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
+		System.out.println(res.size());
+		assertEquals(3, res.size(), EPS);
+		assertEquals(-0.15088285990248482, res.get(0).a, EPS);
+		assertEquals(0.15088285990248482, res.get(0).b, EPS);
+		assertEquals(0.001352729625262398, res.get(1).a, EPS);
+		assertEquals(0.19317442946120894, res.get(1).b, EPS);
+		assertEquals(0.09936233736019646, res.get(2).a, EPS);
+		assertEquals(0, res.get(2).b, EPS);
+	}
+	
+	@Test
+	public void linesSetUpperEnvelope10(){
+		ArrayList < Line2D > lines = new ArrayList<>();
+		lines.add(new Line2D(-0.000972558490649, 0.000972558490649));
+		lines.add(new Line2D(-0.000972004887446, 0.0367188820992));
+		lines.add(new Line2D(-0.00052010663848, 0.0310018634846));
+		lines.add(new Line2D(-0.000202241430348, 0.00304589266492));
+		lines.add(new Line2D(-7.02776113731e-05, 7.02776113731e-05));
+		lines.add(new Line2D(-2.273073312e-05, 0.00135490500016));
+		lines.add(new Line2D(-1.72930014339e-05, 0.000260444292404));
+		lines.add(new Line2D(-1.40221592519e-06, 5.29707225752e-05));
+		lines.add(new Line2D(2.03313014521e-06, 3.66289882153e-06));
+		lines.add(new Line2D(0.000215476676118, 0.0));
+		lines.add(new Line2D(0.000237879839304, 0.0011251418137));
+		lines.add(new Line2D(0.000271776677981, 0.000489634407243));
+		lines.add(new Line2D(0.000659694581048, 0.000773225601901));
+		lines.add(new Line2D(0.00582575501936, 0.0275550907879));
+		lines.add(new Line2D(0.00823920726442, 0.0));
+		lines.add(new Line2D(0.0200343294063, 0.0234821641088));
+
+			
+		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
+		assertEquals(3, res.size());
+		assertEquals(-0.000972558490649, res.get(0).a, EPS);
+		assertEquals(0.000972558490649, res.get(0).b, EPS);
+		assertEquals(-0.000972004887446, res.get(1).a, EPS);
+		assertEquals(0.0367188820992, res.get(1).b, EPS);
+		assertEquals(0.0200343294063, res.get(2).a, EPS);
+		assertEquals(0.0234821641088, res.get(2).b, EPS);
+	}
+	
 	@Test
 	public void testGetSimplexSegment(){
 		double dim[] = {1.0/3, 1.0/3, 1.0/3};

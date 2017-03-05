@@ -34,6 +34,7 @@ public class NSGAIIIRunnner {
 			e1.printStackTrace();
 		}
 		alg.run();
+//		alg.run();
 	}
 	
 }

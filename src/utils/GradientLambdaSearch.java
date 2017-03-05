@@ -68,7 +68,6 @@ public class GradientLambdaSearch {
 		
 		ReferencePoint res1 = new ReferencePoint(lambda.getNumDimensions());
 		ReferencePoint res2 = new ReferencePoint(lambda.getNumDimensions());
-		ReferencePoint res3 = new ReferencePoint(lambda.getNumDimensions());
 		
 		// If gradient is empty (for example lambda reproduces all comparisons) then no improvement is needed
 		if(Geometry.getLen(allUnsatisfiedGrad) < Geometry.EPS){
@@ -90,6 +89,12 @@ public class GradientLambdaSearch {
 		lambdas.add(res2);
 		lambdas.add( getBestOnGradientLine(lambda, Geometry.getRandomVectorOnHyperplane(lambda.getNumDimensions(), 1)) );
 		
+//		ReferencePoint res = lambdas.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
+//		int cv = res.getNumViolations();
+//		for(ReferencePoint rp : lambdas){
+//			assert cv <= rp.getNumViolations();
+//		}
+//		return res;
 		return lambdas.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
 	}
 
@@ -102,11 +107,11 @@ public class GradientLambdaSearch {
 		//Each pair is (t, [+,-] id), where t represents "time" on segment l1, l2 counted from l1 to l2
 		// while absolute value of id represents comparison id which changes when lambda crosses this point. Positive id indicates 
 		//change from "not reproduced" to "reproduced" comparison, while negative id indicates opposite.
-		ArrayList < Pair<Double, Integer> > switches = getComparisonSwitchPoints(l1, l2);
+		ArrayList < Pair<Double, Integer> > switchPoints = getAllSwitchPoints(l1, l2);
 		
 		assert( Math.abs( Arrays.stream(l1).sum() - 1 ) < Geometry.EPS );
 		assert( Math.abs( Arrays.stream(l2).sum() - 1 ) < Geometry.EPS );
-		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(l1, l2, findBestTime(switches)));
+		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(l1, l2, findBestTime(switchPoints)));
 		assert( Math.abs( Arrays.stream(res.getDim()).sum() - 1 ) < Geometry.EPS );
 		
 		//Debug
@@ -115,9 +120,7 @@ public class GradientLambdaSearch {
 			PC.getInstance();
 			System.out.println("ERROR");
 		}
-		//TODO - threw error on DTLZ4, 1500, 15
-		//assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
-		
+		assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
 		
 		return res;
 	}
@@ -158,47 +161,18 @@ public class GradientLambdaSearch {
 		return bestBeg + (bestEnd - bestBeg) * NSGAIIIRandom.getInstance().nextDouble();
 	}
 
-	protected ArrayList<Pair<Double, Integer>> getComparisonSwitchPoints(double l1[], double l2[]) {
+	protected ArrayList<Pair<Double, Integer>> getAllSwitchPoints(double l1[], double l2[]) {
 		ArrayList <Pair<Double, Integer>> res = new ArrayList<>();
 		for(int cpId=0; cpId<PreferenceCollector.getInstance().getComparisons().size(); cpId++){
 			Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
-			ArrayList <Line2D> lines = new ArrayList<>();
-			for(int i=0; i<numObjectives; i++){
-				lines.add(new Line2D(cp.getBetter().getObjective(i) * (l1[i] - l2[i]), cp.getBetter().getObjective(i) * l2[i], true ) );
-				lines.add(new Line2D(cp.getWorse().getObjective(i) * (l1[i] - l2[i]), cp.getWorse().getObjective(i) * l2[i], false ) );
-			}
-			ArrayList <Line2D> upperEnvelope = Geometry.linesSetUpperEnvelope(lines);
-
-			//Check comparisonson for alpha=0 (linearCombination(lambda1, lambda2, 0) = lambda2) to properly initialize switches array
-			int zeroComparison = ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getWorse(), null, l2, 0);
-			if( zeroComparison < 0){
-				res.add(new Pair<Double, Integer>(.0, cpId+1));
-			}
-			else if(zeroComparison > 0){
-				res.add(new Pair<Double, Integer>(.0, -(cpId+1)));
-			}
 			
-			for(int i=1; i<upperEnvelope.size(); i++){
-				Line2D line1 = upperEnvelope.get(i-1);
-				Line2D line2 = upperEnvelope.get(i);
-				if( line1.isBetter() ^ line2.isBetter() ){
-					double crossX = line1.crossX(line2);
-					if(crossX < 0 || crossX > 1) continue;
-					if(line2.isBetter()){
-						res.add(new Pair<Double, Integer>(crossX, -(cpId+1)));
-					}
-					else{
-						res.add(new Pair<Double, Integer>(crossX, cpId+1));
-					}
-					
-					double lambda[] = Geometry.linearCombination(l1, l2, crossX);
-					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
-					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
-					if( ! ((M1-M2) < Geometry.EPS)){
-						 System.out.println("ERROR");
-					}
-				}
-			}
+			ArrayList <Line2D> lines = getLines(cp.getBetter(), cp.getWorse(), l1, l2); 
+			ArrayList <Line2D> upperEnvelope = Geometry.linesUpperEnvelope(lines);
+
+			//Check comparison for alpha=0 (linearCombination(lambda1, lambda2, 0) = lambda2) to properly initialize switches array
+			int zeroComparison = ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getWorse(), null, l2, 0);
+			if(zeroComparison != 0){ res.add(new Pair<Double, Integer>(.0, -zeroComparison*(cpId+1)));}
+			addComparisonSwitchPoints(res, upperEnvelope, l1, l2, cpId, lines);
 		}
 		Collections.sort(res, new Comparator<Pair<Double, Integer>>() {
 			@Override
@@ -207,6 +181,36 @@ public class GradientLambdaSearch {
 			}
 		});
 		return res;
+	}
+
+	private void addComparisonSwitchPoints(ArrayList<Pair<Double, Integer>> res, ArrayList<Line2D> upperEnvelope, double[] l1, double[] l2, int cpId, ArrayList<Line2D> lines) {
+		for(int i=1; i<upperEnvelope.size(); i++){
+			Line2D line1 = upperEnvelope.get(i-1);
+			Line2D line2 = upperEnvelope.get(i);
+			if( line1.isBetter() ^ line2.isBetter() ){
+				double crossX = line1.crossX(line2);
+				if(crossX < 0 || crossX > 1) continue;
+				if(line2.isBetter()){ res.add(new Pair<Double, Integer>(crossX, -(cpId+1))); }
+				else{ res.add(new Pair<Double, Integer>(crossX, cpId+1)); }
+				
+				double lambda[] = Geometry.linearCombination(l1, l2, crossX);
+				Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
+				double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
+				double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
+				if( ! ((M1-M2) < Geometry.EPS)){
+					 System.out.println("ERROR");
+				}
+			}
+		}
+	}
+
+	private ArrayList<Line2D> getLines(Solution better, Solution worse, double[] l1, double[] l2) {
+		ArrayList <Line2D> lines = new ArrayList<>();
+		for(int i=0; i<numObjectives; i++){
+			lines.add(new Line2D(better.getObjective(i) * (l1[i] - l2[i]), better.getObjective(i) * l2[i], true ) );
+			lines.add(new Line2D(worse.getObjective(i) * (l1[i] - l2[i]), worse.getObjective(i) * l2[i], false ) );
+		}
+		return lines;
 	}
 
 	protected double[] getTotalPCGradient(ReferencePoint lambda) {
