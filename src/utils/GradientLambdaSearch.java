@@ -89,6 +89,15 @@ public class GradientLambdaSearch {
 		lambdas.add(res2);
 		lambdas.add( getBestOnGradientLine(lambda, Geometry.getRandomVectorOnHyperplane(lambda.getNumDimensions(), 1)) );
 		
+		for(int i=0; i<numObjectives; i++){
+			for(int j=i+1; j<numObjectives; j++){
+				double grad[] = new double[numObjectives];
+				grad[i]=1;
+				grad[j]=-1;
+				lambdas.add(getBestOnGradientLine(lambda, grad));
+			}
+		}
+		
 //		ReferencePoint res = lambdas.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
 //		int cv = res.getNumViolations();
 //		for(ReferencePoint rp : lambdas){
@@ -117,7 +126,6 @@ public class GradientLambdaSearch {
 		//Debug
 		if(Lambda.evaluateLambda(res) > Lambda.evaluateLambda(lambda)){
 			PreferenceCollector PC = PreferenceCollector.getInstance();
-			PC.getInstance();
 			System.out.println("ERROR");
 		}
 		assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
@@ -281,7 +289,9 @@ public class GradientLambdaSearch {
 	}
 	
 	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
+		for(ReferencePoint lambda : lambdasList) Lambda.evaluateLambda(lambda);
 		ReferencePoint bestLambda = lambdasList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
+		System.out.println("Best constraint violation: " + bestLambda.getNumViolations());
 		return lambdasList.stream().map(l -> this.improve(l, bestLambda)).collect(Collectors.toCollection(ArrayList::new));
 	}
 }

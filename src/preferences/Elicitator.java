@@ -19,7 +19,7 @@ public class Elicitator {
 //		Pair<Solution, Solution> p = getComparedSolutions(firstFront);
 //		Pair<Solution, Solution> p = getComparedSolutions2(firstFront, PC.getComparisons().size());
 		Pair<Integer, Integer> p = getComparedSolutions3(firstFront, lambda, pairsUsed);
-		if(p.first==-1 && p.second==-1) return false;
+//		if(p.first==-1 && p.second==-1) return false;
 		pairsUsed[p.first][p.second] = true;
 		
 		Solution s1 = firstFront.getSolution(p.first);
@@ -117,8 +117,8 @@ public class Elicitator {
 			}
 		}
 		System.out.println("final split:" + res1 + " " + res2 + " " + inc);
-//		if(maxSplit == 0) return getRandomIds(pop.size());
-		if(maxSplit == 0) return new Pair<Integer, Integer>(-1, -1);
+		if(maxSplit == 0) return getRandomIds(pop.size());
+//		if(maxSplit == 0) return new Pair<Integer, Integer>(-1, -1);
 		else return new Pair<Integer, Integer>(id1, id2);
 	}
 

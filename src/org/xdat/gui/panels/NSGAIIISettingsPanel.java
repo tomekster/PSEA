@@ -206,7 +206,7 @@ public class NSGAIIISettingsPanel extends JPanel {
 		final String[] objectives = { "2", "3", "5", "8", "10", "15" };
 		numObjectivesComboBox.setModel(new DefaultComboBoxModel<>(objectives));
 		
-		final String[] generations = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+		final String[] generations = { "50","100", "150", "200", "250", "300", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
 		"3000" };
 		numGenerationsComboBox.setModel(new DefaultComboBoxModel<>(generations));
 		
