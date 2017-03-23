@@ -29,6 +29,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static int NUM_LAMBDAS = 50;
 
+	public static boolean assertions = false;
+
 	private Problem problem;
 	private int numGenerations;
 	private int populationSize;
@@ -98,7 +100,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 			if(!secondPhase){
 				System.out.println(nsgaiii.getHyperplane().getNumNiched() + "/" + nsgaiii.getPopulation().size() + " (" + nsgaiii.getHyperplane().getNumNiched() * 100.0 / nsgaiii.getPopulation().size() + "%)");
 			}
-			if(!secondPhase && nsgaiii.getHyperplane().getNumNiched() >= nsgaiii.getHyperplane().getReferencePoints().size() * SPREAD_THRESHOLD){
+			if(!secondPhase && generation > 100 &&  nsgaiii.getHyperplane().getNumNiched() >= nsgaiii.getHyperplane().getReferencePoints().size() * SPREAD_THRESHOLD){
 				System.out.println("SECOND PHASE: " + generation);
 				switchPhase = true;
 				secondPhase = true;
@@ -110,7 +112,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 				if(secondPhaseGeneration++ == numGenerations) break;
 				System.out.println("GENERATION: " + generation + " SECOND_PHASE: " + secondPhaseGeneration);
 //				if(generation % elicitationInterval == 0){
-					elicitate(Math.max( 50/ secondPhaseGeneration, 1));
+				if(secondPhaseGeneration < 15) elicitate(Math.max( elicitationInterval/ secondPhaseGeneration, 1));
 //				}
 				nextGeneration();
 			}
@@ -134,7 +136,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 		NonDominationRanker ndr = new NonDominationRanker();
 		Population firstFront = ndr.sortPopulation(population).get(0);
 		boolean pairUsed[][] = new boolean[firstFront.size()][firstFront.size()];
-//		for(int i=0; i<numToElicitate; i++){
 		if (firstFront.size() > 1){
 			int elicitated=0;
 			while(true){
@@ -144,7 +145,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 			}
 			System.out.println("Elicitated: " + elicitated);
 		}
-//		}
 	}
 
 	@Override

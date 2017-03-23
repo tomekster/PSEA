@@ -23,7 +23,7 @@ public class NSGAIIIParameters {
 		// Exists only to defeat instantiation.
 		problemName = "DTLZ1";
 		numberObjectives = 3;
-		numberGenerations = 350;
+		numberGenerations = 50;
 		numberRuns = 1;
 		elicitationInterval = 20;
 		showTargetPoints = true;

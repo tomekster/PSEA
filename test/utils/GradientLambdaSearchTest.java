@@ -8,12 +8,11 @@ import java.util.stream.DoubleStream;
 
 import org.junit.Test;
 
+import core.Lambda;
 import core.points.ReferencePoint;
 import core.points.Solution;
-import preferences.Comparison;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
-import utils.Geometry.Line2D;
 public class GradientLambdaSearchTest {
 	
 	@Test
@@ -176,4 +175,47 @@ public class GradientLambdaSearchTest {
 //			}
 //		}
 //	}
+	
+	
+	@Test
+	public void findBestIntervalsTest(){
+		ArrayList<Pair<Double, Integer> > switches = new ArrayList<>();
+		switches.add(new Pair<Double, Integer>(0.0, -1));
+		switches.add(new Pair<Double, Integer>(0.5, 1));
+		GradientLambdaSearch gls = new GradientLambdaSearch(3);
+		
+		//RANDOM LAMBDAS
+		double l1[] = {1,2,3};
+		double l2[] = {1,2,3};
+		ArrayList <Interval> intervals = gls.findBestIntervals(switches, l1, l2);
+		assertEquals(1, intervals.size());
+		assertEquals(0.5, intervals.get(0).getBeg(), 1e-6);
+		assertEquals(1, intervals.get(0).getEnd(), 1e-6);
+	}
+	
+	@Test
+	public void findBestIntervalsTest2(){
+		ArrayList<Pair<Double, Integer> > switches = new ArrayList<>();
+		switches.add(new Pair<Double, Integer>(0.0, -2));
+		switches.add(new Pair<Double, Integer>(0.5, -1));
+		switches.add(new Pair<Double, Integer>(0.18878359688722182, 2));
+		switches.add(new Pair<Double, Integer>(0.39582323899573246, 1));
+		switches.add(new Pair<Double, Integer>(0.7392808269055011, -2));
+		GradientLambdaSearch gls = new GradientLambdaSearch(3);
+		double l1[] = {0.24718284557443193, 0.7528171544255681, 0.0};
+		double l2[] = {0.24718284557443193, 0.0, 0.7528171544255681};
+		ArrayList <Interval> intervals = gls.findBestIntervals(switches, l1, l2);
+		assertEquals(1, intervals.size());
+		assertEquals(0.39582323899573246, intervals.get(0).getBeg(), 1e-6);
+		assertEquals(0.7392808269055011, intervals.get(0).getEnd(), 1e-6);
+		assertEquals(0, intervals.get(0).getCV());
+		
+		double mid = (intervals.get(0).getBeg() + intervals.get(0).getEnd()) / 2;
+		double dim[] = Geometry.linearCombination(l1, l2, mid);
+		ReferencePoint middle = new ReferencePoint(dim);
+		int eval = Lambda.evaluateLambda(middle);
+		assertEquals(0, eval);
+		
+		//Best interval (wrong) CV=1 , [0,0]
+	}
 }

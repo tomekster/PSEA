@@ -402,16 +402,11 @@ public class Geometry {
 	
 	public static ArrayList< Line2D> linesUpperEnvelope(ArrayList < Line2D > lines){
 		Collections.sort(lines);
-//		System.out.println("Sorted:");
-//		for(Line2D L : lines){
-//			System.out.println(L.a + "  " + L.b);
-//		}
-//		System.out.println();
+
 		Stack <Line2D> stack = new Stack<>();
 		stack.push(lines.get(0));
 		
 		int j=1;
-//		while(j < lines.size() && Math.abs(lines.get(0).a - lines.get(j).a) < EPS ) j++;
 		stack.push(lines.get(j));
 		
 		for(int i=j+1; i<lines.size(); i++){
@@ -421,44 +416,19 @@ public class Geometry {
 			stack.push(l2);
 			
 			if(l1.crossX(l2) == Double.POSITIVE_INFINITY && l1.b < l2.b) continue;
-			//else {
-				while(stack.size() > 1 && l2.crossX(l3) >= l1.crossX(l3)){
-					stack.pop();
-					if(stack.size() > 1){
-						l2 = stack.pop();
-						l3 = stack.peek();
-						stack.push(l2);
-					}
+				
+			while(stack.size() > 1 && l2.crossX(l3) >= l1.crossX(l3)){
+				stack.pop();
+				if(stack.size() > 1){
+					l2 = stack.pop();
+					l3 = stack.peek();
+					stack.push(l2);
 				}
-				stack.push(l1);
-			//}
+			}
+			stack.push(l1);
 		}
 		
 		ArrayList <Line2D> res = new ArrayList<>(stack); 
-		
-//		ArrayList <Double> crossPoints = new ArrayList<>();
-//		for(int i=1; i<res.size(); i++){
-//			Line2D l1 = res.get(i-1);
-//			Line2D l2 = res.get(i);
-//			double x1 = l1.crossX(l2);
-//			double x2 = l2.crossX(l1);
-//			assert Math.abs(x1 - x2) < Geometry.EPS;
-//			if(crossPoints.isEmpty()) crossPoints.add(x1 - 0.1);
-//			crossPoints.add(x1);
-//		}
-//		crossPoints.add(crossPoints.get(crossPoints.size()-1) + 0.1); 
-//		for(int i=0;i<crossPoints.size()-1;i++){
-//			assert crossPoints.get(i) < crossPoints.get(i+1);
-//			double x = (crossPoints.get(i) + crossPoints.get(i+1))/2;
-//			double y = res.get(i).evalX(x);
-//			
-//			for(Line2D l : lines){
-//				//assert y >= l.evalX(x);
-//				if(y < l.evalX(x)){
-//					System.out.println("ERROR");
-//				}
-//			}
-//		}
 		return res;
 	}
 

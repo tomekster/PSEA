@@ -2,16 +2,16 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
 import org.ejml.simple.SimpleMatrix;
 
 import core.Lambda;
+import core.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;
@@ -50,125 +50,187 @@ public class GradientLambdaSearch {
 		return resLambda;
 	}
 	
-	private ReferencePoint improve(ReferencePoint lambda, ReferencePoint bestLambda) {
-		double allUnsatisfiedGrad[] = getTotalPCGradient(lambda);
+	void validateInterval(Interval interval, int CV){
+			ArrayList <ReferencePoint> lambdas = new ArrayList<>();
+			double l1[] = interval.getL1();
+			double l2[] = interval.getL2();
+			lambdas.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, 0.01 * interval.getBeg() + 0.99 * interval.getEnd())));
+			lambdas.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, 0.99 * interval.getBeg() + 0.01 * interval.getEnd())));
+			lambdas.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, (interval.getBeg() + interval.getEnd()) / 2)));
+	
+			//Make sure that both endpoints and middle of interval have the same CV value
+			for(ReferencePoint lambda : lambdas){
+				int eval = Lambda.evaluateLambda(lambda);
+				if( Math.abs(eval - interval.getCV()) > 0 || eval > CV){
+					System.out.println("ERROR");
+					return;
+				}
+				assert eval == interval.getCV() && eval <= CV;
+			}
+	}
+	
+	private ArrayList <Interval> getImprovingIntervals(ReferencePoint lambda, ReferencePoint bestLambda) {
+		ArrayList <Interval> intervals = new ArrayList<>();
+		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1) < Geometry.EPS );
 		
+		//Get sum of gradient by SGD on every unsatisfied comparison
+		double allUnsatisfiedGrad[] = getTotalPCGradient(lambda);
+		//Get gradient from current lambda to best lambda in current lambda set
 		double bestLambdaGrad[] = new double[lambda.getNumDimensions()];
-		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );
-		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1 ) < Geometry.EPS );
 		for(int i=0; i<lambda.getNumDimensions(); i++){
 			bestLambdaGrad[i] = lambda.getDim(i) - bestLambda.getDim(i);
 		}
 		
-//		double neigh[] = Geometry.getRandomNeighbour(lambda.getDim(), 1.0);
-//		double grad[] = new double[numObjectives];
-//		for(int i=0; i<numObjectives; i++){
-//			grad[i] = neigh[i] - lambda.getDim(i);
-//		}
-		
-		ReferencePoint res1 = new ReferencePoint(lambda.getNumDimensions());
-		ReferencePoint res2 = new ReferencePoint(lambda.getNumDimensions());
-		
-		// If gradient is empty (for example lambda reproduces all comparisons) then no improvement is needed
-		if(Geometry.getLen(allUnsatisfiedGrad) < Geometry.EPS){
-			res1.setNumViolations(Integer.MAX_VALUE);
+		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );		
+		assert Math.abs(Arrays.stream(allUnsatisfiedGrad).sum()) < Geometry.EPS;
+		assert Math.abs(Arrays.stream(bestLambdaGrad).sum()) < Geometry.EPS;
+				
+		// Perform interval search only if gradient is non-empty
+		if(Geometry.getLen(allUnsatisfiedGrad) > Geometry.EPS){
+			 intervals.addAll(getBestIntervalsOnGradientLine(lambda, allUnsatisfiedGrad));
 		}
-		else{
-			res1 = getBestOnGradientLine(lambda, allUnsatisfiedGrad);
+		if(Geometry.getLen(bestLambdaGrad) > Geometry.EPS){
+			intervals.addAll(getBestIntervalsOnGradientLine(lambda, bestLambdaGrad));
 		}
+	
+		//Additionally search for intervals on random direction from current lambda
+		double randomGrad[] = Geometry.getRandomVectorOnHyperplane(lambda.getNumDimensions(), 1);
+		assert Math.abs(Arrays.stream(randomGrad).sum()) < Geometry.EPS;
+		intervals.addAll(getBestIntervalsOnGradientLine(lambda,  randomGrad));
 		
-		if(Geometry.getLen(bestLambdaGrad) < Geometry.EPS){
-			res2.setNumViolations(Integer.MAX_VALUE);
-		}
-		else{
-			res2 = getBestOnGradientLine(lambda, bestLambdaGrad);
-		}
-		
-		ArrayList<ReferencePoint> lambdas = new ArrayList<>();
-		lambdas.add(res1);
-		lambdas.add(res2);
-		lambdas.add( getBestOnGradientLine(lambda, Geometry.getRandomVectorOnHyperplane(lambda.getNumDimensions(), 1)) );
-		
+		//Search on all gradients where only two dimensions change - one increases and second decreases by exactly same value
 		for(int i=0; i<numObjectives; i++){
 			for(int j=i+1; j<numObjectives; j++){
 				double grad[] = new double[numObjectives];
 				grad[i]=1;
 				grad[j]=-1;
-				lambdas.add(getBestOnGradientLine(lambda, grad));
+				intervals.addAll(getBestIntervalsOnGradientLine(lambda, grad));
+			}
+		}
+		//Search on all gradients where one dimensions increases and all other decreases
+		for(int i=0; i<numObjectives; i++){
+			double grad[] = new double[numObjectives];
+			for(int j=0; j<numObjectives; j++){
+				grad[j]=-1;
+			}
+			grad[i]=grad.length-1;
+			intervals.addAll(getBestIntervalsOnGradientLine(lambda, grad));
+		}
+		
+		//Evaluate lambda to make sure that CV value is up-to-date
+		Lambda.evaluateLambda(lambda);
+		
+		if(RST_NSGAIII.assertions){
+			for(Interval interval : intervals){
+				//TODO
+				//Numerical errors
+				if(Math.abs(interval.getBeg() - interval.getEnd()) > 1e-4){
+					validateInterval(interval, lambda.getNumViolations());
+				}
 			}
 		}
 		
-//		ReferencePoint res = lambdas.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
-//		int cv = res.getNumViolations();
-//		for(ReferencePoint rp : lambdas){
-//			assert cv <= rp.getNumViolations();
-//		}
-//		return res;
-		return lambdas.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
+		return intervals;
 	}
 
-	private ReferencePoint getBestOnGradientLine(ReferencePoint lambda, double[] grad) {
+	private ArrayList<Interval> getBestIntervalsOnGradientLine(ReferencePoint lambda, double[] grad) {
 		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
 		
 		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambda.getDim(), grad);
 		double l1[] = simplexSegment.first, l2[] = simplexSegment.second;
 		
-		//Each pair is (t, [+,-] id), where t represents "time" on segment l1, l2 counted from l1 to l2
+		//Each pair is (t, +-(id+1)), where t represents "time" on segment l1, l2 counted from l1 to l2
 		// while absolute value of id represents comparison id which changes when lambda crosses this point. Positive id indicates 
 		//change from "not reproduced" to "reproduced" comparison, while negative id indicates opposite.
 		ArrayList < Pair<Double, Integer> > switchPoints = getAllSwitchPoints(l1, l2);
 		
 		assert( Math.abs( Arrays.stream(l1).sum() - 1 ) < Geometry.EPS );
 		assert( Math.abs( Arrays.stream(l2).sum() - 1 ) < Geometry.EPS );
-		ReferencePoint res = new ReferencePoint(Geometry.linearCombination(l1, l2, findBestTime(switchPoints)));
-		assert( Math.abs( Arrays.stream(res.getDim()).sum() - 1 ) < Geometry.EPS );
+		ArrayList <Interval > bestIntervals = findBestIntervals(switchPoints, l1, l2);
 		
-		//Debug
-		if(Lambda.evaluateLambda(res) > Lambda.evaluateLambda(lambda)){
-			PreferenceCollector PC = PreferenceCollector.getInstance();
-			System.out.println("ERROR");
-		}
-		assert Lambda.evaluateLambda(res) <= Lambda.evaluateLambda(lambda);
-		
-		return res;
+		return bestIntervals;
 	}
 
-	protected double findBestTime(ArrayList < Pair<Double, Integer> > switches) {
-		int CV = 0, bestCV = Integer.MAX_VALUE;
+	/**
+	 * Assumes switchPoints are sorted ascending by time (first value in pair)
+	 * Returns intervals in which CV reaches it's minimum value;
+	 */
+	public ArrayList <Interval> findBestIntervals(ArrayList < Pair<Double, Integer> > switchPoints, double[] l1, double[] l2) {
+		int CV=0, bestCV = Integer.MAX_VALUE;
+		double bestBeg, bestEnd;
+		ArrayList <Interval> bestIntervals = new ArrayList<>();
+		assert switchPoints.get(0).first == 0;
 		
-		int pos=0;
-		while(pos<switches.size() && switches.get(pos).first < Geometry.EPS){
-			if(switches.get(pos).second < 0) CV++;
-			pos++;
-		}
-		if(pos >= switches.size()){
-			return 0.5;
-		}
-		bestCV = CV;
-		double bestBeg=0, bestEnd=switches.get(pos).first;
+		Set <Integer> violatedComparisons = new HashSet<>();
 		
-		for(int i=pos; i<switches.size(); i++){
-			Pair<Double, Integer> p = switches.get(i);
-			if(p.first > 1) break;
-			if( switches.get(i-1).first < p.first && CV < bestCV){
-				bestCV = CV;
-				bestEnd = p.first;
-				bestBeg = switches.get(i-1).first;
-			}
+		//Consider switch points in increasing order by t
+		int i = 0;
+		while( i<switchPoints.size() ){
+			Pair<Double, Integer> p = switchPoints.get(i);
+			assert p.first >=0 && p.first <= 1;
+			assert p.second != 0;
+		
 			
-			if(p.second < 0) CV++;
-			else if(p.second > 0) CV--;
-		}
-		if(CV < bestCV){
-			bestCV = CV;
-			bestEnd = 1;
-			bestBeg = switches.get(switches.size()-1).first;
+			//Process all switch points with same time t at once
+			//TODO - risky place - numerical errors 
+			while( i<switchPoints.size() && Math.abs(switchPoints.get(i).first - p.first) < Geometry.EPS ){
+				int comparisonID = switchPoints.get(i).second;
+				if(comparisonID < 0){
+					CV++;
+					violatedComparisons.add(-comparisonID);
+				}
+				if(comparisonID > 0 && violatedComparisons.contains(comparisonID)) CV--;
+				i++;
+			}
+			if(CV < 0){
+				System.out.println("NEGATIVE_CV_ERROR");
+			}
+			assert CV >= 0;
+			
+//			double end = i < switches.size() ? Double.min(switches.get(i).first, 1) : 1;
+//			System.out.println("i = " + i + " CV([" + p.first + ", " + end  + "]) = " + CV);
+			
+			//If given starting point of interval has best Constraint Violation value, add interval to result 
+			if(CV <= bestCV){
+				if(CV < bestCV){
+					bestIntervals.clear(); 
+				}
+				bestCV = CV;
+				bestBeg = p.first;
+				bestEnd = i < switchPoints.size() ? Double.min(switchPoints.get(i).first, 1) : 1;
+				bestIntervals.add(new Interval(bestBeg, bestEnd, CV, l1, l2));
+				
+				if(RST_NSGAIII.assertions){
+					double dim[] = Geometry.linearCombination(l1, l2, (bestBeg + bestEnd)/2);
+					ReferencePoint middle = new ReferencePoint(dim);
+					int eval = Lambda.evaluateLambda(middle);
+					if(Math.abs(bestBeg - bestEnd) > 1e-4 && eval != CV){
+						System.out.println("MIDDLE_CV_DIFFERS");
+						System.out.println(eval + " != " + CV);
+						System.out.println("Interval: (" + bestBeg + ", " + bestEnd + ")" );
+						assert eval == CV;
+					}
+				}
+			}
 		}
 		
-		//return (bestBeg + bestEnd)/2;
-		return bestBeg + (bestEnd - bestBeg) * NSGAIIIRandom.getInstance().nextDouble();
+		return bestIntervals;
 	}
-
+	
+	/**
+	 * 
+	 * @param l1 - first endpoint of lambda segment in user preference models space (standard n-dimensional simplex)
+	 * @param l2 - second endpoint of lambda segment in user preference models space (standard n-dimensional simplex)
+	 * @return list of pairs (alpha, +/- (id+1) ). 
+	 * Alpha corresponds to value from range [0,1], at which pair of solutions (a, b) 
+	 * compared by user becomes indistinguishable i. e. both solutions a and b evaluated through ASF function using 
+	 * model given by lambda = (alpha * l1 + (1-alpha) * l2) have the same value. 
+	 * ID corresponds to id of comparison (a,b) on PreferenceCollector.comparisons list. 
+	 * ID with positive sign indicates that when alpha changes from (alpha - epsilon) to (alpha + epsilon) comparison 
+	 * "a is better than b" changes from "unsatisfied" to "satisfied" or "not reproduced by lambda(alpha)" to "reproduced by lambda(alpha)"
+	 * while negative value of ID indicates opposite change from "satisfied" to "unsatisfied".  
+	 */
 	protected ArrayList<Pair<Double, Integer>> getAllSwitchPoints(double l1[], double l2[]) {
 		ArrayList <Pair<Double, Integer>> res = new ArrayList<>();
 		for(int cpId=0; cpId<PreferenceCollector.getInstance().getComparisons().size(); cpId++){
@@ -185,7 +247,8 @@ public class GradientLambdaSearch {
 		Collections.sort(res, new Comparator<Pair<Double, Integer>>() {
 			@Override
 			public int compare(Pair<Double, Integer> o1, Pair<Double, Integer> o2) {
-				return Double.compare(o1.first, o2.first);
+				return Double.compare(o1.first, o2.first) == 0 ? 
+						Double.compare(o1.second, o2.second) : Double.compare(o1.first, o2.first);
 			}
 		});
 		return res;
@@ -201,12 +264,14 @@ public class GradientLambdaSearch {
 				if(line2.isBetter()){ res.add(new Pair<Double, Integer>(crossX, -(cpId+1))); }
 				else{ res.add(new Pair<Double, Integer>(crossX, cpId+1)); }
 				
-				double lambda[] = Geometry.linearCombination(l1, l2, crossX);
-				Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
-				double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
-				double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
-				if( ! ((M1-M2) < Geometry.EPS)){
-					 System.out.println("ERROR");
+				if(RST_NSGAIII.assertions){
+					double lambda[] = Geometry.linearCombination(l1, l2, crossX);
+					Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
+					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
+					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
+					if(  Math.abs(M1-M2) > Geometry.EPS ){
+						 System.out.println("ERROR");
+					}
 				}
 			}
 		}
@@ -291,7 +356,37 @@ public class GradientLambdaSearch {
 	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
 		for(ReferencePoint lambda : lambdasList) Lambda.evaluateLambda(lambda);
 		ReferencePoint bestLambda = lambdasList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
-		System.out.println("Best constraint violation: " + bestLambda.getNumViolations());
-		return lambdasList.stream().map(l -> this.improve(l, bestLambda)).collect(Collectors.toCollection(ArrayList::new));
+		System.out.println("Best lambda CV: " + bestLambda.getNumViolations());
+		ArrayList <Interval> intervals = new ArrayList<>();
+		for(ReferencePoint rp : lambdasList){
+			intervals.addAll(getImprovingIntervals(rp, bestLambda));	
+		}
+		return chooseBestLambdaSubset(intervals, lambdasList.size());
+		
+	}
+
+	private ArrayList<ReferencePoint> chooseBestLambdaSubset(ArrayList<Interval> intervals, int N) {
+		Collections.sort(intervals);
+		int bestCV = intervals.get(0).getCV();
+		
+		ArrayList <Interval> bestIntervals = new ArrayList<>();
+		for(Interval i : intervals){
+			if(i.getCV() == bestCV) bestIntervals.add(i);
+			else break;
+		}
+		
+		//TODO
+		//For now pick random interval and random point
+		//Later it can be optimized for maximizing diversity
+		ArrayList <ReferencePoint> res = new ArrayList<>();
+		System.out.println("Best interval CV: " + bestCV);
+		for(int i=0; i<N; i++){
+			int id = NSGAIIIRandom.getInstance().nextInt( bestIntervals.size());
+			Interval interval = bestIntervals.get(id);
+			double t = NSGAIIIRandom.getInstance().nextDouble();
+			double dim[] = Geometry.linearCombination(interval.getL1(), interval.getL2(), t*interval.getBeg() + (1-t) * interval.getEnd());
+			res.add(new ReferencePoint(dim));
+		}
+		return res;
 	}
 }
