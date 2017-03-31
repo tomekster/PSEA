@@ -138,6 +138,7 @@ public class Hyperplane {
 			if(bestRefPoint == null){
 				System.out.println("Best ref point error");
 			}
+			//TODO
 			assert bestRefPoint != null;
 			if(lastFront){
 				bestRefPoint.addLastFrontAssociation(new Association(s, minDist));

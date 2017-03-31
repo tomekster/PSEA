@@ -54,9 +54,11 @@ public class ChebyshevRanker{
 	}
 	
 	public static int compareSolutions(Solution s1, Solution s2, double refPoint[], double lambda[], double rho){
-		if (eval(s1, refPoint, lambda,rho) < eval(s2, refPoint, lambda, rho))
+		double val1 = eval(s1, refPoint, lambda,rho);
+		double val2 = eval(s2, refPoint, lambda,rho);
+		if ( val1 < val2 )
 			return -1;
-		else if (eval(s1, refPoint, lambda,rho) > eval(s2, refPoint, lambda, rho))
+		else if ( val1 > val2 )
 			return 1;
 		else
 			return 0;

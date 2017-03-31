@@ -84,21 +84,29 @@ public class Elicitator {
 		int res1=-1,res2=-1,inc=-1;
 		int id1=-1, id2=-1;
 		
+		//Evaluate all solutions by all lambdas
+		double solutionsLambdasEvals[][] = new double[pop.size()][lambda.getLambdas().size()];
+		for(int i=0; i<pop.size(); i++){
+			for( int j=0; j<lambda.getLambdas().size(); j++){
+				solutionsLambdasEvals[i][j] = ChebyshevRanker.eval(pop.getSolution(i), null, lambda.getLambdas().get(j).getDim(), 0);
+			}
+		}
+		int numObjectives = pop.getSolution(0).getNumObjectives();
+		
+		//Fore every pair of solutions determine how many lambdas consider first lambda better and how many consider second lambda better
 		for(int i=0; i<pop.size(); i++){
 			for(int j=i+1; j<pop.size(); j++){
 				if(pairsUsed[i][j]) continue;
 				int score1=0, score2=0, incomparable=0;
 				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
 				
-				for(ReferencePoint rp : lambda.getLambdas()){
-					int comparison = ChebyshevRanker.compareSolutions(s1,s2, null, rp.getDim(), 0);
-					if(comparison < 0) score1++;
-					else if(comparison > 0) score2++;
+				for(int k = 0; k<lambda.getLambdas().size(); k++){
+					if(solutionsLambdasEvals[i][k] < solutionsLambdasEvals[j][k]) score1++;
+					else if(solutionsLambdasEvals[i][k] > solutionsLambdasEvals[j][k]) score2++;
 					else incomparable++;
 				}
-				int split = Math.min(score1, score2);
+				int split = Math.min(score1, score2);		
 				
-				int numObjectives = s1.getNumObjectives();
 				double dif[] = new double[numObjectives];
 				for(int k=0; k<numObjectives; k++){
 					dif[k] = Math.abs(s1.getObjective(k) - s2.getObjective(k));

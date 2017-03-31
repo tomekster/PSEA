@@ -111,9 +111,9 @@ public class RST_NSGAIII extends EA implements Runnable {
 			if(secondPhase){
 				if(secondPhaseGeneration++ == numGenerations) break;
 				System.out.println("GENERATION: " + generation + " SECOND_PHASE: " + secondPhaseGeneration);
-//				if(generation % elicitationInterval == 0){
-				if(secondPhaseGeneration < 15) elicitate(Math.max( elicitationInterval/ secondPhaseGeneration, 1));
-//				}
+				if(secondPhaseGeneration < 30){
+					elicitate(Math.max( elicitationInterval/ secondPhaseGeneration, 1));
+				}
 				nextGeneration();
 			}
 			else{
