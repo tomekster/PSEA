@@ -1,5 +1,6 @@
 package solutionRankers;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,8 +9,12 @@ import core.Population;
 import core.points.Solution;
 import utils.Pair;
 
-public class ChebyshevRanker{
+public class ChebyshevRanker implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6759292394593558688L;
 	//TODO - test Tchebyshev function  
 	private double lambda[];
 	private double rho;
@@ -86,7 +91,8 @@ public class ChebyshevRanker{
 		for(Solution s : pop.getSolutions()){
 			double val = this.eval(s);
 			if(val < minChebVal){
-				res = new Pair<>(s, minChebVal = val); 
+				minChebVal = val;
+				res = new Pair<>(s, val); 
 			}
 		}
 		assert res != null;

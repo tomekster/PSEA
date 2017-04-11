@@ -6,40 +6,54 @@ import javax.swing.JOptionPane;
 
 import core.Lambda;
 import core.Population;
-import core.points.ReferencePoint;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
-import utils.Geometry;
+import solutionRankers.NonDominationRanker;
 import utils.NSGAIIIRandom;
 import utils.Pair;
 
 public class Elicitator {
 
-	public static boolean elicitate(Population firstFront, ChebyshevRanker decisionMakerRanker, Lambda lambda, boolean pairsUsed[][]) {
-//		Pair<Solution, Solution> p = getComparedSolutions(firstFront);
-//		Pair<Solution, Solution> p = getComparedSolutions2(firstFront, PC.getComparisons().size());
-		Pair<Integer, Integer> p = getComparedSolutions3(firstFront, lambda, pairsUsed);
-//		if(p.first==-1 && p.second==-1) return false;
-		pairsUsed[p.first][p.second] = true;
-		
-		Solution s1 = firstFront.getSolution(p.first);
-		Solution s2 = firstFront.getSolution(p.second);
-//		System.out.println(s1 + " " + s2);
+	public static void elicitateN(int numToElicitate, Population pop, ChebyshevRanker cr, Lambda lambda) {
+		//We want to select for comparison only non-dominated solutions, therefore we consider only solutions from first front
+		Population firstFront = NonDominationRanker.sortPopulation(pop).get(0);
+		if (firstFront.size() > 1){
+			//We keep track of pairs that were already compared by DM to avoid repetition
+			boolean pairsUsed[][] = new boolean[firstFront.size()][firstFront.size()];
+			int elicitated=0;
+			
+			while(elicitated < numToElicitate){
+//				Get ids of two elements to compare
+				Pair <Integer, Integer> p = getComparedSolutions3(firstFront, lambda, pairsUsed);
+				pairsUsed[p.first][p.second] = true;
+				Solution s1 = firstFront.getSolution(p.first).copy();
+				Solution s2 = firstFront.getSolution(p.second).copy();
+				
+				compare(cr, s1, s2);
+				
+				lambda.nextGeneration();
+				elicitated++;
+				System.out.println(elicitated + "/" + numToElicitate);
+			}
+			System.out.println("Elicitated: " + elicitated);
+		}
+	}
+
+	private static void compare(ChebyshevRanker cr, Solution s1, Solution s2) {
 		PreferenceCollector PC = PreferenceCollector.getInstance();		
-		
-		if (decisionMakerRanker != null) {
-			int comparisonResult = decisionMakerRanker.compareSolutions(s1, s2);
+		if (cr != null) {
+			int comparisonResult = cr.compareSolutions(s1, s2);
 			if (comparisonResult == -1) {
 				PC.addComparison(s1, s2);
 			} else if (comparisonResult == 1) {
 				PC.addComparison(s2, s1);
 			} else {
+				//TODO - add epsilon for incomparable solutions
 				System.out.println("Incomparable solutions - equal chebyshev function value");
 			}
 		} else {
 			elicitateDialog(s1,s2,PC);
 		}
-		return true;
 	}
 
 	private static Pair<Integer, Integer> getRandomIds(int size) {
@@ -49,36 +63,8 @@ public class Elicitator {
 		return new Pair<Integer, Integer>(i, j);
 	}
 	
-	private static Pair<Solution, Solution> getComparedSolutions2(Population pop, int numComparisons) {
-		int numObjectives = pop.getSolution(0).getNumObjectives();
-		double grad[] = new double[numObjectives];
-		for(int i=0; i<numObjectives; i++){
-			if(i == numComparisons % (numObjectives - 1)){
-				grad[i] = 1;
-			}
-			else grad[i] = 0;
-		}
-		
-		Solution s1 = null, s2 = null;
-		Geometry.mapOnParallelHyperplane(grad);
-		
-		double maxCos =  -Double.MAX_VALUE;
-		for(int i=0; i < pop.size(); i++){
-			for(int j=i+1; j < pop.size(); j++){
-				double vect[] = Geometry.getVect(pop.getSolution(i).getObjectives(), pop.getSolution(j).getObjectives());
-				double cosVal = Math.abs(Geometry.dot(grad, vect)) / (Geometry.getLen(grad) * Geometry.getLen(vect));
-				
-				if(cosVal > maxCos){
-					maxCos = cosVal;
-					s1 = pop.getSolution(i);
-					s2 = pop.getSolution(j);
-				}
-			}
-		}
-		return new Pair<Solution, Solution>(s1, s2);
-	}
-	
 	private static Pair<Integer, Integer> getComparedSolutions3(Population pop, Lambda lambda, boolean pairsUsed[][]) {
+		
 		double maxSplit = -1;
 		double maxMinDif = -1;
 		int res1=-1,res2=-1,inc=-1;
@@ -113,6 +99,8 @@ public class Elicitator {
 				}
 				double minDif = DoubleStream.of(dif).min().getAsDouble();
 				
+				//maxSplit = min(|L_ij|, |U_ij|), where L_ij - set of lambdas that evaluate 
+				//s_i as bettern than s_j, and U_ij - set of lambdas that evaluate s_i as worse than s_j
 				if( (split==maxSplit && minDif > maxMinDif) || split > maxSplit ){
 					id1 = i;
 					id2 = j;
@@ -140,7 +128,6 @@ public class Elicitator {
 		} else {
 			PC.addComparison(s2, s1);
 		}
-
-		PC.addComparison(s1, s2);
+//		PC.addComparison(s1, s2);
 	}
 }

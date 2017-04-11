@@ -1,8 +1,14 @@
 package preferences;
 
+import java.io.Serializable;
+
 import core.points.Solution;
 
-public class Comparison {
+public class Comparison implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3596108190287135380L;
 	private Solution better, worse;
 	private double maxEpsilon, minEpsilon;
 	

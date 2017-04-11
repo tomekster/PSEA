@@ -22,11 +22,25 @@ public class Lambda {
 
 	private final static Logger LOGGER = Logger.getLogger(Lambda.class.getName());
 
+	private static Lambda instance = null;
+	
 	private int numObjectives;
 	private int numLambdas;
 	private ArrayList <ReferencePoint> lambdas;
 	private GradientLambdaSearch GLS;
-	protected Lambda(int numObjectives, int numLambdas) {
+	
+	protected Lambda(){
+		// Exists only to defeat instantiation.
+	}
+	
+	public static Lambda getInstance(){
+		if (instance == null){
+			instance = new Lambda();
+		}
+		return instance;
+	}
+	
+	public void init(int numObjectives, int numLambdas) {
 		this.numObjectives = numObjectives;
 		this.numLambdas = numLambdas;
 		lambdas = new ArrayList<>();
@@ -35,7 +49,7 @@ public class Lambda {
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
 	}
-
+	
 	private ReferencePoint getRandomLambda() {
 		ArrayList <Double> breakPoints = new ArrayList<>();
 		ArrayList <Double> dimensions = new ArrayList<>();
@@ -107,67 +121,6 @@ public class Lambda {
 		return new ArrayList<ReferencePoint>(lambdasPop.subList(0, numLambdas));
 	}
 
-	public Population selectKSolutionsByChebyshevBordaRanking(Population pop, int k) {
-		HashMap<Solution, Integer> bordaPointsMap = getBordaPointsForSolutions(pop);
-		
-		ArrayList<Pair<Solution, Integer>> pairs = new ArrayList<Pair<Solution, Integer>>();
-
-		for (Solution s : bordaPointsMap.keySet()) {
-			pairs.add(new Pair<Solution, Integer>(s, bordaPointsMap.get(s)));
-		}
-
-		Collections.sort(pairs, new Comparator<Pair<Solution, Integer>>() {
-			@Override
-			public int compare(final Pair<Solution, Integer> o1, final Pair<Solution, Integer> o2) {
-				return Integer.compare(o2.second, o1.second); // Sort DESC by Borda points
-			}
-		});
-
-		Population res = new Population();
-		for (int i = 0; i < k; i++) {
-			res.addSolution(pairs.get(i).first.copy());
-		}
-		return res;
-	}
-
-	private HashMap<Solution, Integer> getBordaPointsForSolutions(Population pop) {
-		HashMap<Solution, Integer> bordaPointsMap = new HashMap<>();
-		for (ReferencePoint lambda : lambdas) {
-			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
-			assert ranking.size() == pop.size();
-			for (int i = 0; i < ranking.size(); i++) {
-				Solution s = ranking.get(i);
-				if (!bordaPointsMap.containsKey(s)) {
-					bordaPointsMap.put(s, 0);
-				}
-				bordaPointsMap.put(s, bordaPointsMap.get(s) + (ranking.size() - i)/(lambda.getNumViolations() + 1));
-			}
-		}
-		return bordaPointsMap;
-	}
-
-	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambda, Population pop) {
-		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
-		for (Solution s : pop.getSolutions()) {
-			double chebyshevValue = ChebyshevRanker.eval(s, null, Geometry.invert(lambda.getDim()), 0);
-			solutionValuePairs.add(new Pair<Solution, Double>(s, chebyshevValue));
-		}
-		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>() {
-			@Override
-			public int compare(final Pair<Solution, Double> o1, final Pair<Solution, Double> o2) {
-				// Sort pairs by Chebyshev Function value ascending (Decreasing quality)
-				return Double.compare(o1.second, o2.second);
-			}
-		});
-
-		ArrayList<Solution> ranking = new ArrayList<Solution>();
-		for (Pair<Solution, Double> p : solutionValuePairs) {
-			ranking.add(p.first);
-		}
-		assert ranking.size() == pop.size();
-		return ranking;
-	}
-
 	public ArrayList<ReferencePoint> getLambdas() {
 		return this.lambdas;
 	}
@@ -199,5 +152,26 @@ public class Lambda {
 	
 	public void setLambdas(ArrayList<ReferencePoint> lambdas){
 		this.lambdas = lambdas;
+	}
+	
+	public boolean converged(){
+		double min[] = new double[numObjectives];
+		double max[] = new double[numObjectives];
+		for(int i=0; i<numObjectives; i++){
+			min[i] = Double.MAX_VALUE;
+			max[i] = -Double.MAX_VALUE;
+		}
+		
+		for(ReferencePoint rp : lambdas){
+			for(int i=0; i<numObjectives; i++){
+				if(rp.getDim(i) < min[i]){ min[i] = rp.getDim(i); }
+				if(rp.getDim(i) > max[i]){ max[i] = rp.getDim(i); }
+			}
+		}
+		
+		for(int i=0; i<numObjectives; i++){
+			if( max[i] - min[i] > 0.001) return false;
+		}
+		return true;
 	}
 }

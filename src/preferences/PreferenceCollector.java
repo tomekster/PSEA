@@ -1,11 +1,16 @@
 package preferences;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import core.points.Solution;
 
-public class PreferenceCollector {
+public class PreferenceCollector implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6118069891989560804L;
 	private static PreferenceCollector instance = null;
 
 	protected PreferenceCollector() {

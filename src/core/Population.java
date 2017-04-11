@@ -1,12 +1,18 @@
 package core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import core.points.Solution;
 
-public class Population{
+public class Population implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5522918817753869897L;
 	private ArrayList <Solution> solutions = null;
 	
 	public Population(){
@@ -18,6 +24,10 @@ public class Population{
 		for(Solution s : pop.getSolutions()){
 			this.solutions.add(s.copy());
 		}
+	}
+
+	public Population(List<Solution> solList) {
+		this.solutions = new ArrayList<>(solList);
 	}
 
 	public void addSolution(Solution sol){

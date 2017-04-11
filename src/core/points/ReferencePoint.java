@@ -1,11 +1,16 @@
 package core.points;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import core.hyperplane.Association;
 
-public class ReferencePoint extends Solution{
+public class ReferencePoint extends Solution implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1962134424334714602L;
 	private boolean coherent;
 	private PriorityQueue<Association> nichedAssociations;
 	private PriorityQueue<Association> lastFrontAssociations;
@@ -18,18 +23,8 @@ public class ReferencePoint extends Solution{
 
 	public ReferencePoint(int numVariables) {
 		super(new double [numVariables], new double[1]);
-		this.nichedAssociations = new PriorityQueue<Association>( new Comparator <Association>() {
-			@Override
-			public int compare(Association o1, Association o2) {
-				return Double.compare(o1.getDist(), o2.getDist());
-			}
-		});
-		this.lastFrontAssociations = new PriorityQueue<Association>( new Comparator <Association>() {
-			@Override
-			public int compare(Association o1, Association o2) {
-				return Double.compare(o1.getDist(), o2.getDist());
-			}
-		});
+		this.nichedAssociations = new PriorityQueue<Association>();
+		this.lastFrontAssociations = new PriorityQueue<Association>();
 		this.coherent = false;
 	}
 

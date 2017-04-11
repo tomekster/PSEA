@@ -34,6 +34,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import core.Evaluator;
 import core.Population;
 import core.Problem;
 import core.RST_NSGAIII;
@@ -42,6 +43,7 @@ import core.points.Solution;
 import history.ExecutionHistory;
 import preferences.Comparison;
 import problems.dtlz.DTLZ1;
+import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
 import utils.Geometry;
@@ -64,7 +66,10 @@ public class MainWindow {
 	private boolean showComparisons;
 	private boolean showLambda;
 	private Constructor problemConstructor;
-	private int numGenerations;
+	private int numExplorationGenerations;
+	private int numExploitationGenerations;
+	private int numElicitations1;
+	private int numElicitations2;
 	private int elicitationInterval;
 	private int numRuns;
 	private int executedGenerations;
@@ -81,7 +86,8 @@ public class MainWindow {
 		
 		this.interactive = true;
 		this.numRuns = 1;
-		this.numGenerations = 50;
+		this.numExplorationGenerations = 100;
+		this.numExploitationGenerations = 100;
 		this.elicitationInterval = 20;
 		this.numObjectives = 2;
 		try {
@@ -89,7 +95,7 @@ public class MainWindow {
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
-		this.currentPopulationId = numGenerations;
+		this.currentPopulationId = numExplorationGenerations + numExploitationGenerations;
 		this.firstFrontOnly = false;
 		this.showTargetPoints = true;
 		this.showSolDir = false;
@@ -100,7 +106,7 @@ public class MainWindow {
 		this.chartPanel = createChart();
 		this.chartPanelReferencePlane = createChartReferencePlane();
 		this.labelIGD = new JLabel("IGD: --");
-		this.slider = new JSlider(JSlider.HORIZONTAL, 0, numGenerations, 0);
+		this.slider = new JSlider(JSlider.HORIZONTAL, 0, currentPopulationId, 0);
 		this.history = ExecutionHistory.getInstance();
 		slider.addChangeListener(new ChangeListener() {
 
@@ -134,7 +140,8 @@ public class MainWindow {
 		panel.add(chooseProblemComboBox());
 
 		panel.add(createNumObjectivesCB());
-		panel.add(createNumGenerationsCB());
+		panel.add(createNumExplorationGenerationsCB());
+		panel.add(createNumExploitationGenerationsCB());
 		panel.add(createNumberOfRunsCB());
 		panel.add(createFirstFrontCB());
 		panel.add(createShowSpreadSeriesCB());
@@ -216,19 +223,62 @@ public class MainWindow {
 		return numObjectivesCB;
 	}
 
-	private JComboBox createNumGenerationsCB() {
-		final JComboBox numGenerationsCB = new JComboBox();
+	private JComboBox createNumExplorationGenerationsCB() {
+		final JComboBox numExplorationGenerationsCB = new JComboBox();
 		final String[] traceCmds = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
 				"3000" };
-		numGenerationsCB.setModel(new DefaultComboBoxModel(traceCmds));
-		numGenerationsCB.addActionListener(new ActionListener() {
+		numExplorationGenerationsCB.setModel(new DefaultComboBoxModel(traceCmds));
+		numExplorationGenerationsCB.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				numGenerations = Integer.parseInt((String) numGenerationsCB.getSelectedItem());
+				numExplorationGenerations = Integer.parseInt((String) numExplorationGenerationsCB.getSelectedItem());
 			}
 		});
-		return numGenerationsCB;
+		return numExplorationGenerationsCB;
 	}
+	
+	private JComboBox createNumExploitationGenerationsCB() {
+		final JComboBox numExploitationGenerationsCB = new JComboBox();
+		final String[] traceCmds = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+				"3000" };
+		numExploitationGenerationsCB.setModel(new DefaultComboBoxModel(traceCmds));
+		numExploitationGenerationsCB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				numExploitationGenerations = Integer.parseInt((String) numExploitationGenerationsCB.getSelectedItem());
+			}
+		});
+		return numExploitationGenerationsCB;
+	}
+	
+	private JComboBox createNumElicitations1CB() {
+		final JComboBox numElicitations1CB = new JComboBox();
+		final String[] traceCmds = { "50", "100", "150", "200", "250", "300", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+				"3000" };
+		numElicitations1CB.setModel(new DefaultComboBoxModel(traceCmds));
+		numElicitations1CB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				numElicitations1= Integer.parseInt((String) numElicitations1CB.getSelectedItem());
+			}
+		});
+		return numElicitations1CB;
+	}
+	
+	private JComboBox createNumElicitations2CB() {
+		final JComboBox numElicitations2CB = new JComboBox();
+		final String[] traceCmds = { "50", "100", "150", "200", "250", "300", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+				"3000" };
+		numElicitations2CB.setModel(new DefaultComboBoxModel(traceCmds));
+		numElicitations2CB.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				numElicitations2 = Integer.parseInt((String) numElicitations2CB.getSelectedItem());
+			}
+		});
+		return numElicitations2CB;
+	}
+	
 
 	private JComboBox createNumberOfRunsCB() {
 		final JComboBox numRunsCB = new JComboBox();
@@ -498,8 +548,6 @@ public class MainWindow {
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
 		
-		//plot3D();
-		
 		if (this.interactive && this.numObjectives == 3) {
 			JFreeChart chartRP = chartPanelReferencePlane.getChart();
 			XYPlot plotRP = (XYPlot) chartRP.getPlot();
@@ -511,11 +559,12 @@ public class MainWindow {
 		RST_NSGAIII alg;
 		double resIGD = -1;
 		try {
-			alg = new RST_NSGAIII((Problem) problemConstructor.newInstance(numObjectives), numGenerations, elicitationInterval, ChebyshevRankerBuilder.getCentralChebyshevRanker(numObjectives));
+			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
+			ChebyshevRanker cr = ChebyshevRankerBuilder.getCentralChebyshevRanker(numObjectives);
+			alg = new RST_NSGAIII(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();
-			
-			alg.evaluateFinalResult(history.getGeneration(executedGenerations));
+			Evaluator.evaluateRun(problem, cr, alg.getPopulation());
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
