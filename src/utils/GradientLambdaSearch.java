@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.DoubleStream;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -73,8 +72,6 @@ public class GradientLambdaSearch {
 		ArrayList <Interval> intervals = new ArrayList<>();
 		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1) < Geometry.EPS );
 		
-		//Get sum of gradient by SGD on every unsatisfied comparison
-		double allUnsatisfiedGrad[] = getTotalPCGradient(lambda);
 		//Get gradient from current lambda to best lambda in current lambda set
 		double bestLambdaGrad[] = new double[lambda.getNumDimensions()];
 		for(int i=0; i<lambda.getNumDimensions(); i++){
@@ -82,13 +79,9 @@ public class GradientLambdaSearch {
 		}
 		
 		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );		
-		assert Math.abs(Arrays.stream(allUnsatisfiedGrad).sum()) < Geometry.EPS;
 		assert Math.abs(Arrays.stream(bestLambdaGrad).sum()) < Geometry.EPS;
 				
 		// Perform interval search only if gradient is non-empty
-		if(Geometry.getLen(allUnsatisfiedGrad) > Geometry.EPS){
-			 intervals.addAll(getBestIntervalsOnGradientLine(lambda, allUnsatisfiedGrad));
-		}
 		if(Geometry.getLen(bestLambdaGrad) > Geometry.EPS){
 			intervals.addAll(getBestIntervalsOnGradientLine(lambda, bestLambdaGrad));
 		}
@@ -284,73 +277,6 @@ public class GradientLambdaSearch {
 			lines.add(new Line2D(worse.getObjective(i) * (l1[i] - l2[i]), worse.getObjective(i) * l2[i], false ) );
 		}
 		return lines;
-	}
-
-	protected double[] getTotalPCGradient(ReferencePoint lambda) {
-		double gradTheta[] = new double[numObjectives];
-		int CV = 0;
-		for(Comparison cp : PreferenceCollector.getInstance().getComparisons()){
-			Solution a = cp.getBetter(), b = cp.getWorse();
-			//If lambda does not reproduce comparison a is better than b
-			if(ChebyshevRanker.eval(a, null, lambda.getDim(), 0.0) >= ChebyshevRanker.eval(b, null, lambda.getDim(), 0.0) ){
-				CV++;
-				//We want to maximize function value so we compute it's gradient
-				double gradThetaA[] = smoothMaxGrad(a.getObjectives(), lambda.getDim());
-				double gradThetaB[] = smoothMaxGrad(b.getObjectives(), lambda.getDim());
-				for(int i=0; i<numObjectives; i++){
-					gradTheta[i] = gradThetaB[i] - gradThetaA[i]; //Maximize B and minimize A; 
-				}
-			}
-		}
-
-		assert CV == 0 || DoubleStream.of(gradTheta).anyMatch(e -> Math.abs(e) > 0);
-		
-		double gradLambda[] = theta2lambda(gradTheta);
-		
-		for(int i=0; i<numObjectives; i++){
-			gradLambda[i] -= 1.0/numObjectives;
-		}
-		return gradLambda;
-	}
-
-	/**
-	 * Implements derivative defined here: https://en.wikipedia.org/wiki/Smooth_maximum  
-	 * @param a - solution
-	 * @param lambda - Chebyshev function direction
-	 * @param i - id of variable with regard to which derivative is computed
-	 * @return
-	 */
-	
-	public double[] smoothMaxGrad(double a[], double lambda[]){
-		double alpha = 20;
-		
-		double A[] = new double[numObjectives], B[] = new double[numObjectives];
-		double dA[] = new double[numObjectives], dB[] = new double[numObjectives];
-		double grad[] = new double[numObjectives];
-		
-		for(int i=0; i<numObjectives; i++){
-			A[i] = a[i] * lambda[i];
-			B[i] = Math.exp(alpha * A[i]);
-		}
-		
-		for(int k=0; k<numObjectives -1 ; k++){
-			double sum1=0, sum2=0, sum3=0, sum4=0;
-
-			for(int i=0; i<numObjectives; i++){
-				dA[i] = a[i] * M.get(k, i);
-				dB[i] = alpha * dA[i] * B[i];
-			}
-			
-			for(int i=0; i<numObjectives; i++){
-				sum1 += dA[i] * B[i] + A[i]*dB[i];
-				sum2 += B[i];
-				sum3 += A[i] * B[i];
-				sum4 += dB[i];
-			}
-			
-			grad[k] = (sum1 * sum2 - sum3 * sum4) / (sum2 * sum2);
-		}
-		return grad;
 	}
 	
 	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {

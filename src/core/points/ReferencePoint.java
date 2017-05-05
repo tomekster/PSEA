@@ -1,7 +1,6 @@
 package core.points;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import core.hyperplane.Association;
@@ -14,9 +13,6 @@ public class ReferencePoint extends Solution implements Serializable{
 	private boolean coherent;
 	private PriorityQueue<Association> nichedAssociations;
 	private PriorityQueue<Association> lastFrontAssociations;
-	//Maximum eps achievable in RACS Linear Programming task
-	private double eps;
-	private double rho;
 	private double reward;
 	private double penalty;
 	private int numViolations;
@@ -94,14 +90,6 @@ public class ReferencePoint extends Solution implements Serializable{
 		ReferencePoint rp = new ReferencePoint(this);
 		return rp;
 	}
-	
-	public double getEps(){
-		return this.eps;
-	}
-
-	public void setEps(double eps) {
-		this.eps = eps;
-	}
 
 	public double getReward(){
 		return this.reward;
@@ -133,9 +121,5 @@ public class ReferencePoint extends Solution implements Serializable{
 
 	public void incrDim(int pos, double d) {
 		variables[pos] += d; 
-	}
-
-	public void setRho(Double rho) {
-		this.rho = rho;
 	}
 }

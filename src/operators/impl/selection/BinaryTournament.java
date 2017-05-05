@@ -11,7 +11,7 @@ public class BinaryTournament implements SelectionOperator {
 	
 	private Comparator <Solution> comparator;
 	
-	public BinaryTournament(Comparator comparator){
+	public BinaryTournament(Comparator <Solution> comparator){
 		this.comparator = comparator;
 	}
 	

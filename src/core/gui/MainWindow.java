@@ -71,6 +71,8 @@ public class MainWindow {
 	private int numElicitations1;
 	private int numElicitations2;
 	private int elicitationInterval;
+	private int numLambdas;
+	private double 	spreadThreshold;
 	private int numRuns;
 	private int executedGenerations;
 	private int numObjectives;
@@ -79,11 +81,6 @@ public class MainWindow {
 	private boolean interactive;
 
 	public MainWindow() {
-//		parallelSolutionCoordinates = new MainFrame();
-//		parallelSolutionCoordinates.show();
-//		parallelLambdaCoordinates = new MainFrame();
-//		parallelLambdaCoordinates.show();
-		
 		this.interactive = true;
 		this.numRuns = 1;
 		this.numExplorationGenerations = 100;
@@ -511,27 +508,28 @@ public class MainWindow {
 		XYSeries lambdaSeries = new XYSeries("Lambdas");
 		XYSeries preferedSolutions = new XYSeries("Prefered solutions");
 		XYSeries nonPreferedSolutions = new XYSeries("Non-prefered solutions");
-		Solution t;
+		
+		double t[];
 		
 		if(showSpreadSolutions){
 			for(Solution s : generation){
 				t = Geometry.cast3dPointToPlane(s.getObjectives());
-				generationSeries.add(t.getObjective(0), t.getObjective(1));	
+				generationSeries.add(t[0], t[1]);	
 			}
 		}
 		
 		if(showLambda){
 			for (ReferencePoint rp : lambda) {
 				t = Geometry.cast3dPointToPlane(rp.getDim());
-				lambdaSeries.add(t.getObjective(0), t.getObjective(1));		
+				lambdaSeries.add(t[0], t[1]);		
 			}
 		}
 		if(showComparisons){
 			for (Comparison c : comparisons) {
 					t = Geometry.cast3dPointToPlane(c.getBetter().getObjectives());
-					preferedSolutions.add(t.getObjective(0), t.getObjective(1));
+					preferedSolutions.add(t[0], t[1]);
 					t = Geometry.cast3dPointToPlane(c.getWorse().getObjectives());
-					nonPreferedSolutions.add(t.getObjective(0), t.getObjective(1));
+					nonPreferedSolutions.add(t[0], t[1]);
 			}
 		}
 		
@@ -543,7 +541,6 @@ public class MainWindow {
 	}
 
 	private void resetChart() {
-		
 		JFreeChart chart = chartPanel.getChart();
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.setDataset(createDataset());
@@ -561,7 +558,7 @@ public class MainWindow {
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
 			ChebyshevRanker cr = ChebyshevRankerBuilder.getCentralChebyshevRanker(numObjectives);
-			alg = new RST_NSGAIII(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr);																							
+			alg = new RST_NSGAIII(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr, numLambdas, spreadThreshold);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();
 			Evaluator.evaluateRun(problem, cr, alg.getPopulation());

@@ -122,4 +122,6 @@ public abstract class Problem implements Serializable {
 	public double getUpperBound(int pos) {
 		return upperBound[pos];
 	}
+	
+	public abstract Population getReferenceFront();
 }

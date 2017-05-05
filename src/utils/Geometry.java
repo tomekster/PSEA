@@ -6,10 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
-import core.points.ReferencePoint;
-import core.points.Solution;
-import utils.Geometry.Line2D;
-
 public class Geometry {
 
 	public static double EPS = 1E-6;
@@ -91,6 +87,12 @@ public class Geometry {
 		return res;
 	}
 	
+	/**
+	 * 
+	 * @param A - point in n dimensions
+	 * @param B - point in n dimensions
+	 * @return n-dimensional vector B-A
+	 */
 	public static double[] getVect(double[] A, double[] B) {
 		if (A.length != B.length) {
 			throw new RuntimeException("Vectors have different dimensionality");
@@ -102,9 +104,12 @@ public class Geometry {
 		return res;
 	}
 	
-	public static Solution cast3dPointToPlane(double p[]){
-		double tmp[] = {0,0};
-		Solution res = new Solution(tmp, tmp);
+	/**
+	 * 
+	 * @param p - point on plane given by equation sum_{1<=i<=n}(x_i) = 1
+	 * @return p casted to equilateral triangle lied on XY plane
+	 */
+	public static double[] cast3dPointToPlane(double p[]){
 		double a[] = p.clone();
 		double sum = 0;
 		for(double d : a){
@@ -115,13 +120,17 @@ public class Geometry {
 		}
 		a[0] -= 1;
 		double b[] = {-0.5, -0.5, 1};
-		res.setObjective(0, pointLineDist(a, b));
-		
-		b = new double[]{-1,1,0};
-		res.setObjective(1, pointLineDist(a, b));
+		double c[] = new double[]{-1,1,0};
+		double res[] = new double[]{pointLineDist(a, b), pointLineDist(a, c)};
 		return res;
 	}
 	
+	/**
+	 * 
+	 * @param dim - number of dimensions of point
+	 * @param radius - distance of point from origin
+	 * @return n-dimensional point lying on sphere with center in origin and radius r
+	 */
 	public static double[] randomPointOnSphere(int dim, double radius){
 		NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
 		double res[] = new double[dim];
@@ -269,7 +278,7 @@ public class Geometry {
 	 * @param v Input vector - arbitrary length
 	 * @return 	Output vector - length 1.0
 	 */
-	private static double[] vectorNormalize(double[] v) {
+	public static double[] vectorNormalize(double[] v) {
 		int n = v.length;
 		double sum = 0;
 		double[] res = new double[n];
@@ -360,7 +369,7 @@ public class Geometry {
 		return crossPoint;
 	}
 	
-	public static class Line2D implements Comparable{
+	public static class Line2D implements Comparable <Line2D>{
 		Double a, b;
 		boolean better;
 		
@@ -382,9 +391,9 @@ public class Geometry {
 			}
 			return (l2.b - b) / (a - l2.a);
 		}
+		
 		@Override
-		public int compareTo(Object arg0) {
-			Line2D l2 = (Line2D) arg0;
+		public int compareTo(Line2D l2) {
 			//a - increasing
 			//b - decreasing
 			if( Double.compare(a,l2.a )==0 ) return -Double.compare(b, l2.b);
@@ -482,5 +491,34 @@ public class Geometry {
 		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
 		
 		return new Pair <double[], double[]>(p1, p2);
+	}
+	
+	/**
+	 * 
+	 * @param numDim - number of dimensions of resulting point
+	 * @return n-dimensional point with dimensions summing up to 1, picked from uniform distribution.
+	 */
+	public static double[] getRandomVectorSummingTo1(int numDim) {
+		ArrayList <Double> breakPoints = new ArrayList<>();
+		ArrayList <Double> dimensions = new ArrayList<>();
+		breakPoints.add(0.0);
+		breakPoints.add(1.0);
+		for(int i=0; i<numDim-1; i++){ 
+			breakPoints.add(NSGAIIIRandom.getInstance().nextDouble()); 
+		}
+		Collections.sort(breakPoints);
+
+		for(int i=0; i < numDim; i++){
+			dimensions.add(breakPoints.get(i+1) - breakPoints.get(i));
+		}
+		
+		Collections.shuffle(dimensions);
+		double dim[] = new double[numDim];
+		for(int i=0; i<numDim; i++){
+			dim[i] = dimensions.get(i);
+		}
+		
+		assert( Math.abs(Arrays.stream(dim).sum() - 1) < Geometry.EPS);
+		return dim;
 	}
 }

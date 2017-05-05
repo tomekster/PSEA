@@ -1,19 +1,13 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.logging.Logger;
 
 import core.points.Solution;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
-import utils.NSGAIIIRandom;
 
 public abstract class EA {
-
-	private final static Logger LOGGER = Logger.getLogger(EA.class.getName());
-
 	protected Population population;
 	protected SelectionOperator selectionOperator;
 	protected CrossoverOperator crossoverOperator;

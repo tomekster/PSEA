@@ -23,8 +23,10 @@ package problems.wfg;
 
 import java.util.Random;
 
+import core.Population;
 import core.Problem;
 import core.points.Solution;
+import utils.WfgFrontReader;
 
 /**
  * Implements a reference abstract class for all wfg org.uma.test problem
@@ -34,6 +36,11 @@ import core.points.Solution;
  * 3410 of Lecture Notes in Computer Science
  */
 public abstract class WFG extends Problem {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1127620034852695810L;
 
 	/**
 	 * stores a epsilon default value
@@ -141,5 +148,15 @@ public abstract class WFG extends Problem {
 	@Override
 	public void evaluateConstraints(Solution solution) {
 		return;
+	}
+	
+	@Override
+	public Population getReferenceFront(){
+		return WfgFrontReader.getFront(this);
+	}
+	
+	@Override
+	public int getNumObjectives(){
+		return m;
 	}
 }

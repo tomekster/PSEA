@@ -1,7 +1,6 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import core.hyperplane.Hyperplane;
 import operators.CrossoverOperator;
@@ -11,9 +10,6 @@ import solutionRankers.NonDominationRanker;
 import utils.DegeneratedMatrixException;
 
 public class NSGAIII extends EA {
-
-	private final static Logger LOGGER = Logger.getLogger(NSGAIII.class.getName());
-
 	private Hyperplane hyperplane;
 	private Problem problem;
 	private int populationSize;
@@ -39,8 +35,7 @@ public class NSGAIII extends EA {
 	public Population selectNewPopulation(Population pop) {
 		assert pop.size() == 2*populationSize;
 		problem.evaluate(pop);
-		NonDominationRanker ndr= new NonDominationRanker();
-		ArrayList<Population> fronts = ndr.sortPopulation(pop);
+		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
 		
 		Population allFronts = new Population();
 		Population allButLastFront = new Population();

@@ -13,12 +13,12 @@ public class Evaluator {
 
 		switch(pname){
 			case "DTLZ1":
-				targetPoint = Geometry.lineCrossDTLZ1HyperplanePoint(Geometry.invert(dmr.getLambda()));
+				targetPoint = Geometry.lineCrossDTLZ1HyperplanePoint(dmr.getLambda());
 				break;
 			case "DTLZ2":
 			case "DTLZ3":
 			case "DTLZ4":
-				targetPoint = Geometry.lineCrossDTLZ234HyperspherePoint(Geometry.invert(dmr.getLambda()));
+				targetPoint = Geometry.lineCrossDTLZ234HyperspherePoint(dmr.getLambda());
 				break;
 		}
 		System.out.println("TARGET POINT: ");

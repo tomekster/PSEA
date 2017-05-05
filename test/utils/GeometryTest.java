@@ -1,9 +1,10 @@
 package utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-import java.nio.channels.AsynchronousServerSocketChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -315,5 +316,53 @@ public class GeometryTest {
 		a = Geometry.normalize(a);
 		assertEquals(-0.00020423837, a[0], Geometry.EPS);
 		assertEquals(1.00020423838, a[1], Geometry.EPS);
+	}
+	
+	@Test
+	public void getVectTest(){
+		double A[] = {1,-2,3};
+		double B[] = {-1, -0.5, 10};
+		double C[] = {-2, 1.5, 7};
+		
+		assertArrayEquals(C, Geometry.getVect(A, B), 1e-6);
+	}
+	
+	@Test
+	public void randomPointOnSphereTest(){
+		double p[]; 
+		
+		p = Geometry.randomPointOnSphere(3, 2);
+		assertEquals(3, p.length, 1e-6);		
+		assertEquals(2, Geometry.getLen(p), 1e-6);
+		
+		p = Geometry.randomPointOnSphere(4, 0.17);
+		assertEquals(4, p.length, 1e-6);		
+		assertEquals(0.17, Geometry.getLen(p), 1e-6);
+	}
+	
+	@Test
+	public void getRandomVectorSummingTo1(){
+		double p[];
+		
+		p = Geometry.getRandomVectorSummingTo1(2);
+		assertEquals(2, p.length, 1e-6);
+		assertEquals(1, Arrays.stream(p).sum(), 1e-6);
+		p = Geometry.getRandomVectorSummingTo1(3);
+		assertEquals(3, p.length, 1e-6);
+		assertEquals(1, Arrays.stream(p).sum(), 1e-6);
+		p = Geometry.getRandomVectorSummingTo1(4);
+		assertEquals(4, p.length, 1e-6);
+		assertEquals(1, Arrays.stream(p).sum(), 1e-6);
+	}
+	
+	
+	@Test
+	public void getRandomVectorOnHyperplaneTest(){
+		double p[];
+		
+		p = Geometry.getRandomVectorOnHyperplane(2, 0.3);
+		assertEquals(2, p.length, 1e-6);		
+		assertEquals(0, Arrays.stream(p).sum(), 1e-6);
+		assertEquals(0.3, Geometry.getLen(p), 1e-6);
 	}
 }

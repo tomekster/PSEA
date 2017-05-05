@@ -1,27 +1,18 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.logging.Logger;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;
 import preferences.PreferenceCollector;
-import solutionRankers.ChebyshevRanker;
 import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
 import utils.GradientLambdaSearch;
 import utils.NSGAIIIRandom;
-import utils.Pair;
 
 public class Lambda {
-
-	private final static Logger LOGGER = Logger.getLogger(Lambda.class.getName());
-
 	private static Lambda instance = null;
 	
 	private int numObjectives;
@@ -45,33 +36,9 @@ public class Lambda {
 		this.numLambdas = numLambdas;
 		lambdas = new ArrayList<>();
 		for (int i=0; i<numLambdas; i++) {
-			lambdas.add(this.getRandomLambda());
+			lambdas.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(numObjectives)));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
-	}
-	
-	private ReferencePoint getRandomLambda() {
-		ArrayList <Double> breakPoints = new ArrayList<>();
-		ArrayList <Double> dimensions = new ArrayList<>();
-		breakPoints.add(0.0);
-		breakPoints.add(1.0);
-		for(int i=0; i<numObjectives-1; i++){ 
-			breakPoints.add(NSGAIIIRandom.getInstance().nextDouble()); 
-		}
-		Collections.sort(breakPoints);
-
-		for(int i=0; i < numObjectives; i++){
-			dimensions.add(breakPoints.get(i+1) - breakPoints.get(i));
-		}
-		
-		Collections.shuffle(dimensions);
-		double dims[] = new double[this.numObjectives];
-		for(int i=0; i<dimensions.size();i++){
-			dims[i] = dimensions.get(i);
-		}
-		assert( Math.abs(Arrays.stream(dims).sum() - 1) < Geometry.EPS);
-		ReferencePoint rp = new ReferencePoint(dims);
-		return rp;
 	}
 
 	/**
@@ -125,33 +92,15 @@ public class Lambda {
 		return this.lambdas;
 	}
 
-	public void lambdas(ArrayList <ReferencePoint> lambdas){ 
-		this.lambdas = lambdas;
-	}
-	
-	@Override
-	public String toString(){
-		String res="";
-		for(ReferencePoint rp : lambdas){
-			res += rp.toString() + "\n" + rp.getNumViolations() + "\n";
-		}
-		return res;
-	}
-
 	public void nextGeneration() {
 		ArrayList <ReferencePoint> allLambdas = new ArrayList<>();
 		allLambdas.addAll(lambdas);
-		for(int i=0; i<numLambdas; i++){
-			allLambdas.add(getRandomLambda());
+		for(int i=0; i<numLambdas; i++) { 
+			allLambdas.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(this.numObjectives))); 
 		}
-
 		ArrayList <ReferencePoint> newLambdas = selectNewLambdas(GLS.improve(allLambdas));
 		System.out.println("Best/worse CV:" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
 		this.lambdas = newLambdas;
-	}
-	
-	public void setLambdas(ArrayList<ReferencePoint> lambdas){
-		this.lambdas = lambdas;
 	}
 	
 	public boolean converged(){
@@ -173,5 +122,14 @@ public class Lambda {
 			if( max[i] - min[i] > 0.001) return false;
 		}
 		return true;
+	}
+	
+	@Override
+	public String toString(){
+		String res="";
+		for(ReferencePoint rp : lambdas){
+			res += rp.toString() + "\n" + rp.getNumViolations() + "\n";
+		}
+		return res;
 	}
 }

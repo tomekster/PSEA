@@ -15,10 +15,10 @@ import utils.Pair;
 public class Elicitator {
 
 	public static void elicitateN(int numToElicitate, Population pop, ChebyshevRanker cr, Lambda lambda) {
-		//We want to select for comparison only non-dominated solutions, therefore we consider only solutions from first front
+//		We want to select for comparison only non-dominated solutions, therefore we consider only solutions from first front
 		Population firstFront = NonDominationRanker.sortPopulation(pop).get(0);
 		if (firstFront.size() > 1){
-			//We keep track of pairs that were already compared by DM to avoid repetition
+//			We keep track of pairs that were already compared by DM to avoid repetition
 			boolean pairsUsed[][] = new boolean[firstFront.size()][firstFront.size()];
 			int elicitated=0;
 			

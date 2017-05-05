@@ -3,7 +3,6 @@ package solutionRankers;
 import java.util.Comparator;
 
 import core.points.ReferencePoint;
-import utils.MyMath;
 
 public class LambdaCVRanker implements Comparator <ReferencePoint>{
 

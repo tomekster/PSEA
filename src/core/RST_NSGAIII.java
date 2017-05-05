@@ -16,8 +16,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
 
-	private final static int NUM_LAMBDAS = 50;
-
 	public static boolean assertions = false;
 
 	private Problem problem;
@@ -28,13 +26,15 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private int numElicitations2;
 	private int elicitationInterval;
 	private int generation;
+	private int numLambdas;
+	private double spreadThreshold;
 	
 	private ChebyshevRanker DMranker;
 	
 	private NSGAIII nsgaiii;
 	private Lambda lambda;
 
-	public RST_NSGAIII(Problem problem, int numGenerations1, int numGenerations2, int numElicitations1, int numElicitations2, int elicitationInterval, ChebyshevRanker decisionMakerRanker) {
+	public RST_NSGAIII(Problem problem, int numGenerations1, int numGenerations2, int numElicitations1, int numElicitations2, int elicitationInterval, ChebyshevRanker decisionMakerRanker, int numLambdas, double spreadThreshold) {
 		super(  new BinaryTournament(new SolutionsBordaRanker()),
 				//new noCrossover(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
@@ -46,7 +46,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 									new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
 		
 		this.lambda = Lambda.getInstance(); 
-		lambda.init( problem.getNumObjectives(), NUM_LAMBDAS );
+		lambda.init( problem.getNumObjectives(), numLambdas );
 		
 		this.population = nsgaiii.getPopulation();
 		this.populationSize = population.size();
@@ -64,27 +64,69 @@ public class RST_NSGAIII extends EA implements Runnable {
 		ExecutionHistory.getInstance().init(problem, nsgaiii, lambda, decisionMakerRanker, numGenerations1, numGenerations2, numElicitations1, numElicitations2, elicitationInterval);
 	}
 
+	
+	/**
+	 * Version with set number of exploration generations and exploitation generations
+	 */
+//	public void run() {
+//		LOGGER.setLevel(Level.INFO);
+//		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
+//				+ " objectives, and " + numGenerations1 + "/" + numElicitations2 + " generations, for DecisionMaker: ." + DMranker.getName());
+//			
+//		for(generation = 0; generation < numGenerations1 + numGenerations2; generation++){
+//			if(generation < numGenerations1){
+//				nsgaiii.nextGeneration();
+//				this.population = nsgaiii.getPopulation();
+//			}
+//			else{
+//				nextGeneration();
+//			}
+//			
+//			if(generation > numGenerations1 - elicitationInterval * numElicitations1 
+//					&& generation < numGenerations1 + elicitationInterval * numElicitations2
+//					&& generation % elicitationInterval == 0){
+//				System.out.println("GENERATION: " + generation + "FIRST_PHASE: " + generation);
+//				Elicitator.elicitateN(1, population, DMranker, lambda);
+//			}
+//			
+//			problem.evaluate(population);
+//			ExecutionHistory.getInstance().update(population, lambda);
+//		}
+//	}
+	
+	/**
+	 * Version with set percentage of reference lines coverage instead of number of exploration generations 
+	 */
 	public void run() {
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII for " + problem.getName() + ", for " + problem.getNumObjectives()
 				+ " objectives, and " + numGenerations1 + "/" + numElicitations2 + " generations, for DecisionMaker: ." + DMranker.getName());
-			
-		for(generation = 0; generation < numGenerations1 + numGenerations2; generation++){
-			if(generation < numGenerations1){
-				nsgaiii.nextGeneration();
-				this.population = nsgaiii.getPopulation();
-			}
-			else{
-				nextGeneration();
-			}
-			
-			if(generation > numGenerations1 - elicitationInterval * numElicitations1 
-					&& generation < numGenerations1 + elicitationInterval * numElicitations2
-					&& generation % elicitationInterval == 0){
-				System.out.println("GENERATION: " + generation + "FIRST_PHASE: " + generation);
+		
+		while( nsgaiii.getHyperplane().getNumNiched() > nsgaiii.getHyperplane().getReferencePoints().size() * spreadThreshold){
+			generation++;
+			nsgaiii.nextGeneration();
+			this.population = nsgaiii.getPopulation();
+			problem.evaluate(population);
+			ExecutionHistory.getInstance().update(population, lambda);
+		}
+		
+		for(int t=0 ; t < numElicitations1 * elicitationInterval ; t++){
+			generation++;
+			nsgaiii.nextGeneration();
+			this.population = nsgaiii.getPopulation();
+			if(t % elicitationInterval == 0){
 				Elicitator.elicitateN(1, population, DMranker, lambda);
 			}
-			
+			problem.evaluate(population);
+			ExecutionHistory.getInstance().update(population, lambda);
+		}
+		
+		for(int t=0; t < numGenerations2; t++){
+			generation++;
+			nextGeneration();
+			if(t < numElicitations2 * elicitationInterval &&  t % elicitationInterval == 0){
+				Elicitator.elicitateN(1, population, DMranker, lambda);
+			}
 			problem.evaluate(population);
 			ExecutionHistory.getInstance().update(population, lambda);
 		}
@@ -100,5 +142,15 @@ public class RST_NSGAIII extends EA implements Runnable {
 	
 	public int getGeneration(){
 		return generation;
+	}
+
+
+	public int getNumLambdas() {
+		return numLambdas;
+	}
+
+
+	public void setNumLambdas(int numLambdas) {
+		this.numLambdas = numLambdas;
 	}
 }

@@ -33,6 +33,11 @@ import core.points.Solution;
  */
 public class WFG3 extends WFG {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3503607390352904151L;
+
 	public WFG3(Integer M){
 		this(M, 3, M);
 	}

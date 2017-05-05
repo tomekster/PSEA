@@ -1,10 +1,13 @@
 package problems.dtlz;
 
-import core.Problem;
 import core.points.Solution;
 
-public class DTLZ1 extends Problem {
+public class DTLZ1 extends DTLZ {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6314726004282155449L;
 	// Parameter used in Deb's original paper
 	// k = numVariables - numObjectives + 1
 	private final static int k = 5;

@@ -14,7 +14,6 @@ import core.Population;
 import core.Problem;
 import core.points.ReferencePoint;
 import core.points.Solution;
-import igd.TargetFrontGenerator;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import utils.Pair;
@@ -227,12 +226,7 @@ public class ExecutionHistory implements Serializable {
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
 		addLambdas(lambda.getLambdas());
-		if(TargetFrontGenerator.knowsPF(problem.getName())){
-			setTargetPoints(TargetFrontGenerator.generate(nsgaiii.getHyperplane().getReferencePoints(), problem));
-		}
-		else{
-			setTargetPoints(new Population());
-		}
+		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
 		setNumGenerations1(numGenerations1);
@@ -253,7 +247,8 @@ public class ExecutionHistory implements Serializable {
 	
 	public void update(Population population, Lambda lambda) {
 		addGeneration(population.copy());
-		addLambdas((ArrayList <ReferencePoint>) lambda.getLambdas().clone());
+		ArrayList <ReferencePoint> lambdasCopy = new ArrayList <> (lambda.getLambdas()); 
+		addLambdas(lambdasCopy);
 		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
 	}
 

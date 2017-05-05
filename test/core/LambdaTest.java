@@ -1,5 +1,7 @@
 package core;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -7,12 +9,8 @@ import org.junit.Test;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
-import preferences.PreferenceCollector;
 import solutionRankers.SolutionsBordaRanker;
-import utils.Geometry;
 import utils.TestingUtils;
-
-import static org.junit.Assert.*;
 
 public class LambdaTest {
 
@@ -54,21 +52,6 @@ public class LambdaTest {
 		TestingUtils.assertDoubleArrayEquals(obj1, res.get(0).getObjectives());
 		TestingUtils.assertDoubleArrayEquals(obj2, res.get(1).getObjectives());
 		TestingUtils.assertDoubleArrayEquals(obj3, res.get(2).getObjectives());
-	}
-	
-	@Test
-	public void selectKSolutionsByChebyshevBordaRankingTest(){
-		ArrayList<ReferencePoint> lambdas = new ArrayList<ReferencePoint>();
-		lambdas.add(new ReferencePoint(dim1));
-		lambdas.add(new ReferencePoint(dim2));
-		Lambda LAMBDA = Lambda.getInstance(); 
-		LAMBDA.init(2, 10);
-		LAMBDA.setLambdas(lambdas);
-		SolutionsBordaRanker sbr = new SolutionsBordaRanker();
-		Population popSort = sbr.sortSolutions(pop);
-		TestingUtils.assertDoubleArrayEquals(obj1, popSort.getSolution(0).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj3, popSort.getSolution(1).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj2, popSort.getSolution(2).getObjectives());
 	}
 	
 	@Test

@@ -21,18 +21,18 @@ public class ChebyshevRanker implements Serializable{
 	private double refPoint[];
 	private String name;
 
-	public ChebyshevRanker(double refPoint[], double lambda[], double rho, String name){
+	public ChebyshevRanker(double refPoint[], double lambda[], String name){
 		if(refPoint.length != lambda.length){
 			throw new RuntimeException();
 		}
 		this.refPoint = refPoint;
 		this.lambda = lambda;
-		this.rho = rho;
+		this.rho = 0.0001;
 		this.setName(name);
 	}
 	
 	public ChebyshevRanker(double lambda[]){
-		this(new double[lambda.length], lambda, 0 , "");
+		this(new double[lambda.length], lambda, "");
 	}
 	
 	public double eval(Solution s){
