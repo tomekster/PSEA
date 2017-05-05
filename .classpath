@@ -24,11 +24,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-<<<<<<< HEAD
-	<classpathentry kind="lib" path="C:/Users/Tomasz/Documents/nsgaiii/jfreechart-1.0.19-demo.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Tomasz/Documents/nsgaiii/jcommon-1.0.23.jar"/>
-=======
 	<classpathentry kind="lib" path="/home/tomasz/Desktop/NSGAIII/jfreechart-1.0.19/jfreechart-1.0.19-demo.jar"/>
->>>>>>> branch 'master' of https://tomekster@bitbucket.org/tomekster/nsgaiii.git
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
