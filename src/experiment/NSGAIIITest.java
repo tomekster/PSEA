@@ -7,6 +7,7 @@ import igd.IGD;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
+import problems.dtlz.*;
 import problems.wfg.*;
 import solutionRankers.NonDominationRanker;
 import utils.WfgPythonVisualizer;
@@ -20,8 +21,8 @@ public class NSGAIIITest {
 		 * WFG2 - ideal point has some negative coordinates TODO
 		 * WFG8 - difficult problem
 		 */
-		Problem problem = new WFG6(3);
-		int numGenerations = 1;
+		Problem problem = new DTLZ1(3);
+		int numGenerations = 350;
 		NSGAIII nsgaiii = new NSGAIII(	problem, 
 				new BinaryTournament(new NonDominationRanker()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
@@ -33,7 +34,7 @@ public class NSGAIIITest {
 		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);
 		double igd = IGD.execute(problem.getReferenceFront(), firstFront);
 		WfgPythonVisualizer pv = new WfgPythonVisualizer();
-		pv.visualise(problem.getReferenceFront(), firstFront);
+		//pv.visualise(problem.getReferenceFront(), firstFront);
 		System.out.println("IGD = " + igd);
 	}
 }

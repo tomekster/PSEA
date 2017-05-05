@@ -45,13 +45,12 @@ public class NSGAIIIParameters {
 		numberExploitationGenerations = 100;
 		numElicitations1 = 50;
 		numElicitations2 = 30;
-		setNumElicitations1(50);
-		setNumElicitations2(30);
 		numberRuns = 1;
 		elicitationInterval = 1;
 		showTargetPoints = true;
 		showLambdas = true;
 		showComparisons = true;
+		numLambdas = 50;
 	}
 
 	public static NSGAIIIParameters getInstance() {

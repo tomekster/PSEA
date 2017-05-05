@@ -46,7 +46,7 @@ public class ExperimentRunner {
 						decisionMakerRanker = ChebyshevRankerBuilder.getMinXZChebyshevRanker(p.getNumObjectives());
 					}
 					runNSGAIIIExperiment(p, runId, decisionMakerRanker);
-					ExecutionHistory.serialize("/home/tomasz/Desktop/experiment/" + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + rankerId + "_" + NSGAIIIRandom.getInstance().nextInt() + ".ser");
+//					ExecutionHistory.serialize("/home/tomasz/Desktop/experiment/" + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + rankerId + "_" + NSGAIIIRandom.getInstance().nextInt() + ".ser");
 				}
 			}
 		}
@@ -77,7 +77,7 @@ public class ExperimentRunner {
 		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);		
 		WfgPythonVisualizer pv = new WfgPythonVisualizer();
 //		pv.visualise(history.getProblem().getReferenceFront(), firstFront);
-		pv.visualise(history.getProblem().getReferenceFront(), finalPop);
+//		pv.visualise(history.getProblem().getReferenceFront(), finalPop);
 		
 		
 		//saveHistory(alg.getHistory(), "RST_NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
