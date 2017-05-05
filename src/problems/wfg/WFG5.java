@@ -32,6 +32,11 @@ import core.points.Solution;
  * Proceedings, volume 3410 of Lecture Notes in Computer Science
  */
 public class WFG5 extends WFG {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2683008998415849113L;
+
 	public WFG5(Integer M){
 		this(M, 3, M);
 	}

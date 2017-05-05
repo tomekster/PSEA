@@ -1,5 +1,7 @@
 package core;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 
 import org.junit.Before;
@@ -7,9 +9,8 @@ import org.junit.Test;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
+import solutionRankers.SolutionsBordaRanker;
 import utils.TestingUtils;
-
-import static org.junit.Assert.*;
 
 public class LambdaTest {
 
@@ -36,7 +37,7 @@ public class LambdaTest {
 	@Test
 	public void buildSolutionRankingTest1() {
 		ReferencePoint lambda = new ReferencePoint(dim1);
-		ArrayList<Solution> res = Lambda.buildSolutionsRanking(lambda, pop);
+		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
 
 		TestingUtils.assertDoubleArrayEquals(obj3, res.get(0).getObjectives());
 		TestingUtils.assertDoubleArrayEquals(obj1, res.get(1).getObjectives());
@@ -46,7 +47,7 @@ public class LambdaTest {
 	@Test
 	public void buildSolutionRankingTest2() {
 		ReferencePoint lambda = new ReferencePoint(dim2);
-		ArrayList<Solution> res = Lambda.buildSolutionsRanking(lambda, pop);
+		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
 
 		TestingUtils.assertDoubleArrayEquals(obj1, res.get(0).getObjectives());
 		TestingUtils.assertDoubleArrayEquals(obj2, res.get(1).getObjectives());
@@ -54,26 +55,16 @@ public class LambdaTest {
 	}
 	
 	@Test
-	public void selectKSolutionsByChebyshevBordaRankingTest(){
-		Population lambdas = new Population();
-		lambdas.addSolution(new ReferencePoint(dim1));
-		lambdas.addSolution(new ReferencePoint(dim2));
-		Lambda LAMBDA = new Lambda(2, null, null, null);
-		LAMBDA.setPopulation(lambdas);
-		Population res;
-		res = LAMBDA.selectKSolutionsByChebyshevBordaRanking(pop, 1);
-		assertEquals(1, res.size());
-		TestingUtils.assertDoubleArrayEquals(obj1, res.getSolution(0).getObjectives());
-		
-		res = LAMBDA.selectKSolutionsByChebyshevBordaRanking(pop, 2);
-		assertEquals(2, res.size());
-		TestingUtils.assertDoubleArrayEquals(obj1, res.getSolution(0).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj3, res.getSolution(1).getObjectives());
-		
-		res = LAMBDA.selectKSolutionsByChebyshevBordaRanking(pop, 3);
-		assertEquals(3, res.size());
-		TestingUtils.assertDoubleArrayEquals(obj1, res.getSolution(0).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj3, res.getSolution(1).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj2, res.getSolution(2).getObjectives());
+	public void bestWorseCVTest(){
+		ArrayList<ReferencePoint> newLambdas = new ArrayList<>();
+		double dim[] = {0};
+		ReferencePoint rp1 = new ReferencePoint(dim);
+		ReferencePoint rp2 =new ReferencePoint(dim);
+		rp1.setNumViolations(1);
+		rp2.setNumViolations(2);
+		newLambdas.add(rp1);
+		newLambdas.add(rp2);
+		assertEquals(1, newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt());
+		assertEquals(2, newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
 	}
 }

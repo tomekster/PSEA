@@ -14,6 +14,11 @@ import core.points.Solution;
  * and 2 objectives
  */
 public class WFG9 extends WFG {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 912532111390784752L;
+
 	public WFG9(Integer M){
 		this(M, 3, M);
 	}

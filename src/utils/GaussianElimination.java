@@ -19,53 +19,49 @@ public class GaussianElimination {
 
 		int N = A.length;
 
-		for (int i = 0; i < N; i++) {
+		for (int colId = 0; colId < N; colId++) {
 			
 			double max = Double.MIN_VALUE;
-			int maxRow = i;
-			for (int j = i; j < N; j++) {
-				double val = Math.abs(A[j][i]);
+			int maxRow = colId;
+			for (int rowId = colId; rowId < N; rowId++) {
+				double val = Math.abs(A[rowId][colId]);
 				if(Double.compare(max, val) < 0){
 					max = val;
-					maxRow = j;
+					maxRow = rowId;
 				}
 			}
 
 			if (max < utils.Geometry.EPS) {
-				System.out.println("ROW: " + i);
+				System.out.println("ROW: " + colId);
 				printMatrix(A2);
 				throw new DegeneratedMatrixException();
 			}
 			
 			//Place max element in current column in current row
-			double temp[] = A[i].clone();
-			A[i] = A[maxRow];
+			double temp[] = A[colId].clone();
+			A[colId] = A[maxRow];
 			A[maxRow] = temp;
 			
-			double temp2 = B[i];
-			B[i] = B[maxRow];
+			double temp2 = B[colId];
+			B[colId] = B[maxRow];
 			B[maxRow] = temp2;
-//			System.out.println("ROW: " + i);
-//			System.out.println("BEFORE");
-//			printMatrix(M);
-			for (int j = i + 1; j < N; j++) {
-				double div = A[j][i] / A[i][i];
-				for (int k = i; k < N; k++) {
-					A[j][k] -= div * A[i][k];
+
+			for (int rowId = colId + 1; rowId < N; rowId++) {
+				double div = A[rowId][colId] / A[colId][colId];
+				for (int k = colId; k < N; k++) {
+					A[rowId][k] -= div * A[colId][k];
 				}
-				B[j] -= div * B[i];
+				B[rowId] -= div * B[colId];
 			}
-//			System.out.println("AFTER");
-//			printMatrix(A);
 		}
 		
 		double[] x = new double[N];
-		for (int i = N - 1; i >= 0; i--) {
+		for (int rowId = N - 1; rowId >= 0; rowId--) {
 			double sum = 0.0;
-			for (int j = i + 1; j < N; j++) {
-				sum += A[i][j] * x[j];
+			for (int colId = rowId + 1; colId < N; colId++) {
+				sum += A[rowId][colId] * x[colId];
 			}
-			x[i] = (B[i] - sum) / A[i][i];
+			x[rowId] = (B[rowId] - sum) / A[rowId][rowId];
 		}
 		return x;
 	}

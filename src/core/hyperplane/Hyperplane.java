@@ -1,24 +1,32 @@
 package core.hyperplane;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import core.Population;
 import core.points.ReferencePoint;
 import core.points.Solution;
-import solutionRankers.NonDominationRanker;
 import utils.Geometry;
-import utils.NSGAIIIRandom;
 
 public class Hyperplane {
 
 	protected ArrayList<ReferencePoint> referencePoints;
 	protected int dim;
 
-	public Hyperplane(int M) {
-		this.dim = M;
+	public Hyperplane(int M_dim) {
+		this.dim = M_dim;
 		referencePoints = new ArrayList<ReferencePoint>();
 		generateReferencePoints();
+		for (ReferencePoint rp : referencePoints) {
+			for (int i = 0; i < rp.getNumDimensions(); i++) {
+				rp.setDim(i, Double.max(Geometry.EPS, rp.getDim(i)));
+			}
+		}
+	}
+	
+	public Hyperplane(int M, int p) {
+		this.dim = M;
+		referencePoints = new ArrayList<ReferencePoint>();
+		generateReferencePoints(p);
 		for (ReferencePoint rp : referencePoints) {
 			for (int i = 0; i < rp.getNumDimensions(); i++) {
 				rp.setDim(i, Double.max(Geometry.EPS, rp.getDim(i)));
@@ -30,7 +38,7 @@ public class Hyperplane {
 		ArrayList<ReferencePoint> boundaryLayer = new ArrayList<>();
 		ArrayList<ReferencePoint> insideLayer = new ArrayList<>();
 
-		ArrayList<Integer> partitions = getNumPartitions(dim);
+		ArrayList<Integer> partitions = getNumPartitions();
 		int p = partitions.get(0);
 		generateRecursive(new ReferencePoint(dim), 1.0 / p, 0, p, boundaryLayer);
 		referencePoints.addAll(boundaryLayer);
@@ -41,6 +49,12 @@ public class Hyperplane {
 
 			referencePoints.addAll(insideLayer);
 		}
+	}
+	
+	private void generateReferencePoints(int p) {
+		ArrayList<ReferencePoint> boundaryLayer = new ArrayList<>();
+		generateRecursive(new ReferencePoint(dim), 1.0 / p, 0, p, boundaryLayer);
+		referencePoints.addAll(boundaryLayer);
 	}
 
 	private void generateRecursive(ReferencePoint rp, double step, int startDim, int left,
@@ -62,11 +76,11 @@ public class Hyperplane {
 		}
 	}
 	
-	private ArrayList<Integer> getNumPartitions(int numObjectives) {
+	private ArrayList<Integer> getNumPartitions() {
 		ArrayList<Integer> res = new ArrayList<>();
-		switch (numObjectives) {
+		switch (dim) {
 		case 2:
-			res.add(2);
+			res.add(150);
 			break;
 		case 3:
 			res.add(12);
@@ -85,7 +99,7 @@ public class Hyperplane {
 			break;
 		default:
 			throw new RuntimeException("Undefined number of hyperplane partitions for given problem dimensionality ("
-					+ numObjectives + ")");
+					+ dim + ")");
 		}
 		return res;
 	}
@@ -118,6 +132,10 @@ public class Hyperplane {
 					bestRefPoint = curRefPoint;
 				}
 			}
+			if(bestRefPoint == null){
+				System.out.println("Best ref point error");
+			}
+			//TODO
 			assert bestRefPoint != null;
 			if(lastFront){
 				bestRefPoint.addLastFrontAssociation(new Association(s, minDist));

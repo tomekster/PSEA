@@ -24,6 +24,11 @@ package problems.wfg;
 import core.points.Solution;
 
 public class WFG7 extends WFG {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4219569441752268868L;
+
 	public WFG7(Integer M){
 		this(M, 3, M);
 	}

@@ -1,8 +1,14 @@
 package core.hyperplane;
 
+import java.io.Serializable;
+
 import core.points.Solution;
 
-public class Association {
+public class Association implements Comparable <Association>, Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5366509349507913594L;
 	private Solution solution;
 	private double dist;
 	
@@ -27,5 +33,9 @@ public class Association {
 	@Override
 	public String toString(){
 		return "(" + this.solution + "\nDIST: " + this.dist + ")";
+	}
+	@Override
+	public int compareTo(Association a2) {
+		return Double.compare(this.getDist(), a2.getDist());
 	}
 }

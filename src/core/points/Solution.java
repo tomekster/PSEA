@@ -1,9 +1,14 @@
 package core.points;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
-public class Solution {
-	
+public class Solution implements Comparable<Solution>, Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4812314617548779560L;
 	protected double[] variables;
 	protected double[] objectives;
 	private boolean dominated;
@@ -104,5 +109,35 @@ public class Solution {
 
 	public void setDominated(boolean dominated) {
 		this.dominated = dominated;
+	}
+
+	/**
+	 * Finds dominating solution assuming minimization problem
+
+	 * @return 0 if neither of solutions dominates other ; -1 if s1
+	 *         dominates s2 ; 1 if s2 dominates s1
+	 */
+	@Override
+	public int compareTo(Solution s2) {
+		if (this.getNumObjectives() != s2.getNumObjectives()) {
+			throw new RuntimeException("Incomparable solutions. Different number of dimensions");
+		}
+
+		boolean firstDominates = false, secondDominates = false;
+		int flag;
+		for (int pos = 0; pos < this.getNumObjectives(); pos++) {
+			flag = Double.compare(this.getObjective(pos), s2.getObjective(pos));
+			if (flag == 1)
+				secondDominates = true;
+			if (flag == -1)
+				firstDominates = true;
+		}
+
+		if (firstDominates && !secondDominates)
+			return -1;
+		else if (!firstDominates && secondDominates)
+			return 1;
+		else
+			return 0;
 	}
 }

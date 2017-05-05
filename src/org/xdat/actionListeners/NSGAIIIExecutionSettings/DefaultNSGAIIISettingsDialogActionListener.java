@@ -76,9 +76,10 @@ public class DefaultNSGAIIISettingsDialogActionListener implements ActionListene
 		if (actionCommand == "Ok") {
 			NSGAIIIParameters.getInstance().setProblemName(this.dialog.getNSGAIIISettingsPanel().getProblemsSelection());
 			NSGAIIIParameters.getInstance().setNumberObjectives(this.dialog.getNSGAIIISettingsPanel().getNumberObjectivesSelection());
-			NSGAIIIParameters.getInstance().setNumberGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberGenerationsSelection());
+			NSGAIIIParameters.getInstance().setNumberExplorationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExplorationGenerationsSelection());
+			NSGAIIIParameters.getInstance().setNumberExploitationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExploitationGenerationsSelection());
 			NSGAIIIParameters.getInstance().setNumberRuns(this.dialog.getNSGAIIISettingsPanel().getNumberRunsSelection());
-			NSGAIIIParameters.getInstance().setElicitationFrequency(this.dialog.getNSGAIIISettingsPanel().getElicitationsFrequency());
+			NSGAIIIParameters.getInstance().setElicitationInterval(this.dialog.getNSGAIIISettingsPanel().getElicitationsFrequency());
 			NSGAIIIParameters.getInstance().setShowTargetPoints(this.dialog.getNSGAIIISettingsPanel().getShowTargetPointsSelection());
 			NSGAIIIParameters.getInstance().setShowLambdas(this.dialog.getNSGAIIISettingsPanel().getShowLambdasSelection());
 			NSGAIIIParameters.getInstance().setShowComparisons(this.dialog.getNSGAIIISettingsPanel().getShowComparisonsSelection());

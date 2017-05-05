@@ -1,9 +1,15 @@
 package core;
 
+import java.io.Serializable;
+
 import core.points.Solution;
 import utils.NSGAIIIRandom;
 
-public abstract class Problem {
+public abstract class Problem implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5151466907576488480L;
 	private int numVariables = 0;
 	private int numObjectives = 0;
 	private int numConstraints = 0;
@@ -116,4 +122,6 @@ public abstract class Problem {
 	public double getUpperBound(int pos) {
 		return upperBound[pos];
 	}
+	
+	public abstract Population getReferenceFront();
 }

@@ -1,35 +1,26 @@
 package core.points;
 
-import java.util.Comparator;
+import java.io.Serializable;
 import java.util.PriorityQueue;
 
 import core.hyperplane.Association;
 
-public class ReferencePoint extends Solution{
+public class ReferencePoint extends Solution implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1962134424334714602L;
 	private boolean coherent;
 	private PriorityQueue<Association> nichedAssociations;
 	private PriorityQueue<Association> lastFrontAssociations;
-	//Maximum eps achievable in RACS Linear Programming task
-	private double eps;
-	private double rho;
 	private double reward;
 	private double penalty;
 	private int numViolations;
 
 	public ReferencePoint(int numVariables) {
 		super(new double [numVariables], new double[1]);
-		this.nichedAssociations = new PriorityQueue<Association>( new Comparator <Association>() {
-			@Override
-			public int compare(Association o1, Association o2) {
-				return Double.compare(o1.getDist(), o2.getDist());
-			}
-		});
-		this.lastFrontAssociations = new PriorityQueue<Association>( new Comparator <Association>() {
-			@Override
-			public int compare(Association o1, Association o2) {
-				return Double.compare(o1.getDist(), o2.getDist());
-			}
-		});
+		this.nichedAssociations = new PriorityQueue<Association>();
+		this.lastFrontAssociations = new PriorityQueue<Association>();
 		this.coherent = false;
 	}
 
@@ -99,14 +90,6 @@ public class ReferencePoint extends Solution{
 		ReferencePoint rp = new ReferencePoint(this);
 		return rp;
 	}
-	
-	public double getEps(){
-		return this.eps;
-	}
-
-	public void setEps(double eps) {
-		this.eps = eps;
-	}
 
 	public double getReward(){
 		return this.reward;
@@ -138,9 +121,5 @@ public class ReferencePoint extends Solution{
 
 	public void incrDim(int pos, double d) {
 		variables[pos] += d; 
-	}
-
-	public void setRho(Double rho) {
-		this.rho = rho;
 	}
 }

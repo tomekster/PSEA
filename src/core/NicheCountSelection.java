@@ -2,7 +2,6 @@ package core;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
-import java.util.logging.Logger;
 
 import core.hyperplane.Association;
 import core.hyperplane.Hyperplane;
@@ -15,9 +14,6 @@ import utils.GaussianElimination;
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
  */
 public class NicheCountSelection {
-
-	private final static Logger LOGGER = Logger.getLogger(NicheCountSelection.class.getName());
-
 	public static Population selectKPoints(int numObjectives, Population allFronts, Population allButLastFront, Population lastFront, 
 			int k, Hyperplane hyperplane) throws DegeneratedMatrixException {
 		normalize(numObjectives, allFronts);
@@ -38,6 +34,7 @@ public class NicheCountSelection {
 				z_min[i] = Double.min(z_min[i], s.getObjective(i));
 			}
 		}
+		
 		for(Solution s : allFronts.getSolutions()){
 			for(int i=0; i<numObjectives; i++){
 				double newObj = s.getObjective(i) - z_min[i];

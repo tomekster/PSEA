@@ -9,9 +9,14 @@ package core;
 public class NSGAIIIParameters {
 	private String problemName;
 	private int numberObjectives;
-	private int numberGenerations;
+	private int numberExplorationGenerations;
+	private int numberExploitationGenerations;
+	private int numElicitations1;
+	private int numElicitations2;
 	private int numberRuns;
 	private int elicitationInterval;
+	private int numLambdas;
+	private double spreadThreshold;
 	
 	private boolean showTargetPoints;
 	private boolean showLambdas;
@@ -19,13 +24,31 @@ public class NSGAIIIParameters {
 	
 	private static NSGAIIIParameters instance = null;
 
+//	if(problem.getNumObjectives() == 3){
+//		numElicitations1 = 50;
+//		numElicitations2 = 30;
+//	}
+//	if(problem.getNumObjectives() == 5){
+//		numElicitations1 = 70;
+//		numElicitations2 = 30;
+//	}
+//	if(problem.getNumObjectives() == 8){
+//		numElicitations1 = 100;
+//		numElicitations2 = 30;
+//	}
+	
 	protected NSGAIIIParameters(){
 		// Exists only to defeat instantiation.
 		problemName = "DTLZ1";
 		numberObjectives = 3;
-		numberGenerations = 350;
+		numberExplorationGenerations = 100;
+		numberExploitationGenerations = 100;
+		numElicitations1 = 50;
+		numElicitations2 = 30;
+		setNumElicitations1(50);
+		setNumElicitations2(30);
 		numberRuns = 1;
-		elicitationInterval = 20;
+		elicitationInterval = 1;
 		showTargetPoints = true;
 		showLambdas = true;
 		showComparisons = true;
@@ -46,8 +69,12 @@ public class NSGAIIIParameters {
 		return numberObjectives;
 	}
 
-	public int getNumberGenerations() {
-		return numberGenerations;
+	public int getNumberExplorationGenerations() {
+		return numberExplorationGenerations;
+	}
+	
+	public int getNumberExploitationGenerations() {
+		return numberExploitationGenerations;
 	}
 
 	public int getNumberRuns() {
@@ -66,10 +93,6 @@ public class NSGAIIIParameters {
 		return showComparisons;
 	}
 
-	public int getElicitationInterval() {
-		return elicitationInterval;
-	}
-
 	public void setProblemName(String problemName) {
 		this.problemName = problemName;
 	}
@@ -78,16 +101,16 @@ public class NSGAIIIParameters {
 		this.numberObjectives = numberObjectives;
 	}
 
-	public void setNumberGenerations(int numberGenerations) {
-		this.numberGenerations = numberGenerations;
+	public void setNumberExplorationGenerations(int numberGenerations) {
+		this.numberExplorationGenerations = numberGenerations;
+	}
+	
+	public void setNumberExploitationGenerations(int numberGenerations) {
+		this.numberExploitationGenerations = numberGenerations;
 	}
 
 	public void setNumberRuns(int numberRuns) {
 		this.numberRuns = numberRuns;
-	}
-
-	public void setElicitationFrequency(int elicitationInterval) {
-		this.elicitationInterval = elicitationInterval;
 	}
 
 	public void setShowTargetPoints(boolean showTargetPoints) {
@@ -100,6 +123,46 @@ public class NSGAIIIParameters {
 
 	public void setShowComparisons(boolean showComparisons) {
 		this.showComparisons = showComparisons;
+	}
+
+	public int getElicitationInterval() {
+		return elicitationInterval;
+	}
+
+	public void setElicitationInterval(int elicitationInterval) {
+		this.elicitationInterval = elicitationInterval;
+	}
+
+	public int getNumElicitations1() {
+		return numElicitations1;
+	}
+
+	public void setNumElicitations1(int numElicitations1) {
+		this.numElicitations1 = numElicitations1;
+	}
+
+	public int getNumElicitations2() {
+		return numElicitations2;
+	}
+
+	public void setNumElicitations2(int numElicitations2) {
+		this.numElicitations2 = numElicitations2;
+	}
+
+	public int getNumLambdas() {
+		return numLambdas;
+	}
+
+	public void setNumLambdas(int numLambdas) {
+		this.numLambdas = numLambdas;
+	}
+
+	public double getSpreadThreshold() {
+		return spreadThreshold;
+	}
+
+	public void setSpreadThreshold(double spreadThreshold) {
+		this.spreadThreshold = spreadThreshold;
 	}
 
 }

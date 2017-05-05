@@ -1,13 +1,14 @@
 package utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-
-import core.points.ReferencePoint;
-import core.points.Solution;
+import java.util.Stack;
 
 public class Geometry {
 
-	public static double EPS = 1E-9;
+	public static double EPS = 1E-6;
 
 	/**
 	 * 
@@ -86,6 +87,12 @@ public class Geometry {
 		return res;
 	}
 	
+	/**
+	 * 
+	 * @param A - point in n dimensions
+	 * @param B - point in n dimensions
+	 * @return n-dimensional vector B-A
+	 */
 	public static double[] getVect(double[] A, double[] B) {
 		if (A.length != B.length) {
 			throw new RuntimeException("Vectors have different dimensionality");
@@ -97,9 +104,12 @@ public class Geometry {
 		return res;
 	}
 	
-	public static Solution cast3dPointToPlane(double p[]){
-		double tmp[] = {0,0};
-		Solution res = new Solution(tmp, tmp);
+	/**
+	 * 
+	 * @param p - point on plane given by equation sum_{1<=i<=n}(x_i) = 1
+	 * @return p casted to equilateral triangle lied on XY plane
+	 */
+	public static double[] cast3dPointToPlane(double p[]){
 		double a[] = p.clone();
 		double sum = 0;
 		for(double d : a){
@@ -110,13 +120,17 @@ public class Geometry {
 		}
 		a[0] -= 1;
 		double b[] = {-0.5, -0.5, 1};
-		res.setObjective(0, pointLineDist(a, b));
-		
-		b = new double[]{-1,1,0};
-		res.setObjective(1, pointLineDist(a, b));
+		double c[] = new double[]{-1,1,0};
+		double res[] = new double[]{pointLineDist(a, b), pointLineDist(a, c)};
 		return res;
 	}
 	
+	/**
+	 * 
+	 * @param dim - number of dimensions of point
+	 * @param radius - distance of point from origin
+	 * @return n-dimensional point lying on sphere with center in origin and radius r
+	 */
 	public static double[] randomPointOnSphere(int dim, double radius){
 		NSGAIIIRandom rand = NSGAIIIRandom.getInstance();
 		double res[] = new double[dim];
@@ -156,11 +170,11 @@ public class Geometry {
 
 	public static double[] invert(double[] dimensions) {
 		int len = dimensions.length;
-		double lambda[] = new double[len];
+		double res[] = new double[len];
 		for (int i = 0; i < len; i++) {
-			lambda[i] = 1 / dimensions[i];
+			res[i] = 1 / dimensions[i];
 		}
-		return lambda;
+		return res;
 	}
 	
 	/**
@@ -192,7 +206,7 @@ public class Geometry {
 	 * @param q - Input point lying on hyperplane orthogonal to last dimension axis
 	 * @return 
 	 */
-	public static double[] mapOnHyperplane(double[] q) {
+	public static double[] mapOnParallelHyperplane(double[] q) {
 		if(!hyperplaneTransformationMaps.containsKey(q.length)){
 			hyperplaneTransformationMaps.put(q.length, genHypTransMap(q.length));
 		}
@@ -208,10 +222,10 @@ public class Geometry {
 	private static double[] transformHyperplanePoint(double[] q, double[][] M) {
 		assert q.length == M.length;
 		double res[] = new double[q.length];
-		for(int i=0; i<M[0].length; i++){
-			res[i] = 0;
-			for(int j=0; j<q.length; j++){
-				res[i] += q[j] * M[j][i]; 
+		for(int colId=0; colId<M[0].length; colId++){
+			res[colId] = 0;
+			for(int rowId=0; rowId<q.length; rowId++){
+				res[colId] += q[rowId] * M[rowId][colId]; 
 			}
 		}
 		
@@ -242,19 +256,19 @@ public class Geometry {
 	 * @param n - resulting matrix size n x n
 	 * @return
 	 */
-	private static double[][] genHypTransMap(int n) {
+	public static double[][] genHypTransMap(int n) {
 		double res[][] = new double[n][n];
 		for(int i=0; i<n; i++){
 			for(int j=0; j<n; j++){
 				if(j<=i){
 					res[i][j] = 1;
 				} else if(j==i+1){
-					res[i][j] = -(i+1); 
+					res[i][j] = -j; 
 				} else{
 					res[i][j] = 0;
 				}
 			}
-			res[i] = vectorNormalize(res[i]);
+//			res[i] = vectorNormalize(res[i]);
 		}
 		return res;
 	}
@@ -264,7 +278,7 @@ public class Geometry {
 	 * @param v Input vector - arbitrary length
 	 * @return 	Output vector - length 1.0
 	 */
-	private static double[] vectorNormalize(double[] v) {
+	public static double[] vectorNormalize(double[] v) {
 		int n = v.length;
 		double sum = 0;
 		double[] res = new double[n];
@@ -304,50 +318,207 @@ public class Geometry {
 		return res;
 	}
 	
-	public static ReferencePoint getRandomNeighbour(int dim, ReferencePoint centralPoint, double radius) {
-		ReferencePoint newPoint = new ReferencePoint(dim);
+	public static double [] getRandomVectorOnHyperplane(int dim, double length){
 		double p[] = new double[dim - 1];
 		double q[] = new double[dim];
-		p = Geometry.randomPointOnSphere(dim - 1, radius);
+		p = Geometry.randomPointOnSphere(dim, length);
 		for (int i = 0; i < dim - 1; i++) {
 			q[i] = p[i];
 		}
 		q[dim - 1] = 0;
-		q = Geometry.mapOnHyperplane(q);
+		q = Geometry.mapOnParallelHyperplane(q);
+		return q;
+	}
+	
+	public static double [] getRandomNeighbour(double[] centralPoint, double radius) {
+		int dim = centralPoint.length;
+		double q[] = getRandomVectorOnHyperplane(dim, radius);
 		for (int i = 0; i < dim; i++) {
-			q[i] += centralPoint.getDim(i);
+			q[i] += centralPoint[i];
 		}
 		for (int i = 0; i < dim; i++) {
 			if (q[i] < 0) {
-				q = Geometry.nonnegativeSegmentPoint(q, centralPoint.getDim());
+				q = Geometry.nonnegativeSegmentPoint(q, centralPoint);
 				break;
 			}
 		}
-		newPoint.setDim(q);
-		return newPoint;
+		return q;
 	}
 
-	public static double[] lineCrossDTLZ1HyperplanePoint(double[] lambda) {
-		double point[] = new double[lambda.length];
+	public static double[] lineCrossDTLZ1HyperplanePoint(double[] pointOnLine) {
+		double crossPoint[] = new double[pointOnLine.length];
 		double sum = 0;
-		for (double d : lambda) {
+		for (double d : pointOnLine) {
 			sum += d;
 		}
-		for(int i=0; i< lambda.length; i++){
-			point[i] = lambda[i] * (0.5 / sum);
+		for(int i=0; i< pointOnLine.length; i++){
+			crossPoint[i] = pointOnLine[i] * (0.5 / sum);
 		}
-		return point;
+		return crossPoint;
 	}
 
-	public static double[] lineCrossDTLZ234HyperspherePoint(double[] lambda) {
-		double point[] = new double[lambda.length], sqr_sum = 0;
-		for (double d : lambda) {
+	public static double[] lineCrossDTLZ234HyperspherePoint(double[] pointOnLine) {
+		double crossPoint[] = new double[pointOnLine.length], sqr_sum = 0;
+		for (double d : pointOnLine) {
 			sqr_sum += d*d;
 		}
 		double div = Math.sqrt(sqr_sum);
-		for (int i = 0; i < lambda.length; i++) {
-			point[i] = lambda[i] / div;
+		for (int i = 0; i < pointOnLine.length; i++) {
+			crossPoint[i] = pointOnLine[i] / div;
 		}
-		return point;
+		return crossPoint;
+	}
+	
+	public static class Line2D implements Comparable <Line2D>{
+		Double a, b;
+		boolean better;
+		
+		public Line2D(double a, double b){
+			this(a,b,false);
+		}
+		public Line2D(double a, double b, boolean better){
+			this.a = a;
+			this.b = b;
+			this.better = better;
+		}
+		public double evalX(double x) {
+			return a*x + b;
+		}
+		public double crossX(Line2D l2){
+			//if( Math.abs(a - l2.a) < EPS){
+			if(Double.compare(a, l2.a) == 0){
+				return Double.POSITIVE_INFINITY;
+			}
+			return (l2.b - b) / (a - l2.a);
+		}
+		
+		@Override
+		public int compareTo(Line2D l2) {
+			//a - increasing
+			//b - decreasing
+			if( Double.compare(a,l2.a )==0 ) return -Double.compare(b, l2.b);
+			else{ return Double.compare(a, l2.a); }
+		}
+		public boolean isBetter(){
+			return better;
+		}
+		
+		@Override
+		public String toString(){
+			return "(" + this.a + ", " + this.b + ")"; 
+		}
+	}
+	
+	public static ArrayList< Line2D> linesUpperEnvelope(ArrayList < Line2D > lines){
+		Collections.sort(lines);
+
+		Stack <Line2D> stack = new Stack<>();
+		stack.push(lines.get(0));
+		
+		int j=1;
+		stack.push(lines.get(j));
+		
+		for(int i=j+1; i<lines.size(); i++){
+			Line2D l1 = lines.get(i);
+			Line2D l2 = stack.pop();
+			Line2D l3 = stack.peek();
+			stack.push(l2);
+			
+			if(l1.crossX(l2) == Double.POSITIVE_INFINITY && l1.b < l2.b) continue;
+				
+			while(stack.size() > 1 && l2.crossX(l3) >= l1.crossX(l3)){
+				stack.pop();
+				if(stack.size() > 1){
+					l2 = stack.pop();
+					l3 = stack.peek();
+					stack.push(l2);
+				}
+			}
+			stack.push(l1);
+		}
+		
+		ArrayList <Line2D> res = new ArrayList<>(stack); 
+		return res;
+	}
+
+	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {
+		assert( Math.abs( Arrays.stream(point).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
+		
+		int numDim = point.length;
+		double p1[] = new double[numDim], p2[] = new double[numDim];
+		double t1 = Double.MAX_VALUE, t2 = Double.MAX_VALUE;
+		
+		for(int i=0; i<numDim; i++){
+			assert point[i] >= -Geometry.EPS;
+			assert point[i] <= 1+Geometry.EPS;
+			if(point[i] < 0) point[i]=0;
+			if(point[i] > 1) point[i]=1;
+			if(grad[i] < 0){
+				t1 = Double.min( t1, -point[i]/grad[i]);
+				t2 = Double.min( t2, -(1-point[i])/grad[i]);
+			}
+			else if(grad[i] > 0){
+				t1 = Double.min( t1, (1-point[i])/grad[i]);
+				t2 = Double.min( t2, point[i]/grad[i]);
+			}
+		}
+		
+		for(int i=0; i<numDim; i++){
+			p1[i] = point[i] + t1 * grad[i];
+			p2[i] = point[i] - t2 * grad[i];
+		}
+		assert( Math.abs( Arrays.stream(p1).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
+		
+		double m1 = 1, m2 = 1;
+		for(int i=0; i<p1.length; i++){
+			assert p1[i] > -Geometry.EPS;
+			assert p1[i] < 1 + Geometry.EPS;
+			assert p2[i] > -Geometry.EPS;
+			assert p2[i] < 1 + Geometry.EPS;
+			if(p1[i] > 1) p1[i] = 1;
+			if(p1[i] < 0) p1[i] = 0;
+			if(p2[i] > 1) p2[i] = 1;
+			if(p2[i] < 0) p2[i] = 0;
+			if(p1[i] < m1) m1 = p1[i];
+			if(p2[i] < m2) m2 = p2[i];
+		}
+		assert Math.abs(m1) < Geometry.EPS;
+		assert Math.abs(m2) < Geometry.EPS;
+		
+		assert( Math.abs( Arrays.stream(p1).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
+		
+		return new Pair <double[], double[]>(p1, p2);
+	}
+	
+	/**
+	 * 
+	 * @param numDim - number of dimensions of resulting point
+	 * @return n-dimensional point with dimensions summing up to 1, picked from uniform distribution.
+	 */
+	public static double[] getRandomVectorSummingTo1(int numDim) {
+		ArrayList <Double> breakPoints = new ArrayList<>();
+		ArrayList <Double> dimensions = new ArrayList<>();
+		breakPoints.add(0.0);
+		breakPoints.add(1.0);
+		for(int i=0; i<numDim-1; i++){ 
+			breakPoints.add(NSGAIIIRandom.getInstance().nextDouble()); 
+		}
+		Collections.sort(breakPoints);
+
+		for(int i=0; i < numDim; i++){
+			dimensions.add(breakPoints.get(i+1) - breakPoints.get(i));
+		}
+		
+		Collections.shuffle(dimensions);
+		double dim[] = new double[numDim];
+		for(int i=0; i<numDim; i++){
+			dim[i] = dimensions.get(i);
+		}
+		
+		assert( Math.abs(Arrays.stream(dim).sum() - 1) < Geometry.EPS);
+		return dim;
 	}
 }

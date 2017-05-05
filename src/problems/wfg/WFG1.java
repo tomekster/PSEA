@@ -31,11 +31,8 @@ import core.points.Solution;
  * Third International Conference, EMO 2005.
  * Proceedings, volume 3410 of Lecture Notes in Computer Science
  */
+@SuppressWarnings("serial")
 public class WFG1 extends WFG {
-	
-	public WFG1(Integer M){
-		this(M, 3, M);
-	}
   /**
    * Constructor
    * Creates a default WFG1 instance with
@@ -76,11 +73,6 @@ public class WFG1 extends WFG {
     y = normalise(z);
     y = t1(y, k);
     y = t2(y, k);
-//    try {
-//      y = t3(y);
-//    } catch (JMetalException e) {
-//      JMetalLogger.logger.log(Level.SEVERE, "Error", e);
-//    }
     y = t3(y);
     y = t4(y, k, m);
 
@@ -126,12 +118,6 @@ public class WFG1 extends WFG {
     return result;
   }
 
-  /**
-   * WFG1 t3 transformation
-   *
-   * @throws org.uma.jmetal.util.JMetalException
-   */
-  //public double[] t3(double[] z) throws JMetalException {
   public double[] t3(double[] z){
     double[] result = new double[z.length];
 
@@ -174,7 +160,7 @@ public class WFG1 extends WFG {
   /**
    * Evaluates a solution
    *
-   * @param solution The solution to evaluate
+   * @param solution The solution to runAlgorithm
    * @throws org.uma.jmetal.util.JMetalException
    */
   public void evaluate(Solution solution) {

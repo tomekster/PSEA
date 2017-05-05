@@ -3,6 +3,8 @@ package core;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import history.ExecutionHistory;
+import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 
 public class NSGAIIIRunnner {
@@ -26,14 +28,23 @@ public class NSGAIIIRunnner {
 		}
 		
 		RST_NSGAIII alg = null;
+		Problem problem = null;
+		ChebyshevRanker cr = null;
 		try {
-			alg = new RST_NSGAIII((Problem) problemConstructor.newInstance(params.getNumberObjectives()), params.getNumberGenerations(), params.getElicitationInterval(), ChebyshevRankerBuilder.getCentralChebyshevRanker(params.getNumberObjectives()));
+			problem = (Problem) problemConstructor.newInstance(params.getNumberObjectives());
+			cr = ChebyshevRankerBuilder.getMinXZChebyshevRanker(params.getNumberObjectives());
+			alg = new RST_NSGAIII(problem, params.getNumberExplorationGenerations(), params.getNumberExploitationGenerations(), params.getNumElicitations1(), params.getNumElicitations2(), params.getElicitationInterval(), cr, params.getNumLambdas(), params.getSpreadThreshold());
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		alg.run();
+		
+		Evaluator.evaluateRun(problem, cr, alg.getPopulation());
+		ExecutionHistory history = ExecutionHistory.getInstance();
+		System.out.println("Generation min: " + history.getFinalMinDist());
+		System.out.println("Generation avg: " + history.getFinalAvgDist());
 	}
 	
 }

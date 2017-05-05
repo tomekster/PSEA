@@ -78,7 +78,9 @@ public class NSGAIIISettingsPanel extends JPanel {
 	
 	private JComboBox <String> numObjectivesComboBox = new JComboBox<>();
 	
-	private JComboBox <String> numGenerationsComboBox = new JComboBox<>();
+	private JComboBox <String> numExplorationGenerationsComboBox = new JComboBox<>();
+	
+	private JComboBox <String> numExploitationGenerationsComboBox = new JComboBox<>();
 	
 	private JComboBox <String> numRunsComboBox = new JComboBox<>();
 	
@@ -129,7 +131,8 @@ public class NSGAIIISettingsPanel extends JPanel {
 		numObjectivesComboBox.setName("numObjectivesComboBox");
 		this.problemsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getProblemName());
 		this.numObjectivesComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberObjectives());
-		this.numGenerationsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberGenerations());
+		this.numExplorationGenerationsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberExplorationGenerations());
+		this.numExploitationGenerationsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberExploitationGenerations());
 		this.numRunsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberRuns());
 		this.elicitationFrequencySpinner.setValue(NSGAIIIParameters.getInstance().getElicitationInterval());
 		if(NSGAIIIParameters.getInstance().isShowTargetPoints()){
@@ -203,12 +206,18 @@ public class NSGAIIISettingsPanel extends JPanel {
 		final String[] problems = { "DTLZ1", "DTLZ2", "DTLZ3", "DTLZ4", "WFG1", "WFG2", "WFG3", "WFG4", "WFG5", "WFG6", "WFG7", "WFG8", "WFG9"};
 		problemsComboBox.setModel(new DefaultComboBoxModel(problems));
 		
-		final String[] objectives = { "2", "3", "5", "8", "10", "15" };
+		final String[] objectives = { "3", "5", "8", "10", "15" };
 		numObjectivesComboBox.setModel(new DefaultComboBoxModel<>(objectives));
 		
-		final String[] generations = { "50", "250", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+		final String[] explorationGenerations = { "50","100", "150", "200", "250", "300", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
 		"3000" };
-		numGenerationsComboBox.setModel(new DefaultComboBoxModel<>(generations));
+		
+		final String[] exploitationGenerations = { "50","100", "150", "200", "250", "300", "350", "400", "500", "600", "750", "1000", "1250", "1500", "2000",
+		"3000" };
+		
+		numExplorationGenerationsComboBox.setModel(new DefaultComboBoxModel<>(explorationGenerations));
+		
+		numExploitationGenerationsComboBox.setModel(new DefaultComboBoxModel<>(exploitationGenerations));
 		
 		final String[] numRuns = { "1", "20" };
 		numRunsComboBox.setModel(new DefaultComboBoxModel<>(numRuns));
@@ -262,9 +271,12 @@ public class NSGAIIISettingsPanel extends JPanel {
 		numObjectivesComboBoxPanel.add(numObjectivesComboBox);
 		controlsPanel.add(numObjectivesComboBoxPanel);
 		labelPanel.add(numberGenerationsLabel);
-		JPanel numGenerationsComboBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		numGenerationsComboBoxPanel.add(numGenerationsComboBox);
-		controlsPanel.add(numGenerationsComboBoxPanel);
+		JPanel numExplorationGenerationsComboBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		numExplorationGenerationsComboBoxPanel.add(numExplorationGenerationsComboBox);
+		controlsPanel.add(numExplorationGenerationsComboBoxPanel);
+		JPanel numExploitationGenerationsComboBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		numExploitationGenerationsComboBoxPanel.add(numExploitationGenerationsComboBox);
+		controlsPanel.add(numExploitationGenerationsComboBoxPanel);
 		labelPanel.add(numberRunsLabel);
 		JPanel numRunsComboBoxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		numRunsComboBoxPanel.add(numRunsComboBox);
@@ -301,7 +313,8 @@ public class NSGAIIISettingsPanel extends JPanel {
 		this.cmd = cmd;
 		problemsComboBox.addActionListener(cmd);
 		numObjectivesComboBox.addActionListener(cmd);
-		numGenerationsComboBox.addActionListener(cmd);
+		numExplorationGenerationsComboBox.addActionListener(cmd);
+		numExploitationGenerationsComboBox.addActionListener(cmd);
 		numRunsComboBox.addActionListener(cmd);
 		//TODO SPINNER?
 		showTargetPointsTrueButton.addActionListener(cmd);
@@ -347,8 +360,12 @@ public class NSGAIIISettingsPanel extends JPanel {
 		return Integer.parseInt(numObjectivesComboBox.getModel().getSelectedItem().toString());
 	}
 	
-	public Integer getNumberGenerationsSelection() {
-		return Integer.parseInt(numGenerationsComboBox.getModel().getSelectedItem().toString());
+	public Integer getNumberExplorationGenerationsSelection() {
+		return Integer.parseInt(numExplorationGenerationsComboBox.getModel().getSelectedItem().toString());
+	}
+	
+	public Integer getNumberExploitationGenerationsSelection() {
+		return Integer.parseInt(numExploitationGenerationsComboBox.getModel().getSelectedItem().toString());
 	}
 	
 	public Integer getNumberRunsSelection() {
