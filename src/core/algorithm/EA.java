@@ -1,7 +1,8 @@
-package core;
+package core.algorithm;
 
 import java.util.ArrayList;
 
+import core.Population;
 import core.points.Solution;
 import operators.CrossoverOperator;
 import operators.MutationOperator;

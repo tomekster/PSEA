@@ -1,8 +1,11 @@
-package core;
+package core.algorithm;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import core.Lambda;
+import core.Population;
+import core.Problem;
 import history.ExecutionHistory;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;

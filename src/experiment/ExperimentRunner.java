@@ -6,7 +6,7 @@ import java.util.HashMap;
 import core.Evaluator;
 import core.Population;
 import core.Problem;
-import core.RST_NSGAIII;
+import core.algorithm.RST_NSGAIII;
 import history.ExecutionHistory;
 import igd.IGD;
 import preferences.PreferenceCollector;
@@ -41,7 +41,7 @@ public class ExperimentRunner {
 					System.out.println("Run " + runId + "/" + numRuns );
 					ChebyshevRanker decisionMakerRanker = null;
 					if(rankerId == 0){
-						decisionMakerRanker = ChebyshevRankerBuilder.getCentralChebyshevRanker(p.getNumObjectives());
+						decisionMakerRanker = ChebyshevRankerBuilder.get1CentralChebyshevRanker(p.getNumObjectives());
 					} else if(rankerId == 1){
 						decisionMakerRanker = ChebyshevRankerBuilder.getMinXZChebyshevRanker(p.getNumObjectives());
 					}

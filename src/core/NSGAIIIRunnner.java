@@ -3,6 +3,7 @@ package core;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import core.algorithm.RST_NSGAIII;
 import history.ExecutionHistory;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;

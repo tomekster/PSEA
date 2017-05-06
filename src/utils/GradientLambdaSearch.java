@@ -10,7 +10,7 @@ import java.util.Set;
 import org.ejml.simple.SimpleMatrix;
 
 import core.Lambda;
-import core.RST_NSGAIII;
+import core.algorithm.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;

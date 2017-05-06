@@ -1,8 +1,8 @@
 package experiment;
 
-import core.NSGAIII;
 import core.Population;
 import core.Problem;
+import core.algorithm.NSGAIII;
 import igd.IGD;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
@@ -18,10 +18,10 @@ public class NSGAIIITest {
 		
 		/*
 		 * WFG1 - something goes wrong here - obtained front looks weird
-		 * WFG2 - ideal point has some negative coordinates TODO
+		 * WFG3 - ideal point has some negative coordinates TODO
 		 * WFG8 - difficult problem
 		 */
-		Problem problem = new DTLZ1(3);
+		Problem problem = new WFG3();
 		int numGenerations = 350;
 		NSGAIII nsgaiii = new NSGAIII(	problem, 
 				new BinaryTournament(new NonDominationRanker()),
@@ -34,7 +34,7 @@ public class NSGAIIITest {
 		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);
 		double igd = IGD.execute(problem.getReferenceFront(), firstFront);
 		WfgPythonVisualizer pv = new WfgPythonVisualizer();
-		//pv.visualise(problem.getReferenceFront(), firstFront);
+		pv.visualise(problem.getReferenceFront(), firstFront);
 		System.out.println("IGD = " + igd);
 	}
 }

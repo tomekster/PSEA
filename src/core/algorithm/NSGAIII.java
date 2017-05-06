@@ -1,7 +1,10 @@
-package core;
+package core.algorithm;
 
 import java.util.ArrayList;
 
+import core.NicheCountSelection;
+import core.Population;
+import core.Problem;
 import core.hyperplane.Hyperplane;
 import operators.CrossoverOperator;
 import operators.MutationOperator;

@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import core.Lambda;
-import core.NSGAIII;
 import core.Population;
 import core.Problem;
+import core.algorithm.NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.PreferenceCollector;

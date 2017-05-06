@@ -37,7 +37,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import core.Evaluator;
 import core.Population;
 import core.Problem;
-import core.RST_NSGAIII;
+import core.algorithm.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
@@ -557,7 +557,7 @@ public class MainWindow {
 		double resIGD = -1;
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
-			ChebyshevRanker cr = ChebyshevRankerBuilder.getCentralChebyshevRanker(numObjectives);
+			ChebyshevRanker cr = ChebyshevRankerBuilder.get1CentralChebyshevRanker(numObjectives);
 			alg = new RST_NSGAIII(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr, numLambdas, spreadThreshold);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();

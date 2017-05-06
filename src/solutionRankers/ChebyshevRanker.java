@@ -9,7 +9,7 @@ import core.Population;
 import core.points.Solution;
 import utils.Pair;
 
-public class ChebyshevRanker implements Serializable{
+public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 	
 	/**
 	 * 
@@ -47,15 +47,6 @@ public class ChebyshevRanker implements Serializable{
 			}
 		});
 		return pop;
-	}
-	
-	public int compareSolutions(Solution s1, Solution s2){
-		if (eval(s1) < eval(s2))
-			return -1;
-		else if (eval(s1) > eval(s2))
-			return 1;
-		else
-			return 0;
 	}
 	
 	public static int compareSolutions(Solution s1, Solution s2, double refPoint[], double lambda[], double rho){
@@ -109,5 +100,15 @@ public class ChebyshevRanker implements Serializable{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public int compare(Solution s1, Solution s2) {
+		if (eval(s1) < eval(s2))
+			return -1;
+		else if (eval(s1) > eval(s2))
+			return 1;
+		else
+			return 0;
 	}
 }
