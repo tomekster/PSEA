@@ -2,8 +2,15 @@ package core;
 
 import java.io.Serializable;
 
+import core.algorithm.SingleObjectiveEA;
 import core.points.Solution;
+import operators.impl.crossover.SBX;
+import operators.impl.mutation.PolynomialMutation;
+import operators.impl.selection.BinaryTournament;
+import problems.dtlz.DTLZ4;
+import solutionRankers.ChebyshevRanker;
 import utils.NSGAIIIRandom;
+import utils.PythonVisualizer;
 
 public abstract class Problem implements Serializable {
 	/**
@@ -58,6 +65,44 @@ public abstract class Problem implements Serializable {
 			Solution s = (Solution) p;
 			evaluate(s);
 		}
+	}
+	
+	public double[] findIdealPoint(){
+		double lambda[] = new double[numObjectives];
+		double idealPoint[] = new double[numObjectives];
+		
+		for(int i=0; i<idealPoint.length; i++){
+			idealPoint[i] = Double.MAX_VALUE;
+		}
+			
+		for(int optimizedDim=0; optimizedDim < numObjectives; optimizedDim++){
+			for(int i=0; i<lambda.length; i++){
+				lambda[i] = 0;
+			}
+			lambda[optimizedDim] = 1;
+			ChebyshevRanker cr = new ChebyshevRanker(lambda);
+			int numGenerations = 100;
+			
+			SingleObjectiveEA so = new SingleObjectiveEA(	
+				this,  
+				new BinaryTournament(cr),
+				new SBX(1.0, 30.0, lowerBound, upperBound),
+				new PolynomialMutation(1.0 / numVariables, 20.0, lowerBound, upperBound),
+				cr,
+				90 //population size
+			);
+			for(int i=0; i < numGenerations; i++){
+				so.nextGeneration();
+			}
+			//Workaround for inner class error
+		    final int dummyOptimizedDim = optimizedDim;
+			idealPoint[optimizedDim] = so.getPopulation().getSolutions().stream().mapToDouble(s -> s.getObjective(dummyOptimizedDim)).min().getAsDouble();
+		
+			Population finalPop = so.getPopulation();
+			PythonVisualizer pv = new PythonVisualizer();
+			pv.visualise(getReferenceFront(), finalPop);
+		}
+		return idealPoint;
 	}
 
 	// TODO
