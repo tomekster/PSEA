@@ -38,7 +38,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private Lambda lambda;
 
 	public RST_NSGAIII(Problem problem, int numGenerations1, int numGenerations2, int numElicitations1, int numElicitations2, int elicitationInterval, ChebyshevRanker decisionMakerRanker, int numLambdas, double spreadThreshold) {
-		super(  new BinaryTournament(new SolutionsBordaRanker()),
+		super(  problem, new BinaryTournament(new SolutionsBordaRanker()),
 				//new noCrossover(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));

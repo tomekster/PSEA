@@ -42,7 +42,7 @@ public class Elicitator {
 	private static void compare(ChebyshevRanker cr, Solution s1, Solution s2) {
 		PreferenceCollector PC = PreferenceCollector.getInstance();		
 		if (cr != null) {
-			int comparisonResult = cr.compareSolutions(s1, s2);
+			int comparisonResult = cr.compare(s1, s2);
 			if (comparisonResult == -1) {
 				PC.addComparison(s1, s2);
 			} else if (comparisonResult == 1) {

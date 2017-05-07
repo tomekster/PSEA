@@ -10,7 +10,7 @@ import operators.impl.selection.BinaryTournament;
 import problems.dtlz.*;
 import problems.wfg.*;
 import solutionRankers.NonDominationRanker;
-import utils.WfgPythonVisualizer;
+import utils.PythonVisualizer;
 
 public class NSGAIIITest {
 	
@@ -33,7 +33,7 @@ public class NSGAIIITest {
 		Population finalPop = nsgaiii.getPopulation();
 		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);
 		double igd = IGD.execute(problem.getReferenceFront(), firstFront);
-		WfgPythonVisualizer pv = new WfgPythonVisualizer();
+		PythonVisualizer pv = new PythonVisualizer();
 		pv.visualise(problem.getReferenceFront(), firstFront);
 		System.out.println("IGD = " + igd);
 	}

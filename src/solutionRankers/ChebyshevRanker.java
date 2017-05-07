@@ -43,7 +43,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		Collections.sort(pop.getSolutions(), new Comparator <Solution>() {
 			@Override
 			public int compare(Solution s1, Solution s2) {
-				return compareSolutions(s1, s2);
+				return compare(s1, s2);
 			}
 		});
 		return pop;

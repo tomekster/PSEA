@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import core.Population;
 import core.points.Solution;
 
-public class WfgPythonVisualizer {
+public class PythonVisualizer {
 
 	public void visualise(Population referenceFront, Population firstFront) {
 		String cmd[] = new String[5 + referenceFront.size() + firstFront.size()];

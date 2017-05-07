@@ -3,6 +3,7 @@ package core.algorithm;
 import java.util.ArrayList;
 
 import core.Population;
+import core.Problem;
 import core.points.Solution;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
@@ -13,8 +14,10 @@ public abstract class EA {
 	protected SelectionOperator selectionOperator;
 	protected CrossoverOperator crossoverOperator;
 	protected MutationOperator mutationOperator;
-
-	protected EA(SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator){
+	protected Problem problem;
+	
+	protected EA(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator){
+		this.problem = problem;
 		// Standard genetic operators used in evolutionary algorithms
 		this.selectionOperator = selectionOperator;
 		this.crossoverOperator = crossoverOperator;
@@ -30,6 +33,7 @@ public abstract class EA {
 		combinedPopulation.addSolutions(offspring);
 
 		population = selectNewPopulation(combinedPopulation);
+		problem.evaluate(population);
 	}
 
 

@@ -16,7 +16,7 @@ import solutionRankers.ChebyshevRankerBuilder;
 import solutionRankers.NonDominationRanker;
 import utils.NSGAIIIRandom;
 import utils.Pair;
-import utils.WfgPythonVisualizer;
+import utils.PythonVisualizer;
 
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();
@@ -75,7 +75,7 @@ public class ExperimentRunner {
 		Population finalPop = history.getGeneration(history.getGenerations().size()-1);
 		
 		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);		
-		WfgPythonVisualizer pv = new WfgPythonVisualizer();
+		PythonVisualizer pv = new PythonVisualizer();
 //		pv.visualise(history.getProblem().getReferenceFront(), firstFront);
 //		pv.visualise(history.getProblem().getReferenceFront(), finalPop);
 		

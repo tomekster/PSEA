@@ -14,11 +14,10 @@ import utils.DegeneratedMatrixException;
 
 public class NSGAIII extends EA {
 	private Hyperplane hyperplane;
-	private Problem problem;
 	private int populationSize;
 
 	public NSGAIII(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator) {
-		super(  selectionOperator, crossoverOperator, mutationOperator);
+		super(  problem, selectionOperator, crossoverOperator, mutationOperator);
 		this.problem = problem;
 		
 		// Hyperplane is one of basic constructs used in NSGA-III algorithm. It is responsible 
@@ -65,7 +64,6 @@ public class NSGAIII extends EA {
 		} else {
 			res = splitLastFront(allFronts, allButLastFront, lastFront);
 		}
-		problem.evaluate(res);	
 		return res;
 	}
 
