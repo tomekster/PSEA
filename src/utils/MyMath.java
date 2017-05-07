@@ -20,13 +20,6 @@ public class MyMath {
 				nearest = s;
 			}
 		}
-		
-		System.out.print("Nearest: ");
-		for(double x : nearest.getObjectives()){
-			System.out.print(x + ", ");
-		}
-		System.out.println("");
-		
 		return min;
 	}
 	

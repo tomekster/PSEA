@@ -345,7 +345,8 @@ public class Geometry {
 		return q;
 	}
 
-	public static double[] lineCrossDTLZ1HyperplanePoint(double[] pointOnLine) {
+	public static double[] lineCrossDTLZ1HyperplanePoint(double[] direction) {
+		double pointOnLine[] = invert(direction);
 		double crossPoint[] = new double[pointOnLine.length];
 		double sum = 0;
 		for (double d : pointOnLine) {
@@ -357,7 +358,8 @@ public class Geometry {
 		return crossPoint;
 	}
 
-	public static double[] lineCrossDTLZ234HyperspherePoint(double[] pointOnLine) {
+	public static double[] lineCrossDTLZ234HyperspherePoint(double[] direction) {
+		double pointOnLine[] = invert(direction);
 		double crossPoint[] = new double[pointOnLine.length], sqr_sum = 0;
 		for (double d : pointOnLine) {
 			sqr_sum += d*d;

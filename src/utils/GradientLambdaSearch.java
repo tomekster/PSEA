@@ -258,7 +258,7 @@ public class GradientLambdaSearch {
 			Line2D line2 = upperEnvelope.get(i);
 			if( line1.isBetter() ^ line2.isBetter() ){
 				double crossX = line1.crossX(line2);
-				if(crossX < 0 || crossX > 1) continue;
+				if(Double.compare(crossX,0) < 0 || Double.compare(crossX, 1) > 0 ) continue;
 				if(line2.isBetter()){ res.add(new Pair<Double, Integer>(crossX, -(cpId+1))); }
 				else{ res.add(new Pair<Double, Integer>(crossX, cpId+1)); }
 				

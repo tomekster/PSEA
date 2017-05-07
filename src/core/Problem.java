@@ -9,6 +9,7 @@ import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import problems.dtlz.DTLZ4;
 import solutionRankers.ChebyshevRanker;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
 import utils.PythonVisualizer;
 
@@ -67,6 +68,18 @@ public abstract class Problem implements Serializable {
 		}
 	}
 	
+	public double[] getTargetPoint(double[] direction){
+		switch(this.name){
+		case "DTLZ1":
+			return Geometry.lineCrossDTLZ1HyperplanePoint(direction);
+		case "DTLZ2":
+		case "DTLZ3":
+		case "DTLZ4":
+			return Geometry.lineCrossDTLZ234HyperspherePoint(direction);
+		}
+		return null;
+	}
+	
 	public double[] findIdealPoint(){
 		double lambda[] = new double[numObjectives];
 		double idealPoint[] = new double[numObjectives];
@@ -84,10 +97,7 @@ public abstract class Problem implements Serializable {
 			int numGenerations = 100;
 			
 			SingleObjectiveEA so = new SingleObjectiveEA(	
-				this,  
-				new BinaryTournament(cr),
-				new SBX(1.0, 30.0, lowerBound, upperBound),
-				new PolynomialMutation(1.0 / numVariables, 20.0, lowerBound, upperBound),
+				this,
 				cr,
 				90 //population size
 			);

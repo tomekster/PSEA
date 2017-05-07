@@ -1,14 +1,17 @@
 package experiment;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.LogManager;
 
 import core.Evaluator;
-import core.Population;
 import core.Problem;
 import core.algorithm.RST_NSGAIII;
+import core.algorithm.SingleObjectiveEA;
+import core.points.Solution;
 import history.ExecutionHistory;
 import preferences.PreferenceCollector;
 import problems.dtlz.DTLZ1;
@@ -17,9 +20,8 @@ import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
-import solutionRankers.NonDominationRanker;
+import utils.MyMath;
 import utils.Pair;
-import utils.PythonVisualizer;
 
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();
@@ -29,27 +31,73 @@ public class ExperimentRunner {
 	private static ArrayList<ChebyshevRanker> decisionMakerRankers = null;
 	public static void main(String[] args) {
 		LogManager.getLogManager().reset();
-		int numRuns = 1;
+		int numRuns = 20;
 		initExecutionData();
 		for (Problem p : problems) {
 			double idealPoint[] = p.findIdealPoint();
 			decisionMakerRankers = ChebyshevRankerBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
-				for(ChebyshevRanker cr : decisionMakerRankers){
+			for(ChebyshevRanker cr : decisionMakerRankers){
+				
+				int numGen = 3000;
 				for (int runId = 1; runId <= numRuns; runId++) {
-					System.out.println("Run " + runId + "/" + numRuns );
-					System.out.println("Problem: " + p.getName());
-					System.out.println("NumObjectives: " + p.getNumObjectives());
-					System.out.println("Ideal: " + Arrays.toString(idealPoint));
-					System.out.println("DecisionMaker: " + cr.getName());
-					runNSGAIIIExperiment(p, runId, cr);
+					double minDist[] = new double[numGen+1], avgDist[] = new double[numGen+1];
+					System.out.print("Run: " + runId + "/" + numRuns );
+					System.out.print(" Problem: " + p.getName());
+					System.out.print(" NumObjectives: " + p.getNumObjectives());
+					System.out.print(" Ideal: " + Arrays.toString(idealPoint));
+					System.out.println(" DecisionMaker: " + cr.getName());
+					
+					runSingleObjectiveExperiment(p, cr, numGen, minDist, avgDist);
+//					runNSGAIIIExperiment(p, cr);
 //					ExecutionHistory.serialize("/home/tomasz/Desktop/experiment/" + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + rankerId + "_" + NSGAIIIRandom.getInstance().nextInt() + ".ser");
-					System.out.println("================================");
+//					System.out.println("================================");
+					writeResultToFile(p.getName(), cr.getName(), runId, minDist, avgDist);
 				}
+//				for(int i=0; i<=numGen; i++){
+//					minDist[i] /= numRuns;
+//					avgDist[i] /= numRuns;
+//				}
+//				System.out.println();
 			}
 		}
 	}
 
-	private static void runNSGAIIIExperiment(Problem p, int runId, ChebyshevRanker decisionMakerRanker) {
+	private static void runSingleObjectiveExperiment(Problem p, ChebyshevRanker cr, int numGen, double minDist[], double avgDist[]) {
+		SingleObjectiveEA so = new SingleObjectiveEA(p, cr, 100);
+//		System.out.println("Lambda: " + Arrays.toString(cr.getLambda()));
+//		System.out.println("Target: " + Arrays.toString(p.getTargetPoint(cr.getLambda())));
+		for(int i=0; i<=numGen; i++){
+			minDist[i] += MyMath.getMinDist(p.getTargetPoint(cr.getLambda()), so.getPopulation());
+			avgDist[i] += MyMath.getAvgDist(p.getTargetPoint(cr.getLambda()), so.getPopulation()); 
+			so.nextGeneration();
+		}
+		
+//		System.out.println("OBJrange");
+//		for(int i=0; i< p.getNumObjectives(); i++){
+//			double min = Double.MAX_VALUE, sum = 0, max = -Double.MAX_VALUE;
+//			for(Solution s : so.getPopulation().getSolutions()){
+//				double o = s.getObjective(i);
+//				min = Double.min(min, o);
+//				max = Double.max(max, o);
+//				sum += o;
+//			}
+//			System.out.println("OBJ" + i + ": " + min + ", " + sum/so.getPopulation().getSolutions().size() + ", " + max);
+//		}
+	}
+	
+	private static void writeResultToFile(String problemName, String rankerName, int runId, double[] minDist, double[] avgDist) {
+		try{
+			PrintWriter writer = new PrintWriter("SingleObjective/" + problemName + "_" + rankerName + "_" + runId, "UTF-8");
+			for(int i=0; i<minDist.length; i++){
+				writer.println(i + ", " + minDist[i] + ", " + avgDist[i]);
+			}
+			writer.close();
+		} catch (IOException e) {
+		}
+		System.out.println(minDist[minDist.length - 1] + ", " + avgDist[avgDist.length - 1]);
+	}
+
+	private static void runNSGAIIIExperiment(Problem p, ChebyshevRanker decisionMakerRanker) {
 //		NSGAIII alg = new NSGAIII(p, numGenerationsMap.get(new Pair<String, Integer>(p.getName(), p.getNumObjectives())) 1000, true, 25);
 		PreferenceCollector.getInstance().clear();
 		RST_NSGAIII alg = new RST_NSGAIII(p, 
@@ -61,24 +109,23 @@ public class ExperimentRunner {
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		Evaluator.evaluateRun(p, decisionMakerRanker, alg.getPopulation());
 		System.out.println("Final min: " + history.getFinalMinDist());
-		System.out.println("Fonal avg: " + history.getFinalAvgDist());
+		System.out.println("Final avg: " + history.getFinalAvgDist());
 		
-		Population finalPop = history.getGeneration(history.getGenerations().size()-1);
-		
-		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);		
-		PythonVisualizer pv = new PythonVisualizer();
+//		Population finalPop = history.getGeneration(history.getGenerations().size()-1);
+//		Population firstFront = NonDominationRanker.sortPopulation(finalPop).get(0);		
+//		PythonVisualizer pv = new PythonVisualizer();
 //		pv.visualise(history.getProblem().getReferenceFront(), firstFront);
 //		pv.visualise(history.getProblem().getReferenceFront(), finalPop);
 //		saveHistory(alg.getHistory(), "RST_NSGAIII_" + p.getName() + '_' + p.getNumObjectives() + '_' + runId, false);
 	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = {3,5,8};
+		int numObjectives[] = {5};
 		for (int no : numObjectives) {
 			problems.add(new DTLZ1(no));
 			problems.add(new DTLZ2(no)); 
-			problems.add(new DTLZ3(no));
-			problems.add(new DTLZ4(no));
+//			problems.add(new DTLZ3(no));
+//			problems.add(new DTLZ4(no));
 
 //			problems.add(new WFG1(no));
 //			problems.add(new WFG6(3));
