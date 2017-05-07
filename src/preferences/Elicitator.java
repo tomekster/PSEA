@@ -1,11 +1,14 @@
 package preferences;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.DoubleStream;
 
 import javax.swing.JOptionPane;
 
 import core.Lambda;
 import core.Population;
+import core.algorithm.RST_NSGAIII;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
@@ -13,7 +16,9 @@ import utils.NSGAIIIRandom;
 import utils.Pair;
 
 public class Elicitator {
-
+	
+	private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
+	
 	public static void elicitateN(int numToElicitate, Population pop, ChebyshevRanker cr, Lambda lambda) {
 //		We want to select for comparison only non-dominated solutions, therefore we consider only solutions from first front
 		Population firstFront = NonDominationRanker.sortPopulation(pop).get(0);
@@ -33,9 +38,9 @@ public class Elicitator {
 				
 				lambda.nextGeneration();
 				elicitated++;
-				System.out.println(elicitated + "/" + numToElicitate);
+				LOGGER.log(Level.INFO, elicitated + "/" + numToElicitate);
 			}
-			System.out.println("Elicitated: " + elicitated);
+			LOGGER.log(Level.INFO, "Elicitated: " + elicitated);
 		}
 	}
 
@@ -112,7 +117,7 @@ public class Elicitator {
 				}
 			}
 		}
-		System.out.println("final split:" + res1 + " " + res2 + " " + inc);
+		LOGGER.log(Level.INFO, "final split:" + res1 + " " + res2 + " " + inc);
 		if(maxSplit == 0) return getRandomIds(pop.size());
 //		if(maxSplit == 0) return new Pair<Integer, Integer>(-1, -1);
 		else return new Pair<Integer, Integer>(id1, id2);

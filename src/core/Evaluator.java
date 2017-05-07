@@ -1,5 +1,7 @@
 package core;
 
+import java.util.Arrays;
+
 import core.points.Solution;
 import history.ExecutionHistory;
 import solutionRankers.ChebyshevRanker;
@@ -21,13 +23,8 @@ public class Evaluator {
 				targetPoint = Geometry.lineCrossDTLZ234HyperspherePoint(dmr.getLambda());
 				break;
 		}
-		System.out.println("TARGET POINT: ");
-		for(double d : targetPoint){
-			System.out.print(d + " ");
-		}
-		System.out.println();
-		
-		System.out.println("PREF: ");
+		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
+		System.out.println("Final population range: ");
 		for(int i=0; i< prob.getNumObjectives(); i++){
 			double min = Double.MAX_VALUE, sum = 0, max = -Double.MAX_VALUE;
 			for(Solution s : res.getSolutions()){
@@ -37,7 +34,7 @@ public class Evaluator {
 				sum += o;
 			}
 			
-			System.out.println(i + ": " + min + ", " + sum/res.getSolutions().size() + ", ");
+			System.out.println("OBJ" + i + ": " + min + ", " + sum/res.getSolutions().size() + ", ");
 		}
 		
 		if(targetPoint.length > 0){

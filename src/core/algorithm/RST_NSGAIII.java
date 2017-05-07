@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import core.Lambda;
 import core.Population;
 import core.Problem;
+import experiment.ExecutionParameters;
 import history.ExecutionHistory;
 import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
@@ -37,7 +38,10 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private NSGAIII nsgaiii;
 	private Lambda lambda;
 
-	public RST_NSGAIII(Problem problem, int numGenerations1, int numGenerations2, int numElicitations1, int numElicitations2, int elicitationInterval, ChebyshevRanker decisionMakerRanker, int numLambdas, double spreadThreshold) {
+	public RST_NSGAIII(Problem problem, ExecutionParameters ep, ChebyshevRanker cr){
+		this(problem, ep.getNumExplorationGenerations(), ep.getNumExploitationGenerations(), ep.getNumElicitations1(), ep.getNumElicitations2(), ep.getElicitationInterval(), cr, ep.getNumLambdas(), ep.getSpreadThreshold());
+	}
+	public RST_NSGAIII(Problem problem, int numExplorGen, int numExploitGen, int numElic1, int numElic2, int elicitationInterval, ChebyshevRanker decisionMakerRanker, int numLambdas, double spreadThreshold) {
 		super(  problem, new BinaryTournament(new SolutionsBordaRanker()),
 				//new noCrossover(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
@@ -57,14 +61,14 @@ public class RST_NSGAIII extends EA implements Runnable {
 		// Parameters of algorithm execution
 		this.problem = problem;
 		this.DMranker = decisionMakerRanker;
-		this.numGenerations1 = numGenerations1;
-		this.numGenerations2 = numGenerations2;
-		this.numElicitations1 = numElicitations1;
-		this.numElicitations2 = numElicitations2;
+		this.numGenerations1 = numExplorGen;
+		this.numGenerations2 = numExploitGen;
+		this.numElicitations1 = numElic1;
+		this.numElicitations2 = numElic2;
 		this.elicitationInterval = elicitationInterval;
 		
 		// Structure for storing intermediate state of algorithm for further analysis, display, etc.
-		ExecutionHistory.getInstance().init(problem, nsgaiii, lambda, decisionMakerRanker, numGenerations1, numGenerations2, numElicitations1, numElicitations2, elicitationInterval);
+		ExecutionHistory.getInstance().init(problem, nsgaiii, lambda, decisionMakerRanker, numExplorGen, numExploitGen, numElic1, numElic2, elicitationInterval);
 	}
 
 	

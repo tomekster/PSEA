@@ -2,10 +2,13 @@ package core;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;
+import preferences.Elicitator;
 import preferences.PreferenceCollector;
 import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
@@ -13,6 +16,8 @@ import utils.GradientLambdaSearch;
 import utils.NSGAIIIRandom;
 
 public class Lambda {
+	private final static Logger LOGGER = Logger.getLogger(Lambda.class.getName());
+	
 	private static Lambda instance = null;
 	
 	private int numObjectives;
@@ -99,7 +104,7 @@ public class Lambda {
 			allLambdas.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(this.numObjectives))); 
 		}
 		ArrayList <ReferencePoint> newLambdas = selectNewLambdas(GLS.improve(allLambdas));
-		System.out.println("Best/worse CV:" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
+		LOGGER.log(Level.INFO, "Best/worse CV:" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
 		this.lambdas = newLambdas;
 	}
 	

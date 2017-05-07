@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -14,11 +16,14 @@ import core.algorithm.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;
+import preferences.Elicitator;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import utils.Geometry.Line2D;
 
 public class GradientLambdaSearch {
+	private final static Logger LOGGER = Logger.getLogger(GradientLambdaSearch.class.getName());
+	
 	int numObjectives;
 	SimpleMatrix M, Minv;
 	
@@ -282,7 +287,7 @@ public class GradientLambdaSearch {
 	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
 		for(ReferencePoint lambda : lambdasList) Lambda.evaluateLambda(lambda);
 		ReferencePoint bestLambda = lambdasList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
-		System.out.println("Best lambda CV: " + bestLambda.getNumViolations());
+		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();
 		for(ReferencePoint rp : lambdasList){
 			intervals.addAll(getImprovingIntervals(rp, bestLambda));	
@@ -305,7 +310,7 @@ public class GradientLambdaSearch {
 		//For now pick random interval and random point
 		//Later it can be optimized for maximizing diversity
 		ArrayList <ReferencePoint> res = new ArrayList<>();
-		System.out.println("Best interval CV: " + bestCV);
+		LOGGER.log(Level.INFO, "Best interval CV: " + bestCV);
 		for(int i=0; i<N; i++){
 			int id = NSGAIIIRandom.getInstance().nextInt( bestIntervals.size());
 			Interval interval = bestIntervals.get(id);

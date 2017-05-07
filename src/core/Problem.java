@@ -98,9 +98,9 @@ public abstract class Problem implements Serializable {
 		    final int dummyOptimizedDim = optimizedDim;
 			idealPoint[optimizedDim] = so.getPopulation().getSolutions().stream().mapToDouble(s -> s.getObjective(dummyOptimizedDim)).min().getAsDouble();
 		
-			Population finalPop = so.getPopulation();
-			PythonVisualizer pv = new PythonVisualizer();
-			pv.visualise(getReferenceFront(), finalPop);
+//			Population finalPop = so.getPopulation();
+//			PythonVisualizer pv = new PythonVisualizer();
+//			pv.visualise(getReferenceFront(), finalPop);
 		}
 		return idealPoint;
 	}

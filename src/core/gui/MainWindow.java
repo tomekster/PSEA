@@ -557,7 +557,7 @@ public class MainWindow {
 		double resIGD = -1;
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
-			ChebyshevRanker cr = ChebyshevRankerBuilder.get1CentralChebyshevRanker(numObjectives);
+			ChebyshevRanker cr = ChebyshevRankerBuilder.getExperimentalRanker(1, numObjectives, null);
 			alg = new RST_NSGAIII(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr, numLambdas, spreadThreshold);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();
