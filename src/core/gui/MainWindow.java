@@ -38,6 +38,7 @@ import core.Evaluator;
 import core.Population;
 import core.Problem;
 import core.algorithm.RST_NSGAIII;
+import core.algorithm.RST_NSGAIII_FixedNumGen;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
@@ -558,7 +559,7 @@ public class MainWindow {
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
 			ChebyshevRanker cr = ChebyshevRankerBuilder.getExperimentalRanker(1, numObjectives, null);
-			alg = new RST_NSGAIII(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr, numLambdas, spreadThreshold);																							
+			alg = new RST_NSGAIII_FixedNumGen(problem, numExplorationGenerations, numExploitationGenerations, numElicitations1, numElicitations2, elicitationInterval, cr, numLambdas);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();
 			Evaluator.evaluateRun(problem, cr, alg.getPopulation());

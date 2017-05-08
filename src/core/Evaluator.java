@@ -20,7 +20,7 @@ public class Evaluator {
 				max = Double.max(max, o);
 				sum += o;
 			}
-			System.out.println("OBJ" + i + ": " + min + ", " + sum/res.getSolutions().size() + ", ");
+			System.out.println("OBJ" + i + ": " + min + ", " + sum/res.getSolutions().size() + ", " + max);
 		}
 		
 		if(targetPoint.length > 0){

@@ -137,4 +137,8 @@ public class Lambda {
 		}
 		return res;
 	}
+	
+	public int getNumLambdas(){
+		return numLambdas;
+	}
 }
