@@ -219,7 +219,7 @@ public class ExecutionHistory implements Serializable {
 		this.elicitationInterval = elicitationInterval;
 	}
 
-	public void init(Problem problem, NSGAIII nsgaiii, Lambda lambda, ChebyshevRanker decisionMakerRanker, int numGenerations1, int numGenerations2, int numElicitations1, int numElicitations2, int elicitationInterval) {
+	public void init(Problem problem, NSGAIII nsgaiii, Lambda lambda, ChebyshevRanker decisionMakerRanker, int numElicitations1, int numElicitations2, int elicitationInterval) {
 		clear();
 		setProblem(problem);
 		setNumVariables(problem.getNumVariables());
@@ -229,8 +229,6 @@ public class ExecutionHistory implements Serializable {
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
-		setNumGenerations1(numGenerations1);
-		setNumGenerations2(numGenerations2);
 		setNumElicitations1(numElicitations1);
 		setNumElicitations2(numElicitations2);
 		setElicitationInterval(elicitationInterval);

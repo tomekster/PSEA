@@ -12,6 +12,10 @@ public class ExecutionParameters {
 	private double spreadThreshold;
 	
 	public ExecutionParameters(int popSize, int numGen, int numExplor, int numExploit, int numElic1, int numElic2, int elicInter, int numLambdas, double spreadThresh){
+		this(popSize, numGen, numExplor, numExploit, numElic1, numElic2, elicInter, numLambdas, spreadThresh, numElic1 + numElic2);
+	}
+	
+	public ExecutionParameters(int popSize, int numGen, int numExplor, int numExploit, int numElic1, int numElic2, int elicInter, int numLambdas, double spreadThresh, int numSpreadElicitations){
 		this.setPopulationSize(popSize);
 		this.numGenerations = numGen;
 		this.numExplorationGenerations = numExplor;
