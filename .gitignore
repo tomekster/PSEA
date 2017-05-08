@@ -1,3 +1,9 @@
 /bin/
 /target/
 .classpath
+/jfreechart-1.0.19/
+/jcommon-1.0.23/
+/PSEA/
+/serializedRuns/
+/jcommon-1.0.23.zip
+/jfreechart-1.0.19.zip

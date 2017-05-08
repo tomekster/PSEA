@@ -41,7 +41,7 @@ public class Lambda {
 		this.numLambdas = numLambdas;
 		lambdas = new ArrayList<>();
 		for (int i=0; i<numLambdas; i++) {
-			lambdas.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(numObjectives)));
+			lambdas.add(new ReferencePoint(Geometry.invert(Geometry.getRandomVectorSummingTo1(numObjectives))));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
 	}

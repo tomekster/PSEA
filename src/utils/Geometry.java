@@ -172,7 +172,12 @@ public class Geometry {
 		int len = dimensions.length;
 		double res[] = new double[len];
 		for (int i = 0; i < len; i++) {
-			res[i] = 1 / dimensions[i];
+			if(Double.compare(dimensions[i],0)==0){
+				res[i] = Double.MAX_VALUE;
+			}
+			else{
+				res[i] = 1 / dimensions[i];
+			}
 		}
 		return res;
 	}
