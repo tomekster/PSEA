@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Stack;
 
+import core.Population;
+
 public class Geometry {
 
 	public static double EPS = 1E-6;

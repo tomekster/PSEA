@@ -52,6 +52,8 @@ import org.xdat.gui.frames.ChartFrame;
 import org.xdat.gui.menus.parallelCoordinatesChart.ParallelCoordinatesContextMenu;
 import org.xdat.gui.tables.DataSheetTableColumnModel;
 
+import history.ExecutionHistory;
+
 /**
  * Panel that is used to display a
  * {@link org.xdat.org.xdat.chart.ParallelCoordinatesChart}.
@@ -332,7 +334,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				if ((chart.isShowOnlySelectedDesigns() || !currentDesign.isSelected())&&(!hoverList.contains(currentDesign.getId()))) {
 					g.setColor(chart.getDesignColor(currentDesign, currentDesignActive, useAlpha));
 					lineThickness = chart.getDesignLineThickness(currentDesign);
-					if(designIndex < getDataSheet().getDesignCount()-52){
+					if(designIndex < getDataSheet().getDesignCount()-ExecutionHistory.getInstance().getNumLambdas()-2){
 						g.setColor(Color.green);
 					}
 					else{

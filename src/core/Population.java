@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import core.points.Solution;
+import utils.Geometry;
 
 public class Population implements Serializable{
 	/**
@@ -86,6 +87,13 @@ public class Population implements Serializable{
 				it.remove();
 			}
 		}
-		
+	}
+	
+	public double spread() {
+		double maxDist = 0;
+		for(Solution s1 : solutions){
+			for(Solution s2 : solutions) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));
+		}
+		return maxDist;
 	}
 }

@@ -72,34 +72,4 @@ public class ChebyshevRankerBuilder{
 			}
 			return rankersList;
 	}
-	public static ChebyshevRanker getMinYZChebyshevRanker(int dim){
-		double refPoint[] = new double[dim];
-		double direction[] = new double[dim];
-		
-		for(int i=0; i<dim; i++){
-			direction[i] = 1000000;
-			refPoint[i] = 0;
-		}
-		direction[0] = 1;
-		
-		direction = Geometry.normalize(direction);
-		
-		return new ChebyshevRanker(refPoint, direction, "MinYZChebyshevRanker");
-	}
-	
-	public static ChebyshevRanker getMinXZChebyshevRanker(int dim){
-		double direction[] = new double[dim];
-		double refPoint[] = new double[dim];
-		
-		for(int i=0; i<dim; i++){
-			direction[i] = 1000000;
-			refPoint[i] = 0;
-		}
-		direction[1] = 1;
-		
-		direction = Geometry.normalize(direction);
-		
-		return new ChebyshevRanker(refPoint, direction, "MinXZChebyshevRanker");
-	}
-	
 }

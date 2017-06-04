@@ -8,7 +8,6 @@ import javax.swing.JOptionPane;
 
 import core.Lambda;
 import core.Population;
-import core.algorithm.RST_NSGAIII;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
@@ -19,32 +18,13 @@ public class Elicitator {
 	
 	private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
 	
-	public static void elicitateN(int numToElicitate, Population pop, ChebyshevRanker cr, Lambda lambda) {
+	public static int elicitate(Population pop, ChebyshevRanker cr, Lambda lambda, Pair<Solution, Solution> p) {
 //		We want to select for comparison only non-dominated solutions, therefore we consider only solutions from first front
 		Population firstFront = NonDominationRanker.sortPopulation(pop).get(0);
-		if (firstFront.size() > 1){
-//			We keep track of pairs that were already compared by DM to avoid repetition
-			boolean pairsUsed[][] = new boolean[firstFront.size()][firstFront.size()];
-			int elicitated=0;
-			
-			while(elicitated < numToElicitate){
-//				Get ids of two elements to compare
-				Pair <Integer, Integer> p = getComparedSolutions3(firstFront, lambda, pairsUsed);
-				pairsUsed[p.first][p.second] = true;
-				Solution s1 = firstFront.getSolution(p.first).copy();
-				Solution s2 = firstFront.getSolution(p.second).copy();
-				
-				compare(cr, s1, s2);
-				
-				lambda.nextGeneration();
-				elicitated++;
-				LOGGER.log(Level.INFO, elicitated + "/" + numToElicitate);
-			}
-			LOGGER.log(Level.INFO, "Elicitated: " + elicitated);
-		}
+		return firstFront.size() > 1 ? getComparedSolutions(firstFront, lambda, p) : -1;
 	}
 
-	private static void compare(ChebyshevRanker cr, Solution s1, Solution s2) {
+	public static void compare(ChebyshevRanker cr, Solution s1, Solution s2) {
 		PreferenceCollector PC = PreferenceCollector.getInstance();		
 		if (cr != null) {
 			int comparisonResult = cr.compare(s1, s2);
@@ -68,12 +48,9 @@ public class Elicitator {
 		return new Pair<Integer, Integer>(i, j);
 	}
 	
-	private static Pair<Integer, Integer> getComparedSolutions3(Population pop, Lambda lambda, boolean pairsUsed[][]) {
-		
-		double maxSplit = -1;
+	private static int getComparedSolutions(Population pop, Lambda lambda, Pair <Solution, Solution> p) {
 		double maxMinDif = -1;
-		int res1=-1,res2=-1,inc=-1;
-		int id1=-1, id2=-1;
+		int maxSplit = -1, res1=-1,res2=-1,inc=-1, id1=-1, id2=-1;
 		
 		//Evaluate all solutions by all lambdas
 		double solutionsLambdasEvals[][] = new double[pop.size()][lambda.getLambdas().size()];
@@ -84,10 +61,9 @@ public class Elicitator {
 		}
 		int numObjectives = pop.getSolution(0).getNumObjectives();
 		
-		//Fore every pair of solutions determine how many lambdas consider first lambda better and how many consider second lambda better
+		//For every pair of solutions determine how many lambdas consider first lambda better and how many consider second lambda better
 		for(int i=0; i<pop.size(); i++){
 			for(int j=i+1; j<pop.size(); j++){
-				if(pairsUsed[i][j]) continue;
 				int score1=0, score2=0, incomparable=0;
 				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
 				
@@ -118,9 +94,17 @@ public class Elicitator {
 			}
 		}
 		LOGGER.log(Level.INFO, "final split:" + res1 + " " + res2 + " " + inc);
-		if(maxSplit == 0) return getRandomIds(pop.size());
+		Pair <Integer, Integer> pi = null;
+		if(maxSplit == 0){
+			 pi =  getRandomIds(pop.size());
+		}
 //		if(maxSplit == 0) return new Pair<Integer, Integer>(-1, -1);
-		else return new Pair<Integer, Integer>(id1, id2);
+		else {
+			pi = new Pair<Integer, Integer>(id1, id2);
+		}
+		p.first  = pop.getSolution(pi.first).copy();
+		p.second = pop.getSolution(pi.second).copy();
+		return maxSplit;
 	}
 
 	private static void elicitateDialog(Solution s1, Solution s2, PreferenceCollector PC) {

@@ -35,11 +35,21 @@ public class Lambda {
 		return instance;
 	}
 	
-	public void init(int numObjectives, int numLambdaDirections) {
+	public void init(int numObjectives) {
 		this.numObjectives = numObjectives;
-		this.numLambdasDirections = numLambdaDirections;
+		switch (numObjectives){
+			case(3):
+				this.numLambdasDirections = 50;
+			break;
+			case(5):
+				this.numLambdasDirections = 60;
+			break;
+			case(8):
+				this.numLambdasDirections = 70;
+			break;
+		}
 		lambdaDirections = new ArrayList<>();
-		for (int i=0; i<numLambdaDirections; i++) {
+		for (int i=0; i<numLambdasDirections; i++) {
 			lambdaDirections.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(numObjectives)));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);

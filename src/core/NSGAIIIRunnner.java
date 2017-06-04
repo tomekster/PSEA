@@ -4,7 +4,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import core.algorithm.RST_NSGAIII;
-import core.algorithm.RST_NSGAIII_FixedNumGen;
 import history.ExecutionHistory;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
@@ -34,8 +33,8 @@ public class NSGAIIIRunnner {
 		ChebyshevRanker cr = null;
 		try {
 			problem = (Problem) problemConstructor.newInstance(params.getNumberObjectives());
-			cr = ChebyshevRankerBuilder.getMinXZChebyshevRanker(params.getNumberObjectives());
-			alg = new RST_NSGAIII_FixedNumGen(problem, params.getNumberExplorationGenerations(), params.getNumberExploitationGenerations(), params.getNumElicitations1(), params.getNumElicitations2(), params.getElicitationInterval(), cr, params.getNumLambdaDirections());
+			cr = ChebyshevRankerBuilder.getExperimentalRanker(1, params.getNumberObjectives(), null);
+			alg = new RST_NSGAIII(problem,cr);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
 			// TODO Auto-generated catch block

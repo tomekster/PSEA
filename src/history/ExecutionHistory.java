@@ -44,11 +44,7 @@ public class ExecutionHistory implements Serializable {
 	private int populationSize;
 	private int numVariables;
 	private int numObjectives;
-	private int numGenerations1;
-	private int numGenerations2;
-	private int numElicitations1;
-	private int numElicitations2;
-	private int elicitationInterval;
+	private int numLambdas;
 	
 	private Population targetPoints;
 	private ArrayList<Population> generations;
@@ -179,47 +175,7 @@ public class ExecutionHistory implements Serializable {
 		bestChebVal = new ArrayList <Double>();
 	}
 
-	public int getNumGenerations1() {
-		return numGenerations1;
-	}
-
-	public void setNumGenerations1(int numGenerations1) {
-		this.numGenerations1 = numGenerations1;
-	}
-
-	public int getNumGenerations2() {
-		return numGenerations2;
-	}
-
-	public void setNumGenerations2(int numGenerations2) {
-		this.numGenerations2 = numGenerations2;
-	}
-
-	public int getNumElicitations1() {
-		return numElicitations1;
-	}
-
-	public void setNumElicitations1(int numElicitations1) {
-		this.numElicitations1 = numElicitations1;
-	}
-
-	public int getNumElicitations2() {
-		return numElicitations2;
-	}
-
-	public void setNumElicitations2(int numElicitations2) {
-		this.numElicitations2 = numElicitations2;
-	}
-
-	public int getElicitationInterval() {
-		return elicitationInterval;
-	}
-
-	public void setElicitationInterval(int elicitationInterval) {
-		this.elicitationInterval = elicitationInterval;
-	}
-
-	public void init(Problem problem, NSGAIII nsgaiii, Lambda lambda, ChebyshevRanker decisionMakerRanker, int numElicitations1, int numElicitations2, int elicitationInterval) {
+	public void init(Problem problem, NSGAIII nsgaiii, Lambda lambda, ChebyshevRanker decisionMakerRanker) {
 		clear();
 		setProblem(problem);
 		setNumVariables(problem.getNumVariables());
@@ -229,10 +185,8 @@ public class ExecutionHistory implements Serializable {
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
-		setNumElicitations1(numElicitations1);
-		setNumElicitations2(numElicitations2);
-		setElicitationInterval(elicitationInterval);
 		setLambdasConverged(false);
+		setNumLambdas(lambda.getNumLambdas());
 	}
 
 	public void setProblem(Problem problem) {
@@ -288,5 +242,13 @@ public class ExecutionHistory implements Serializable {
 			return;
 		}
 		instance = eh;
+	}
+
+	public int getNumLambdas() {
+		return numLambdas;
+	}
+
+	public void setNumLambdas(int numLambdas) {
+		this.numLambdas = numLambdas;
 	}
 }
