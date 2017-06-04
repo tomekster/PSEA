@@ -40,6 +40,16 @@ public class ExperimentRunner {
 		LogManager.getLogManager().reset();
 		int numRuns = 1;
 		initExecutionData();
+		
+		String serializePath = "";
+		String sysname = System.getProperty("os.name");
+		if(sysname.toLowerCase().contains("windows")){
+			serializePath = "C:/Users/Tomasz/Documents/nsgaiii/serializedRuns/";
+		}
+		else{
+			serializePath = "/home/tomasz/Desktop/experiment/";
+		}
+		
 		for (Problem p : problems) {
 			double idealPoint[] = p.findIdealPoint();
 			decisionMakerRankers = ChebyshevRankerBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
@@ -61,8 +71,8 @@ public class ExperimentRunner {
 					
 //					runSingleObjectiveExperiment(p, cr, minDist, avgDist);
 					runNSGAIIIExperiment(p, cr, minDist, avgDist, modelDist);
-					ExecutionHistory.serialize("/home/tomasz/Desktop/experiment/" + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + cr.getName() + ".ser");
-//					System.out.println("================================");
+					ExecutionHistory.serialize(serializePath + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + cr.getName() + ".ser");
+
 					writeResultToFile(p, cr.getName(), runId, minDist, avgDist, modelDist);
 				}
 //				for(int i=0; i<=numGen; i++){
@@ -100,7 +110,7 @@ public class ExperimentRunner {
 	
 	private static void writeResultToFile(Problem p, String rankerName, int runId, ArrayList<Double> minDist, ArrayList <Double> avgDist, ArrayList <Double> modelDist) {
 		try{
-			PrintWriter writer = new PrintWriter("PSEA/" + p.getNumObjectives() + "OBJ/" + p.getName() + "_" + rankerName + "_" + runId, "UTF-8");
+			PrintWriter writer = new PrintWriter("C:/Users/Tomasz/Documents/nsgaiii/PSEA/" + p.getNumObjectives() + "OBJ/" + p.getName() + "_" + rankerName + "_" + runId + ".txt", "UTF-8");
 			for(int i=0; i<minDist.size(); i++){
 				writer.println(i + ", " + minDist.get(i) + ", " + avgDist.get(i) + ", " + modelDist.get(i));
 			}
@@ -145,7 +155,8 @@ public class ExperimentRunner {
 	}
 
 	private static void initExecutionData() {
-		int numObjectives[] = {8};
+		int numObjectives[] = {3,5,8};
+
 		for (int no : numObjectives) {
 //			problems.add(new DTLZ1(no));
 //			problems.add(new DTLZ2(no)); 
