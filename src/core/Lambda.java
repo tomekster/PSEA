@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;
-import preferences.Elicitator;
 import preferences.PreferenceCollector;
 import solutionRankers.LambdaCVRanker;
 import utils.Geometry;
@@ -21,8 +20,8 @@ public class Lambda {
 	private static Lambda instance = null;
 	
 	private int numObjectives;
-	private int numLambdas;
-	private ArrayList <ReferencePoint> lambdas;
+	private int numLambdasDirections;
+	private ArrayList <ReferencePoint> lambdaDirections;
 	private GradientLambdaSearch GLS;
 	
 	protected Lambda(){
@@ -36,30 +35,30 @@ public class Lambda {
 		return instance;
 	}
 	
-	public void init(int numObjectives, int numLambdas) {
+	public void init(int numObjectives, int numLambdaDirections) {
 		this.numObjectives = numObjectives;
-		this.numLambdas = numLambdas;
-		lambdas = new ArrayList<>();
-		for (int i=0; i<numLambdas; i++) {
-			lambdas.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(numObjectives)));
+		this.numLambdasDirections = numLambdaDirections;
+		lambdaDirections = new ArrayList<>();
+		for (int i=0; i<numLambdaDirections; i++) {
+			lambdaDirections.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(numObjectives)));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
 	}
 
 	/**
-	 * Checks if chebyshev's function with given lambda can reproduce all comparisons.
-	 * Sets lambda's penalty, reward and numViolations fields.
-	 * @param lambda
+	 * Checks if chebyshev's function with given lambdaDirection can reproduce all comparisons.
+	 * Sets ReferencePoint penalty, reward and numViolations fields.
+	 * @param rp
 	 */
-	public static int evaluateLambda(ReferencePoint lambda) {
+	public static int evaluateDirection(ReferencePoint rp) {
 		int numViolations = 0;
 		double reward = 1, penalty = 1;
 		for(Comparison c : PreferenceCollector.getInstance().getComparisons()){
 			Solution better = c.getBetter(), worse = c.getWorse();
 			double a = -1, b = -1;
-			for(int i = 0; i<lambda.getNumDimensions(); i++){
-				a = Double.max(a, lambda.getDim(i) * better.getObjective(i));
-				b = Double.max(b, lambda.getDim(i) * worse.getObjective(i));
+			for(int i = 0; i<rp.getNumDimensions(); i++){
+				a = Double.max(a, rp.getDim(i) * better.getObjective(i));
+				b = Double.max(b, rp.getDim(i) * worse.getObjective(i));
 			}
 			double eps = b-a;
 			if(eps < 0){
@@ -74,38 +73,39 @@ public class Lambda {
 			}
 		}
 		
-		lambda.setReward(reward);
-		lambda.setPenalty(penalty);
-		lambda.setNumViolations(numViolations);
+		rp.setReward(reward);
+		rp.setPenalty(penalty);
+		rp.setNumViolations(numViolations);
 		return numViolations;
 	}
 	
-	protected ArrayList <ReferencePoint> selectNewLambdas(ArrayList <ReferencePoint> lambdasPop) {
-		for(ReferencePoint rp : lambdasPop){
-			double dim[] = rp.getDim();
+	protected ArrayList <ReferencePoint> selectNewDirections(ArrayList <ReferencePoint> directionsPop) {
+		for(ReferencePoint rp : directionsPop){
+			double direction[] = rp.getDim();
 			if(NSGAIIIRandom.getInstance().nextDouble() < 0.3){
-				dim = Geometry.getRandomNeighbour(dim, 0.1); //Mutate lambda just a little bit randomly
+				//TODO
+				direction = Geometry.getRandomNeighbour(direction, 0.1); //Mutate lambda just a little bit randomly
 			}
-			rp.setDim(dim);
-			evaluateLambda(rp);
+			rp.setDim(direction);
+			evaluateDirection(rp);
 		}
-		Collections.sort(lambdasPop, new LambdaCVRanker());
-		return new ArrayList<ReferencePoint>(lambdasPop.subList(0, numLambdas));
+		Collections.sort(directionsPop, new LambdaCVRanker());
+		return new ArrayList<ReferencePoint>(directionsPop.subList(0, numLambdasDirections));
 	}
 
 	public ArrayList<ReferencePoint> getLambdas() {
-		return this.lambdas;
+		return this.lambdaDirections;
 	}
 
 	public void nextGeneration() {
-		ArrayList <ReferencePoint> allLambdas = new ArrayList<>();
-		allLambdas.addAll(lambdas);
-		for(int i=0; i<numLambdas; i++) { 
-			allLambdas.add(new ReferencePoint(Geometry.getRandomVectorSummingTo1(this.numObjectives))); 
+		ArrayList <ReferencePoint> allLambdaDirections = new ArrayList<>();
+		allLambdaDirections.addAll(lambdaDirections);
+		for(int i=0; i<numLambdasDirections; i++) { 
+			allLambdaDirections.add(new ReferencePoint(Geometry.invert(Geometry.getRandomVectorSummingTo1(this.numObjectives)))); 
 		}
-		ArrayList <ReferencePoint> newLambdas = selectNewLambdas(GLS.improve(allLambdas));
+		ArrayList <ReferencePoint> newLambdas = selectNewDirections(GLS.improve(allLambdaDirections));
 		LOGGER.log(Level.INFO, "Best/worse CV:" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
-		this.lambdas = newLambdas;
+		this.lambdaDirections = newLambdas;
 	}
 	
 	public boolean converged(){
@@ -116,7 +116,7 @@ public class Lambda {
 			max[i] = -Double.MAX_VALUE;
 		}
 		
-		for(ReferencePoint rp : lambdas){
+		for(ReferencePoint rp : lambdaDirections){
 			for(int i=0; i<numObjectives; i++){
 				if(rp.getDim(i) < min[i]){ min[i] = rp.getDim(i); }
 				if(rp.getDim(i) > max[i]){ max[i] = rp.getDim(i); }
@@ -132,13 +132,13 @@ public class Lambda {
 	@Override
 	public String toString(){
 		String res="";
-		for(ReferencePoint rp : lambdas){
+		for(ReferencePoint rp : lambdaDirections){
 			res += rp.toString() + "\n" + rp.getNumViolations() + "\n";
 		}
 		return res;
 	}
 	
 	public int getNumLambdas(){
-		return numLambdas;
+		return numLambdasDirections;
 	}
 }

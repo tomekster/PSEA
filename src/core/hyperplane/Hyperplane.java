@@ -127,6 +127,7 @@ public class Hyperplane {
 			for (ReferencePoint curRefPoint : referencePoints) {
 				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
 				assert dist != Double.NaN;
+				assert dist < Double.MAX_VALUE;
 				if (dist < minDist) {
 					minDist = dist;
 					bestRefPoint = curRefPoint;
@@ -135,7 +136,6 @@ public class Hyperplane {
 			if(bestRefPoint == null){
 				System.out.println("Best ref point error");
 			}
-			//TODO
 			assert bestRefPoint != null;
 			if(lastFront){
 				bestRefPoint.addLastFrontAssociation(new Association(s, minDist));

@@ -190,7 +190,7 @@ public class GradientLambdaSearchTest {
 		double mid = (intervals.get(0).getBeg() + intervals.get(0).getEnd()) / 2;
 		double dim[] = Geometry.linearCombination(l1, l2, mid);
 		ReferencePoint middle = new ReferencePoint(dim);
-		int eval = Lambda.evaluateLambda(middle);
+		int eval = Lambda.evaluateDirection(middle);
 		assertEquals(0, eval);
 		
 		//Best interval (wrong) CV=1 , [0,0]

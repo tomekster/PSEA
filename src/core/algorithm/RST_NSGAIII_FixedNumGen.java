@@ -25,7 +25,7 @@ public class RST_NSGAIII_FixedNumGen extends RST_NSGAIII{
 	}
 	
 	public RST_NSGAIII_FixedNumGen(Problem problem, ExecutionParameters ep, ChebyshevRanker cr) {
-		this(problem, ep.getNumExplorationGenerations(), ep.getNumExploitationGenerations(), ep.getNumElicitations1(), ep.getNumElicitations2(), ep.getElicitationInterval(), cr, ep.getNumLambdas());
+		this(problem, ep.getNumExplorationGenerations(), ep.getNumExploitationGenerations(), ep.getNumElicitations1(), ep.getNumElicitations2(), ep.getElicitationInterval(), cr, ep.getNumLambdaDirections());
 	}
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII_FixedNumGen.class.getName());

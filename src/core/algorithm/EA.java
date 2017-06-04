@@ -32,6 +32,7 @@ public abstract class EA {
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
 
+		problem.evaluate(population);
 		population = selectNewPopulation(combinedPopulation);
 		problem.evaluate(population);
 	}

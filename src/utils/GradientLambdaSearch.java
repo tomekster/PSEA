@@ -64,7 +64,7 @@ public class GradientLambdaSearch {
 	
 			//Make sure that both endpoints and middle of interval have the same CV value
 			for(ReferencePoint lambda : lambdas){
-				int eval = Lambda.evaluateLambda(lambda);
+				int eval = Lambda.evaluateDirection(lambda);
 				if( Math.abs(eval - interval.getCV()) > 0 || eval > CV){
 					System.out.println("ERROR");
 					return;
@@ -77,14 +77,19 @@ public class GradientLambdaSearch {
 		ArrayList <Interval> intervals = new ArrayList<>();
 		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1) < Geometry.EPS );
 		
+		double lambdaPoint[] = lambda.getPoint();
+		
 		//Get gradient from current lambda to best lambda in current lambda set
 		double bestLambdaGrad[] = new double[lambda.getNumDimensions()];
 		for(int i=0; i<lambda.getNumDimensions(); i++){
-			bestLambdaGrad[i] = lambda.getDim(i) - bestLambda.getDim(i);
+			bestLambdaGrad[i] = lambdaPoint[i] - bestLambda.getDim(i);
 		}
-		
-		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );		
-		assert Math.abs(Arrays.stream(bestLambdaGrad).sum()) < Geometry.EPS;
+		if(Math.abs( Arrays.stream(lambdaPoint).sum() - 1 ) >= Geometry.EPS){
+			System.out.println("Point not summing to 1:" + Arrays.toString(lambdaPoint));
+		}
+		//TODO
+		//assert( Math.abs( Arrays.stream(lambdaPoint).sum() - 1 ) < Geometry.EPS );		
+		//assert Math.abs(Arrays.stream(bestLambdaGrad).sum()) < Geometry.EPS;
 				
 		// Perform interval search only if gradient is non-empty
 		if(Geometry.getLen(bestLambdaGrad) > Geometry.EPS){
@@ -116,7 +121,7 @@ public class GradientLambdaSearch {
 		}
 		
 		//Evaluate lambda to make sure that CV value is up-to-date
-		Lambda.evaluateLambda(lambda);
+		Lambda.evaluateDirection(lambda);
 		
 		if(RST_NSGAIII.assertions){
 			for(Interval interval : intervals){
@@ -132,10 +137,12 @@ public class GradientLambdaSearch {
 	}
 
 	private ArrayList<Interval> getBestIntervalsOnGradientLine(ReferencePoint lambda, double[] grad) {
-		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1 ) < Geometry.EPS );
-		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
+		double lambdaPoint[] = lambda.getPoint();
+		//TODO
+//		assert( Math.abs( Arrays.stream(lambdaPoint).sum() - 1 ) < Geometry.EPS );
+//		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
 		
-		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambda.getDim(), grad);
+		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambdaPoint, grad);
 		double l1[] = simplexSegment.first, l2[] = simplexSegment.second;
 		
 		//Each pair is (t, +-(id+1)), where t represents "time" on segment l1, l2 counted from l1 to l2
@@ -202,7 +209,7 @@ public class GradientLambdaSearch {
 				if(RST_NSGAIII.assertions){
 					double dim[] = Geometry.linearCombination(l1, l2, (bestBeg + bestEnd)/2);
 					ReferencePoint middle = new ReferencePoint(dim);
-					int eval = Lambda.evaluateLambda(middle);
+					int eval = Lambda.evaluateDirection(middle);
 					if(Math.abs(bestBeg - bestEnd) > 1e-4 && eval != CV){
 						System.out.println("MIDDLE_CV_DIFFERS");
 						System.out.println(eval + " != " + CV);
@@ -263,10 +270,12 @@ public class GradientLambdaSearch {
 				else{ res.add(new Pair<Double, Integer>(crossX, cpId+1)); }
 				
 				if(RST_NSGAIII.assertions){
-					double lambda[] = Geometry.linearCombination(l1, l2, crossX);
+					double l1Point[] = Geometry.dir2point(l1);
+					double l2Point[] = Geometry.dir2point(l2);
+					double lambdaDirection[] = Geometry.invert(Geometry.linearCombination(l1Point, l2Point, crossX));
 					Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
-					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambda, 0);
-					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambda, 0);
+					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambdaDirection, 0);
+					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambdaDirection, 0);
 					if(  Math.abs(M1-M2) > Geometry.EPS ){
 						 System.out.println("ERROR");
 					}
@@ -285,7 +294,7 @@ public class GradientLambdaSearch {
 	}
 	
 	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
-		for(ReferencePoint lambda : lambdasList) Lambda.evaluateLambda(lambda);
+		for(ReferencePoint lambda : lambdasList) Lambda.evaluateDirection(lambda);
 		ReferencePoint bestLambda = lambdasList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
 		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();

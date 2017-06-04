@@ -9,7 +9,7 @@ import utils.MyMath;
 
 public class Evaluator {
 	public static void evaluateRun(Problem prob, ChebyshevRanker dmr, Population res) {
-		double targetPoint[] = prob.getTargetPoint(dmr.getLambda());
+		double targetPoint[] = prob.getTargetPoint(dmr.getDirection());
 		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
 		System.out.println("Final population range: ");
 		for(int i=0; i< prob.getNumObjectives(); i++){

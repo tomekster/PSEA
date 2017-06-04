@@ -9,13 +9,13 @@ public class Solution implements Comparable<Solution>, Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 4812314617548779560L;
-	protected double[] variables;
-	protected double[] objectives;
+	protected double[] var;
+	protected double[] obj;
 	private boolean dominated;
 
-	public Solution(double vars[], double obj[]) {
-		this.variables = vars.clone();
-		this.objectives = obj.clone();
+	public Solution(double var[], double obj[]) {
+		this.var = var.clone();
+		this.obj = obj.clone();
 		setDominated(false);
 	}
 
@@ -31,10 +31,10 @@ public class Solution implements Comparable<Solution>, Serializable {
 	public String objs(){
 		StringBuffer sb = new StringBuffer();
 		DecimalFormat format = new DecimalFormat("0.00");
-		sb.append("[" + format.format(objectives[0]));
-		for(int i=1; i<objectives.length; i++){
+		sb.append("[" + format.format(obj[0]));
+		for(int i=1; i<obj.length; i++){
 			sb.append(", ");
-			sb.append(format.format(objectives[i]));
+			sb.append(format.format(obj[i]));
 		}
 		sb.append("]");
 		return sb.toString();
@@ -45,14 +45,14 @@ public class Solution implements Comparable<Solution>, Serializable {
 		StringBuffer sb = new StringBuffer();
 		
 		sb.append("VAR: (");
-		for (double v : variables) {
+		for (double v : var) {
 			sb.append(v);
 			sb.append(", ");
 		}
 		sb.replace(sb.length() - 2, sb.length(), ")\n");
 		
 		sb.append("OBJ: (");
-		for (double d : objectives) {
+		for (double d : obj) {
 			sb.append(d);
 			sb.append(", ");
 		}
@@ -61,46 +61,39 @@ public class Solution implements Comparable<Solution>, Serializable {
 	}
 
 	public double[] getVariables() {
-		return variables;
+		return var;
 	}
 
 	public int getNumObjectives() {
-		return objectives.length;
+		return obj.length;
 	}
 
 	public double getObjective(int pos) {
-		return objectives[pos];
+		return obj[pos];
 	}
 
 	public double[] getObjectives() {
-		return objectives;
+		return obj;
 	}
 
 	public int getNumVariables() {
-		return variables.length;
+		return var.length;
 	}
 
 	public double getVariable(int pos) {
-		return variables[pos];
+		return var[pos];
 	}
 
 	public void setVariable(int pos, double val) {
-		variables[pos] = val;
+		var[pos] = val;
 	}
 	
 	public void setVariables(double[] val) {
-		variables = val.clone();
+		var = val.clone();
 	}
 
 	public void setObjective(int pos, double objective) {
-		this.objectives[pos] = objective;
-	}
-
-	public boolean sameSolution(Solution s) {
-		for(int i=0; i<variables.length; i++){
-			if( Double.compare(s.getVariable(i), variables[i]) != 0) return false;
-		}
-		return true;
+		this.obj[pos] = objective;
 	}
 
 	public boolean isDominated() {

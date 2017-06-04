@@ -56,7 +56,7 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambda, Population pop) {
 		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
 		for (Solution s : pop.getSolutions()) {
-			double chebyshevValue = ChebyshevRanker.eval(s, null, Geometry.invert(lambda.getDim()), 0);
+			double chebyshevValue = ChebyshevRanker.eval(s, null, lambda.getDim(), 0);
 			solutionValuePairs.add(new Pair<Solution, Double>(s, chebyshevValue));
 		}
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>() {

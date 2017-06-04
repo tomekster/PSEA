@@ -30,7 +30,7 @@ public class Geometry {
 			throw new RuntimeException("Space needs to be at least two dimensional");
 		}
 
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		for (double d : B) {
 			max = Math.max(max, Math.abs(d));
 		}
@@ -52,7 +52,11 @@ public class Geometry {
 			resVector[i] = P[i] - t * B[i];
 			zero[i] = 0.0;
 		}
-		return euclideanDistance(zero, resVector);
+		double dist = euclideanDistance(zero, resVector); 
+		if(! (dist < Double.MAX_VALUE) ){
+			System.out.println("Wrong distance error");
+		}
+		return dist;
 	}
 
 	public static double euclideanDistance(double[] P1, double[] P2) {
@@ -173,6 +177,9 @@ public class Geometry {
 		double res[] = new double[len];
 		for (int i = 0; i < len; i++) {
 			res[i] = 1 / dimensions[i];
+			if(Double.isNaN(res[i]) || Double.isInfinite(res[i])){
+				res[i] = Double.MAX_VALUE/50;
+			}
 		}
 		return res;
 	}
@@ -444,8 +451,13 @@ public class Geometry {
 	}
 
 	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {
-		assert( Math.abs( Arrays.stream(point).sum() - 1) < Geometry.EPS );
-		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
+		if( Double.compare(Math.abs( Arrays.stream(point).sum() - 1), Geometry.EPS) >= 0 ){
+			System.out.print("POINT");
+			System.out.println(Arrays.toString(point));
+			System.out.println(Arrays.stream(point).sum());
+		}
+		assert( Double.compare(Math.abs( Arrays.stream(point).sum() - 1), Geometry.EPS) < 0 );
+		assert( Double.compare(Math.abs( Arrays.stream(grad).sum()), Geometry.EPS) < 0 );
 		
 		int numDim = point.length;
 		double p1[] = new double[numDim], p2[] = new double[numDim];
@@ -522,5 +534,13 @@ public class Geometry {
 		
 		assert( Math.abs(Arrays.stream(dim).sum() - 1) < Geometry.EPS);
 		return dim;
+	}
+	
+	public static double[] dir2point(double direction[]){
+		return normalize(invert(direction));
+	}
+	
+	public static double dirDist(double dir1[], double dir2[]){
+		return euclideanDistance(dir2point(dir1), dir2point(dir2));
 	}
 }

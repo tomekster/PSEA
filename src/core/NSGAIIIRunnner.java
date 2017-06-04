@@ -35,7 +35,7 @@ public class NSGAIIIRunnner {
 		try {
 			problem = (Problem) problemConstructor.newInstance(params.getNumberObjectives());
 			cr = ChebyshevRankerBuilder.getMinXZChebyshevRanker(params.getNumberObjectives());
-			alg = new RST_NSGAIII_FixedNumGen(problem, params.getNumberExplorationGenerations(), params.getNumberExploitationGenerations(), params.getNumElicitations1(), params.getNumElicitations2(), params.getElicitationInterval(), cr, params.getNumLambdas());
+			alg = new RST_NSGAIII_FixedNumGen(problem, params.getNumberExplorationGenerations(), params.getNumberExploitationGenerations(), params.getNumElicitations1(), params.getNumElicitations2(), params.getElicitationInterval(), cr, params.getNumLambdaDirections());
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {
 			// TODO Auto-generated catch block

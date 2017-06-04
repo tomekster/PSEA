@@ -16,7 +16,7 @@ public class RST_NSGAIII_SpreadThresh extends RST_NSGAIII{
 	private double spreadThreshold;
 	
 	public RST_NSGAIII_SpreadThresh(Problem problem, ExecutionParameters ep, ChebyshevRanker cr) {
-		super(problem, cr, ep.getNumLambdas(), ep.getElicitationInterval(), ep.getNumElicitations1(), ep.getNumElicitations2());
+		super(problem, cr, ep.getNumLambdaDirections(), ep.getElicitationInterval(), ep.getNumElicitations1(), ep.getNumElicitations2());
 		this.spreadThreshold = ep.getSpreadThreshold();
 	}
 

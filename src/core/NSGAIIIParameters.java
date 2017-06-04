@@ -15,7 +15,7 @@ public class NSGAIIIParameters {
 	private int numElicitations2;
 	private int numberRuns;
 	private int elicitationInterval;
-	private int numLambdas;
+	private int numLambdaDirections;
 	private double spreadThreshold;
 	
 	private boolean showTargetPoints;
@@ -50,7 +50,7 @@ public class NSGAIIIParameters {
 		showTargetPoints = true;
 		showLambdas = true;
 		showComparisons = true;
-		numLambdas = 50;
+		numLambdaDirections = 50;
 	}
 
 	public static NSGAIIIParameters getInstance() {
@@ -148,12 +148,12 @@ public class NSGAIIIParameters {
 		this.numElicitations2 = numElicitations2;
 	}
 
-	public int getNumLambdas() {
-		return numLambdas;
+	public int getNumLambdaDirections() {
+		return numLambdaDirections;
 	}
 
-	public void setNumLambdas(int numLambdas) {
-		this.numLambdas = numLambdas;
+	public void setNumLambdaDirections(int numLambdaDirections) {
+		this.numLambdaDirections = numLambdaDirections;
 	}
 
 	public double getSpreadThreshold() {

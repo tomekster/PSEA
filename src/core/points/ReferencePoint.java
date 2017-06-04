@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.PriorityQueue;
 
 import core.hyperplane.Association;
+import utils.Geometry;
 
 public class ReferencePoint extends Solution implements Serializable{
 	/**
@@ -17,8 +18,8 @@ public class ReferencePoint extends Solution implements Serializable{
 	private double penalty;
 	private int numViolations;
 
-	public ReferencePoint(int numVariables) {
-		super(new double [numVariables], new double[1]);
+	public ReferencePoint(int numDim) {
+		super(new double[1], new double [numDim]);
 		this.nichedAssociations = new PriorityQueue<Association>();
 		this.lastFrontAssociations = new PriorityQueue<Association>();
 		this.coherent = false;
@@ -26,7 +27,7 @@ public class ReferencePoint extends Solution implements Serializable{
 
 	public ReferencePoint(ReferencePoint rp) {
 		this(rp.getNumDimensions());
-		this.variables = rp.getDim().clone();
+		this.obj = rp.getDim().clone();
 		this.nichedAssociations = new PriorityQueue<Association> (rp.getNichedAssociationsQueue());
 		this.lastFrontAssociations = new PriorityQueue<Association> (rp.getLastFrontAssociationsQueue());
 		this.coherent = rp.isCoherent();
@@ -34,7 +35,7 @@ public class ReferencePoint extends Solution implements Serializable{
 	
 	public ReferencePoint(double []dimensions) {
 		this(dimensions.length);
-		this.variables = dimensions.clone();
+		this.obj = dimensions.clone();
 	}
 
 	public int getNicheCount() {
@@ -42,19 +43,23 @@ public class ReferencePoint extends Solution implements Serializable{
 	}
 
 	public int getNumDimensions() {
-		return variables.length;
+		return obj.length;
 	}
 
 	public double[] getDim() {
-		return variables;
+		return obj;
+	}
+	
+	public double[] getPoint(){
+		return Geometry.normalize(Geometry.invert(this.getDim()));
 	}
 	
 	public double getDim(int i){
-		return getVariable(i);
+		return getObjective(i);
 	}
 	
 	public void setDim(int i, double val){
-		setVariable(i, val);
+		setObjective(i, val);
 	}
 	
 	public void resetAssociation() {
@@ -116,10 +121,10 @@ public class ReferencePoint extends Solution implements Serializable{
 	}
 
 	public void setDim(double[] q) {
-		variables = q;
+		obj = q.clone();
 	}
 
 	public void incrDim(int pos, double d) {
-		variables[pos] += d; 
+		obj[pos] += d; 
 	}
 }

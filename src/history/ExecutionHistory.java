@@ -29,7 +29,7 @@ public class ExecutionHistory implements Serializable {
 	protected ExecutionHistory(){
 		// Exists only to defeat instantiation.
 		this.generations = new ArrayList<>();
-		this.lambdaGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		this.lambdaDirectionsGenerations = new ArrayList< ArrayList<ReferencePoint> >();
 		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
 	}
@@ -52,7 +52,7 @@ public class ExecutionHistory implements Serializable {
 	
 	private Population targetPoints;
 	private ArrayList<Population> generations;
-	private ArrayList< ArrayList<ReferencePoint> > lambdaGenerations;
+	private ArrayList< ArrayList<ReferencePoint> > lambdaDirectionsGenerations;
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
@@ -81,13 +81,13 @@ public class ExecutionHistory implements Serializable {
 	}
 
 	public ArrayList< ArrayList<ReferencePoint> > getLambdaDirectionsHistory() {
-		return lambdaGenerations;
+		return lambdaDirectionsGenerations;
 	}
 	public ArrayList<ReferencePoint> getLambdaDirections(int id){
-		return lambdaGenerations.get(Integer.min(id,lambdaGenerations.size()-1));
+		return lambdaDirectionsGenerations.get(Integer.min(id,lambdaDirectionsGenerations.size()-1));
 	}
-	public void addLambdas(ArrayList<ReferencePoint>  lambdaDirections){
-		this.lambdaGenerations.add(lambdaDirections);
+	public void addLambdaDirections(ArrayList<ReferencePoint>  lambdaDirections){
+		this.lambdaDirectionsGenerations.add(lambdaDirections);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
@@ -174,7 +174,7 @@ public class ExecutionHistory implements Serializable {
 
 	public void clear() {
 		generations = new ArrayList<>();
-		lambdaGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		lambdaDirectionsGenerations = new ArrayList< ArrayList<ReferencePoint> >();
 		bestChebSol = new ArrayList <Solution>();
 		bestChebVal = new ArrayList <Double>();
 	}
@@ -225,7 +225,7 @@ public class ExecutionHistory implements Serializable {
 		setNumVariables(problem.getNumVariables());
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
-		addLambdas(lambda.getLambdas());
+		addLambdaDirections(lambda.getLambdas());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
@@ -246,7 +246,7 @@ public class ExecutionHistory implements Serializable {
 	public void update(Population population, Lambda lambda) {
 		addGeneration(population.copy());
 		ArrayList <ReferencePoint> lambdasCopy = new ArrayList <> (lambda.getLambdas()); 
-		addLambdas(lambdasCopy);
+		addLambdaDirections(lambdasCopy);
 		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
 	}
 

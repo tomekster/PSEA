@@ -8,14 +8,14 @@ public class ExecutionParameters {
 	private int numElicitations1;
 	private int numElicitations2;
 	private int elicitationInterval;
-	private int numLambdas;
+	private int numLambdaDirections;
 	private double spreadThreshold;
 	
-	public ExecutionParameters(int popSize, int numGen, int numExplor, int numExploit, int numElic1, int numElic2, int elicInter, int numLambdas, double spreadThresh){
-		this(popSize, numGen, numExplor, numExploit, numElic1, numElic2, elicInter, numLambdas, spreadThresh, numElic1 + numElic2);
+	public ExecutionParameters(int popSize, int numGen, int numExplor, int numExploit, int numElic1, int numElic2, int elicInter, int numLambdaDirections, double spreadThresh){
+		this(popSize, numGen, numExplor, numExploit, numElic1, numElic2, elicInter, numLambdaDirections, spreadThresh, numElic1 + numElic2);
 	}
 	
-	public ExecutionParameters(int popSize, int numGen, int numExplor, int numExploit, int numElic1, int numElic2, int elicInter, int numLambdas, double spreadThresh, int numSpreadElicitations){
+	public ExecutionParameters(int popSize, int numGen, int numExplor, int numExploit, int numElic1, int numElic2, int elicInter, int numLambdaDirections, double spreadThresh, int numSpreadElicitations){
 		this.setPopulationSize(popSize);
 		this.numGenerations = numGen;
 		this.numExplorationGenerations = numExplor;
@@ -23,7 +23,7 @@ public class ExecutionParameters {
 		this.numElicitations1 = numElic1;
 		this.numElicitations2 = numElic2;
 		this.elicitationInterval = elicInter;
-		this.numLambdas = numLambdas;
+		this.numLambdaDirections = numLambdaDirections;
 		this.spreadThreshold = spreadThresh;
 	}
 	
@@ -45,7 +45,7 @@ public class ExecutionParameters {
 		sb.append(", ");
 		sb.append("elicInter=" + elicitationInterval);
 		sb.append(", ");
-		sb.append("numLambdas=" + numLambdas);
+		sb.append("numLambdaDirections=" + numLambdaDirections);
 		sb.append(", ");
 		sb.append("spreadThresh" + spreadThreshold);
 		return sb.toString();
@@ -87,11 +87,11 @@ public class ExecutionParameters {
 	public void setElicitationInterval(int elicitationInterval) {
 		this.elicitationInterval = elicitationInterval;
 	}
-	public int getNumLambdas() {
-		return numLambdas;
+	public int getNumLambdaDirections() {
+		return numLambdaDirections;
 	}
-	public void setNumLambdas(int numLambdas) {
-		this.numLambdas = numLambdas;
+	public void setNumLambdaDirections(int numLambdaDirections) {
+		this.numLambdaDirections = numLambdaDirections;
 	}
 	public double getSpreadThreshold() {
 		return spreadThreshold;

@@ -10,6 +10,8 @@ import org.junit.Test;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import solutionRankers.SolutionsBordaRanker;
+import utils.Geometry;
+import utils.MyMath;
 import utils.TestingUtils;
 
 public class LambdaTest {
@@ -20,6 +22,7 @@ public class LambdaTest {
 	double obj3[] = { 7, 3 };
 	double dim1[] = { 3, 2 };
 	double dim2[] = { 2, 4 };
+
 	Population pop = new Population();
 
 	@Before
@@ -36,7 +39,7 @@ public class LambdaTest {
 
 	@Test
 	public void buildSolutionRankingTest1() {
-		ReferencePoint lambda = new ReferencePoint(dim1);
+		ReferencePoint lambda = new ReferencePoint(Geometry.dir2point(dim1));
 		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
 
 		TestingUtils.assertDoubleArrayEquals(obj3, res.get(0).getObjectives());
@@ -46,7 +49,7 @@ public class LambdaTest {
 
 	@Test
 	public void buildSolutionRankingTest2() {
-		ReferencePoint lambda = new ReferencePoint(dim2);
+		ReferencePoint lambda = new ReferencePoint(Geometry.dir2point(dim2));
 		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
 
 		TestingUtils.assertDoubleArrayEquals(obj1, res.get(0).getObjectives());

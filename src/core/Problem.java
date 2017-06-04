@@ -81,7 +81,7 @@ public abstract class Problem implements Serializable {
 	}
 	
 	public double[] findIdealPoint(){
-		double lambda[] = new double[numObjectives];
+		double lambdaDirection[] = new double[numObjectives];
 		double idealPoint[] = new double[numObjectives];
 		
 		for(int i=0; i<idealPoint.length; i++){
@@ -89,11 +89,11 @@ public abstract class Problem implements Serializable {
 		}
 			
 		for(int optimizedDim=0; optimizedDim < numObjectives; optimizedDim++){
-			for(int i=0; i<lambda.length; i++){
-				lambda[i] = 0;
+			for(int i=0; i<lambdaDirection.length; i++){
+				lambdaDirection[i] = 0;
 			}
-			lambda[optimizedDim] = 1;
-			ChebyshevRanker cr = new ChebyshevRanker(lambda);
+			lambdaDirection[optimizedDim] = 1;
+			ChebyshevRanker cr = new ChebyshevRanker(lambdaDirection);
 			int numGenerations = 100;
 			
 			SingleObjectiveEA so = new SingleObjectiveEA(	
