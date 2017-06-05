@@ -86,12 +86,22 @@ public class RST_NSGAIII extends EA implements Runnable {
 		reachSpreadThresh();
 		System.out.println("SPREAD REACHED GEN: " + generation);
 	
-		explore();
-//		exploit();
-		shrinkHyperplane();
+		//singleObjective();
+		//exploreExploit();
+		//shrinkingHyperplane();
+		
 		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
 		
-//		singleObjective();
+	}
+
+	private void shrinkingHyperplane() {
+		explore();
+		shrinkHyperplane();
+	}
+
+	private void exploreExploit() {
+		explore();
+		exploit();
 	}
 
 	private void singleObjective() {
