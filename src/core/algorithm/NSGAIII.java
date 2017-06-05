@@ -1,11 +1,15 @@
 package core.algorithm;
 
+import java.lang.ref.Reference;
 import java.util.ArrayList;
+
+import javax.print.attribute.standard.NumberOfDocuments;
 
 import core.NicheCountSelection;
 import core.Population;
 import core.Problem;
 import core.hyperplane.Hyperplane;
+import core.points.ReferencePoint;
 import operators.CrossoverOperator;
 import operators.MutationOperator;
 import operators.SelectionOperator;
@@ -87,5 +91,27 @@ public class NSGAIII extends EA {
 
 	public Hyperplane getHyperplane() {
 		return hyperplane;
+	}
+	
+	public void setNewHyperplane(double size, double center[]){
+		hyperplane = new Hyperplane(hyperplane.getDim());
+		for(ReferencePoint rp : hyperplane.getReferencePoints()){
+			for(int i=0; i<hyperplane.getDim(); i++){
+				rp.setDim(i, (rp.getDim(i) - 1.0 / hyperplane.getDim()) * size + center[i]);
+			}
+		}
+		
+		double negativeCoordinates[] = new double[hyperplane.getDim()];
+		for(ReferencePoint rp : hyperplane.getReferencePoints()){
+			for(int i=0; i<hyperplane.getDim(); i++){
+				negativeCoordinates[i] = Double.min(negativeCoordinates[i], rp.getDim(i));
+			}
+		}
+		
+		for(ReferencePoint rp : hyperplane.getReferencePoints()){
+			for(int i=0; i<hyperplane.getDim(); i++){
+				rp.setDim(i, rp.getDim(i) - negativeCoordinates[i] );
+			}
+		}
 	}
 }

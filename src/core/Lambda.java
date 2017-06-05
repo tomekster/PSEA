@@ -151,4 +151,17 @@ public class Lambda {
 	public int getNumLambdas(){
 		return numLambdasDirections;
 	}
+
+	public double[] getAverageDirection() {
+		double res[] = new double[numObjectives];
+		for(ReferencePoint rp : lambdaDirections){
+			for(int i=0; i<numObjectives; i++){
+				res[i] += rp.getDim(i);
+			}
+		}
+		for(int i=0; i<numObjectives; i++){
+			res[i] /= lambdaDirections.size();
+		}
+		return res;
+	}
 }

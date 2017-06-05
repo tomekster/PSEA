@@ -89,7 +89,7 @@ public class Population implements Serializable{
 		}
 	}
 	
-	public double spread() {
+	public double maxDist() {
 		double maxDist = 0;
 		for(Solution s1 : solutions){
 			for(Solution s2 : solutions) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));

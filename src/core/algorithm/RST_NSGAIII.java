@@ -87,7 +87,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 		System.out.println("SPREAD REACHED GEN: " + generation);
 	
 		explore();
-		exploit();
+//		exploit();
+		shrinkHyperplane();
 		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
 		
 //		singleObjective();
@@ -148,14 +149,13 @@ public class RST_NSGAIII extends EA implements Runnable {
 			ExecutionHistory.getInstance().update(population, lambda);
 			System.out.println("Exploration: " + generation + " " + explorationComparisons);
 		}
-		
 	}
 	
 	private void exploit() {
 		//Guide evolution with generated model until it converges
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
 		int split = 0;
-		double spread;
+		double maxDist;
 		do{
 			generation++;
 			nextGeneration();
@@ -168,8 +168,46 @@ public class RST_NSGAIII extends EA implements Runnable {
 				}
 			}
 			ExecutionHistory.getInstance().update(population, lambda);
-			spread = population.spread();
-			System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " " + spread);
-		}while(spread > 1e-4 && generation < 3000);
+			maxDist = population.maxDist();
+			System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " " + maxDist);
+		}while(maxDist > 1e-4 && generation < 1500);
+	}
+	
+	private void shrinkHyperplane(){
+		int lastImprovedGen = generation, maxNumGenWithNoImprovment = 20, split;
+		double size=1.0, maxSpread = 0, currentSpread, maxDist;
+		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
+		
+		while(true){
+			if(size < 1e-4 || generation >= 1500){
+				break;
+			}
+			
+			currentSpread = (double)(nsgaiii.getHyperplane().getNumNiched()) / nsgaiii.getHyperplane().getReferencePoints().size();
+			if(currentSpread > spreadThreshold || generation - lastImprovedGen > maxNumGenWithNoImprovment){
+				size/=4;
+				nsgaiii.setNewHyperplane(size, Geometry.dir2point(lambda.getAverageDirection()));
+				maxSpread=0;
+			}
+			if(currentSpread > maxSpread){
+				lastImprovedGen = generation;
+				maxSpread = currentSpread;
+			}
+			generation++;
+			nsgaiii.nextGeneration();
+			population = nsgaiii.getPopulation();
+			if(generation %10 == 0 &&  exploitationComparisons < 20){
+				split = Elicitator.elicitate( population, DMranker, lambda, p);
+				if(split != 0){
+					Elicitator.compare(DMranker, p.first, p.second);
+					exploitationComparisons++;
+					lambda.nextGeneration();
+				}
+			}
+			maxDist = population.maxDist();
+			System.out.println("ShrinkHyperplane: " + generation + " " + exploitationComparisons + " " + size + " " + maxDist);
+			this.population = nsgaiii.getPopulation();
+			ExecutionHistory.getInstance().update(population, lambda);
+		}
 	}
 }
