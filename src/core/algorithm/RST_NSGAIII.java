@@ -89,9 +89,24 @@ public class RST_NSGAIII extends EA implements Runnable {
 		//singleObjective();
 		//exploreExploit();
 		//shrinkingHyperplane();
-		
+		exactHyperplane();
 		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
 		
+	}
+
+	private void exactHyperplane() {
+		nsgaiii.setNewHyperplane(1e-3, Geometry.dir2point(DMranker.getDirection()));
+		for(int i=0; i<3000; i++){
+			generation++;
+			nsgaiii.nextGeneration();
+			ExecutionHistory.getInstance().update(nsgaiii.getPopulation(), lambda);
+			this.population = nsgaiii.getPopulation();
+			double bestVal = Double.MAX_VALUE;
+			for(Solution s : population.getSolutions()){
+				bestVal = Double.min(bestVal, DMranker.eval(s));
+			}
+			System.out.println(i + ": " + bestVal);
+		}
 	}
 
 	private void shrinkingHyperplane() {
