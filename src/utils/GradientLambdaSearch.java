@@ -16,7 +16,6 @@ import core.algorithm.RST_NSGAIII;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.Comparison;
-import preferences.Elicitator;
 import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import utils.Geometry.Line2D;
