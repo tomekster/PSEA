@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import core.Lambda;
 import core.Population;
 import core.Problem;
+import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
 import operators.impl.crossover.SBX;
@@ -89,9 +90,29 @@ public class RST_NSGAIII extends EA implements Runnable {
 		//singleObjective();
 		//exploreExploit();
 		//shrinkingHyperplane();
-		
+		exactShrinkHyperplane();
 		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
 		
+	}
+
+	private void exactShrinkHyperplane() {
+		lambda.getLambdas().clear();
+		nsgaiii.setNewHyperplane(0.01, Geometry.dir2point(DMranker.getDirection()));
+		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
+			lambda.getLambdas().add(rp);
+		}
+		for(int i=0; i<1500; i++){
+			generation++;
+			nsgaiii.nextGeneration();
+			this.population = nsgaiii.getPopulation();
+			
+			ExecutionHistory.getInstance().update(population, lambda);
+			double bestVal = Double.MAX_VALUE;
+			for(Solution s : population.getSolutions()){
+				bestVal = Double.min(bestVal, DMranker.eval(s));
+			}
+			System.out.println(i + ": " + bestVal);
+		}
 	}
 
 	private void shrinkingHyperplane() {
