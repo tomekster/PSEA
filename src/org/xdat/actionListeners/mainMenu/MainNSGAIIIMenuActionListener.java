@@ -77,8 +77,6 @@ public class MainNSGAIIIMenuActionListener implements ActionListener {
 				NSGAIIIDataSheetCreationThread dataCreationThread = new NSGAIIIDataSheetCreationThread(ExecutionHistory.getInstance().getNumGenerations() - 1, this.mainWindow, progressMonitor);
 				dataCreationThread.execute();				
 				progressMonitor.setProgress(0);
-				ParallelCoordinatesChartCreationThread parallelCoordinatesChartCreationThread = new ParallelCoordinatesChartCreationThread(mainWindow, progressMonitor);
-				parallelCoordinatesChartCreationThread.execute();
 			}
 			
 		} else {

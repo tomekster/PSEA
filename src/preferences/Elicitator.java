@@ -11,6 +11,7 @@ import core.Population;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
+import utils.Geometry;
 import utils.NSGAIIIRandom;
 import utils.Pair;
 
@@ -53,10 +54,10 @@ public class Elicitator {
 		int maxSplit = -1, res1=-1,res2=-1,inc=-1, id1=-1, id2=-1;
 		
 		//Evaluate all solutions by all lambdas
-		double solutionsLambdasEvals[][] = new double[pop.size()][lambda.getLambdas().size()];
+		double solutionsLambdasEvals[][] = new double[pop.size()][lambda.getLambdaPoints().size()];
 		for(int i=0; i<pop.size(); i++){
-			for( int j=0; j<lambda.getLambdas().size(); j++){
-				solutionsLambdasEvals[i][j] = ChebyshevRanker.eval(pop.getSolution(i), null, lambda.getLambdas().get(j).getDim(), 0);
+			for( int j=0; j<lambda.getLambdaPoints().size(); j++){
+				solutionsLambdasEvals[i][j] = ChebyshevRanker.eval(pop.getSolution(i), null, lambda.getLambdaPoints().get(j).getDirection(), 0);
 			}
 		}
 		int numObjectives = pop.getSolution(0).getNumObjectives();
@@ -67,7 +68,7 @@ public class Elicitator {
 				int score1=0, score2=0, incomparable=0;
 				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
 				
-				for(int k = 0; k<lambda.getLambdas().size(); k++){
+				for(int k = 0; k<lambda.getLambdaPoints().size(); k++){
 					if(solutionsLambdasEvals[i][k] < solutionsLambdasEvals[j][k]) score1++;
 					else if(solutionsLambdasEvals[i][k] > solutionsLambdasEvals[j][k]) score2++;
 					else incomparable++;

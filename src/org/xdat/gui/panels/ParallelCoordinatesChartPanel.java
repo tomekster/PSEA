@@ -334,12 +334,19 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 				if ((chart.isShowOnlySelectedDesigns() || !currentDesign.isSelected())&&(!hoverList.contains(currentDesign.getId()))) {
 					g.setColor(chart.getDesignColor(currentDesign, currentDesignActive, useAlpha));
 					lineThickness = chart.getDesignLineThickness(currentDesign);
-					if(designIndex < getDataSheet().getDesignCount()-ExecutionHistory.getInstance().getNumLambdas()-2){
+					if(designIndex < ExecutionHistory.getInstance().getPopulationSize()){
+						//GREEN - population
 						g.setColor(Color.green);
 					}
-					else{
+					else if(designIndex < ExecutionHistory.getInstance().getPopulationSize() + ExecutionHistory.getInstance().getHyperplanePoints(0).size()){
+						//BLACK - hyperplane points 
+						g.setColor(Color.black);
+					}
+					else {
+						//RED - lambdaPoints
 						g.setColor(Color.red);
 					}
+					
 				} else {
 					g.setColor(chart.getSelectedDesignColor());
 					lineThickness = chart.getSelectedDesignsLineThickness();

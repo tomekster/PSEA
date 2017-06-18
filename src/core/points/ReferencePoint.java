@@ -51,6 +51,10 @@ public class ReferencePoint extends Solution implements Serializable{
 	}
 	
 	public double[] getPoint(){
+		return getDim();
+	}
+	
+	public double[] getDirection(){
 		return Geometry.normalize(Geometry.invert(this.getDim()));
 	}
 	

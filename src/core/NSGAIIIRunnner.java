@@ -11,6 +11,7 @@ import solutionRankers.ChebyshevRankerBuilder;
 public class NSGAIIIRunnner {
 	
 	public static void runNSGAIII() {
+		ExecutionHistory.getInstance().clear();
 		NSGAIIIParameters params = NSGAIIIParameters.getInstance();
 		Constructor problemConstructor = null;
 		try {
@@ -33,7 +34,7 @@ public class NSGAIIIRunnner {
 		ChebyshevRanker cr = null;
 		try {
 			problem = (Problem) problemConstructor.newInstance(params.getNumberObjectives());
-			cr = ChebyshevRankerBuilder.getExperimentalRanker(2, params.getNumberObjectives(), null);
+			cr = ChebyshevRankerBuilder.getExperimentalRanker(7, params.getNumberObjectives(), null);
 			alg = new RST_NSGAIII(problem,cr);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {

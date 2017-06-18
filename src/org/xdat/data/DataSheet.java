@@ -273,7 +273,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(ReferencePoint rp : ExecutionHistory.getInstance().getLambdaDirections(generationId)){
+		for(ReferencePoint rp : ExecutionHistory.getInstance().getLambdaPoints(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
@@ -465,11 +465,21 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(ReferencePoint rp : ExecutionHistory.getInstance().getLambdaDirections(generationId)){
+		for(ReferencePoint rp : ExecutionHistory.getInstance().getHyperplanePoints(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
 				newDesign.setValue(this.parameters.get(i), String.valueOf(rp.getDim(i)));
+			}
+			this.data.add(newDesign);
+			this.designIdsMap.put(newDesign.getId(), newDesign);
+		}
+		
+		for(ReferencePoint lambdaPoint : ExecutionHistory.getInstance().getLambdaPoints(generationId)){
+			progressMonitor.setProgress(idCounter);
+			newDesign = new Design(idCounter++);
+			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
+				newDesign.setValue(this.parameters.get(i), String.valueOf(lambdaPoint.getDim(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);

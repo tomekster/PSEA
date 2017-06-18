@@ -205,17 +205,16 @@ public class ParallelCoordinatesChartSidebarPanel extends SidebarPanel {
 			this.activeDesignAlphaSlider.setEnabled(false);
 		}
 		
-		this.generationsSlider = new JSlider(JSlider.HORIZONTAL, 0, ExecutionHistory.getInstance().getNumGenerations()-1, 0);
+		this.generationsSlider = new JSlider(JSlider.HORIZONTAL, 0, 0, 0);
 		
 		this.generationsSlider.addChangeListener(new ChangeListener() {
-			
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				ProgressMonitor pm = new ProgressMonitor(parentPanel, "Updating chart", "in progress...", 0, 100);
 				chart.updateChart( ((JSlider) e.getSource()).getValue(), pm);
 			}
 		});
-		this.generationsSlider.setMaximum(ExecutionHistory.getInstance().getNumGenerations());
+		this.generationsSlider.setMaximum(ExecutionHistory.getInstance().getNumGenerations()-1);
 		this.generationsSlider.setLabelTable(generationsSlider.createStandardLabels(this.generationsSlider.getMaximum()/5));
 		this.generationsSlider.setPaintLabels(true);
 		parentPanel.add(generationsSlider);

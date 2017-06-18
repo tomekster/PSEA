@@ -1,9 +1,6 @@
 package core.algorithm;
 
-import java.lang.ref.Reference;
 import java.util.ArrayList;
-
-import javax.print.attribute.standard.NumberOfDocuments;
 
 import core.NicheCountSelection;
 import core.Population;

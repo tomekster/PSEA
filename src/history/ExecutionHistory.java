@@ -12,6 +12,7 @@ import core.Lambda;
 import core.Population;
 import core.Problem;
 import core.algorithm.NSGAIII;
+import core.hyperplane.Hyperplane;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.PreferenceCollector;
@@ -29,7 +30,8 @@ public class ExecutionHistory implements Serializable {
 	protected ExecutionHistory(){
 		// Exists only to defeat instantiation.
 		this.generations = new ArrayList<>();
-		this.lambdaDirectionsGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		this.lambdaPoints = new ArrayList< ArrayList<ReferencePoint> >();
+		this.hyperplanePoints = new ArrayList< ArrayList<ReferencePoint> >();
 		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
 	}
@@ -48,7 +50,8 @@ public class ExecutionHistory implements Serializable {
 	
 	private Population targetPoints;
 	private ArrayList<Population> generations;
-	private ArrayList< ArrayList<ReferencePoint> > lambdaDirectionsGenerations;
+	private ArrayList< ArrayList<ReferencePoint> > lambdaPoints;
+	private ArrayList <ArrayList<ReferencePoint> > hyperplanePoints;
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
@@ -73,17 +76,17 @@ public class ExecutionHistory implements Serializable {
 		this.generations.add(pop);
 	}
 	public Population getGeneration(int pos){
-		return generations.get(Integer.min(pos, generations.size()-1));
+		return generations.get(pos);
 	}
 
-	public ArrayList< ArrayList<ReferencePoint> > getLambdaDirectionsHistory() {
-		return lambdaDirectionsGenerations;
+	public ArrayList< ArrayList<ReferencePoint> > getLambdaPointsHistory() {
+		return lambdaPoints;
 	}
-	public ArrayList<ReferencePoint> getLambdaDirections(int id){
-		return lambdaDirectionsGenerations.get(Integer.min(id,lambdaDirectionsGenerations.size()-1));
+	public ArrayList<ReferencePoint> getLambdaPoints(int id){
+		return lambdaPoints.get(id);
 	}
-	public void addLambdaDirections(ArrayList<ReferencePoint>  lambdaDirections){
-		this.lambdaDirectionsGenerations.add(lambdaDirections);
+	public void addLambdaPoints(ArrayList<ReferencePoint>  lambdaPoints){
+		this.lambdaPoints.add(lambdaPoints);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
@@ -170,18 +173,20 @@ public class ExecutionHistory implements Serializable {
 
 	public void clear() {
 		generations = new ArrayList<>();
-		lambdaDirectionsGenerations = new ArrayList< ArrayList<ReferencePoint> >();
+		lambdaPoints = new ArrayList< ArrayList<ReferencePoint> >();
 		bestChebSol = new ArrayList <Solution>();
 		bestChebVal = new ArrayList <Double>();
 	}
 
 	public void init(Problem problem, NSGAIII nsgaiii, Lambda lambda, ChebyshevRanker decisionMakerRanker) {
 		clear();
+		setPopulationSize(nsgaiii.getPopulation().size());
 		setProblem(problem);
 		setNumVariables(problem.getNumVariables());
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
-		addLambdaDirections(lambda.getLambdas());
+		addLambdaPoints(lambda.getLambdaPoints());
+		addHyperplanePoints(nsgaiii.getHyperplane());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
@@ -197,11 +202,12 @@ public class ExecutionHistory implements Serializable {
 		return this.problem;
 	}
 	
-	public void update(Population population, Lambda lambda) {
+	public void update(Population population, Lambda lambda, Hyperplane hp) {
 		addGeneration(population.copy());
-		ArrayList <ReferencePoint> lambdasCopy = new ArrayList <> (lambda.getLambdas()); 
-		addLambdaDirections(lambdasCopy);
+		ArrayList <ReferencePoint> lambdasCopy = new ArrayList <> (lambda.getLambdaPoints()); 
+		addLambdaPoints(lambdasCopy);
 		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
+		addHyperplanePoints(hp);
 	}
 
 	public boolean isLambdasConverged() {
@@ -250,5 +256,13 @@ public class ExecutionHistory implements Serializable {
 
 	public void setNumLambdas(int numLambdas) {
 		this.numLambdas = numLambdas;
+	}
+
+	public ArrayList<ReferencePoint> getHyperplanePoints(int id) {
+		return hyperplanePoints.get(id);
+	}
+
+	public void addHyperplanePoints(Hyperplane hyperplane) {
+		this.hyperplanePoints.add( (ArrayList<ReferencePoint>)hyperplane.getReferencePoints().clone());
 	}
 }

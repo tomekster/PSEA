@@ -54,16 +54,16 @@ public class GradientLambdaSearch {
 	}
 	
 	void validateInterval(Interval interval, int CV){
-			ArrayList <ReferencePoint> lambdas = new ArrayList<>();
+			ArrayList <ReferencePoint> lambdaPoints = new ArrayList<>();
 			double l1[] = interval.getL1();
 			double l2[] = interval.getL2();
-			lambdas.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, 0.01 * interval.getBeg() + 0.99 * interval.getEnd())));
-			lambdas.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, 0.99 * interval.getBeg() + 0.01 * interval.getEnd())));
-			lambdas.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, (interval.getBeg() + interval.getEnd()) / 2)));
+			lambdaPoints.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, 0.01 * interval.getBeg() + 0.99 * interval.getEnd())));
+			lambdaPoints.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, 0.99 * interval.getBeg() + 0.01 * interval.getEnd())));
+			lambdaPoints.add(new ReferencePoint(  Geometry.linearCombination(l1, l2, (interval.getBeg() + interval.getEnd()) / 2)));
 	
 			//Make sure that both endpoints and middle of interval have the same CV value
-			for(ReferencePoint lambda : lambdas){
-				int eval = Lambda.evaluateDirection(lambda);
+			for(ReferencePoint lambdaPoint : lambdaPoints){
+				int eval = Lambda.evaluateLambdaPoint(lambdaPoint);
 				if( Math.abs(eval - interval.getCV()) > 0 || eval > CV){
 					System.out.println("ERROR");
 					return;
@@ -72,19 +72,22 @@ public class GradientLambdaSearch {
 			}
 	}
 	
-	private ArrayList <Interval> getImprovingIntervals(ReferencePoint lambda, ReferencePoint bestLambda) {
+	private ArrayList <Interval> getImprovingIntervals(ReferencePoint lambdaPoint, ReferencePoint bestLambdaPoint) {
 		ArrayList <Interval> intervals = new ArrayList<>();
-		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1) < Geometry.EPS );
+		int numDim = lambdaPoint.getNumDimensions();
+		double lambdaDirection[] = lambdaPoint.getDirection();
+		double bestLambdaDirection[] = bestLambdaPoint.getDirection();
+		double bestLambdaGrad[] = new double[numDim];
 		
-		double lambdaPoint[] = lambda.getPoint();
+		assert( Math.abs( Arrays.stream(bestLambdaPoint.getDim()).sum() - 1) < Geometry.EPS );
 		
-		//Get gradient from current lambda to best lambda in current lambda set
-		double bestLambdaGrad[] = new double[lambda.getNumDimensions()];
-		for(int i=0; i<lambda.getNumDimensions(); i++){
-			bestLambdaGrad[i] = lambdaPoint[i] - bestLambda.getDim(i);
+		
+		//Get gradient from current lambdaDirection to bestLambdaDirection
+		for(int i=0; i<lambdaDirection.length; i++){
+			bestLambdaGrad[i] = lambdaDirection[i] - bestLambdaDirection[i];
 		}
-		if(Math.abs( Arrays.stream(lambdaPoint).sum() - 1 ) >= Geometry.EPS){
-			System.out.println("Point not summing to 1:" + Arrays.toString(lambdaPoint));
+		if(Math.abs( Arrays.stream(lambdaDirection).sum() - 1 ) >= Geometry.EPS){
+			System.out.println("Point not summing to 1:" + Arrays.toString(lambdaDirection));
 		}
 		//TODO
 		//assert( Math.abs( Arrays.stream(lambdaPoint).sum() - 1 ) < Geometry.EPS );		
@@ -92,13 +95,13 @@ public class GradientLambdaSearch {
 				
 		// Perform interval search only if gradient is non-empty
 		if(Geometry.getLen(bestLambdaGrad) > Geometry.EPS){
-			intervals.addAll(getBestIntervalsOnGradientLine(lambda, bestLambdaGrad));
+			intervals.addAll(getBestIntervalsOnGradientLine(lambdaDirection, bestLambdaGrad));
 		}
 	
 		//Additionally search for intervals on random direction from current lambda
-		double randomGrad[] = Geometry.getRandomVectorOnHyperplane(lambda.getNumDimensions(), 1);
+		double randomGrad[] = Geometry.getRandomVectorOnHyperplane(numDim, 1);
 		assert Math.abs(Arrays.stream(randomGrad).sum()) < Geometry.EPS;
-		intervals.addAll(getBestIntervalsOnGradientLine(lambda,  randomGrad));
+		intervals.addAll(getBestIntervalsOnGradientLine(lambdaDirection,  randomGrad));
 		
 		//Search on all gradients where only two dimensions change - one increases and second decreases by exactly same value
 		for(int i=0; i<numObjectives; i++){
@@ -106,7 +109,7 @@ public class GradientLambdaSearch {
 				double grad[] = new double[numObjectives];
 				grad[i]=1;
 				grad[j]=-1;
-				intervals.addAll(getBestIntervalsOnGradientLine(lambda, grad));
+				intervals.addAll(getBestIntervalsOnGradientLine(lambdaDirection, grad));
 			}
 		}
 		//Search on all gradients where one dimensions increases and all other decreases
@@ -116,18 +119,18 @@ public class GradientLambdaSearch {
 				grad[j]=-1;
 			}
 			grad[i]=grad.length-1;
-			intervals.addAll(getBestIntervalsOnGradientLine(lambda, grad));
+			intervals.addAll(getBestIntervalsOnGradientLine(lambdaDirection, grad));
 		}
 		
 		//Evaluate lambda to make sure that CV value is up-to-date
-		Lambda.evaluateDirection(lambda);
+		Lambda.evaluateLambdaPoint(lambdaPoint);
 		
 		if(RST_NSGAIII.assertions){
 			for(Interval interval : intervals){
 				//TODO
 				//Numerical errors
 				if(Math.abs(interval.getBeg() - interval.getEnd()) > 1e-4){
-					validateInterval(interval, lambda.getNumViolations());
+					validateInterval(interval, lambdaPoint.getNumViolations());
 				}
 			}
 		}
@@ -135,13 +138,12 @@ public class GradientLambdaSearch {
 		return intervals;
 	}
 
-	private ArrayList<Interval> getBestIntervalsOnGradientLine(ReferencePoint lambda, double[] grad) {
-		double lambdaPoint[] = lambda.getPoint();
+	private ArrayList<Interval> getBestIntervalsOnGradientLine(double[] lambdaDirection, double[] grad) {
 		//TODO
 //		assert( Math.abs( Arrays.stream(lambdaPoint).sum() - 1 ) < Geometry.EPS );
 //		assert( Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS );
 		
-		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambdaPoint, grad);
+		Pair <double[], double[]> simplexSegment = Geometry.getSimplexSegment(lambdaDirection, grad);
 		double l1[] = simplexSegment.first, l2[] = simplexSegment.second;
 		
 		//Each pair is (t, +-(id+1)), where t represents "time" on segment l1, l2 counted from l1 to l2
@@ -206,9 +208,9 @@ public class GradientLambdaSearch {
 				bestIntervals.add(new Interval(bestBeg, bestEnd, CV, l1, l2));
 				
 				if(RST_NSGAIII.assertions){
-					double dim[] = Geometry.linearCombination(l1, l2, (bestBeg + bestEnd)/2);
-					ReferencePoint middle = new ReferencePoint(dim);
-					int eval = Lambda.evaluateDirection(middle);
+					double direction[] = Geometry.linearCombination(l1, l2, (bestBeg + bestEnd)/2);
+					ReferencePoint middleLambdaPoint = new ReferencePoint(Geometry.dir2point(direction));
+					int eval = Lambda.evaluateLambdaPoint(middleLambdaPoint);
 					if(Math.abs(bestBeg - bestEnd) > 1e-4 && eval != CV){
 						System.out.println("MIDDLE_CV_DIFFERS");
 						System.out.println(eval + " != " + CV);
@@ -292,15 +294,15 @@ public class GradientLambdaSearch {
 		return lines;
 	}
 	
-	public ArrayList <ReferencePoint> improve(ArrayList<ReferencePoint> lambdasList) {
-		for(ReferencePoint lambda : lambdasList) Lambda.evaluateDirection(lambda);
-		ReferencePoint bestLambda = lambdasList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
-		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
+	public ArrayList <ReferencePoint> improveLambdaPoints(ArrayList<ReferencePoint> lambdaPointList) {
+		for(ReferencePoint lambdaPoint : lambdaPointList) Lambda.evaluateLambdaPoint(lambdaPoint);
+		ReferencePoint bestLambdaPoint = lambdaPointList.stream().min(Comparator.comparing(ReferencePoint::getNumViolations)).get();
+		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambdaPoint.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();
-		for(ReferencePoint rp : lambdasList){
-			intervals.addAll(getImprovingIntervals(rp, bestLambda));	
+		for(ReferencePoint rp : lambdaPointList){
+			intervals.addAll(getImprovingIntervals(rp, bestLambdaPoint));	
 		}
-		return chooseBestLambdaSubset(intervals, lambdasList.size());
+		return chooseBestLambdaSubset(intervals, lambdaPointList.size());
 		
 	}
 
@@ -323,7 +325,7 @@ public class GradientLambdaSearch {
 			int id = NSGAIIIRandom.getInstance().nextInt( bestIntervals.size());
 			Interval interval = bestIntervals.get(id);
 			double t = NSGAIIIRandom.getInstance().nextDouble();
-			double dim[] = Geometry.linearCombination(interval.getL1(), interval.getL2(), t*interval.getBeg() + (1-t) * interval.getEnd());
+			double dim[] = Geometry.dir2point(Geometry.linearCombination(interval.getL1(), interval.getL2(), t*interval.getBeg() + (1-t) * interval.getEnd()));
 			res.add(new ReferencePoint(dim));
 		}
 		return res;

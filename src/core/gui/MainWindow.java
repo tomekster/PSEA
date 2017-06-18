@@ -473,12 +473,12 @@ public class MainWindow {
 
 	private XYDataset createDatasetOnHyperplane() {
 		ArrayList<Population> generationsHistory = history.getGenerations();
-		ArrayList<ArrayList<ReferencePoint>> lambdaDirectionsHistory = history.getLambdaDirectionsHistory();
+		ArrayList<ArrayList<ReferencePoint>> lambdaPointsHistory = history.getLambdaPointsHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
-		if (lambdaDirectionsHistory != null) {
+		if (lambdaPointsHistory != null) {
 			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
-			ArrayList<ReferencePoint> lambdaDirections= lambdaDirectionsHistory.get(currentPopulationId);
+			ArrayList<ReferencePoint> lambdaDirections= lambdaPointsHistory.get(currentPopulationId);
 			
 			ArrayList<XYSeries> series = createReferencePointsSeries(generation, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){

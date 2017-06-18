@@ -13,6 +13,7 @@ import operators.impl.crossover.SBX;
 import operators.impl.mutation.PolynomialMutation;
 import operators.impl.selection.BinaryTournament;
 import preferences.Elicitator;
+import preferences.PreferenceCollector;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
 import solutionRankers.SolutionsBordaRanker;
@@ -32,8 +33,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private NSGAIII nsgaiii;
 	private Lambda lambda;
 	private double spreadThreshold = 0.95;
-	private int explorationComparisons = 0;
-	private int exploitationComparisons = 0;
+	private int explorationComparisons;
+	private int exploitationComparisons;
 	
 	public RST_NSGAIII(Problem problem, ChebyshevRanker decisionMakerRanker) {
 		super(  problem, new BinaryTournament(new SolutionsBordaRanker()),
@@ -45,7 +46,6 @@ public class RST_NSGAIII extends EA implements Runnable {
 									new BinaryTournament(new NonDominationRanker()),
 									new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 									new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
-		
 		this.lambda = Lambda.getInstance();		
 		lambda.init( problem.getNumObjectives());
 		
@@ -58,6 +58,11 @@ public class RST_NSGAIII extends EA implements Runnable {
 		
 		// Structure for storing intermediate state of algorithm for further analysis, display, etc.
 		ExecutionHistory.getInstance().init(problem, nsgaiii, lambda, decisionMakerRanker);
+		
+		this.generation = 0;
+		this.explorationComparisons = 0;
+		this.exploitationComparisons = 0;
+		PreferenceCollector.getInstance().clear();
 	}
 
 	@Override
@@ -89,9 +94,10 @@ public class RST_NSGAIII extends EA implements Runnable {
 	
 		//singleObjective();
 		//exploreExploit();
-		//shrinkingHyperplane();
+		shrinkingHyperplane();
 		//exactHyperplane();
-		exactShrinkHyperplane();
+		//exactShrinkHyperplane();
+		exploit();
 		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
 		
 	}
@@ -101,7 +107,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		for(int i=0; i<3000; i++){
 			generation++;
 			nsgaiii.nextGeneration();
-			ExecutionHistory.getInstance().update(nsgaiii.getPopulation(), lambda);
+			ExecutionHistory.getInstance().update(nsgaiii.getPopulation(), lambda, nsgaiii.getHyperplane());
 			this.population = nsgaiii.getPopulation();
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
@@ -112,17 +118,17 @@ public class RST_NSGAIII extends EA implements Runnable {
 	}
 
 	private void exactShrinkHyperplane() {
-		lambda.getLambdas().clear();
+		lambda.getLambdaPoints().clear();
 		nsgaiii.setNewHyperplane(0.01, Geometry.dir2point(DMranker.getDirection()));
 		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
-			lambda.getLambdas().add(rp);
+			lambda.getLambdaPoints().add(rp);
 		}
 		for(int i=0; i<1500; i++){
 			generation++;
 			nsgaiii.nextGeneration();
 			this.population = nsgaiii.getPopulation();
 			
-			ExecutionHistory.getInstance().update(population, lambda);
+			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
 				bestVal = Double.min(bestVal, DMranker.eval(s));
@@ -146,7 +152,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		for(int i=0; i<3000; i++){
 			generation++;
 			so.nextGeneration();
-			ExecutionHistory.getInstance().update(so.getPopulation(), lambda);
+			ExecutionHistory.getInstance().update(so.getPopulation(), lambda, nsgaiii.getHyperplane());
 			this.population = so.getPopulation();
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
@@ -170,7 +176,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 			generation++;
 			nsgaiii.nextGeneration();
 			this.population = nsgaiii.getPopulation();
-			ExecutionHistory.getInstance().update(population, lambda);
+			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
 		}		
 	}
 	
@@ -193,7 +199,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 				explorationComparisons++;
 				lambda.nextGeneration();
 			}
-			ExecutionHistory.getInstance().update(population, lambda);
+			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
 			System.out.println("Exploration: " + generation + " " + explorationComparisons);
 		}
 	}
@@ -214,26 +220,26 @@ public class RST_NSGAIII extends EA implements Runnable {
 					lambda.nextGeneration();
 				}
 			}
-			ExecutionHistory.getInstance().update(population, lambda);
+			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
 			maxDist = population.maxDist();
 			System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " " + maxDist);
 		}while(maxDist > 1e-4 && generation < 1500);
 	}
 	
 	private void shrinkHyperplane(){
-		int lastImprovedGen = generation, maxNumGenWithNoImprovment = 20, split;
+		int lastImprovedGen = generation, maxNumGenWithNoImprovment = 50, split;
 		double size=1.0, maxSpread = 0, currentSpread, maxDist;
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
 		
 		while(true){
-			if(size < 1e-4 || generation >= 1500){
+			if(size < 0.001 || generation >= 1500){
 				break;
 			}
 			
 			currentSpread = (double)(nsgaiii.getHyperplane().getNumNiched()) / nsgaiii.getHyperplane().getReferencePoints().size();
 			if(currentSpread > spreadThreshold || generation - lastImprovedGen > maxNumGenWithNoImprovment){
 				size/=4;
-				nsgaiii.setNewHyperplane(size, Geometry.dir2point(lambda.getAverageDirection()));
+				nsgaiii.setNewHyperplane(size, lambda.getAverageLambdaPoint());
 				maxSpread=0;
 			}
 			if(currentSpread > maxSpread){
@@ -254,7 +260,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 			maxDist = population.maxDist();
 			System.out.println("ShrinkHyperplane: " + generation + " " + exploitationComparisons + " " + size + " " + maxDist);
 			this.population = nsgaiii.getPopulation();
-			ExecutionHistory.getInstance().update(population, lambda);
+			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
 		}
 	}
 }

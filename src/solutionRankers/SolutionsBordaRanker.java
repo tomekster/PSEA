@@ -39,24 +39,24 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 
 	private HashMap<Solution, Integer> getBordaPointsForSolutions(Population pop) {
 		HashMap<Solution, Integer> bordaPointsMap = new HashMap<>();
-		for (ReferencePoint lambda : Lambda.getInstance().getLambdas()) {
-			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
+		for (ReferencePoint lambdaPoint : Lambda.getInstance().getLambdaPoints()) {
+			ArrayList<Solution> ranking = buildSolutionsRanking(lambdaPoint, pop);
 			assert ranking.size() == pop.size();
 			for (int i = 0; i < ranking.size(); i++) {
 				Solution s = ranking.get(i);
 				if (!bordaPointsMap.containsKey(s)) {
 					bordaPointsMap.put(s, 0);
 				}
-				bordaPointsMap.put(s, bordaPointsMap.get(s) + (ranking.size() - i)/(lambda.getNumViolations() + 1));
+				bordaPointsMap.put(s, bordaPointsMap.get(s) + (ranking.size() - i)/(lambdaPoint.getNumViolations() + 1));
 			}
 		}
 		return bordaPointsMap;
 	}
 
-	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambda, Population pop) {
+	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambdaPoint, Population pop) {
 		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
 		for (Solution s : pop.getSolutions()) {
-			double chebyshevValue = ChebyshevRanker.eval(s, null, lambda.getDim(), 0);
+			double chebyshevValue = ChebyshevRanker.eval(s, null, lambdaPoint.getDirection(), 0);
 			solutionValuePairs.add(new Pair<Solution, Double>(s, chebyshevValue));
 		}
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>() {
@@ -78,8 +78,8 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 	@Override
 	public int compare(Solution s1, Solution s2) {
 		int v1=0, v2=0;
-		for(ReferencePoint lambda : Lambda.getInstance().getLambdas()){
-			int cmp = ChebyshevRanker.compareSolutions(s1, s2, null, lambda.getDim(), .0);
+		for(ReferencePoint lambdaPoint : Lambda.getInstance().getLambdaPoints()){
+			int cmp = ChebyshevRanker.compareSolutions(s1, s2, null, lambdaPoint.getDirection(), .0);
 			if(cmp < 0) v1++;
 			else if(cmp >0) v2++;
 		}

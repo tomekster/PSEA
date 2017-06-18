@@ -125,11 +125,11 @@ public class ExperimentRunner {
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		for(int i=0; i < history.getGenerations().size(); i++){
 			Population pop = history.getGeneration(i);
-			ArrayList <ReferencePoint> directions = history.getLambdaDirections(i);
+			ArrayList <ReferencePoint> lambdaPoints = history.getLambdaPoints(i);
 			minDist.add(MyMath.getMinDist(p.getTargetPoint(decisionMakerRanker.getDirection()), pop));
 			avgDist.add(MyMath.getAvgDist(p.getTargetPoint(decisionMakerRanker.getDirection()), pop));
 			double targetDir[] = decisionMakerRanker.getDirection();
-			modelDist.add(directions.stream().mapToDouble(rp -> Geometry.dirDist(targetDir, rp.getDim())).min().getAsDouble());
+			modelDist.add(lambdaPoints.stream().mapToDouble(rp -> Geometry.dirDist(targetDir, rp.getDirection())).min().getAsDouble());
 		}
 		Evaluator.evaluateRun(p, decisionMakerRanker, alg.getPopulation());
 		System.out.println("Final min: " + history.getFinalMinDist());

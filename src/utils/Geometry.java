@@ -541,6 +541,9 @@ public class Geometry {
 	public static double[] dir2point(double direction[]){
 		return normalize(invert(direction));
 	}
+	public static double[] point2dir(double point[]){
+		return normalize(invert(point));
+	}
 	
 	public static double dirDist(double dir1[], double dir2[]){
 		return euclideanDistance(dir2point(dir1), dir2point(dir2));

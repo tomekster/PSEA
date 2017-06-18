@@ -38,6 +38,8 @@ public class GradientLambdaSearchTest {
 		PC.addComparison(s3, s4);
 		double lambda1[] = {0.239218159637306, 0.760781840362694, 0};
 		double lambda2[] = {0, 0.484234692114499, 0.515765307885501};
+		lambda1 = Geometry.dir2point(lambda1);
+		lambda2 = Geometry.dir2point(lambda2);
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
  		ArrayList < Pair<Double, Integer> > switchPoints = gls.getAllSwitchPoints(lambda1, lambda2) ;
  		assertEquals(0, switchPoints.get(0).first, Geometry.EPS);
@@ -72,6 +74,8 @@ public class GradientLambdaSearchTest {
 		PC.addComparison(s5, s6);
 		double lambda1[] = {0.28075525615251, 0, 0.71924474384749};
 		double lambda2[] = {0.077751763428363, 0.922248236571637, 0};
+		lambda1 = Geometry.dir2point(lambda1);
+		lambda2 = Geometry.dir2point(lambda2);
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
  		ArrayList < Pair<Double, Integer> > switchPoints = gls.getAllSwitchPoints(lambda1, lambda2) ;
  		assertEquals(0, switchPoints.get(0).first, Geometry.EPS);
@@ -103,6 +107,8 @@ public class GradientLambdaSearchTest {
 		PC.addComparison(s3, s4);
 		double lambda1[] = {0, 0.630406655829493, 0.369593344170507};
 		double lambda2[] = {0.140510428179306, 0.859489571820694, 0};
+		lambda1 = Geometry.dir2point(lambda1);
+		lambda2 = Geometry.dir2point(lambda2);
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
  		ArrayList < Pair<Double, Integer> > switchPoints = gls.getAllSwitchPoints(lambda1, lambda2) ;
  		assertEquals(0.586813707588713, switchPoints.get(2).first, Geometry.EPS);
@@ -164,6 +170,8 @@ public class GradientLambdaSearchTest {
 		//RANDOM LAMBDAS
 		double l1[] = {1,2,3};
 		double l2[] = {1,2,3};
+		l1 = Geometry.dir2point(l1);
+		l2 = Geometry.dir2point(l2);
 		ArrayList <Interval> intervals = gls.findBestIntervals(switches, l1, l2);
 		assertEquals(1, intervals.size());
 		assertEquals(0.5, intervals.get(0).getBeg(), 1e-6);
@@ -181,6 +189,8 @@ public class GradientLambdaSearchTest {
 		GradientLambdaSearch gls = new GradientLambdaSearch(3);
 		double l1[] = {0.24718284557443193, 0.7528171544255681, 0.0};
 		double l2[] = {0.24718284557443193, 0.0, 0.7528171544255681};
+		l1 = Geometry.dir2point(l1);
+		l2 = Geometry.dir2point(l2);
 		ArrayList <Interval> intervals = gls.findBestIntervals(switches, l1, l2);
 		assertEquals(1, intervals.size());
 		assertEquals(0.39582323899573246, intervals.get(0).getBeg(), 1e-6);
@@ -190,7 +200,8 @@ public class GradientLambdaSearchTest {
 		double mid = (intervals.get(0).getBeg() + intervals.get(0).getEnd()) / 2;
 		double dim[] = Geometry.linearCombination(l1, l2, mid);
 		ReferencePoint middle = new ReferencePoint(dim);
-		int eval = Lambda.evaluateDirection(middle);
+		int eval = Lambda.evaluateLambdaPoint(middle);
+		Lambda.evaluateLambdaPoint(middle);
 		assertEquals(0, eval);
 		
 		//Best interval (wrong) CV=1 , [0,0]
