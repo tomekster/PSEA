@@ -68,6 +68,10 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		}
 		double res = -Double.MAX_VALUE;
 		double sum = 0;
+		if(s == null){
+			//TODO
+			System.out.println("TODO");
+		}
 		for(int i=0; i<s.getNumObjectives(); i++){
 			double mult = lambdaDirection[i] * (s.getObjective(i) - refPoint[i]);
 			res = Double.max(mult, res);

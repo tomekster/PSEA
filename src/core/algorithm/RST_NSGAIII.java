@@ -190,7 +190,12 @@ public class RST_NSGAIII extends EA implements Runnable {
 			nsgaiii.nextGeneration();
 			this.population = nsgaiii.getPopulation();	
 			split = Elicitator.elicitate(population, DMranker, lambda, p);
-			if(split == 0){
+			
+			//If first front (nondominated set) consists of only one solution
+			if(split == -1){
+				//Do nothing, just go to next generation
+			}
+			else if(split == 0){
 				numZeroSplits++;
 			}
 			else{
@@ -212,7 +217,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		do{
 			generation++;
 			nextGeneration();
-			if(generation %10 == 0 &&  exploitationComparisons < 20){
+			if(generation %10 == 0 &&  exploitationComparisons < 30){
 				split = Elicitator.elicitate( population, DMranker, lambda, p);
 				if(split != 0){
 					Elicitator.compare(DMranker, p.first, p.second);
@@ -232,7 +237,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
 		
 		while(true){
-			if(size < 0.001 || generation >= 1500){
+			if(size < 0.01 || generation >= 1500){
 				break;
 			}
 			

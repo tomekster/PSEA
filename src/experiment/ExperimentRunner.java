@@ -17,6 +17,9 @@ import core.algorithm.SingleObjectiveEA;
 import core.points.ReferencePoint;
 import history.ExecutionHistory;
 import preferences.PreferenceCollector;
+import problems.dtlz.DTLZ1;
+import problems.dtlz.DTLZ2;
+import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
@@ -25,16 +28,16 @@ import utils.MyMath;
 
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();	
-	
+	private static String DATE = "20_06_2017";
 	public static void main(String[] args) {
 		LogManager.getLogManager().reset();
-		int numRuns = 1;
-		int numObjectives[] = {3,5,8};
+		int numRuns = 3;
+		int numObjectives[] = {8};
 
 		for (int no : numObjectives) {
-//			problems.add(new DTLZ1(no));
-//			problems.add(new DTLZ2(no)); 
-//			problems.add(new DTLZ3(no));
+			problems.add(new DTLZ1(no));
+			problems.add(new DTLZ2(no)); 
+			problems.add(new DTLZ3(no));
 			problems.add(new DTLZ4(no));
 
 //			problems.add(new WFG1(no));
@@ -55,7 +58,6 @@ public class ExperimentRunner {
 			double idealPoint[] = p.findIdealPoint();
 			ArrayList<ChebyshevRanker> decisionMakerRankers = ChebyshevRankerBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
 			for(ChebyshevRanker cr : decisionMakerRankers){
-				
 				for (int runId = 1; runId <= numRuns; runId++) {
 					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 					Date date = new Date();
@@ -72,7 +74,7 @@ public class ExperimentRunner {
 					
 //					runSingleObjectiveExperiment(p, cr, minDist, avgDist);
 					runNSGAIIIExperiment(p, cr, minDist, avgDist, modelDist);
-					ExecutionHistory.serialize(serializePath + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + cr.getName() + ".ser");
+					ExecutionHistory.serialize(DATE + "_" + serializePath + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + cr.getName() + ".ser");
 
 					writeResultToFile(p, cr.getName(), runId, minDist, avgDist, modelDist);
 				}
@@ -106,7 +108,7 @@ public class ExperimentRunner {
 	
 	private static void writeResultToFile(Problem p, String rankerName, int runId, ArrayList<Double> minDist, ArrayList <Double> avgDist, ArrayList <Double> modelDist) {
 		try{
-			PrintWriter writer = new PrintWriter("C:/Users/Tomasz/Documents/nsgaiii/PSEA/" + p.getNumObjectives() + "OBJ/" + p.getName() + "_" + rankerName + "_" + runId + ".txt", "UTF-8");
+			PrintWriter writer = new PrintWriter("C:/Users/Tomasz/Documents/nsgaiii/PSEA/" + DATE + "/OBJ" + p.getNumObjectives() + "_" + p.getName() + "_" + rankerName + "_" + runId + ".txt", "UTF-8");
 			for(int i=0; i<minDist.size(); i++){
 				writer.println(i + ", " + minDist.get(i) + ", " + avgDist.get(i) + ", " + modelDist.get(i));
 			}
