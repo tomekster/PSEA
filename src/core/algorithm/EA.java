@@ -42,7 +42,7 @@ public abstract class EA {
 		Population offspring = new Population();
 		Population matingPopulation = new Population();
 		while (matingPopulation.size() < population.size()) {
-			matingPopulation.addSolution(selectionOperator.execute(population));
+			matingPopulation.addSolution(selectionOperator.execute(population)); //Selecion operator returns deep copy of solution
 		}
 		for (int i = 0; i < population.size(); i += 2) {
 			ArrayList<Solution> parents = new ArrayList<Solution>(2);

@@ -181,11 +181,22 @@ public class RST_NSGAIII extends EA implements Runnable {
 	}
 	
 	private void explore() {
-		int split = 0, maxZeroSplits = 5, numZeroSplits = 0;
+		int split = 0, maxZeroSplits = 5, numZeroSplits = 0, maxExplorComp=20;
+		
+		if(problem.getNumObjectives() == 3){
+			maxExplorComp = 20;
+		}
+		else if(problem.getNumObjectives() == 5){
+			maxExplorComp = 20;
+		}
+		else if(problem.getNumObjectives() == 8){
+			maxExplorComp = 30;
+		}
+		
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
 		
 		//Elicitate while population is well spread
-		while(numZeroSplits < maxZeroSplits && explorationComparisons < 20){
+		while(numZeroSplits < maxZeroSplits && explorationComparisons < maxExplorComp){
 			generation++;
 			nsgaiii.nextGeneration();
 			this.population = nsgaiii.getPopulation();	
@@ -212,12 +223,23 @@ public class RST_NSGAIII extends EA implements Runnable {
 	private void exploit() {
 		//Guide evolution with generated model until it converges
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
-		int split = 0;
+		int split = 0, maxExploitComp=30;
+		
+		if(problem.getNumObjectives() == 3){
+			maxExploitComp = 30;
+		}
+		else if(problem.getNumObjectives() == 5){
+			maxExploitComp = 30;
+		}
+		else if(problem.getNumObjectives() == 8){
+			maxExploitComp = 40;
+		}
+		
 		double maxDist;
 		do{
 			generation++;
 			nextGeneration();
-			if(generation %10 == 0 &&  exploitationComparisons < 30){
+			if(generation %10 == 0 &&  exploitationComparisons < maxExploitComp){
 				split = Elicitator.elicitate( population, DMranker, lambda, p);
 				if(split != 0){
 					Elicitator.compare(DMranker, p.first, p.second);

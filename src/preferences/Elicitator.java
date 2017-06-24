@@ -11,7 +11,6 @@ import core.Population;
 import core.points.Solution;
 import solutionRankers.ChebyshevRanker;
 import solutionRankers.NonDominationRanker;
-import utils.Geometry;
 import utils.NSGAIIIRandom;
 import utils.Pair;
 

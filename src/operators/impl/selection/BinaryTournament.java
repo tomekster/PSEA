@@ -29,6 +29,5 @@ public class BinaryTournament implements SelectionOperator {
 		else {
 			return random.nextDouble() < 0.5 ? candidate1 : candidate2;
 		}
-		
 	}
 }

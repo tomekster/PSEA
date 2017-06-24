@@ -61,6 +61,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 			return 0;
 	}
 	
+//	TODO - swap eval
 	public static double eval(Solution s, double refPoint[], double lambdaDirection[], double rho){
 		if(null == refPoint){
 			refPoint = new double[lambdaDirection.length];
@@ -80,6 +81,29 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		res += sum * rho;
 		return res;
 	}
+	
+//	public static double eval(Solution s, double refPoint[], double lambdaDirection[], double rho){
+//		if(null == refPoint){
+//			refPoint = new double[lambdaDirection.length];
+//			Arrays.fill(refPoint, 0);
+//		}
+//		double res = -Double.MAX_VALUE;
+//		double sum = 0;
+//		if(s == null){
+//			//TODO
+//			System.out.println("TODO");
+//		}
+//		double mult[] = new double[s.getNumObjectives()];
+//		for(int i=0; i<s.getNumObjectives(); i++){
+//			mult[i] = lambdaDirection[i] * (s.getObjective(i) - refPoint[i]);
+//			res = Double.max(mult[i], res);
+//			sum += mult[i];
+//		}
+//		res += 1 - ( sum / (s.getNumObjectives() * res) );
+//
+//		res += sum * rho;
+//		return res;
+//	}
 	
 	public Pair<Solution, Double> getBestSolutionVal(Population pop){
 		Pair<Solution, Double> res = null;
