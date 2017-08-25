@@ -9,20 +9,8 @@ from itertools import zip_longest
 DIM = ['OBJ8']
 PROBLEMS = ['DTLZ1', 'DTLZ2', 'DTLZ3', 'DTLZ4']
 DECIDENTS = ['1Balanced', '2LeftMostImportant', '3CentralMostImportant', '4RightMostImportant', '5LeftIrrelevant', '6CentralIrrelevant', '7RightIrrelevant', '8LinearyIncreasing', '9LinearyDecreasing']
-
-START_GEN = 0
-
-class Stats:
-    def __init__(self, NUM_GEN, MIN, AVG, DIST):
-        self.NUM_GEN = NUM_GEN
-        self.MIN = MIN
-        self.AVG = AVG
-        self.MODEL_DIST = DIST
-
-    def pad(self, totalLen):
-        self.MIN = np.concatenate( (self.MIN, np.full( (totalLen - self.MIN.size), self.MIN[-1] ) ) )
-        self.AVG = np.concatenate((self.AVG, np.full((totalLen - self.AVG.size), self.AVG[-1])))
-        self.MODEL_DIST = np.concatenate((self.MODEL_DIST, np.full((totalLen - self.MODEL_DIST.size), self.MODEL_DIST[-1])))
+colors = ['aqua', 'blue', 'steelblue', 'lime', 'green', 'yellowgreen', 'orangered', 'red', 'darkred']
+markers = ['.', 'o', '^']
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
@@ -30,79 +18,70 @@ def listdir_fullpath(d):
 def readFile(filepath):
     points = np.loadtxt(filepath, delimiter=',')
     # ax = fig.add_subplot(3,4,i+1)
-    NUM_GEN = len(points)
-    MIN = points[START_GEN:NUM_GEN, 1]
-    AVG = points[START_GEN:NUM_GEN, 2]
-    MODEL_DIST = points[START_GEN:NUM_GEN, 3]
     print(filepath)
-    return Stats(NUM_GEN, MIN, AVG, MODEL_DIST)
+    return points.T
 
 def combineStats(runStats):
-    totalLen = max(s.NUM_GEN for s in runStats)
+    totalLen = max([len(s[0]) for s in runStats])
 
-    for s in runStats:
-        s.pad(totalLen)
+    def pad(totalLen, params):
+        res = np.copy(params)
+        res.resize((len(res)), totalLen)
+        for p_idx, p in enumerate(params):
+            for idx in range(p.size, totalLen):
+                res[p_idx][idx] = p[-1]
+        return res
 
-    for s in runStats:
-        assert len(s.MIN) == totalLen
+    for idx, run in enumerate(runStats):
+        runStats[idx] = pad(totalLen, run)
 
+    for run in runStats:
+        for p in run:
+            assert len(p) == totalLen
 
-    allMin = np.array([s.MIN for s in runStats]).T
-    allAvg = np.array([s.AVG for s in runStats]).T
-    allModelDist = np.array([s.MODEL_DIST for s in runStats]).T
+    cube = np.dstack(tuple(runStats))
+    return  np.array( [ [ (min(gen), statistics.median(gen), max(gen)) for gen in layer] for layer in cube])
 
-    minStats = ( [min(l) for l in allMin], [statistics.median(l) for l in allMin], [max(l) for l in allMin] )
-    avgStats = ( [min(l) for l in allAvg], [statistics.median(l) for l in allAvg], [max(l) for l in allAvg] )
-    modelDistStats = ( [min(l) for l in allModelDist], [statistics.median(l) for l in allModelDist], [max(l) for l in allModelDist] )
+def plot(plotId, dec, X, data, title_suf):
+    ax = plt.subplot(2, 9, plotId)
+    axes = plt.gca()
+    # Set max Y-value
+    axes.set_ylim([data[-1,-1,-1],data[-1,-1,-1] + 0.1])
+    ax.set_title(dec + title_suf)
 
-    return (totalLen, minStats, avgStats, modelDistStats)
+    for paramId in range(len(data)):
+        for type in range(3):
+            plt.plot(X, data[paramId, :, type], color=colors[paramId * 3 + type], marker=markers[type], markersize=1)
+
+DIR = 'l4Cheb'
 
 def plotAll():
     files = []
     for d in DIM:
-        files = listdir_fullpath('24_06_17')
+        files = listdir_fullpath(DIR)
         files.sort()
+        print(files)
         for p in PROBLEMS:
             fig = plt.figure()
             fig.suptitle(p + ' ' + d, fontsize=14, fontweight='bold')
             for decID, dec in enumerate(DECIDENTS):
-                STATISTICS = []
+                runs_descr = []
                 for filepath in files:
                     if not d in filepath or not dec in filepath or not p in filepath:
                         continue
-                    STATISTICS.append(readFile(filepath))
+                    runs_descr.append(readFile(filepath))
 
-                # At this point STATISTICS should be list filled with Stats objects.
-                # Each Stats object describes single experiment run.
-                # STATISTICS should contain only Stats objecets describing same
-                # experiment "type" - same NUM_OBJ, DECISION_MAKER, PROBLEM.
+                if(len(runs_descr) > 0 ):
+                    combinedStats = combineStats(runs_descr)
 
-                #We need to unify all Stats objects - every single experiment could have different number of generations,
-                # so we fill each array (MIN, AVG and MODEL_DIST) to length of the longest one in any of Stats objects.
-                # We pad them with last value in each of them respectively.
+                    X = range(len(combinedStats[0]))
 
-                if(len(STATISTICS) > 0 ):
-                    totalLen, minStats, avgStats, modelDistStats = combineStats(STATISTICS)
-                    X = range(totalLen)
+                    plot(decID+1, dec, X, combinedStats[1:4], "CHEB")
+                    plot(decID+10,dec,X, combinedStats[4:7], "EUC")
 
-                    ax = plt.subplot(3,3,decID + 1)
-                    axes = plt.gca()
-                    #Set max Y-value
-                    axes.set_ylim([0,0.1])
-                    ax.set_title(dec)
-
-                    plt.plot(X, minStats[0], color='aqua')
-                    plt.plot(X, minStats[1], color='blue')
-                    plt.plot(X, minStats[2], color='steelblue')
-
-                    plt.plot(X, avgStats[0], color='lime')
-                    plt.plot(X, avgStats[1], color='yellowgreen')
-                    plt.plot(X, avgStats[2], color='green')
-
-                    plt.plot(X, modelDistStats[0], color='orange')
-                    plt.plot(X, modelDistStats[1], color='red')
-                    plt.plot(X, modelDistStats[2], color='darkred')
-        plt.show()
+            plt.savefig(DIR + '/+' + p + ' ' + d + '.png',bbox_inches='tight')
+            plt.savefig(DIR + '/+' + p + ' ' + d + '.pdf',bbox_inches='tight')
+        #plt.show()
 
 if __name__ == "__main__":
     plotAll()

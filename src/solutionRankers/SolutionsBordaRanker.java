@@ -56,7 +56,7 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambdaPoint, Population pop) {
 		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
 		for (Solution s : pop.getSolutions()) {
-			double chebyshevValue = ChebyshevRanker.eval(s, null, lambdaPoint.getDirection(), 0);
+			double chebyshevValue = ChebyshevRanker.eval(s, null, lambdaPoint.getDirection());
 			solutionValuePairs.add(new Pair<Solution, Double>(s, chebyshevValue));
 		}
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>() {
@@ -79,7 +79,7 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 	public int compare(Solution s1, Solution s2) {
 		int v1=0, v2=0;
 		for(ReferencePoint lambdaPoint : Lambda.getInstance().getLambdaPoints()){
-			int cmp = ChebyshevRanker.compareSolutions(s1, s2, null, lambdaPoint.getDirection(), .0);
+			int cmp = ChebyshevRanker.compareSolutions(s1, s2, null, lambdaPoint.getDirection());
 			if(cmp < 0) v1++;
 			else if(cmp >0) v2++;
 		}

@@ -246,7 +246,7 @@ public class GradientLambdaSearch {
 			ArrayList <Line2D> upperEnvelope = Geometry.linesUpperEnvelope(lines);
 
 			//Check comparison for alpha=0 (linearCombination(lambda1, lambda2, 0) = lambda2) to properly initialize switches array
-			int zeroComparison = ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getWorse(), null, l2, 0);
+			int zeroComparison = ChebyshevRanker.compareSolutions(cp.getBetter(), cp.getWorse(), null, l2);
 			if(zeroComparison != 0){ res.add(new Pair<Double, Integer>(.0, -zeroComparison*(cpId+1)));}
 			addComparisonSwitchPoints(res, upperEnvelope, l1, l2, cpId, lines);
 		}
@@ -275,8 +275,8 @@ public class GradientLambdaSearch {
 					double l2Point[] = Geometry.dir2point(l2);
 					double lambdaDirection[] = Geometry.invert(Geometry.linearCombination(l1Point, l2Point, crossX));
 					Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
-					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambdaDirection, 0);
-					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambdaDirection, 0);
+					double M1 = ChebyshevRanker.eval(cp.getBetter(), null, lambdaDirection);
+					double M2 = ChebyshevRanker.eval(cp.getWorse(), null, lambdaDirection);
 					if(  Math.abs(M1-M2) > Geometry.EPS ){
 						 System.out.println("ERROR");
 					}

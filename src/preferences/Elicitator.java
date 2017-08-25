@@ -56,7 +56,7 @@ public class Elicitator {
 		double solutionsLambdasEvals[][] = new double[pop.size()][lambda.getLambdaPoints().size()];
 		for(int i=0; i<pop.size(); i++){
 			for( int j=0; j<lambda.getLambdaPoints().size(); j++){
-				solutionsLambdasEvals[i][j] = ChebyshevRanker.eval(pop.getSolution(i), null, lambda.getLambdaPoints().get(j).getDirection(), 0);
+				solutionsLambdasEvals[i][j] = ChebyshevRanker.eval(pop.getSolution(i), null, lambda.getLambdaPoints().get(j).getDirection());
 			}
 		}
 		int numObjectives = pop.getSolution(0).getNumObjectives();

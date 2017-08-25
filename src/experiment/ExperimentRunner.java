@@ -29,10 +29,10 @@ import utils.MyMath;
 
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();	
-	private static String DATE = "24_06_17";
+	private static String DIR = "l4Cheb";
 	public static void main(String[] args) {
 		LogManager.getLogManager().reset();
-		int numRuns = 1;
+		int numRuns = 10;
 		int numObjectives[] = {8};
 
 		for (int no : numObjectives) {
@@ -63,9 +63,12 @@ public class ExperimentRunner {
 					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 					Date date = new Date();
 					System.out.println(dateFormat.format(date));
-					ArrayList <Double> minDist = new ArrayList<Double>();
-					ArrayList <Double> avgDist = new ArrayList<Double>();
-					ArrayList <Double> modelDist = new ArrayList<Double>();
+					ArrayList <Double> minChebDist = new ArrayList<Double>();
+					ArrayList <Double> avgChebDist = new ArrayList<Double>();
+					ArrayList <Double> modelChebDist = new ArrayList<Double>();
+					ArrayList <Double> minEucDist = new ArrayList<Double>();
+					ArrayList <Double> avgEucDist = new ArrayList<Double>();
+					ArrayList <Double> modelEucDist = new ArrayList<Double>();
 					
 					System.out.print("Run: " + runId + "/" + numRuns );
 					System.out.print(" Problem: " + p.getName());
@@ -73,29 +76,32 @@ public class ExperimentRunner {
 					System.out.print(" Ideal: " + Arrays.toString(idealPoint));
 					System.out.println(" DecisionMaker: " + cr.getName());
 					
-					runSingleObjectiveExperiment(p, cr, minDist, avgDist, modelDist);
+					runSingleObjectiveExperiment(p, cr, minChebDist, avgChebDist, modelChebDist, minEucDist, avgEucDist, modelEucDist);
 //					runNSGAIIIExperiment(p, cr, minDist, avgDist, modelDist);
-					ExecutionHistory.serialize(serializePath + DATE + "_" + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + cr.getName() + ".ser");
-					writeResultToFile(p, cr.getName(), runId, minDist, avgDist, modelDist);
+					ExecutionHistory.serialize(serializePath + DIR + "_" + p.getName() + "_" + p.getNumObjectives() + "_" + runId + "_" + cr.getName() + ".ser");
+					writeResultToFile(p, cr.getName(), runId, minChebDist, avgChebDist, modelChebDist,  minEucDist, avgEucDist, modelEucDist);
 				}
 			}
 		}
 	}
 
-	private static void runSingleObjectiveExperiment(Problem p, ChebyshevRanker cr, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
+	private static void runSingleObjectiveExperiment(Problem p, ChebyshevRanker cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
 		SingleObjectiveEA so = new SingleObjectiveEA(p, cr, 100);
 //		System.out.println("Lambda: " + Arrays.toString(cr.getLambda()));
 //		System.out.println("Target: " + Arrays.toString(p.getTargetPoint(cr.getLambda())));
 		int numGen=1500;
 		for(int i=0; i<=numGen; i++){
-			minDist.add(MyMath.getMinDist(p.getTargetPoint(cr.getDirection()), so.getPopulation()));
-			avgDist.add(MyMath.getAvgDist(p.getTargetPoint(cr.getDirection()), so.getPopulation())); 
-			modelDist.add(.0);
-
-//			minDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).min().getAsDouble());
-//			avgDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).sum()/so.getPopulation().size());
-//			double var [] = new double[0];
-//			modelDist.add(cr.eval(new Solution(var, p.getTargetPoint(cr.getDirection()))));
+			
+			//ChebDist
+			minChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).min().getAsDouble());
+			avgChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).sum()/so.getPopulation().size());
+			double var [] = new double[0];
+			modelChebDist.add(cr.eval(new Solution(var, p.getTargetPoint(cr.getDirection()))));
+			
+			//EuclidianDist
+			minEucDist.add(MyMath.getMinDist(p.getTargetPoint(cr.getDirection()), so.getPopulation()));
+			avgEucDist.add(MyMath.getAvgDist(p.getTargetPoint(cr.getDirection()), so.getPopulation())); 
+			modelEucDist.add(.0);
 			
 			so.nextGeneration();
 		}
@@ -113,17 +119,17 @@ public class ExperimentRunner {
 //		}
 	}
 	
-	private static void writeResultToFile(Problem p, String rankerName, int runId, ArrayList<Double> minDist, ArrayList <Double> avgDist, ArrayList <Double> modelDist) {
+	private static void writeResultToFile(Problem p, String rankerName, int runId, ArrayList<Double> minChebDist, ArrayList <Double> avgChebDist, ArrayList <Double> modelChebDist,  ArrayList<Double> minEucDist, ArrayList <Double> avgEucDist, ArrayList <Double> modelEucDist) {
 		try{
-			PrintWriter writer = new PrintWriter("C:/Users/Tomasz/Documents/nsgaiii/PSEA/" + DATE + "/OBJ" + p.getNumObjectives() + "_" + p.getName() + "_" + rankerName + "_" + runId + ".txt", "UTF-8");
-			for(int i=0; i<minDist.size(); i++){
-				writer.println(i + ", " + minDist.get(i) + ", " + avgDist.get(i) + ", " + modelDist.get(i));
+			PrintWriter writer = new PrintWriter("C:/Users/Tomasz/Documents/nsgaiii/PSEA/" + DIR + "/OBJ" + p.getNumObjectives() + "_" + p.getName() + "_" + rankerName + "_" + runId + ".txt", "UTF-8");
+			for(int i=0; i<minEucDist.size(); i++){
+				writer.println(i + ", " + minChebDist.get(i) + ", " + avgChebDist.get(i) + ", " + modelChebDist.get(i) + ", " + minEucDist.get(i) + ", " + avgEucDist.get(i) + ", " + modelEucDist.get(i));
 			}
 			writer.close();
 		} catch (IOException e) {
 			System.out.println("ERROR");
 		}
-		System.out.println(minDist.get(minDist.size() - 1) + ", " + avgDist.get(avgDist.size() - 1));
+		System.out.println(minEucDist.get(minEucDist.size() - 1) + ", " + avgEucDist.get(avgEucDist.size() - 1));
 	}
 
 	private static void runNSGAIIIExperiment(Problem p, ChebyshevRanker decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
