@@ -3,9 +3,10 @@ package core.algorithm;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import core.Lambda;
+import core.ASFBundle;
 import core.Population;
 import core.Problem;
+import core.points.Lambda;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
@@ -24,14 +25,14 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(RST_NSGAIII.class.getName());
 
-	public static boolean assertions = false;
+	public static boolean assertions = true;
 
 	private Problem problem;
 	private int populationSize;
 	private ChebyshevRanker DMranker;
 	private int generation;
 	private NSGAIII nsgaiii;
-	private Lambda lambda;
+	private ASFBundle asfBundle;
 	private double spreadThreshold = 0.95;
 	private int explorationComparisons;
 	private int exploitationComparisons;
@@ -46,8 +47,8 @@ public class RST_NSGAIII extends EA implements Runnable {
 									new BinaryTournament(new NonDominationRanker()),
 									new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
 									new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
-		this.lambda = Lambda.getInstance();		
-		lambda.init( problem.getNumObjectives());
+		this.asfBundle = ASFBundle.getInstance();		
+		asfBundle.init(problem);
 		
 		this.population = nsgaiii.getPopulation();
 		this.populationSize = population.size();
@@ -57,7 +58,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		this.DMranker = decisionMakerRanker;
 		
 		// Structure for storing intermediate state of algorithm for further analysis, display, etc.
-		ExecutionHistory.getInstance().init(problem, nsgaiii, lambda, decisionMakerRanker);
+		ExecutionHistory.getInstance().init(problem, nsgaiii, asfBundle, decisionMakerRanker);
 		
 		this.generation = 0;
 		this.explorationComparisons = 0;
@@ -79,7 +80,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 
 
 	public int getNumLambdas() {
-		return lambda.getNumLambdas();
+		return asfBundle.getNumLambdas();
 	}
 	
 	/**
@@ -89,25 +90,21 @@ public class RST_NSGAIII extends EA implements Runnable {
 		LOGGER.setLevel(Level.INFO);
 		LOGGER.info("Running NSGAIII with SpreadThreshold.");
 		
-		reachSpreadThresh();
-		System.out.println("SPREAD REACHED GEN: " + generation);
-	
-		//singleObjective();
-		//exploreExploit();
-		shrinkingHyperplane();
-		//exactHyperplane();
-		//exactShrinkHyperplane();
-		exploit();
+//		singleObjective();
+		exploreExploit();
+//		shrinkingHyperplane();
+//		exactHyperplane();
+//		exactShrinkHyperplane();
 		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
 		
 	}
 
 	private void exactHyperplane() {
-		nsgaiii.setNewHyperplane(1e-3, Geometry.dir2point(DMranker.getDirection()));
+		nsgaiii.setNewHyperplane(1e-3, Geometry.dir2point(DMranker.getLambda()));
 		for(int i=0; i<3000; i++){
 			generation++;
 			nsgaiii.nextGeneration();
-			ExecutionHistory.getInstance().update(nsgaiii.getPopulation(), lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(nsgaiii.getPopulation(), asfBundle, nsgaiii.getHyperplane());
 			this.population = nsgaiii.getPopulation();
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
@@ -118,17 +115,17 @@ public class RST_NSGAIII extends EA implements Runnable {
 	}
 
 	private void exactShrinkHyperplane() {
-		lambda.getLambdaPoints().clear();
-		nsgaiii.setNewHyperplane(0.01, Geometry.dir2point(DMranker.getDirection()));
+		asfBundle.getLambdas().clear();
+		nsgaiii.setNewHyperplane(0.01, Geometry.dir2point(DMranker.getLambda()));
 		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
-			lambda.getLambdaPoints().add(rp);
+			asfBundle.getLambdas().add(new Lambda(rp.getDim()));
 		}
 		for(int i=0; i<1500; i++){
 			generation++;
 			nsgaiii.nextGeneration();
 			this.population = nsgaiii.getPopulation();
 			
-			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
 				bestVal = Double.min(bestVal, DMranker.eval(s));
@@ -152,7 +149,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 		for(int i=0; i<3000; i++){
 			generation++;
 			so.nextGeneration();
-			ExecutionHistory.getInstance().update(so.getPopulation(), lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(so.getPopulation(), asfBundle, nsgaiii.getHyperplane());
 			this.population = so.getPopulation();
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
@@ -176,11 +173,14 @@ public class RST_NSGAIII extends EA implements Runnable {
 			generation++;
 			nsgaiii.nextGeneration();
 			this.population = nsgaiii.getPopulation();
-			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 		}		
 	}
 	
 	private void explore() {
+		reachSpreadThresh(); //Perform optimization first to distribute population among large part of objective space and to obtain better quality solutions
+		System.out.println("SPREAD REACHED GEN: " + generation);
+		
 		int split = 0, maxZeroSplits = 5, numZeroSplits = 0, maxExplorComp=20;
 		
 		if(problem.getNumObjectives() == 3){
@@ -199,23 +199,25 @@ public class RST_NSGAIII extends EA implements Runnable {
 		while(numZeroSplits < maxZeroSplits && explorationComparisons < maxExplorComp){
 			generation++;
 			nsgaiii.nextGeneration();
-			this.population = nsgaiii.getPopulation();	
-			split = Elicitator.elicitate(population, DMranker, lambda, p);
+			this.population = nsgaiii.getPopulation();
 			
-			//If first front (nondominated set) consists of only one solution
-			if(split == -1){
-				//Do nothing, just go to next generation
+			//We want to select for comparison only non-dominated solutions, therefore we consider only solutions from first front
+			Population firstFront = NonDominationRanker.sortPopulation(population).get(0);
+			
+			//If first front (nondominated set) consists of at least two solutions try to elicitate
+			if(firstFront.size() > 1){
+				split = Elicitator.elicitate(population, DMranker, asfBundle, p);
+				if(split == 0){
+					numZeroSplits++;
+				}
+				else{
+					numZeroSplits = 0;
+					Elicitator.compare(DMranker, p.first, p.second);
+					explorationComparisons++;
+					asfBundle.nextGeneration();
+				}
 			}
-			else if(split == 0){
-				numZeroSplits++;
-			}
-			else{
-				numZeroSplits = 0;
-				Elicitator.compare(DMranker, p.first, p.second);
-				explorationComparisons++;
-				lambda.nextGeneration();
-			}
-			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 			System.out.println("Exploration: " + generation + " " + explorationComparisons);
 		}
 	}
@@ -240,14 +242,14 @@ public class RST_NSGAIII extends EA implements Runnable {
 			generation++;
 			nextGeneration();
 			if(generation %10 == 0 &&  exploitationComparisons < maxExploitComp){
-				split = Elicitator.elicitate( population, DMranker, lambda, p);
+				split = Elicitator.elicitate( population, DMranker, asfBundle, p);
 				if(split != 0){
 					Elicitator.compare(DMranker, p.first, p.second);
 					exploitationComparisons++;
-					lambda.nextGeneration();
+					asfBundle.nextGeneration();
 				}
 			}
-			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 			maxDist = population.maxDist();
 			System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " " + maxDist);
 		}while(maxDist > 1e-4 && generation < 1500);
@@ -266,7 +268,7 @@ public class RST_NSGAIII extends EA implements Runnable {
 			currentSpread = (double)(nsgaiii.getHyperplane().getNumNiched()) / nsgaiii.getHyperplane().getReferencePoints().size();
 			if(currentSpread > spreadThreshold || generation - lastImprovedGen > maxNumGenWithNoImprovment){
 				size/=4;
-				nsgaiii.setNewHyperplane(size, lambda.getAverageLambdaPoint());
+				nsgaiii.setNewHyperplane(size, asfBundle.getAverageLambdaPoint());
 				maxSpread=0;
 			}
 			if(currentSpread > maxSpread){
@@ -277,17 +279,17 @@ public class RST_NSGAIII extends EA implements Runnable {
 			nsgaiii.nextGeneration();
 			population = nsgaiii.getPopulation();
 			if(generation %10 == 0 &&  exploitationComparisons < 20){
-				split = Elicitator.elicitate( population, DMranker, lambda, p);
+				split = Elicitator.elicitate( population, DMranker, asfBundle, p);
 				if(split != 0){
 					Elicitator.compare(DMranker, p.first, p.second);
 					exploitationComparisons++;
-					lambda.nextGeneration();
+					asfBundle.nextGeneration();
 				}
 			}
 			maxDist = population.maxDist();
 			System.out.println("ShrinkHyperplane: " + generation + " " + exploitationComparisons + " " + size + " " + maxDist);
 			this.population = nsgaiii.getPopulation();
-			ExecutionHistory.getInstance().update(population, lambda, nsgaiii.getHyperplane());
+			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 		}
 	}
 }

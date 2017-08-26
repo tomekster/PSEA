@@ -8,11 +8,12 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import core.Lambda;
+import core.ASFBundle;
 import core.Population;
 import core.Problem;
 import core.algorithm.NSGAIII;
 import core.hyperplane.Hyperplane;
+import core.points.Lambda;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import preferences.PreferenceCollector;
@@ -30,7 +31,7 @@ public class ExecutionHistory implements Serializable {
 	protected ExecutionHistory(){
 		// Exists only to defeat instantiation.
 		this.generations = new ArrayList<>();
-		this.lambdaPoints = new ArrayList< ArrayList<ReferencePoint> >();
+		this.lambdas = new ArrayList< ArrayList<Lambda> >();
 		this.hyperplanePoints = new ArrayList< ArrayList<ReferencePoint> >();
 		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
@@ -50,7 +51,7 @@ public class ExecutionHistory implements Serializable {
 	
 	private Population targetPoints;
 	private ArrayList<Population> generations;
-	private ArrayList< ArrayList<ReferencePoint> > lambdaPoints;
+	private ArrayList< ArrayList<Lambda> > lambdas;
 	private ArrayList <ArrayList<ReferencePoint> > hyperplanePoints;
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
@@ -79,14 +80,14 @@ public class ExecutionHistory implements Serializable {
 		return generations.get(pos);
 	}
 
-	public ArrayList< ArrayList<ReferencePoint> > getLambdaPointsHistory() {
-		return lambdaPoints;
+	public ArrayList< ArrayList<Lambda> > getLambdasHistory() {
+		return lambdas;
 	}
-	public ArrayList<ReferencePoint> getLambdaPoints(int id){
-		return lambdaPoints.get(id);
+	public ArrayList<Lambda> getLambdas(int id){
+		return lambdas.get(id);
 	}
-	public void addLambdaPoints(ArrayList<ReferencePoint>  lambdaPoints){
-		this.lambdaPoints.add(lambdaPoints);
+	public void addLambdas(ArrayList<Lambda>  lambdas){
+		this.lambdas.add(lambdas);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
@@ -173,19 +174,19 @@ public class ExecutionHistory implements Serializable {
 
 	public void clear() {
 		generations = new ArrayList<>();
-		lambdaPoints = new ArrayList< ArrayList<ReferencePoint> >();
+		lambdas = new ArrayList< ArrayList<Lambda> >();
 		bestChebSol = new ArrayList <Solution>();
 		bestChebVal = new ArrayList <Double>();
 	}
 
-	public void init(Problem problem, NSGAIII nsgaiii, Lambda lambda, ChebyshevRanker decisionMakerRanker) {
+	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle lambda, ChebyshevRanker decisionMakerRanker) {
 		clear();
 		setPopulationSize(nsgaiii.getPopulation().size());
 		setProblem(problem);
 		setNumVariables(problem.getNumVariables());
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
-		addLambdaPoints(lambda.getLambdaPoints());
+		addLambdas(lambda.getLambdas());
 		addHyperplanePoints(nsgaiii.getHyperplane());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
@@ -202,10 +203,10 @@ public class ExecutionHistory implements Serializable {
 		return this.problem;
 	}
 	
-	public void update(Population population, Lambda lambda, Hyperplane hp) {
+	public void update(Population population, ASFBundle lambda, Hyperplane hp) {
 		addGeneration(population.copy());
-		ArrayList <ReferencePoint> lambdasCopy = new ArrayList <> (lambda.getLambdaPoints()); 
-		addLambdaPoints(lambdasCopy);
+		ArrayList <Lambda> lambdasCopy = new ArrayList <> (lambda.getLambdas()); 
+		addLambdas(lambdasCopy);
 		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
 		addHyperplanePoints(hp);
 	}

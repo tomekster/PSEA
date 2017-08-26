@@ -7,21 +7,21 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
+import core.points.Lambda;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import solutionRankers.SolutionsBordaRanker;
 import utils.Geometry;
-import utils.MyMath;
 import utils.TestingUtils;
 
-public class LambdaTest {
+public class ASFBundleTest {
 
 	double var[] = new double[0];
-	double obj1[] = { 3, 6 };
-	double obj2[] = { 6, 6 };
-	double obj3[] = { 7, 3 };
-	double dim1[] = { 3, 2 };
-	double dim2[] = { 2, 4 };
+	double obj1[] = { 1/0.3, 1/0.6 };
+	double obj2[] = { 1/0.6, 1/0.6 };
+	double obj3[] = { 1/0.7, 1/0.3 };
+	double dim1[] = { 1/0.3, 1/0.2 };
+	double dim2[] = { 1/0.2, 1/0.4 };
 
 	Population pop = new Population();
 
@@ -39,7 +39,7 @@ public class LambdaTest {
 
 	@Test
 	public void buildSolutionRankingTest1() {
-		ReferencePoint lambda = new ReferencePoint(Geometry.dir2point(dim1));
+		Lambda lambda = new Lambda(dim1);
 		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
 
 		TestingUtils.assertDoubleArrayEquals(obj3, res.get(0).getObjectives());
@@ -49,7 +49,7 @@ public class LambdaTest {
 
 	@Test
 	public void buildSolutionRankingTest2() {
-		ReferencePoint lambda = new ReferencePoint(Geometry.dir2point(dim2));
+		Lambda lambda = new Lambda(dim2);
 		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
 
 		TestingUtils.assertDoubleArrayEquals(obj1, res.get(0).getObjectives());
@@ -59,15 +59,15 @@ public class LambdaTest {
 	
 	@Test
 	public void bestWorseCVTest(){
-		ArrayList<ReferencePoint> newLambdas = new ArrayList<>();
+		ArrayList<Lambda> newLambdas = new ArrayList<>();
 		double dim[] = {0};
-		ReferencePoint rp1 = new ReferencePoint(dim);
-		ReferencePoint rp2 =new ReferencePoint(dim);
-		rp1.setNumViolations(1);
-		rp2.setNumViolations(2);
-		newLambdas.add(rp1);
-		newLambdas.add(rp2);
-		assertEquals(1, newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).min().getAsInt());
-		assertEquals(2, newLambdas.stream().mapToInt(ReferencePoint::getNumViolations).max().getAsInt());
+		Lambda l1 = new Lambda(dim);
+		Lambda l2 = new Lambda(dim);
+		l1.setNumViolations(1);
+		l2.setNumViolations(2);
+		newLambdas.add(l1);
+		newLambdas.add(l2);
+		assertEquals(1, newLambdas.stream().mapToInt(Lambda::getNumViolations).min().getAsInt());
+		assertEquals(2, newLambdas.stream().mapToInt(Lambda::getNumViolations).max().getAsInt());
 	}
 }

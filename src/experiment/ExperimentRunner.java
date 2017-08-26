@@ -14,7 +14,7 @@ import core.Population;
 import core.Problem;
 import core.algorithm.RST_NSGAIII;
 import core.algorithm.SingleObjectiveEA;
-import core.points.ReferencePoint;
+import core.points.Lambda;
 import core.points.Solution;
 import history.ExecutionHistory;
 import preferences.PreferenceCollector;
@@ -86,7 +86,7 @@ public class ExperimentRunner {
 	}
 
 	private static void runSingleObjectiveExperiment(Problem p, ChebyshevRanker cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
-		SingleObjectiveEA so = new SingleObjectiveEA(p, cr, 100);
+		SingleObjectiveEA so = new SingleObjectiveEA(p, cr);
 //		System.out.println("Lambda: " + Arrays.toString(cr.getLambda()));
 //		System.out.println("Target: " + Arrays.toString(p.getTargetPoint(cr.getLambda())));
 		int numGen=1500;
@@ -96,11 +96,11 @@ public class ExperimentRunner {
 			minChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).min().getAsDouble());
 			avgChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).sum()/so.getPopulation().size());
 			double var [] = new double[0];
-			modelChebDist.add(cr.eval(new Solution(var, p.getTargetPoint(cr.getDirection()))));
+			modelChebDist.add(cr.eval(new Solution(var, p.getTargetPoint(cr.getLambda()))));
 			
 			//EuclidianDist
-			minEucDist.add(MyMath.getMinDist(p.getTargetPoint(cr.getDirection()), so.getPopulation()));
-			avgEucDist.add(MyMath.getAvgDist(p.getTargetPoint(cr.getDirection()), so.getPopulation())); 
+			minEucDist.add(MyMath.getMinDist(p.getTargetPoint(cr.getLambda()), so.getPopulation()));
+			avgEucDist.add(MyMath.getAvgDist(p.getTargetPoint(cr.getLambda()), so.getPopulation())); 
 			modelEucDist.add(.0);
 			
 			so.nextGeneration();
@@ -127,7 +127,7 @@ public class ExperimentRunner {
 			}
 			writer.close();
 		} catch (IOException e) {
-			System.out.println("ERROR");
+			System.out.println("Error! Cannot write results to file...");
 		}
 		System.out.println(minEucDist.get(minEucDist.size() - 1) + ", " + avgEucDist.get(avgEucDist.size() - 1));
 	}
@@ -141,11 +141,11 @@ public class ExperimentRunner {
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		for(int i=0; i < history.getGenerations().size(); i++){
 			Population pop = history.getGeneration(i);
-			ArrayList <ReferencePoint> lambdaPoints = history.getLambdaPoints(i);
-			minDist.add(MyMath.getMinDist(p.getTargetPoint(decisionMakerRanker.getDirection()), pop));
-			avgDist.add(MyMath.getAvgDist(p.getTargetPoint(decisionMakerRanker.getDirection()), pop));
-			double targetDir[] = decisionMakerRanker.getDirection();
-			modelDist.add(lambdaPoints.stream().mapToDouble(rp -> Geometry.dirDist(targetDir, rp.getDirection())).min().getAsDouble());
+			ArrayList <Lambda> lambdas = history.getLambdas(i);
+			minDist.add(MyMath.getMinDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
+			avgDist.add(MyMath.getAvgDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
+			double targetDir[] = decisionMakerRanker.getLambda();
+			modelDist.add(lambdas.stream().mapToDouble(lambda -> Geometry.dirDist(targetDir, lambda.getDim())).min().getAsDouble());
 		}
 		Evaluator.evaluateRun(p, decisionMakerRanker, alg.getPopulation());
 		System.out.println("Final min: " + history.getFinalMinDist());

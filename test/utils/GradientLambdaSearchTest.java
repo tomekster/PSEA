@@ -7,8 +7,8 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import core.Lambda;
-import core.points.ReferencePoint;
+import core.ASFBundle;
+import core.points.Lambda;
 import core.points.Solution;
 import preferences.PreferenceCollector;
 public class GradientLambdaSearchTest {
@@ -199,9 +199,9 @@ public class GradientLambdaSearchTest {
 		
 		double mid = (intervals.get(0).getBeg() + intervals.get(0).getEnd()) / 2;
 		double dim[] = Geometry.linearCombination(l1, l2, mid);
-		ReferencePoint middle = new ReferencePoint(dim);
-		int eval = Lambda.evaluateLambdaPoint(middle);
-		Lambda.evaluateLambdaPoint(middle);
+		Lambda middle = new Lambda(dim);
+		int eval = ASFBundle.evaluateLambda(middle);
+		ASFBundle.evaluateLambda(middle);
 		assertEquals(0, eval);
 		
 		//Best interval (wrong) CV=1 , [0,0]

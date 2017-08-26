@@ -44,6 +44,7 @@ import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
 import core.Population;
+import core.points.Lambda;
 import core.points.ReferencePoint;
 import core.points.Solution;
 import history.ExecutionHistory;
@@ -273,11 +274,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(ReferencePoint rp : ExecutionHistory.getInstance().getLambdaPoints(generationId)){
+		for(Lambda lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
-				newDesign.setValue(this.parameters.get(i), String.valueOf(rp.getDim(i)));
+				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getDim(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);
@@ -475,11 +476,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(ReferencePoint lambdaPoint : ExecutionHistory.getInstance().getLambdaPoints(generationId)){
+		for(Lambda lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
-				newDesign.setValue(this.parameters.get(i), String.valueOf(lambdaPoint.getDim(i)));
+				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getDim(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);
