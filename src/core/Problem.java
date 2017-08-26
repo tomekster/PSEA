@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 import core.algorithm.SingleObjectiveEA;
 import core.points.Solution;
-import operators.impl.crossover.SBX;
-import operators.impl.mutation.PolynomialMutation;
-import operators.impl.selection.BinaryTournament;
 import problems.dtlz.DTLZ4;
 import solutionRankers.ChebyshevRanker;
 import utils.Geometry;
@@ -94,16 +91,14 @@ public abstract class Problem implements Serializable {
 			}
 			lambdaDirection[optimizedDim] = 1;
 			ChebyshevRanker cr = new ChebyshevRanker(lambdaDirection);
-			int numGenerations = 100;
 			
 			SingleObjectiveEA so = new SingleObjectiveEA(	
 				this,
-				cr,
-				90 //population size
+				cr
 			);
-			for(int i=0; i < numGenerations; i++){
-				so.nextGeneration();
-			}
+			
+			so.run();
+			
 			//Workaround for inner class error
 		    final int dummyOptimizedDim = optimizedDim;
 			idealPoint[optimizedDim] = so.getPopulation().getSolutions().stream().mapToDouble(s -> s.getObjective(dummyOptimizedDim)).min().getAsDouble();

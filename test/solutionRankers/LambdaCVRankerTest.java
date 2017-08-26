@@ -1,14 +1,15 @@
 package solutionRankers;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import core.points.ReferencePoint;
-import static org.junit.Assert.*;
+import core.points.Lambda;
 
 public class LambdaCVRankerTest {
 	@Test
 	public void compareTest(){
-		ReferencePoint a = new ReferencePoint(2), b = new ReferencePoint(2);
+		Lambda a = new Lambda(2), b = new Lambda(2);
 		a.setNumViolations(2);
 		b.setNumViolations(3);
 		a.setPenalty(10);

@@ -38,7 +38,7 @@ import core.Evaluator;
 import core.Population;
 import core.Problem;
 import core.algorithm.RST_NSGAIII;
-import core.points.ReferencePoint;
+import core.points.Lambda;
 import core.points.Solution;
 import history.ExecutionHistory;
 import preferences.Comparison;
@@ -473,14 +473,14 @@ public class MainWindow {
 
 	private XYDataset createDatasetOnHyperplane() {
 		ArrayList<Population> generationsHistory = history.getGenerations();
-		ArrayList<ArrayList<ReferencePoint>> lambdaPointsHistory = history.getLambdaPointsHistory();
+		ArrayList<ArrayList<Lambda>> lambdaPointsHistory = history.getLambdasHistory();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (lambdaPointsHistory != null) {
 			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
-			ArrayList<ReferencePoint> lambdaDirections= lambdaPointsHistory.get(currentPopulationId);
+			ArrayList<Lambda> lambdas= lambdaPointsHistory.get(currentPopulationId);
 			
-			ArrayList<XYSeries> series = createReferencePointsSeries(generation, lambdaDirections, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
+			ArrayList<XYSeries> series = createReferencePointsSeries(generation, lambdas, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -502,7 +502,7 @@ public class MainWindow {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ArrayList<ReferencePoint> lambda, ArrayList<Comparison> comparisons) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ArrayList<Lambda> lambdas, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
 		XYSeries generationSeries= new XYSeries("Preference generation");
 		XYSeries lambdaSeries = new XYSeries("Lambdas");
@@ -519,8 +519,8 @@ public class MainWindow {
 		}
 		
 		if(showLambda){
-			for (ReferencePoint rp : lambda) {
-				t = Geometry.cast3dPointToPlane(rp.getDim());
+			for (Lambda lambda : lambdas) {
+				t = Geometry.cast3dPointToPlane(lambda.getDim());
 				lambdaSeries.add(t[0], t[1]);		
 			}
 		}

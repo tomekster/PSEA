@@ -7,7 +7,6 @@ import java.util.Comparator;
 
 import core.Population;
 import core.points.Solution;
-import utils.Geometry;
 import utils.Pair;
 
 public class ChebyshevRanker implements Serializable, Comparator<Solution>{
@@ -17,7 +16,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 	 */
 	private static final long serialVersionUID = -6759292394593558688L;
 	//TODO - test Tchebyshev function  
-	private double direction[];
+	private double lambda[];
 	private static double rho;
 	private double refPoint[];
 	private String name;
@@ -27,7 +26,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 			throw new RuntimeException();
 		}
 		this.refPoint = refPoint;
-		this.direction = lambda;
+		this.lambda = lambda;
 		ChebyshevRanker.rho = 0.0001;
 		this.setName(name);
 	}
@@ -37,7 +36,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 	}
 	
 	public double eval(Solution s){
-		return eval(s, this.refPoint, this.direction);
+		return eval(s, this.refPoint, this.lambda);
 	}
 	
 	public Population sortPopulation(Population pop){
@@ -50,9 +49,9 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		return pop;
 	}
 	
-	public static int compareSolutions(Solution s1, Solution s2, double refPoint[], double lambdaDirection[]){
-		double val1 = eval(s1, refPoint, lambdaDirection);
-		double val2 = eval(s2, refPoint, lambdaDirection);
+	public static int compareSolutions(Solution s1, Solution s2, double refPoint[], double lambda[]){
+		double val1 = eval(s1, refPoint, lambda);
+		double val2 = eval(s2, refPoint, lambda);
 		if ( val1 < val2 )
 			return -1;
 		else if ( val1 > val2 )
@@ -62,16 +61,16 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 	}
 	
 	//TODO - swap eval
-	public static double eval(Solution s, double refPoint[], double lambdaDirection[]){
-		return classicEval(s, refPoint, lambdaDirection);
-//		return sternalEval(s, refPoint, lambdaDirection);
-//		return slowinskiEval(s, refPoint, lambdaDirection);
-//		return lpEval(s, refPoint, lambdaDirection, 4);
+	public static double eval(Solution s, double refPoint[], double lambda[]){
+		return classicEval(s, refPoint, lambda);
+//		return sternalEval(s, refPoint, lambda);
+//		return slowinskiEval(s, refPoint, lambda);
+//		return lpEval(s, refPoint, lambda, 4);
 	}
 	
-	public static double classicEval(Solution s, double refPoint[], double lambdaDirection[]){
+	public static double classicEval(Solution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
-			refPoint = new double[lambdaDirection.length];
+			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
 		}
 		double res = -Double.MAX_VALUE;
@@ -81,7 +80,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 			System.out.println("TODO");
 		}
 		for(int i=0; i<s.getNumObjectives(); i++){
-			double mult = lambdaDirection[i] * (s.getObjective(i) - refPoint[i]);
+			double mult = lambda[i] * (s.getObjective(i) - refPoint[i]);
 			res = Double.max(mult, res);
 			sum += mult;
 		}
@@ -89,9 +88,9 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public static double sternalEval(Solution s, double refPoint[], double lambdaDirection[]){
+	public static double sternalEval(Solution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
-			refPoint = new double[lambdaDirection.length];
+			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
 		}
 		double res = -Double.MAX_VALUE;
@@ -101,7 +100,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 			System.out.println("TODO");
 		}
 		for(int i=0; i<s.getNumObjectives(); i++){
-			double mult = lambdaDirection[i] * (s.getObjective(i) - refPoint[i]);
+			double mult = lambda[i] * (s.getObjective(i) - refPoint[i]);
 			res = Double.max(mult, res);
 			sum += mult;
 		}
@@ -109,9 +108,9 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public static double slowinskiEval(Solution s, double refPoint[], double lambdaDirection[]){
+	public static double slowinskiEval(Solution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
-			refPoint = new double[lambdaDirection.length];
+			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
 		}
 		double res = -Double.MAX_VALUE;
@@ -122,7 +121,7 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		}
 		double mult[] = new double[s.getNumObjectives()];
 		for(int i=0; i<s.getNumObjectives(); i++){
-			mult[i] = lambdaDirection[i] * (s.getObjective(i) - refPoint[i]);
+			mult[i] = lambda[i] * (s.getObjective(i) - refPoint[i]);
 			res = Double.max(mult[i], res);
 			sum += mult[i];
 		}
@@ -132,16 +131,16 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public static double lpEval(Solution s, double refPoint[], double lambdaDirection[], double p){
+	public static double lpEval(Solution s, double refPoint[], double lambda[], double p){
 		if(null == refPoint){
-			refPoint = new double[lambdaDirection.length];
+			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
 		}
 		double res = 0;
 		double sum = 0;
 		double mult[] = new double[s.getNumObjectives()];
 		for(int i=0; i<s.getNumObjectives(); i++){
-			mult[i] = lambdaDirection[i] * (s.getObjective(i) - refPoint[i]);
+			mult[i] = lambda[i] * (s.getObjective(i) - refPoint[i]);
 			res += Math.pow(mult[i], p);
 			sum += mult[i];
 		}
@@ -164,10 +163,14 @@ public class ChebyshevRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 
-	public double[] getDirection() {
-		return direction;
+	public double[] getLambda() {
+		return lambda;
 	}
 
+	public static double getRho() {
+		return ChebyshevRanker.rho;
+	}
+	
 	public String getName() {
 		return name;
 	}

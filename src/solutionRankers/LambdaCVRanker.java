@@ -2,17 +2,17 @@ package solutionRankers;
 
 import java.util.Comparator;
 
-import core.points.ReferencePoint;
+import core.points.Lambda;
 
-public class LambdaCVRanker implements Comparator <ReferencePoint>{
+public class LambdaCVRanker implements Comparator <Lambda>{
 
 	@Override
-	public int compare(ReferencePoint lambda1, ReferencePoint lambda2) {
-		return lambda1.getNumViolations() == lambda2.getNumViolations() ? 
+	public int compare(Lambda l1, Lambda l2) {
+		return l1.getNumViolations() == l2.getNumViolations() ? 
 				//TODO
-				Double.compare(lambda1.getPenalty(), lambda2.getPenalty()) //Smaller penalty = better
+				Double.compare(l1.getPenalty(), l2.getPenalty()) //Smaller penalty = better
 //				Double.compare(MyMath.variance(lambda1.getDim()), MyMath.variance(lambda2.getDim())) //Smaller variance = better
 				: 
-				Integer.compare(lambda1.getNumViolations(), lambda2.getNumViolations()); //Smaller numViolations = better
+				Integer.compare(l1.getNumViolations(), l2.getNumViolations()); //Smaller numViolations = better
 	}
 }

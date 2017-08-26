@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import core.Lambda;
+import core.ASFBundle;
 import core.Population;
+import core.points.Lambda;
 import core.points.ReferencePoint;
 import core.points.Solution;
-import utils.Geometry;
 import utils.Pair;
 
 public class SolutionsBordaRanker implements Comparator<Solution>{
@@ -39,24 +39,24 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 
 	private HashMap<Solution, Integer> getBordaPointsForSolutions(Population pop) {
 		HashMap<Solution, Integer> bordaPointsMap = new HashMap<>();
-		for (ReferencePoint lambdaPoint : Lambda.getInstance().getLambdaPoints()) {
-			ArrayList<Solution> ranking = buildSolutionsRanking(lambdaPoint, pop);
+		for (Lambda lambda : ASFBundle.getInstance().getLambdas()) {
+			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
 			assert ranking.size() == pop.size();
 			for (int i = 0; i < ranking.size(); i++) {
 				Solution s = ranking.get(i);
 				if (!bordaPointsMap.containsKey(s)) {
 					bordaPointsMap.put(s, 0);
 				}
-				bordaPointsMap.put(s, bordaPointsMap.get(s) + (ranking.size() - i)/(lambdaPoint.getNumViolations() + 1));
+				bordaPointsMap.put(s, bordaPointsMap.get(s) + (ranking.size() - i)/(lambda.getNumViolations() + 1));
 			}
 		}
 		return bordaPointsMap;
 	}
 
-	public static ArrayList<Solution> buildSolutionsRanking(ReferencePoint lambdaPoint, Population pop) {
+	public static ArrayList<Solution> buildSolutionsRanking(Lambda lambda, Population pop) {
 		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
 		for (Solution s : pop.getSolutions()) {
-			double chebyshevValue = ChebyshevRanker.eval(s, null, lambdaPoint.getDirection());
+			double chebyshevValue = ChebyshevRanker.eval(s, null, lambda.getDim());
 			solutionValuePairs.add(new Pair<Solution, Double>(s, chebyshevValue));
 		}
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>() {
@@ -78,8 +78,8 @@ public class SolutionsBordaRanker implements Comparator<Solution>{
 	@Override
 	public int compare(Solution s1, Solution s2) {
 		int v1=0, v2=0;
-		for(ReferencePoint lambdaPoint : Lambda.getInstance().getLambdaPoints()){
-			int cmp = ChebyshevRanker.compareSolutions(s1, s2, null, lambdaPoint.getDirection());
+		for(Lambda lambda : ASFBundle.getInstance().getLambdas()){
+			int cmp = ChebyshevRanker.compareSolutions(s1, s2, null, lambda.getDim());
 			if(cmp < 0) v1++;
 			else if(cmp >0) v2++;
 		}

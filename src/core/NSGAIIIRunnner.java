@@ -9,7 +9,6 @@ import solutionRankers.ChebyshevRanker;
 import solutionRankers.ChebyshevRankerBuilder;
 
 public class NSGAIIIRunnner {
-	
 	public static void runNSGAIII() {
 		ExecutionHistory.getInstance().clear();
 		NSGAIIIParameters params = NSGAIIIParameters.getInstance();
@@ -48,7 +47,4 @@ public class NSGAIIIRunnner {
 		System.out.println("Generation min: " + history.getFinalMinDist());
 		System.out.println("Generation avg: " + history.getFinalAvgDist());
 	}
-	
 }
-
-	
