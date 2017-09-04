@@ -44,7 +44,7 @@ public class NSGAIII extends EA {
 		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
 		
 		Population allButLastFront = new Population();
-		Population lastFront = null;
+		Population lastFront = new Population();
 		
 		for (Population front : fronts) {
 			if (allButLastFront.size() + front.size() > populationSize) {
@@ -55,7 +55,7 @@ public class NSGAIII extends EA {
 		}
 			
 		assert allButLastFront.size() <= populationSize;
-		assert allButLastFront.size() + lastFront.size() >= populationSize;
+		assert allButLastFront.size() + lastFront.size() > populationSize;
 		
 		Population res;
 		if (allButLastFront.size() == populationSize) {

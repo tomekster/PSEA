@@ -66,14 +66,14 @@ public abstract class Problem implements Serializable {
 		}
 	}
 	
-	public double[] getTargetPoint(double[] lambda){
+	public double[] getTargetPoint(double[] pointOnLine){
 		switch(this.name){
 		case "DTLZ1":
-			return Geometry.lineCrossDTLZ1HyperplanePoint(lambda);
+			return Geometry.lineCrossDTLZ1HyperplanePoint(pointOnLine);
 		case "DTLZ2":
 		case "DTLZ3":
 		case "DTLZ4":
-			return Geometry.lineCrossDTLZ234HyperspherePoint(lambda);
+			return Geometry.lineCrossDTLZ234HyperspherePoint(pointOnLine);
 		}
 		return null;
 	}

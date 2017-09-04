@@ -30,9 +30,8 @@ public abstract class DTLZ extends Problem{
 		Population res = new Population();
 		Hyperplane h = new Hyperplane(this.getNumObjectives());
 		ArrayList <ReferencePoint> referencePoints = h.getReferencePoints();
-		double var[] = new double[0];
 		for(ReferencePoint r : referencePoints){
-			res.addSolution(new Solution(var, getTargetPoint(r.getDim())));
+			res.addSolution(new Solution(r.getDim(), getTargetPoint(r.getDim())));
 		}
 		return res;
 	}

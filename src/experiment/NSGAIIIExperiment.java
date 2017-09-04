@@ -9,6 +9,7 @@ import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.nsgaiii.NSGAIII;
+import algorithm.nsgaiii.ReferencePoint;
 import algorithm.rankers.NonDominationRanker;
 import experiment.metrics.IGD;
 import problems.Problem;
@@ -16,7 +17,7 @@ import problems.dtlz.DTLZ1;
 
 public class NSGAIIIExperiment {
 	
-	private static final double DEFAULT_NUM_GENERATIONS = 350;
+	private static final double DEFAULT_NUM_GENERATIONS = 2000;
 	
 	public static void main(String [] args){
 		
@@ -44,6 +45,13 @@ public class NSGAIIIExperiment {
 		System.out.println("First front IGD = " + igd);
 		igd = IGD.execute(problem.getReferenceFront(), finalPop);
 		System.out.println("Whole pop IGD = " + igd);
+		
+		Population target = new Population();
+		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
+			target.addSolution(new Solution(rp.getDim(), rp.getDim()));
+		}
+		igd = IGD.execute(target, finalPop);
+		System.out.println("ReferencePoint IGD = " + igd);
 	}
 
 	private static void writeVisualizatoinData(String filename, Population referenceFront, Population firstFront) {
