@@ -35,14 +35,9 @@ public class Geometry {
 
 		int numDim = P.length;
 
-		if (numDim < 2) {
-			throw new RuntimeException("Space needs to be at least two dimensional");
-		}
+		if (numDim < 2) { throw new RuntimeException("Space needs to be at least two dimensional");}
 
-		double max = -Double.MAX_VALUE;
-		for (double d : B) {
-			max = Math.max(max, Math.abs(d));
-		}
+		double max = Arrays.stream(B).max().getAsDouble();
 		if (max < EPS) {
 			String s = "";
 			for(int i=0; i<B.length; i++){
@@ -51,21 +46,13 @@ public class Geometry {
 			throw new RuntimeException("Line represented by degenerated vector (B = 0)\n B: [" + s + "]\n");
 		}
 
-		// Define zero point
-		double zero[] = new double[numDim];
-
 		double t = dot(P, B) / dot(B, B);
 
 		double resVector[] = new double[numDim];
 		for (int i = 0; i < numDim; i++) {
 			resVector[i] = P[i] - t * B[i];
-			zero[i] = 0.0;
 		}
-		double dist = euclideanDistance(zero, resVector); 
-		if(! (dist < Double.MAX_VALUE) ){
-			System.out.println("Wrong distance error");
-		}
-		return dist;
+		return Math.sqrt(Geometry.dot(resVector,resVector)); 
 	}
 
 	public static double euclideanDistance(double[] P1, double[] P2) {

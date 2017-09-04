@@ -113,10 +113,10 @@ public class Hyperplane {
 		}
 	}
 	
-	public void associate(Population nichedSolutions, Population lastFrontSolutions){
+	public void associate(Population allButLastFront, Population lastFront){
 		resetAssociations();
-		associate(nichedSolutions, false);
-		associate(lastFrontSolutions, true);
+		associate(allButLastFront, false);
+		associate(lastFront, true);
 	}
 	
 	public void associate(Population population, boolean lastFront) {
@@ -126,15 +126,11 @@ public class Hyperplane {
 			assert !referencePoints.isEmpty();
 			for (ReferencePoint curRefPoint : referencePoints) {
 				double dist = Geometry.pointLineDist(s.getObjectives(), curRefPoint.getDim());
-				assert dist != Double.NaN;
-				assert dist < Double.MAX_VALUE;
+				assert !Double.isNaN(dist);
 				if (dist < minDist) {
 					minDist = dist;
 					bestRefPoint = curRefPoint;
 				}
-			}
-			if(bestRefPoint == null){
-				System.out.println("Best ref point error");
 			}
 			assert bestRefPoint != null;
 			if(lastFront){

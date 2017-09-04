@@ -57,13 +57,11 @@ public class NSGAIII extends EA {
 		assert allButLastFront.size() <= populationSize;
 		assert allButLastFront.size() + lastFront.size() > populationSize;
 		
-		Population res;
 		if (allButLastFront.size() == populationSize) {
-			res = allButLastFront;
+			return allButLastFront;
 		} else {
-			res = chooseSolutionsFromLastFront(allButLastFront, lastFront);
+			return chooseSolutionsFromLastFront(allButLastFront, lastFront);
 		}
-		return res;
 	}
 
 	private Population chooseSolutionsFromLastFront(Population allButLastFront, Population lastFront) {

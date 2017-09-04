@@ -5,23 +5,11 @@ import algorithm.geneticAlgorithm.Solution;
 import utils.math.Geometry;
 
 public class IGD {
-
 	public static double execute(Population targetParetoFront, Population nonDominatedFront){
-		double res = 0;
+		double sum = 0;
 		for(Solution s : targetParetoFront.getSolutions()){
-			res += minDist(s, nonDominatedFront);
+			sum += nonDominatedFront.getSolutions().stream().mapToDouble(sol -> Geometry.euclideanDistance(s.getObjectives(), sol.getObjectives())).min().getAsDouble();
 		}
-		return res/targetParetoFront.size();
-	}
-
-	//Finds distance between targetSolution and closes points from Population pop 
-	private static double minDist(Solution targetSolution, Population pop) {
-		double minDist = Double.MAX_VALUE;
-		for(Solution curSolution: pop.getSolutions()){
-			double curDist = Geometry.euclideanDistance(targetSolution.getObjectives(), curSolution.getObjectives());
-			minDist = Double.min(curDist, minDist);
-		}
-		return minDist;
-	}
-	
+		return sum/targetParetoFront.size();
+	}	
 }

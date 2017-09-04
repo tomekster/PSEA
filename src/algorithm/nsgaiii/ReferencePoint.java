@@ -5,7 +5,6 @@ import java.util.PriorityQueue;
 
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.Association;
-import utils.math.Geometry;
 
 public class ReferencePoint extends Solution implements Serializable{
 	/**

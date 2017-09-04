@@ -10,6 +10,7 @@ import algorithm.nsgaiii.hyperplane.Association;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import utils.math.DegeneratedMatrixException;
 import utils.math.GaussianElimination;
+import utils.math.Geometry;
 
 /***
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
@@ -23,9 +24,13 @@ public class EnvironmentalSelection {
 		allFronts.addSolutions(lastFront);
 		
 		normalize(numObjectives, allFronts);
+		for(int i=0; i<numObjectives; i++){
+			final int j = i;
+			assert allFronts.getSolutions().stream().mapToDouble(s -> s.getObjective(j)).min().getAsDouble() == 0;
+		}
+		
 		hyperplane.associate(allButLastFront, lastFront);
-		Population res = niching(allButLastFront, lastFront, k, hyperplane);
-		return res;
+		return niching(allButLastFront, lastFront, k, hyperplane);
 	}
 
 	public static void normalize(int numObjectives, Population allFronts) {
@@ -42,7 +47,7 @@ public class EnvironmentalSelection {
 			}
 		}
 
-		double invertedIntercepts[] = findIntercepts(numObjectives, allFronts);
+		double invertedIntercepts[] = findInvertedIntercepts(numObjectives, allFronts);
 		
 		for (Solution s : allFronts.getSolutions()) {
 			for (int i = 0; i < numObjectives; i++) {
@@ -51,33 +56,23 @@ public class EnvironmentalSelection {
 		}
 	}
 	
-	private static double[] alternativeIntercepts(int numObjectives, Population allFronts){
-		double coef[] = new double[numObjectives];
-		for (int i = 0; i < numObjectives; i++) {
-			double worstObjectives[] = findWorstObjectives(numObjectives, allFronts);
-			coef[i] = 1.0 / worstObjectives[i];
-		}
-		return coef;
+	private static double[] alternativeInvertedIntercepts(int numObjectives, Population allFronts){
+		return Geometry.invert(findWorstObjectives(numObjectives, allFronts));
 	}
 
 	private static double[] findWorstObjectives(int numObjectives, Population allFronts) {
 		double res[] = new double[numObjectives];
 		for(int i=0; i<numObjectives; i++){
-			res[i] = -Double.MAX_VALUE;
-		}
-		for(Solution s : allFronts.getSolutions()){
-			for(int i=0; i<numObjectives; i++){
-				res[i] = Double.max(res[i], s.getObjective(i));
-			}
+			final int j = i;
+			res[j] = allFronts.getSolutions().stream().mapToDouble(s -> s.getObjective(j)).max().getAsDouble();
 		}
 		return res;
 	}
 
-	private static double[] findIntercepts(int numObjectives, Population allFronts){
+	private static double[] findInvertedIntercepts(int numObjectives, Population allFronts){
 		Population extremePoints = computeExtremePoints(allFronts, numObjectives);
 		
 		int n = extremePoints.size();
-		double coef[] = null;
 
 		boolean duplicate = false;
 		for (int i = 0; !duplicate && i < n; i++) {
@@ -86,42 +81,43 @@ public class EnvironmentalSelection {
 			}
 		}
 
-		if (!duplicate) {
-			coef = new double[n];
-
-			double a[][] = new double[n][n];
-			double b[] = new double[n];
-			for (int i = 0; i < n; i++) {
-				b[i] = 1.0;
-				for (int j = 0; j < n; j++) {
-					a[i][j] = extremePoints.getSolution(i).getObjective(j);
-				}
-			}
-
-			try{
-				coef = GaussianElimination.execute(a, b);
-			} catch(DegeneratedMatrixException e){
-				return alternativeIntercepts(numObjectives, allFronts);
-			}
-			
-			for (int i = 0; i < n; i++) {
-				if (coef[i] < 0){
-					return alternativeIntercepts(numObjectives, allFronts);
-				}
-			}
-
-			/**
-			 * Loop beneath was commented, because since b[i] = 1 for all i and
-			 * just after returning from this method we divide each solutions
-			 * objective value by corresponding intercept value it is better to
-			 * return inversed intercept values (by omitting division by b[i]),
-			 * and multiply objective value instead of dividing it.
-			 */
-
-			/*
-			 * for(int i = 0; i < n; i++){ coef[i] /= b[i]; }
-			 */
+		if(duplicate){
+			return alternativeInvertedIntercepts(numObjectives, allFronts);
 		}
+
+		double coef[] = new double[n];
+		double a[][] = new double[n][n];
+		double b[] = new double[n];
+		for (int i = 0; i < n; i++) {
+			b[i] = 1.0;
+			for (int j = 0; j < n; j++) {
+				a[i][j] = extremePoints.getSolution(i).getObjective(j);
+			}
+		}
+
+		try{
+			coef = GaussianElimination.execute(a, b);
+		} catch(DegeneratedMatrixException e){
+			return alternativeInvertedIntercepts(numObjectives, allFronts);
+		}
+			
+		for (int i = 0; i < n; i++) {
+			if (coef[i] < 0){
+				return alternativeInvertedIntercepts(numObjectives, allFronts);
+			}
+		}
+
+		/**
+		 * Loop beneath was commented, because since b[i] = 1 for all i and
+		 * just after returning from this method we divide each solutions
+		 * objective value by corresponding intercept value it is better to
+		 * return inverted intercept values (by omitting division by b[i]),
+		 * and multiply objective value instead of dividing it.
+		 */
+
+		/*
+		 * for(int i = 0; i < n; i++){ coef[i] /= b[i]; }
+		 */
 
 		return coef;
 	}
@@ -129,22 +125,22 @@ public class EnvironmentalSelection {
 	private static Population niching(Population allButLastFront, Population lastFront, int K, Hyperplane hyperplane) {
 		Population kPoints = new Population();
 		
-		int nicheCount=0, lastFrontCount=0;
+		int totalNicheCount=0, totalLastFrontCount=0;
 		
 		PriorityQueue<ReferencePoint> refPQ = new PriorityQueue<>(new Comparator <ReferencePoint>() {
 			@Override
-			public int compare(ReferencePoint o1, ReferencePoint o2) {
-				return Double.compare(o1.getNicheCount(), o2.getNicheCount()); //Sort increasingly by nichecount
+			public int compare(ReferencePoint rp1, ReferencePoint rp2) {
+				return Double.compare(rp1.getNicheCount(), rp2.getNicheCount()); //Sort increasingly by nichecount
 			}
 		});
 		
 		for (ReferencePoint rp : hyperplane.getReferencePoints()) {
 			refPQ.add(rp);
-			nicheCount += rp.getNicheCount();
-			lastFrontCount += rp.getLastFrontAssociationsQueue().size();
+			totalNicheCount += rp.getNicheCount();
+			totalLastFrontCount += rp.getLastFrontAssociationsQueue().size();
 		}
-		assert nicheCount == allButLastFront.size();
-		assert lastFrontCount == lastFront.size();
+		assert totalNicheCount == allButLastFront.size();
+		assert totalLastFrontCount == lastFront.size();
 		assert K <= lastFront.size();
 		
 		while (kPoints.size() < K) {
