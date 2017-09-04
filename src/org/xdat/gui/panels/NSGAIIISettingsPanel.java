@@ -43,7 +43,7 @@ import org.xdat.gui.buttons.MinMaxSpinnerModel;
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.frames.ChartFrame;
 
-import core.NSGAIIIParameters;
+import algorithm.nsgaiii.NSGAIIIParameters;
 
 /**
  * Panel to modify display settings for a
@@ -316,7 +316,7 @@ public class NSGAIIISettingsPanel extends JPanel {
 		numExplorationGenerationsComboBox.addActionListener(cmd);
 		numExploitationGenerationsComboBox.addActionListener(cmd);
 		numRunsComboBox.addActionListener(cmd);
-		//TODO SPINNER?
+		//TODO - SPINNER?
 		showTargetPointsTrueButton.addActionListener(cmd);
 		showTargetPointsFalseButton.addActionListener(cmd);
 		showLambdasTrueButton.addActionListener(cmd);

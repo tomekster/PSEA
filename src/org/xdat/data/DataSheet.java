@@ -43,11 +43,11 @@ import org.xdat.chart.ParallelCoordinatesChart;
 import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
-import core.Population;
-import core.points.Lambda;
-import core.points.ReferencePoint;
-import core.points.Solution;
-import history.ExecutionHistory;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.nsgaiii.ReferencePoint;
+import algorithm.psea.AsfPreferenceModel;
+import experiment.ExecutionHistory;
 
 /**
  * A representation of the data imported from a text file.
@@ -274,7 +274,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(Lambda lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
+		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
@@ -476,7 +476,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(Lambda lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
+		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
@@ -765,8 +765,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		boolean[] axisResetFilterRequired = initialiseBooleanArray(false);
 		boolean[] axisApplyFiltersRequired = initialiseBooleanArray(true);
 
-		// TODO find out if the new design makes a numeric parameter discrete
-		// and set booleans appropriately
+		// TODO - find out if new design makes a numeric parameter discrete and set booleans appropriately
 
 		fireTableChanged(this.getDesignCount() - 1, this.getDesignCount() - 1, -1, false, true, false, axisAutofitRequired, axisResetFilterRequired, axisApplyFiltersRequired);
 	}

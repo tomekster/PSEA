@@ -9,23 +9,20 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.logging.LogManager;
 
-import core.Evaluator;
-import core.Population;
-import core.Problem;
-import core.algorithm.RST_NSGAIII;
-import core.algorithm.SingleObjectiveEA;
-import core.points.Lambda;
-import core.points.Solution;
-import history.ExecutionHistory;
-import preferences.PreferenceCollector;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.SingleObjectiveEA;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.psea.AsfPreferenceModel;
+import algorithm.psea.PSEA;
+import algorithm.psea.preferences.PreferenceCollector;
+import algorithm.rankers.AsfRanker;
+import algorithm.rankers.AsfRankerBuilder;
+import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
-import solutionRankers.ChebyshevRanker;
-import solutionRankers.ChebyshevRankerBuilder;
-import utils.Geometry;
-import utils.MyMath;
+import utils.math.Geometry;
 
 public class ExperimentRunner {
 	private static ArrayList<Problem> problems = new ArrayList<Problem>();	
@@ -57,8 +54,8 @@ public class ExperimentRunner {
 		
 		for (Problem p : problems) {
 			double idealPoint[] = p.findIdealPoint();
-			ArrayList<ChebyshevRanker> decisionMakerRankers = ChebyshevRankerBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
-			for(ChebyshevRanker cr : decisionMakerRankers){
+			ArrayList<AsfRanker> decisionMakerRankers = AsfRankerBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
+			for(AsfRanker cr : decisionMakerRankers){
 				for (int runId = 1; runId <= numRuns; runId++) {
 					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 					Date date = new Date();
@@ -85,7 +82,7 @@ public class ExperimentRunner {
 		}
 	}
 
-	private static void runSingleObjectiveExperiment(Problem p, ChebyshevRanker cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
+	private static void runSingleObjectiveExperiment(Problem p, AsfRanker cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
 		SingleObjectiveEA so = new SingleObjectiveEA(p, cr);
 //		System.out.println("Lambda: " + Arrays.toString(cr.getLambda()));
 //		System.out.println("Target: " + Arrays.toString(p.getTargetPoint(cr.getLambda())));
@@ -99,8 +96,8 @@ public class ExperimentRunner {
 			modelChebDist.add(cr.eval(new Solution(var, p.getTargetPoint(cr.getLambda()))));
 			
 			//EuclidianDist
-			minEucDist.add(MyMath.getMinDist(p.getTargetPoint(cr.getLambda()), so.getPopulation()));
-			avgEucDist.add(MyMath.getAvgDist(p.getTargetPoint(cr.getLambda()), so.getPopulation())); 
+			minEucDist.add(Geometry.getMinDist(p.getTargetPoint(cr.getLambda()), so.getPopulation()));
+			avgEucDist.add(Geometry.getAvgDist(p.getTargetPoint(cr.getLambda()), so.getPopulation())); 
 			modelEucDist.add(.0);
 			
 			so.nextGeneration();
@@ -132,18 +129,18 @@ public class ExperimentRunner {
 		System.out.println(minEucDist.get(minEucDist.size() - 1) + ", " + avgEucDist.get(avgEucDist.size() - 1));
 	}
 
-	private static void runNSGAIIIExperiment(Problem p, ChebyshevRanker decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
+	private static void runNSGAIIIExperiment(Problem p, AsfRanker decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
 		PreferenceCollector.getInstance().clear();
-		RST_NSGAIII alg;		
-		alg = new RST_NSGAIII(p,decisionMakerRanker);
+		PSEA alg;		
+		alg = new PSEA(p,decisionMakerRanker);
 		alg.run();
 		
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		for(int i=0; i < history.getGenerations().size(); i++){
 			Population pop = history.getGeneration(i);
-			ArrayList <Lambda> lambdas = history.getLambdas(i);
-			minDist.add(MyMath.getMinDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
-			avgDist.add(MyMath.getAvgDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
+			ArrayList <AsfPreferenceModel> lambdas = history.getLambdas(i);
+			minDist.add(Geometry.getMinDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
+			avgDist.add(Geometry.getAvgDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
 			double targetDir[] = decisionMakerRanker.getLambda();
 			modelDist.add(lambdas.stream().mapToDouble(lambda -> Geometry.dirDist(targetDir, lambda.getDim())).min().getAsDouble());
 		}

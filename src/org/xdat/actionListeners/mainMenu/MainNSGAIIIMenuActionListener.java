@@ -32,8 +32,8 @@ import org.xdat.gui.menus.mainWIndow.MainNSGAIIIMenu;
 import org.xdat.workerThreads.NSGAIIIDataSheetCreationThread;
 import org.xdat.workerThreads.ParallelCoordinatesChartCreationThread;
 
-import core.NSGAIIIRunnner;
-import history.ExecutionHistory;
+import algorithm.nsgaiii.NSGAIIIRunnner;
+import experiment.ExecutionHistory;
 
 /**
  * ActionListener for a {@link MainNSGAIIIMenu}.

@@ -3,25 +3,23 @@ package core.hyperplane;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import core.Population;
-import core.points.ReferencePoint;
-import core.points.Solution;
-import utils.Geometry;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.Hyperplane;
+import utils.math.Geometry;
 
 public class HyperplaneTest {
 
 	double EPS = Geometry.EPS;
 
 	private double refPointDimSum(ReferencePoint rp) {
-		double sum = 0.0;
-		for (double d : Geometry.normalize(rp.getDim())) {
-			sum += d;
-		}
-		return sum;
+		return Arrays.stream(Geometry.normalizeSum1(rp.getDim())).sum();
 	}
 
 	@Test

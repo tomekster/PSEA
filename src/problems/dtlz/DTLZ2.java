@@ -1,6 +1,6 @@
 package problems.dtlz;
 
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Solution;
 
 public class DTLZ2 extends DTLZ {
 	/**

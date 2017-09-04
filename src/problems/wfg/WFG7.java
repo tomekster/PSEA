@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Solution;
 
 public class WFG7 extends WFG {
 	/**

@@ -4,7 +4,9 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import utils.DegeneratedMatrixException;
+import utils.math.DegeneratedMatrixException;
+import utils.math.GaussianElimination;
+import utils.math.Geometry;
 
 public class GaussianEliminationTest {
 

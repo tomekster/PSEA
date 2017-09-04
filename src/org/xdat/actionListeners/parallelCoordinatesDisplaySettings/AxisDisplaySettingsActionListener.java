@@ -243,8 +243,7 @@ public class AxisDisplaySettingsActionListener implements ActionListener, Change
 			log(" current axis 1 is " + this.currentAxis.getName());
 			log(" selected axis 1 is " + panel.getAxisChoiceCombo().getSelectedItem().toString());
 
-			// Workaround solution. TODO: Implement memorization of all settings
-			// for all Axes.
+			// TODO - implement memorization of all settings for all Axes.
 			if (this.isSettingsChanged()) {
 				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(this.panel, "Save changes made to axis " + currentAxis.getName() + "?", "Axis Display Settings", JOptionPane.YES_NO_OPTION))
 					applySettings(currentAxis);

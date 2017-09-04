@@ -6,7 +6,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import utils.Geometry;
+import algorithm.geneticAlgorithm.Solution;
+import utils.math.Geometry;
 
 public class SolutionTest {
 	

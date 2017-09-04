@@ -7,8 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import core.points.ReferencePoint;
-import utils.Geometry;
+import algorithm.nsgaiii.ReferencePoint;
+import utils.math.Geometry;
 
 public class ReferencePointTest {
 

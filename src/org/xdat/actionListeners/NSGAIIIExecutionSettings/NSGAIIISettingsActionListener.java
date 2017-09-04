@@ -33,7 +33,7 @@ import org.xdat.chart.ParallelCoordinatesChart;
 import org.xdat.gui.panels.NSGAIIISettingsPanel;
 import org.xdat.gui.panels.ParallelCoordinatesChartDisplaySettingsPanel;
 
-import core.NSGAIIIParameters;
+import algorithm.nsgaiii.NSGAIIIParameters;
 
 /**
  * ActionListener for a {@link ParallelCoordinatesChartDisplaySettingsPanel}

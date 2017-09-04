@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Solution;
 
 /**
  * Creates a default WFG8 problem with

@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
-import core.Population;
-import core.points.Solution;
-import solutionRankers.NonDominationRanker;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.rankers.NonDominationRanker;
 
 public class NonDominatedSortTest {
 

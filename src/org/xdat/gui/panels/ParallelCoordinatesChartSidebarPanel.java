@@ -60,7 +60,7 @@ import org.xdat.data.DataSheet;
 import org.xdat.gui.buttons.ColorChoiceButton;
 import org.xdat.gui.frames.ChartFrame;
 
-import history.ExecutionHistory;
+import experiment.ExecutionHistory;
 
 /**
  * Panel to modify display settings for a

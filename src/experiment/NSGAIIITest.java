@@ -1,33 +1,30 @@
 package experiment;
 
-import core.Population;
-import core.Problem;
-import core.algorithm.NSGAIII;
-import igd.IGD;
-import operators.impl.crossover.SBX;
-import operators.impl.mutation.PolynomialMutation;
-import operators.impl.selection.BinaryTournament;
-import problems.dtlz.*;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
+import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
+import algorithm.nsgaiii.NSGAIII;
+import algorithm.rankers.NonDominationRanker;
+import experiment.metrics.IGD;
+import problems.Problem;
 import problems.wfg.*;
-import solutionRankers.NonDominationRanker;
-import utils.PythonVisualizer;
 
 public class NSGAIIITest {
 	
+	private static final double DEFAULT_NUM_GENERATIONS = 350;
+	
 	public static void main(String [] args){
 		
-		/*
-		 * WFG1 - something goes wrong here - obtained front looks weird
-		 * WFG3 - ideal point has some negative coordinates TODO
-		 * WFG8 - difficult problem
+		/* TODO - WFG1 - something goes wrong here - obtained front looks weird, WFG8 - difficult problem
 		 */
 		Problem problem = new WFG3();
-		int numGenerations = 350;
 		NSGAIII nsgaiii = new NSGAIII(	problem, 
-				new BinaryTournament(new NonDominationRanker()),
-				new SBX(1.0, 30.0, problem.getLowerBound(), problem.getUpperBound()),
-				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBound(), problem.getUpperBound()));
-		for(int i=0; i < numGenerations; i++){
+				new SBX(problem),
+				new PolynomialMutation(problem),
+				new BinaryTournament(new NonDominationRanker())
+				);
+		for(int i=0; i < DEFAULT_NUM_GENERATIONS; i++){
 			nsgaiii.nextGeneration();
 		}
 		Population finalPop = nsgaiii.getPopulation();

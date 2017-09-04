@@ -1,11 +1,12 @@
 package problems.dtlz;
 
 import java.util.ArrayList;
-import core.Population;
-import core.Problem;
-import core.hyperplane.Hyperplane;
-import core.points.ReferencePoint;
-import core.points.Solution;
+
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.Hyperplane;
+import problems.Problem;
 
 public abstract class DTLZ extends Problem{
 	

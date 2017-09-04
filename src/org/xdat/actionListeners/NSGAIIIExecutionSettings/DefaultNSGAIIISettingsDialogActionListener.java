@@ -29,7 +29,7 @@ import org.xdat.actionListeners.parallelCoordinatesDisplaySettings.ChartSpecific
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.panels.ParallelCoordinatesChartDisplaySettingsPanel;
 
-import core.NSGAIIIParameters;
+import algorithm.nsgaiii.NSGAIIIParameters;
 
 /**
  * ActionListener for the Ok button of a

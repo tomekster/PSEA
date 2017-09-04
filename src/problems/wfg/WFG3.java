@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Solution;
 
 /**
  * This class implements the WFG3 problem

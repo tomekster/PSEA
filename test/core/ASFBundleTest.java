@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
-import core.points.Lambda;
-import core.points.ReferencePoint;
-import core.points.Solution;
-import solutionRankers.SolutionsBordaRanker;
-import utils.Geometry;
-import utils.TestingUtils;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.psea.AsfPreferenceModel;
+import algorithm.rankers.WeightedBordaRanker;
+import utils.math.Geometry;
 
 public class ASFBundleTest {
 
@@ -39,35 +38,35 @@ public class ASFBundleTest {
 
 	@Test
 	public void buildSolutionRankingTest1() {
-		Lambda lambda = new Lambda(dim1);
-		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
+		AsfPreferenceModel lambda = new AsfPreferenceModel(dim1);
+		ArrayList<Solution> res = WeightedBordaRanker.buildSolutionsRanking(lambda, pop);
 
-		TestingUtils.assertDoubleArrayEquals(obj3, res.get(0).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj1, res.get(1).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj2, res.get(2).getObjectives());
+		Geometry.assertEqualDoubleArrays(obj3, res.get(0).getObjectives());
+		Geometry.assertEqualDoubleArrays(obj1, res.get(1).getObjectives());
+		Geometry.assertEqualDoubleArrays(obj2, res.get(2).getObjectives());
 	}
 
 	@Test
 	public void buildSolutionRankingTest2() {
-		Lambda lambda = new Lambda(dim2);
-		ArrayList<Solution> res = SolutionsBordaRanker.buildSolutionsRanking(lambda, pop);
+		AsfPreferenceModel lambda = new AsfPreferenceModel(dim2);
+		ArrayList<Solution> res = WeightedBordaRanker.buildSolutionsRanking(lambda, pop);
 
-		TestingUtils.assertDoubleArrayEquals(obj1, res.get(0).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj2, res.get(1).getObjectives());
-		TestingUtils.assertDoubleArrayEquals(obj3, res.get(2).getObjectives());
+		Geometry.assertEqualDoubleArrays(obj1, res.get(0).getObjectives());
+		Geometry.assertEqualDoubleArrays(obj2, res.get(1).getObjectives());
+		Geometry.assertEqualDoubleArrays(obj3, res.get(2).getObjectives());
 	}
 	
 	@Test
 	public void bestWorseCVTest(){
-		ArrayList<Lambda> newLambdas = new ArrayList<>();
+		ArrayList<AsfPreferenceModel> newLambdas = new ArrayList<>();
 		double dim[] = {0};
-		Lambda l1 = new Lambda(dim);
-		Lambda l2 = new Lambda(dim);
+		AsfPreferenceModel l1 = new AsfPreferenceModel(dim);
+		AsfPreferenceModel l2 = new AsfPreferenceModel(dim);
 		l1.setNumViolations(1);
 		l2.setNumViolations(2);
 		newLambdas.add(l1);
 		newLambdas.add(l2);
-		assertEquals(1, newLambdas.stream().mapToInt(Lambda::getNumViolations).min().getAsInt());
-		assertEquals(2, newLambdas.stream().mapToInt(Lambda::getNumViolations).max().getAsInt());
+		assertEquals(1, newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).min().getAsInt());
+		assertEquals(2, newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).max().getAsInt());
 	}
 }

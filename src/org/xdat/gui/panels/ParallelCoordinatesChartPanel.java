@@ -52,7 +52,7 @@ import org.xdat.gui.frames.ChartFrame;
 import org.xdat.gui.menus.parallelCoordinatesChart.ParallelCoordinatesContextMenu;
 import org.xdat.gui.tables.DataSheetTableColumnModel;
 
-import history.ExecutionHistory;
+import experiment.ExecutionHistory;
 
 /**
  * Panel that is used to display a

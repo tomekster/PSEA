@@ -6,11 +6,12 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import core.hyperplane.Hyperplane;
-import core.points.ReferencePoint;
-import core.points.Solution;
-import utils.DegeneratedMatrixException;
-import utils.Geometry;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import algorithm.nsgaiii.EnvironmentalSelection;
+import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.Hyperplane;
+import utils.math.Geometry;
 
 public class NicheCountSelectionTest {
 	
@@ -26,7 +27,7 @@ public class NicheCountSelectionTest {
 		allFronts.addSolution(new Solution(var, obj2));
 		allFronts.addSolution(new Solution(var, obj3));
 		allFronts.addSolution(new Solution(var, obj4));
-		NicheCountSelection.normalize(2, allFronts);
+		EnvironmentalSelection.normalize(2, allFronts);
 		assertEquals(0, allFronts.getSolution(0).getObjective(0), Geometry.EPS);
 		assertEquals(1, allFronts.getSolution(0).getObjective(1), Geometry.EPS);
 		assertEquals(2.0/7, allFronts.getSolution(1).getObjective(0), Geometry.EPS);
@@ -67,13 +68,7 @@ public class NicheCountSelectionTest {
 		allFronts.addSolution(s5);
 		
 		Population allButLastFront = new Population(); 
-		Population kPoints = new Population();
-		try {
-			kPoints = NicheCountSelection.selectKPoints(2,allFronts, allButLastFront, allFronts, 2, hp);
-		} catch (DegeneratedMatrixException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Population kPoints = EnvironmentalSelection.selectKPoints(2, allButLastFront, allFronts, 2, hp);
 		
 		assertEquals(2, kPoints.size());
 		assertEquals(1, hp.getReferencePoints().get(0).getNicheCount());

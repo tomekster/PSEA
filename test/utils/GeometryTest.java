@@ -8,7 +8,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import utils.Geometry.Line2D;
+import utils.math.Geometry;
+import utils.math.Geometry.Line2D;
+import utils.math.structures.Pair;
 
 public class GeometryTest {
 
@@ -60,12 +62,12 @@ public class GeometryTest {
 		
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
-		assertEquals(-3, res.get(0).a, EPS);
-		assertEquals(12, res.get(0).b, EPS);
-		assertEquals(0, res.get(1).a, EPS);
-		assertEquals(4, res.get(1).b, EPS);
-		assertEquals(2.0/3, res.get(2).a, EPS);
-		assertEquals(4.0/3, res.get(2).b, EPS);	
+		assertEquals(-3, res.get(0).getX(), EPS);
+		assertEquals(12, res.get(0).getY(), EPS);
+		assertEquals(0, res.get(1).getX(), EPS);
+		assertEquals(4, res.get(1).getY(), EPS);
+		assertEquals(2.0/3, res.get(2).getX(), EPS);
+		assertEquals(4.0/3, res.get(2).getY(), EPS);	
 	}
 	
 	//Wikipedia example http://wcipeg.com/wiki/Convex_hull_trick
@@ -84,12 +86,12 @@ public class GeometryTest {
 		
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
-		assertEquals(-3, res.get(0).a, EPS);
-		assertEquals(13, res.get(0).b, EPS);
-		assertEquals(0, res.get(1).a, EPS);
-		assertEquals(4, res.get(1).b, EPS);
-		assertEquals(2.0/3, res.get(2).a, EPS);
-		assertEquals(4.0/3, res.get(2).b, EPS);	
+		assertEquals(-3, res.get(0).getX(), EPS);
+		assertEquals(13, res.get(0).getY(), EPS);
+		assertEquals(0, res.get(1).getX(), EPS);
+		assertEquals(4, res.get(1).getY(), EPS);
+		assertEquals(2.0/3, res.get(2).getX(), EPS);
+		assertEquals(4.0/3, res.get(2).getY(), EPS);	
 	}
 	
 	//Wikipedia example http://wcipeg.com/wiki/Convex_hull_trick
@@ -107,14 +109,14 @@ public class GeometryTest {
 			
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(4, res.size());
-		assertEquals(-4, res.get(0).a, EPS);
-		assertEquals(-24, res.get(0).b, EPS);
-		assertEquals(-1, res.get(1).a, EPS);
-		assertEquals(-10, res.get(1).b, EPS);
-		assertEquals(0, res.get(2).a, EPS);
-		assertEquals(-6, res.get(2).b, EPS);
-		assertEquals(1, res.get(3).a, EPS);
-		assertEquals(-6, res.get(3).b, EPS);
+		assertEquals(-4, res.get(0).getX(), EPS);
+		assertEquals(-24, res.get(0).getY(), EPS);
+		assertEquals(-1, res.get(1).getX(), EPS);
+		assertEquals(-10, res.get(1).getY(), EPS);
+		assertEquals(0, res.get(2).getX(), EPS);
+		assertEquals(-6, res.get(2).getY(), EPS);
+		assertEquals(1, res.get(3).getX(), EPS);
+		assertEquals(-6, res.get(3).getY(), EPS);
 	}
 	
 	@Test
@@ -129,12 +131,12 @@ public class GeometryTest {
 			
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
-		assertEquals(-0.11, res.get(0).a, EPS);
-		assertEquals(0.11, res.get(0).b, EPS);
-		assertEquals(0, res.get(1).a, EPS);
-		assertEquals(0.088, res.get(1).b, EPS);
-		assertEquals(0.179, res.get(2).a, EPS);
-		assertEquals(0, res.get(2).b, EPS);
+		assertEquals(-0.11, res.get(0).getX(), EPS);
+		assertEquals(0.11, res.get(0).getY(), EPS);
+		assertEquals(0, res.get(1).getX(), EPS);
+		assertEquals(0.088, res.get(1).getY(), EPS);
+		assertEquals(0.179, res.get(2).getY(), EPS);
+		assertEquals(0, res.get(2).getY(), EPS);
 	}
 	
 	@Test
@@ -154,12 +156,12 @@ public class GeometryTest {
 //		}
 		
 		assertEquals(3, res.size());
-		assertEquals(-0.027, res.get(0).a, EPS);
-		assertEquals(0.027, res.get(0).b, EPS);
-		assertEquals(-0.005, res.get(1).a, EPS);
-		assertEquals(0.134, res.get(1).b, EPS);
-		assertEquals(0.053, res.get(2).a, EPS);
-		assertEquals(0.0, res.get(2).b, EPS);
+		assertEquals(-0.027, res.get(0).getX(), EPS);
+		assertEquals(0.027, res.get(0).getY(), EPS);
+		assertEquals(-0.005, res.get(1).getX(), EPS);
+		assertEquals(0.134, res.get(1).getY(), EPS);
+		assertEquals(0.053, res.get(2).getX(), EPS);
+		assertEquals(0.0, res.get(2).getY(), EPS);
 	}
 	
 	@Test
@@ -175,12 +177,12 @@ public class GeometryTest {
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		
 		assertEquals(3, res.size());
-		assertEquals(-0.1779, res.get(0).a, EPS);
-		assertEquals(0.1779, res.get(0).b, EPS);
-		assertEquals(0, res.get(1).a, EPS);
-		assertEquals(0.3033, res.get(1).b, EPS);
-		assertEquals(0.1292, res.get(2).a, EPS);
-		assertEquals(0.0, res.get(2).b, EPS);
+		assertEquals(-0.1779, res.get(0).getX(), EPS);
+		assertEquals(0.1779, res.get(0).getY(), EPS);
+		assertEquals(0, res.get(1).getX(), EPS);
+		assertEquals(0.3033, res.get(1).getY(), EPS);
+		assertEquals(0.1292, res.get(2).getX(), EPS);
+		assertEquals(0.0, res.get(2).getY(), EPS);
 	}
 	
 	@Test
@@ -196,10 +198,10 @@ public class GeometryTest {
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		
 		assertEquals(2, res.size());
-		assertEquals(-0.3352, res.get(0).a, EPS);
-		assertEquals(0.3352, res.get(0).b, EPS);
-		assertEquals(0.1133, res.get(1).a, EPS);
-		assertEquals(0.0283, res.get(1).b, EPS);
+		assertEquals(-0.3352, res.get(0).getX(), EPS);
+		assertEquals(0.3352, res.get(0).getY(), EPS);
+		assertEquals(0.1133, res.get(1).getX(), EPS);
+		assertEquals(0.0283, res.get(1).getY(), EPS);
 	}
 	
 	@Test
@@ -214,12 +216,12 @@ public class GeometryTest {
 			
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		System.out.println(res.size());
-		assertEquals(-0.09, res.get(0).a, EPS);
-		assertEquals(0.09, res.get(0).b, EPS);
-		assertEquals(-0.04, res.get(1).a, EPS);
-		assertEquals(0.12, res.get(1).b, EPS);
-		assertEquals(0.25, res.get(2).a, EPS);
-		assertEquals(0, res.get(2).b, EPS);
+		assertEquals(-0.09, res.get(0).getX(), EPS);
+		assertEquals(0.09, res.get(0).getY(), EPS);
+		assertEquals(-0.04, res.get(1).getX(), EPS);
+		assertEquals(0.12, res.get(1).getY(), EPS);
+		assertEquals(0.25, res.get(2).getX(), EPS);
+		assertEquals(0, res.get(2).getY(), EPS);
 	}
 	
 	@Test
@@ -256,12 +258,12 @@ public class GeometryTest {
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		System.out.println(res.size());
 		assertEquals(3, res.size(), EPS);
-		assertEquals(-0.15088285990248482, res.get(0).a, EPS);
-		assertEquals(0.15088285990248482, res.get(0).b, EPS);
-		assertEquals(0.001352729625262398, res.get(1).a, EPS);
-		assertEquals(0.19317442946120894, res.get(1).b, EPS);
-		assertEquals(0.09936233736019646, res.get(2).a, EPS);
-		assertEquals(0, res.get(2).b, EPS);
+		assertEquals(-0.15088285990248482, res.get(0).getX(), EPS);
+		assertEquals(0.15088285990248482, res.get(0).getY(), EPS);
+		assertEquals(0.001352729625262398, res.get(1).getX(), EPS);
+		assertEquals(0.19317442946120894, res.get(1).getY(), EPS);
+		assertEquals(0.09936233736019646, res.get(2).getX(), EPS);
+		assertEquals(0, res.get(2).getY(), EPS);
 	}
 	
 	@Test
@@ -287,12 +289,12 @@ public class GeometryTest {
 			
 		ArrayList <Line2D> res = Geometry.linesUpperEnvelope(lines);
 		assertEquals(3, res.size());
-		assertEquals(-0.000972558490649, res.get(0).a, EPS);
-		assertEquals(0.000972558490649, res.get(0).b, EPS);
-		assertEquals(-0.000972004887446, res.get(1).a, EPS);
-		assertEquals(0.0367188820992, res.get(1).b, EPS);
-		assertEquals(0.0200343294063, res.get(2).a, EPS);
-		assertEquals(0.0234821641088, res.get(2).b, EPS);
+		assertEquals(-0.000972558490649, res.get(0).getX(), EPS);
+		assertEquals(0.000972558490649, res.get(0).getY(), EPS);
+		assertEquals(-0.000972004887446, res.get(1).getX(), EPS);
+		assertEquals(0.0367188820992, res.get(1).getY(), EPS);
+		assertEquals(0.0200343294063, res.get(2).getX(), EPS);
+		assertEquals(0.0234821641088, res.get(2).getY(), EPS);
 	}
 	
 	@Test
@@ -313,7 +315,7 @@ public class GeometryTest {
 	@Test
 	public void normalizeTest(){
 		double a[] = {-0.0004085602, 2.0008171204173157};
-		a = Geometry.normalize(a);
+		a = Geometry.normalizeSum1(a);
 		assertEquals(-0.00020423837, a[0], Geometry.EPS);
 		assertEquals(1.00020423838, a[1], Geometry.EPS);
 	}

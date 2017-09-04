@@ -5,7 +5,7 @@
  */
 package problems.wfg;
 
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Solution;
 
 /**
  * Creates a default WFG9 problem with

@@ -4,8 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import core.Problem;
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Solution;
 import problems.dtlz.DTLZ1;
 
 public class DTLZ1Test {

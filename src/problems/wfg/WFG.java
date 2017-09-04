@@ -23,9 +23,9 @@ package problems.wfg;
 
 import java.util.Random;
 
-import core.Population;
-import core.Problem;
-import core.points.Solution;
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import problems.Problem;
 import utils.WfgFrontReader;
 
 /**
