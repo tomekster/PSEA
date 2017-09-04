@@ -7,7 +7,7 @@ def listdir_fullpath(d):
 
 def plot(l1, l2):
     ax = []
-    fig = plt.figure()
+    fig = plt.figure(figsize=plt.figaspect(0.33))
     if len(l1[0]) == 2:
         x1 = l1[:,0]
         y1 = l1[:,1]
@@ -23,7 +23,6 @@ def plot(l1, l2):
 
     elif len(l1[0]) == 3:
         from mpl_toolkits.mplot3d import Axes3D
-        fig = plt.figure()
         ax = fig.add_subplot(1,3,1, projection='3d')
         x1 = l1[:,0]
         y1 = l1[:,1]
@@ -40,14 +39,20 @@ def plot(l1, l2):
     plt.show()
 
 if __name__ == "__main__":
-    numObj = int(sys.argv[1])
-    n = int(sys.argv[2])
-    m = int(sys.argv[3])
-    inputdata = [ [float(x) for x in d.split('x')] for d in sys.argv[4:]]
-    if len(inputdata) != n+m:
-        print "Wrong number of input points provided!"
-        exit(0);
-    referenceFront = np.asarray(inputdata[:n])
-    nondominatedSolutions = np.asarray(inputdata[n:])
+	f = open(sys.argv[1])
+	numObj = int(f.readline())
+	n = int(f.readline())
+	m = int(f.readline())
+	print(numObj)
+	print(n)
+	print(m)
+	inputdata = [ [float(x) for x in line.strip().split(' ')] for line in f]
+	#plot(np.asarray([[1,1,1]]), np.asarray([[2,2,2]]))
+	if len(inputdata) != n+m:
+		plot(np.asarray([[1,1,1]]), np.asarray([[2,2,2]]))
+		print("Wrong number of input points provided!")
+		exit(0);
+	referenceFront = np.asarray(inputdata[:n])
+	nondominatedSolutions = np.asarray(inputdata[n:])
 
-    plot(referenceFront, nondominatedSolutions)
+	plot(referenceFront, nondominatedSolutions)

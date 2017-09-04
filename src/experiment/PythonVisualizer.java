@@ -2,40 +2,16 @@ package experiment;
 
 import java.io.IOException;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
-
 public class PythonVisualizer {
 
-	public void visualise(Population referenceFront, Population firstFront) {
-		String cmd[] = new String[5 + referenceFront.size() + firstFront.size()];
+	public void visualise(String dataFilename ) {
+		String cmd[] = new String[3];
 		cmd[0] = "python";
 		cmd[1] = "plot.py";
-		cmd[2] = "" + referenceFront.getSolution(0).getNumObjectives();
-		cmd[3] = "" + referenceFront.size();
-		cmd[4] = "" + firstFront.size();
-		for(int i =0 ; i<referenceFront.size(); i++){
-			Solution s = referenceFront.getSolution(i);
-			String obj = "";
-			for(double d : s.getObjectives()){
-				obj = obj + d + "x";
-				cmd[5 + i] = obj.substring(0,obj.length()-1);
-			}
-		}
-		for(int i=0 ; i<firstFront.size(); i++){
-			Solution s = firstFront.getSolution(i);
-			String obj = "";
-			for(double d : s.getObjectives()){
-				obj = obj + d + "x";
-				cmd[5 + referenceFront.size() + i] = obj.substring(0,obj.length()-1);
-			}
-		}
-		for(String s : cmd){
-			System.out.print(s + " ");
-		}
-		System.out.println("");
+		cmd[2] = dataFilename;
+		
 		Runtime rt = Runtime.getRuntime();
-		Process pr = null;
+		Process pr;
 		try {
 			pr = rt.exec(cmd);
 		} catch (IOException e) {

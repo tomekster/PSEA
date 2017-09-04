@@ -10,7 +10,6 @@ import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.rankers.NonDominationRanker;
 import problems.Problem;
-import utils.math.DegeneratedMatrixException;
 
 public class NSGAIII extends EA {
 	
