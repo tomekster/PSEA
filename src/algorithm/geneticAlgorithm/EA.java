@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
+import experiment.PythonVisualizer;
 import problems.Problem;
 
 /**
@@ -20,8 +21,10 @@ public abstract class EA {
 	protected CrossoverOperator crossoverOperator;
 	protected MutationOperator mutationOperator;
 	protected SelectionOperator selectionOperator;
+	protected int generation;
 	
 	protected EA(Problem problem, CrossoverOperator crossoverOperator, MutationOperator mutationOperator, SelectionOperator selectionOperator){
+		this.generation = 0;
 		this.problem = problem;
 		// Standard genetic operators used in evolutionary algorithms
 		this.crossoverOperator = crossoverOperator;
@@ -39,14 +42,26 @@ public abstract class EA {
 	 * procedure ends.
 	 */
 	public void nextGeneration() {
+		problem.evaluate(population);
+		generation++;
 		assert population.size() % 2 == 0;
 		Population offspring = createOffspring(population);
+		
+//		if(generation%50==0){
+//			problem.evaluate(population);
+//			problem.evaluate(offspring);
+//			ArrayList<ArrayList<double[]>> points = new ArrayList<>();
+//			points.add(PythonVisualizer.convert(population));
+//			points.add(PythonVisualizer.convert(offspring));
+//			PythonVisualizer.visualise(problem.getNumObjectives(), points);
+//		}
+		
 		Population combinedPopulation = new Population();
 
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
 
-		problem.evaluate(population);
+		problem.evaluate(combinedPopulation);
 		population = selectNewPopulation(combinedPopulation);
 		problem.evaluate(population);
 	}

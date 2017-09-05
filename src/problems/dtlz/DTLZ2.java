@@ -1,6 +1,9 @@
 package problems.dtlz;
 
+import java.util.Arrays;
+
 import algorithm.geneticAlgorithm.Solution;
+import utils.math.Geometry;
 
 public class DTLZ2 extends DTLZ {
 	/**
@@ -55,6 +58,7 @@ public class DTLZ2 extends DTLZ {
 		for (int i = 0; i < numberOfObjectives; i++) {
 			solution.setObjective(i, f[i]);
 		}
+		assert Geometry.getLen(solution.getObjectives()) >= 1;
 	}
 
 	@Override

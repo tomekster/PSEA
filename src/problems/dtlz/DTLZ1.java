@@ -1,5 +1,7 @@
 package problems.dtlz;
 
+import java.util.Arrays;
+
 import algorithm.geneticAlgorithm.Solution;
 
 public class DTLZ1 extends DTLZ {
@@ -57,6 +59,7 @@ public class DTLZ1 extends DTLZ {
 		for (int i = 0; i < numberOfObjectives; i++) {
 			solution.setObjective(i, f[i]);
 		}
+		assert Arrays.stream(solution.getObjectives()).sum() >= 0.5;
 	}
 
 	@Override

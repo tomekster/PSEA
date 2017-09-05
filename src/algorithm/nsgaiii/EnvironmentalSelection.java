@@ -145,8 +145,7 @@ public class EnvironmentalSelection {
 		
 		while (kPoints.size() < K) {
 			ReferencePoint smallestNicheCountRefPoint = refPQ.poll();
-			PriorityQueue<Association> associatedLastFrontSolutions = smallestNicheCountRefPoint
-					.getLastFrontAssociationsQueue();
+			PriorityQueue<Association> associatedLastFrontSolutions = smallestNicheCountRefPoint.getLastFrontAssociationsQueue();
 			if(associatedLastFrontSolutions.isEmpty()) continue;
 			Association a = associatedLastFrontSolutions.poll();
 			kPoints.addSolution(a.getSolution());

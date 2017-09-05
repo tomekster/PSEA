@@ -60,9 +60,8 @@ public abstract class Problem implements Serializable {
 	public abstract void evaluate(Solution solution);
 
 	public void evaluate(Population pop) {
-		for(Solution p : pop.getSolutions()){
-			Solution s = (Solution) p;
-			evaluate(s);
+		for(int i=0; i<pop.size(); i++){
+			evaluate(pop.getSolution(i));
 		}
 	}
 	

@@ -1,14 +1,26 @@
 package experiment;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.Solution;
+import utils.math.Geometry;
 
 public class PythonVisualizer {
 
-	public void visualise(String dataFilename ) {
+	static final String DATA_FILE_NAME = "tmpVizData.txt";
+	
+	public static void visualise(int numObjectives, ArrayList <ArrayList <double[]>> dataPoints) {
+		
+		writeVisualizatoinData(numObjectives, dataPoints);
 		String cmd[] = new String[3];
 		cmd[0] = "python";
 		cmd[1] = "plot.py";
-		cmd[2] = dataFilename;
+		cmd[2] = DATA_FILE_NAME;
 		
 		Runtime rt = Runtime.getRuntime();
 		Process pr;
@@ -28,5 +40,34 @@ public class PythonVisualizer {
 //		} catch (IOException e) {
 //			e.printStackTrace();
 //		}
+	}
+	
+	private static void writeVisualizatoinData(int numObjectives, ArrayList<ArrayList<double[]>> dataPoints) {
+		try{
+		    PrintWriter writer = new PrintWriter(DATA_FILE_NAME, "UTF-8");
+		    writer.println(numObjectives);
+		    for(int i=0; i<dataPoints.size(); i++){
+				for(double[] point : dataPoints.get(i)){
+					if( Arrays.stream(point).sum() < 0.5 - Geometry.EPS){
+						System.out.println("ERR");
+					}
+					for(double d : point){
+						writer.print(" " + d);
+					}
+					writer.println(" " + i);
+				}				
+			}
+		    writer.close();
+		} catch (IOException e) {
+		   // do something
+		}
+	}
+
+	public static ArrayList<double[]> convert(Population pop) {
+		ArrayList <double[]> points = new ArrayList<>();
+		for(Solution s : pop.getSolutions()){
+			points.add(s.getObjectives());
+		}
+		return points;
 	}
 }
