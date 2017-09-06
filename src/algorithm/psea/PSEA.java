@@ -38,6 +38,14 @@ public class PSEA extends EA implements Runnable {
 	private double spreadThreshold = 0.95;
 	private int explorationComparisons;
 	private int exploitationComparisons;
+	private int maxExplorationComparisons=0;
+	private int maxExploitationComparisons=0;
+
+	public PSEA(Problem problem, AsfRanker decisionMakerRanker, int maxExplorCom, int maxExploitComp) {
+		this(problem,decisionMakerRanker);
+		this.maxExplorationComparisons = maxExplorCom;
+		this.maxExploitationComparisons = maxExploitComp;
+	}
 	
 	public PSEA(Problem problem, AsfRanker decisionMakerRanker) {
 		super(  problem,
@@ -67,6 +75,19 @@ public class PSEA extends EA implements Runnable {
 		this.explorationComparisons = 0;
 		this.exploitationComparisons = 0;
 		PreferenceCollector.getInstance().clear();
+		
+		if(problem.getNumObjectives() == 3){
+			maxExplorationComparisons = 20;
+			maxExploitationComparisons = 10;
+		}
+		else if(problem.getNumObjectives() == 5){
+			maxExplorationComparisons = 20;
+			maxExploitationComparisons = 20;
+		}
+		else if(problem.getNumObjectives() == 8){
+			maxExplorationComparisons = 30;
+			maxExploitationComparisons = 30;
+		}
 	}
 
 	@Override
@@ -185,18 +206,8 @@ public class PSEA extends EA implements Runnable {
 		reachSpreadThresh(); //Perform optimization first to distribute population among large part of objective space and to obtain better quality solutions
 		System.out.println("SPREAD REACHED GEN: " + generation);
 		
-		int maxDiscriminativePower = 0, maxZeroDiscriminativePower = 5, numZeroDiscriminativePower = 0, maxExplorationComparisons=20;
-		
-		if(problem.getNumObjectives() == 3){
-			maxExplorationComparisons = 20;
-		}
-		else if(problem.getNumObjectives() == 5){
-			maxExplorationComparisons = 20;
-		}
-		else if(problem.getNumObjectives() == 8){
-			maxExplorationComparisons = 30;
-		}
-		
+		int maxDiscriminativePower = 0, maxZeroDiscriminativePower = 5, numZeroDiscriminativePower = 0;
+
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
 		
 		//Elicitate while population is well spread
@@ -231,17 +242,7 @@ public class PSEA extends EA implements Runnable {
 	private void exploit() {
 		//Guide evolution with generated model until it converges
 		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
-		int maxDiscriminativePOwer = 0, maxExploitationComparisons=30;
-		
-		if(problem.getNumObjectives() == 3){
-			maxExploitationComparisons = 10;
-		}
-		else if(problem.getNumObjectives() == 5){
-			maxExploitationComparisons = 20;
-		}
-		else if(problem.getNumObjectives() == 8){
-			maxExploitationComparisons = 30;
-		}
+		int maxDiscriminativePOwer = 0;
 		
 		double maxDist;
 		do{

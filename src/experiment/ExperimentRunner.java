@@ -18,6 +18,7 @@ import algorithm.psea.preferences.PreferenceCollector;
 import algorithm.rankers.AsfRanker;
 import algorithm.rankers.AsfRankerBuilder;
 import problems.Problem;
+
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ3;
@@ -82,6 +83,7 @@ public class ExperimentRunner {
 		}
 	}
 
+
 	private static void runSingleObjectiveExperiment(Problem p, AsfRanker cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
 		SingleObjectiveEA so = new SingleObjectiveEA(p, cr);
 //		System.out.println("Lambda: " + Arrays.toString(cr.getLambda()));
@@ -98,6 +100,7 @@ public class ExperimentRunner {
 			//EuclidianDist
 			minEucDist.add(Geometry.getMinDist(p.getTargetPoint(cr.getLambda()), so.getPopulation()));
 			avgEucDist.add(Geometry.getAvgDist(p.getTargetPoint(cr.getLambda()), so.getPopulation())); 
+
 			modelEucDist.add(.0);
 			
 			so.nextGeneration();
@@ -136,6 +139,7 @@ public class ExperimentRunner {
 		alg.run();
 		
 		ExecutionHistory history = ExecutionHistory.getInstance();
+
 		for(int i=0; i < history.getPopulations().size(); i++){
 			Population pop = history.getPopulation(i);
 			ArrayList <AsfPreferenceModel> lambdas = history.getAsfPreferenceModels(i);
