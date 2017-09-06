@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.ReferencePoint;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
 
 public abstract class DTLZ extends Problem{

@@ -129,20 +129,20 @@ public class ExperimentRunner {
 		System.out.println(minEucDist.get(minEucDist.size() - 1) + ", " + avgEucDist.get(avgEucDist.size() - 1));
 	}
 
-	private static void runNSGAIIIExperiment(Problem p, AsfRanker decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
+	private static void runPSEAExperiment(Problem p, AsfRanker decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
 		PreferenceCollector.getInstance().clear();
 		PSEA alg;		
 		alg = new PSEA(p,decisionMakerRanker);
 		alg.run();
 		
 		ExecutionHistory history = ExecutionHistory.getInstance();
-		for(int i=0; i < history.getGenerations().size(); i++){
-			Population pop = history.getGeneration(i);
-			ArrayList <AsfPreferenceModel> lambdas = history.getLambdas(i);
+		for(int i=0; i < history.getPopulations().size(); i++){
+			Population pop = history.getPopulation(i);
+			ArrayList <AsfPreferenceModel> lambdas = history.getAsfPreferenceModels(i);
 			minDist.add(Geometry.getMinDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
 			avgDist.add(Geometry.getAvgDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
 			double targetDir[] = decisionMakerRanker.getLambda();
-			modelDist.add(lambdas.stream().mapToDouble(lambda -> Geometry.dirDist(targetDir, lambda.getDim())).min().getAsDouble());
+			modelDist.add(lambdas.stream().mapToDouble(lambda -> Geometry.dirDist(targetDir, lambda.getLambda())).min().getAsDouble());
 		}
 		Evaluator.evaluateRun(p, decisionMakerRanker, alg.getPopulation());
 		System.out.println("Final min: " + history.getFinalMinDist());

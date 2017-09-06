@@ -65,7 +65,7 @@ public class GradientLambdaSearch {
 	
 			//Make sure that both endpoints and middle of interval have the same CV value
 			for(AsfPreferenceModel lambda : lambdas){
-				int eval = asfBundle.evaluateLambda(lambda);
+				int eval = asfBundle.evaluatePreferenceModel(lambda);
 				if( eval != interval.getCV() || eval > CV){
 					System.out.println("Error! CV values are different!");
 					return;
@@ -81,20 +81,20 @@ public class GradientLambdaSearch {
 		
 		//Get gradient from current lambda to bestLambda
 		for(int i=0; i<numDim; i++){
-			bestLambdaGrad[i] = lambda.getDim(i) - bestLambda.getDim(i);
+			bestLambdaGrad[i] = lambda.getLambda(i) - bestLambda.getLambda(i);
 		}
 		
-		assert( Math.abs( Arrays.stream(bestLambda.getDim()).sum() - 1) < Geometry.EPS );
-		assert( Math.abs( Arrays.stream(lambda.getDim()).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(bestLambda.getLambda()).sum() - 1) < Geometry.EPS );
+		assert( Math.abs( Arrays.stream(lambda.getLambda()).sum() - 1) < Geometry.EPS );
 				
 		// Perform interval search only if gradient is non-zero
 		if(Geometry.getLen(bestLambdaGrad) > Geometry.EPS){
-			intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getDim(), bestLambdaGrad));
+			intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getLambda(), bestLambdaGrad));
 		}
 	
 		//Additionally search for intervals on random direction from current lambda
 		double randomGrad[] = Geometry.getRandomVectorOnHyperplane(numDim, 1);
-		intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getDim(),  randomGrad));
+		intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getLambda(),  randomGrad));
 		
 		//Search on all gradients where only two dimensions change - one increases and second decreases by exactly same value
 		for(int i=0; i<numObjectives; i++){
@@ -102,7 +102,7 @@ public class GradientLambdaSearch {
 				double grad[] = new double[numObjectives];
 				grad[i]=1;
 				grad[j]=-1;
-				intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getDim(), grad));
+				intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getLambda(), grad));
 			}
 		}
 		//Search on all gradients where one dimensions increases and all other decreases
@@ -112,11 +112,11 @@ public class GradientLambdaSearch {
 				grad[j]=-1;
 			}
 			grad[i]=grad.length-1;
-			intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getDim(), grad));
+			intervals.addAll(getBestIntervalsOnGradientLine(asfBundle, lambda.getLambda(), grad));
 		}
 		
 		//Evaluate lambda to make sure that CV value is up-to-date
-		asfBundle.evaluateLambda(lambda);
+		asfBundle.evaluatePreferenceModel(lambda);
 		
 		if(PSEA.assertions){
 			for(Interval interval : intervals){
@@ -192,7 +192,7 @@ public class GradientLambdaSearch {
 				
 				if(PSEA.assertions){
 					double middleLambda[] = Geometry.linearCombination(l1, l2, (bestBeg + bestEnd)/2);
-					int eval = asfBundle.evaluateLambda(new AsfPreferenceModel(middleLambda));
+					int eval = asfBundle.evaluatePreferenceModel(new AsfPreferenceModel(middleLambda));
 					if(eval != CV){
 						System.out.println("MIDDLE_CV_DIFFERS");
 						System.out.println(eval + " != " + CV);
@@ -290,11 +290,11 @@ public class GradientLambdaSearch {
 		return lines;
 	}
 	
-	public ArrayList <AsfPreferenceModel> improveLambdas(ASFBundle asfBundle) {
-		ArrayList<AsfPreferenceModel> lambdas = asfBundle.getLambdas();
-		for(AsfPreferenceModel lambda : lambdas) asfBundle.evaluateLambda(lambda);
+	public ArrayList <AsfPreferenceModel> improvePreferenceModels(ASFBundle asfBundle) {
+		ArrayList<AsfPreferenceModel> lambdas = asfBundle.getPreferenceModels();
+		for(AsfPreferenceModel lambda : lambdas) asfBundle.evaluatePreferenceModel(lambda);
 		AsfPreferenceModel bestLambda = lambdas.stream().min(Comparator.comparing(AsfPreferenceModel::getNumViolations)).get();
-		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
+//		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();
 		for(AsfPreferenceModel lambda : lambdas){
 			intervals.addAll(getImprovingIntervals(asfBundle, lambda, bestLambda));	
@@ -315,7 +315,7 @@ public class GradientLambdaSearch {
 		
 		//TODO - for now pick random interval and random point, later it can be optimized for maximizing diversity
 		ArrayList <AsfPreferenceModel> res = new ArrayList<>();
-		LOGGER.log(Level.INFO, "Best interval CV: " + bestCV);
+//		LOGGER.log(Level.INFO, "Best interval CV: " + bestCV);
 		for(int i=0; i<N; i++){
 			int id = MyRandom.getInstance().nextInt( bestIntervals.size());
 			Interval interval = bestIntervals.get(id);

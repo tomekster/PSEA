@@ -448,7 +448,7 @@ public class MainWindow {
 
 	private XYDataset createDataset() {
 		Population pop;
-		pop = history.getGeneration(currentPopulationId);
+		pop = history.getPopulation(currentPopulationId);
 		
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
@@ -472,8 +472,8 @@ public class MainWindow {
 	}
 
 	private XYDataset createDatasetOnHyperplane() {
-		ArrayList<Population> generationsHistory = history.getGenerations();
-		ArrayList<ArrayList<AsfPreferenceModel>> lambdaPointsHistory = history.getLambdasHistory();
+		ArrayList<Population> generationsHistory = history.getPopulations();
+		ArrayList<ArrayList<AsfPreferenceModel>> lambdaPointsHistory = history.getASFbundles();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (lambdaPointsHistory != null) {
@@ -520,7 +520,7 @@ public class MainWindow {
 		
 		if(showLambda){
 			for (AsfPreferenceModel lambda : lambdas) {
-				t = Geometry.cast3dPointToPlane(lambda.getDim());
+				t = Geometry.cast3dPointToPlane(lambda.getLambda());
 				lambdaSeries.add(t[0], t[1]);		
 			}
 		}

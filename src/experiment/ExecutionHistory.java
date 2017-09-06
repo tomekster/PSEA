@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.NSGAIII;
-import algorithm.nsgaiii.ReferencePoint;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
@@ -30,8 +30,8 @@ public class ExecutionHistory implements Serializable {
 
 	protected ExecutionHistory(){
 		// Exists only to defeat instantiation.
-		this.generations = new ArrayList<>();
-		this.lambdas = new ArrayList< ArrayList<AsfPreferenceModel> >();
+		this.populations = new ArrayList<>();
+		this.asfBundles = new ArrayList< ArrayList<AsfPreferenceModel> >();
 		this.hyperplanePoints = new ArrayList< ArrayList<ReferencePoint> >();
 		this.bestChebSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
@@ -50,8 +50,8 @@ public class ExecutionHistory implements Serializable {
 	private int numLambdas;
 	
 	private Population targetPoints;
-	private ArrayList<Population> generations;
-	private ArrayList< ArrayList<AsfPreferenceModel> > lambdas;
+	private ArrayList<Population> populations;
+	private ArrayList< ArrayList<AsfPreferenceModel> > asfBundles;
 	private ArrayList <ArrayList<ReferencePoint> > hyperplanePoints;
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
@@ -70,24 +70,24 @@ public class ExecutionHistory implements Serializable {
 	public void setTargetPoints(Population targetPoints) {
 		this.targetPoints = targetPoints;
 	}
-	public ArrayList<Population> getGenerations() {
-		return generations;
+	public ArrayList<Population> getPopulations() {
+		return populations;
 	}
 	public void addGeneration(Population pop){
-		this.generations.add(pop);
+		this.populations.add(pop);
 	}
-	public Population getGeneration(int pos){
-		return generations.get(pos);
+	public Population getPopulation(int pos){
+		return populations.get(pos);
 	}
 
-	public ArrayList< ArrayList<AsfPreferenceModel> > getLambdasHistory() {
-		return lambdas;
+	public ArrayList< ArrayList<AsfPreferenceModel> > getASFbundles() {
+		return asfBundles;
 	}
-	public ArrayList<AsfPreferenceModel> getLambdas(int id){
-		return lambdas.get(id);
+	public ArrayList<AsfPreferenceModel> getAsfPreferenceModels(int id){
+		return asfBundles.get(id);
 	}
-	public void addLambdas(ArrayList<AsfPreferenceModel>  lambdas){
-		this.lambdas.add(lambdas);
+	public void addAsfBundle(ArrayList<AsfPreferenceModel>  asfBundle){
+		this.asfBundles.add(asfBundle);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
@@ -169,30 +169,30 @@ public class ExecutionHistory implements Serializable {
 	}
 
 	public int getNumGenerations() {
-		return this.generations.size();
+		return this.populations.size();
 	}
 
 	public void clear() {
-		generations = new ArrayList<>();
-		lambdas = new ArrayList< ArrayList<AsfPreferenceModel> >();
+		populations = new ArrayList<>();
+		asfBundles = new ArrayList< ArrayList<AsfPreferenceModel> >();
 		bestChebSol = new ArrayList <Solution>();
 		bestChebVal = new ArrayList <Double>();
 	}
 
-	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle lambda, AsfRanker decisionMakerRanker) {
+	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle asfBundle, AsfRanker decisionMakerRanker) {
 		clear();
 		setPopulationSize(nsgaiii.getPopulation().size());
 		setProblem(problem);
 		setNumVariables(problem.getNumVariables());
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
-		addLambdas(lambda.getLambdas());
+		addAsfBundle(asfBundle.getPreferenceModels());
 		addHyperplanePoints(nsgaiii.getHyperplane());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
-		setLambdasConverged(false);
-		setNumLambdas(lambda.getNumLambdas());
+		setAsfBundleConverged(false);
+		setNumPrefModels(asfBundle.getNumLambdas());
 	}
 
 	public void setProblem(Problem problem) {
@@ -205,8 +205,8 @@ public class ExecutionHistory implements Serializable {
 	
 	public void update(Population population, ASFBundle lambda, Hyperplane hp) {
 		addGeneration(population.copy());
-		ArrayList <AsfPreferenceModel> lambdasCopy = new ArrayList <> (lambda.getLambdas()); 
-		addLambdas(lambdasCopy);
+		ArrayList <AsfPreferenceModel> lambdasCopy = new ArrayList <> (lambda.getPreferenceModels()); 
+		addAsfBundle(lambdasCopy);
 		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
 		addHyperplanePoints(hp);
 	}
@@ -215,7 +215,7 @@ public class ExecutionHistory implements Serializable {
 		return lambdasConverged;
 	}
 
-	public void setLambdasConverged(boolean lambdasConverged) {
+	public void setAsfBundleConverged(boolean lambdasConverged) {
 		this.lambdasConverged = lambdasConverged;
 	}
 	
@@ -255,7 +255,7 @@ public class ExecutionHistory implements Serializable {
 		return numLambdas;
 	}
 
-	public void setNumLambdas(int numLambdas) {
+	public void setNumPrefModels(int numLambdas) {
 		this.numLambdas = numLambdas;
 	}
 

@@ -1,10 +1,9 @@
-package algorithm.nsgaiii;
+package algorithm.nsgaiii.hyperplane;
 
 import java.io.Serializable;
 import java.util.PriorityQueue;
 
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.hyperplane.Association;
 
 public class ReferencePoint extends Solution implements Serializable{
 	/**

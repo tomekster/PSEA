@@ -46,16 +46,7 @@ public abstract class EA {
 		generation++;
 		assert population.size() % 2 == 0;
 		Population offspring = createOffspring(population);
-		
-//		if(generation%50==0){
-//			problem.evaluate(population);
-//			problem.evaluate(offspring);
-//			ArrayList<ArrayList<double[]>> points = new ArrayList<>();
-//			points.add(PythonVisualizer.convert(population));
-//			points.add(PythonVisualizer.convert(offspring));
-//			PythonVisualizer.visualise(problem.getNumObjectives(), points);
-//		}
-		
+				
 		Population combinedPopulation = new Population();
 
 		combinedPopulation.addSolutions(population);

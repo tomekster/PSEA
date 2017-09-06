@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.Geometry;
 
 public class ReferencePointTest {

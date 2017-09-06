@@ -45,7 +45,7 @@ import org.xdat.exceptions.InconsistentDataException;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.AsfPreferenceModel;
 import experiment.ExecutionHistory;
 
@@ -257,7 +257,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
 
 		int idCounter = 1;
-		Population pop = ExecutionHistory.getInstance().getGeneration(generationId);
+		Population pop = ExecutionHistory.getInstance().getPopulation(generationId);
 
 		for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
 			this.parameters.add(new Parameter("f" + (i+1), this));
@@ -274,11 +274,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
+		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getAsfPreferenceModels(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
-				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getDim(i)));
+				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getLambda(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);
@@ -444,7 +444,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
 
 		int idCounter = 0;
-		Population pop = ExecutionHistory.getInstance().getGeneration(generationId);
+		Population pop = ExecutionHistory.getInstance().getPopulation(generationId);
 		
 		progressMonitor.setMaximum(pop.size());
 
@@ -476,11 +476,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getLambdas(generationId)){
+		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getAsfPreferenceModels(generationId)){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
-				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getDim(i)));
+				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getLambda(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);

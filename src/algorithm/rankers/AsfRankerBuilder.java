@@ -19,45 +19,45 @@ public class AsfRankerBuilder{
 		switch(id){
 		case 1:
 			for(int i=0; i<dim; i++){direction[i] = 1;}
-			name = "1BalancedCentral";
+			name = "1AllObjEqual";
 			break;
 		case 2:
 			for(int i=0; i<dim; i++){direction[i] = 1;}
 			direction[0] = dim-1;
-			name = "2LeftMostImportant";
+			name = "2MinimizeFirstObj";
 			break;
 		case 3:
 			for(int i=0; i<dim; i++){direction[i] = 1;}
 			direction[dim/2] = dim-1;
-			name = "3CentralMostImportant";
+			name = "3MinimizeMiddleObj";
 			break;
 		case 4:
 			for(int i=0; i<dim; i++){direction[i] = 1;}
 			direction[dim-1] = dim-1;
-			name = "4RightMostImportant";
+			name = "4MinimizeLastObj";
 			break;
 		case 5:
 			for(int i=0; i<dim; i++){direction[i] = 10;}
 			direction[0] = 1;
-			name = "5LeftIrrelevant";
+			name = "5MaximizeFirstObj";
 			break;
 		case 6:
 			for(int i=0; i<dim; i++){direction[i] = 10;}
 			direction[dim/2] = 1;
-			name = "6CentralIrrelevant";
+			name = "6MaximizeMiddleObj";
 			break;
 		case 7:
 			for(int i=0; i<dim; i++){direction[i] = 10;}
 			direction[dim-1] = 1;
-			name = "7RightIrrelevant";
+			name = "7MaximizeLastObj";
 			break;
 		case 8:
 			for(int i=0; i<dim; i++){direction[i] = i+1;}
-			name = "8LinearyIncreasing";
+			name = "8IncreasingCoef";
 			break;
 		case 9:
 			for(int i=0; i<dim; i++){direction[i] = dim-i;}
-			name = "9LinearyDecreasing";
+			name = "9DecreasingCoef";
 			break;
 		}
 		

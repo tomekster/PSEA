@@ -2,25 +2,30 @@ package experiment;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import utils.math.Geometry;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 
 public class PythonVisualizer {
-
-	static final String DATA_FILE_NAME = "tmpVizData.txt";
 	
-	public static void visualise(int numObjectives, ArrayList <ArrayList <double[]>> dataPoints) {
+	
+	public static void saveResults(int numObjectives, ArrayList <ArrayList <double[]>> dataPoints, String filename) {
+		visualize(numObjectives, dataPoints, filename, "plot.py");
+	}
+	public static void colorMap(int numObjectives, ArrayList <ArrayList <double[]>> dataPoints, String filename) {
+		visualize(numObjectives, dataPoints, filename, "colorMap.py");
+	}
+	
+	public static void visualize(int numObjectives, ArrayList <ArrayList <double[]>> dataPoints, String filename, String scriptName) {
+		writeVisualizatoinData(numObjectives, dataPoints, filename);
+		if(numObjectives > 3) return;
 		
-		writeVisualizatoinData(numObjectives, dataPoints);
 		String cmd[] = new String[3];
 		cmd[0] = "python";
-		cmd[1] = "plot.py";
-		cmd[2] = DATA_FILE_NAME;
+		cmd[1] = scriptName;
+		cmd[2] = filename;
 		
 		Runtime rt = Runtime.getRuntime();
 		Process pr;
@@ -42,15 +47,12 @@ public class PythonVisualizer {
 //		}
 	}
 	
-	private static void writeVisualizatoinData(int numObjectives, ArrayList<ArrayList<double[]>> dataPoints) {
+	private static void writeVisualizatoinData(int numObjectives, ArrayList<ArrayList<double[]>> dataPoints, String filename) {
 		try{
-		    PrintWriter writer = new PrintWriter(DATA_FILE_NAME, "UTF-8");
+		    PrintWriter writer = new PrintWriter(filename, "UTF-8");
 		    writer.println(numObjectives);
 		    for(int i=0; i<dataPoints.size(); i++){
 				for(double[] point : dataPoints.get(i)){
-					if( Arrays.stream(point).sum() < 0.5 - Geometry.EPS){
-						System.out.println("ERR");
-					}
 					for(double d : point){
 						writer.print(" " + d);
 					}
@@ -67,6 +69,23 @@ public class PythonVisualizer {
 		ArrayList <double[]> points = new ArrayList<>();
 		for(Solution s : pop.getSolutions()){
 			points.add(s.getObjectives());
+		}
+		return points;
+	}
+	
+	public static ArrayList<double[]> convert(ArrayList <ReferencePoint> referencePoints) {
+		ArrayList <double[]> points = new ArrayList<>();
+		for(ReferencePoint rp : referencePoints){
+			points.add(rp.getDim());
+		}
+		return points;
+	}
+	
+	public static ArrayList<double[]> convert(Double[] array) {
+		ArrayList <double[]> points = new ArrayList<>();
+		for(double d : array){
+			double tmp[] = {d};
+			points.add(tmp);
 		}
 		return points;
 	}

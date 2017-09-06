@@ -11,7 +11,7 @@ import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.nsgaiii.NSGAIII;
-import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Elicitator;
 import algorithm.psea.preferences.PreferenceCollector;
@@ -91,15 +91,16 @@ public class PSEA extends EA implements Runnable {
 	 */
 	public void run() {
 		LOGGER.setLevel(Level.INFO);
-		LOGGER.info("Running NSGAIII with SpreadThreshold.");
+		LOGGER.info("Running NSGAIII for" + problem.getName() + "_" + problem.getNumObjectives() + "obj_" + DMranker.getName());
 		
 //		singleObjective();
 		exploreExploit();
 //		shrinkingHyperplane();
 //		exactHyperplane();
 //		exactShrinkHyperplane();
-		System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
-		
+		if(generation%100 == 0){
+			System.out.println("Exploration/Exploitation comparisons: " + explorationComparisons + "/" + exploitationComparisons);
+		}
 	}
 
 	private void exactHyperplane() {
@@ -118,10 +119,10 @@ public class PSEA extends EA implements Runnable {
 	}
 
 	private void exactShrinkHyperplane() {
-		asfBundle.getLambdas().clear();
+		asfBundle.getPreferenceModels().clear();
 		nsgaiii.setHyperplane(Geometry.generateNewHyperplane(problem.getNumObjectives(),0.01, Geometry.dir2point(DMranker.getLambda())));
 		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
-			asfBundle.getLambdas().add(new AsfPreferenceModel(rp.getDim()));
+			asfBundle.getPreferenceModels().add(new AsfPreferenceModel(rp.getDim()));
 		}
 		for(int i=0; i<1500; i++){
 			generation++;
@@ -221,7 +222,9 @@ public class PSEA extends EA implements Runnable {
 				}
 			}
 			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
-			System.out.println("Exploration: " + generation + " " + explorationComparisons);
+			if(generation % 100 == 0){
+				System.out.println("Exploration: " + generation + " " + explorationComparisons);
+			}
 		}
 	}
 	
@@ -231,13 +234,13 @@ public class PSEA extends EA implements Runnable {
 		int maxDiscriminativePOwer = 0, maxExploitationComparisons=30;
 		
 		if(problem.getNumObjectives() == 3){
-			maxExploitationComparisons = 30;
+			maxExploitationComparisons = 10;
 		}
 		else if(problem.getNumObjectives() == 5){
-			maxExploitationComparisons = 30;
+			maxExploitationComparisons = 20;
 		}
 		else if(problem.getNumObjectives() == 8){
-			maxExploitationComparisons = 40;
+			maxExploitationComparisons = 30;
 		}
 		
 		double maxDist;
@@ -254,10 +257,12 @@ public class PSEA extends EA implements Runnable {
 			}
 			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 			maxDist = Geometry.maxDist(population);
-			double nearestLambda = ASFBundle.getInstance().getLambdas().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getDim(), DMranker.getLambda())).min().getAsDouble();
+			double nearestLambda = ASFBundle.getInstance().getPreferenceModels().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), DMranker.getLambda())).min().getAsDouble();
 			double trueNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(DMranker.getLambda()))).min().getAsDouble();
 			double lambdaNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(ASFBundle.getInstance().getAverageLambdaPoint()))).min().getAsDouble();
-			System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " model dist: " + String.format("%6.3e",nearestLambda) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " lambdaSolDist: " + String.format("%6.3e",lambdaNearestSolution));
+			if(generation % 100 == 0){
+				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " model dist: " + String.format("%6.3e",nearestLambda) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " lambdaSolDist: " + String.format("%6.3e",lambdaNearestSolution));
+			}
 		}while(maxDist > 1e-4 && generation < 1500);
 	}
 	

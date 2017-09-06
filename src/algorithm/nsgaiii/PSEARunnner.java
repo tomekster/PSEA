@@ -10,10 +10,10 @@ import experiment.Evaluator;
 import experiment.ExecutionHistory;
 import problems.Problem;
 
-public class NSGAIIIRunnner {
-	public static void runNSGAIII() {
+public class PSEARunnner {
+	public static void runPSEA() {
 		ExecutionHistory.getInstance().clear();
-		NSGAIIIParameters params = NSGAIIIParameters.getInstance();
+		PSEAParameters params = PSEAParameters.getInstance();
 		Constructor problemConstructor = null;
 		try {
 			Class c = null;

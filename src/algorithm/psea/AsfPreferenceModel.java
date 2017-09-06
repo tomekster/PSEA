@@ -19,7 +19,7 @@ public class AsfPreferenceModel extends Solution implements Serializable{
 
 	public AsfPreferenceModel(AsfPreferenceModel rp) {
 		this(rp.getNumDimensions());
-		this.obj = rp.getDim().clone();
+		this.obj = rp.getLambda().clone();
 	}
 	
 	public AsfPreferenceModel(double []dimensions) {
@@ -31,11 +31,11 @@ public class AsfPreferenceModel extends Solution implements Serializable{
 		return obj.length;
 	}
 
-	public double[] getDim() {
+	public double[] getLambda() {
 		return obj;
 	}
 	
-	public double getDim(int i){
+	public double getLambda(int i){
 		return getObjective(i);
 	}
 	

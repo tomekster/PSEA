@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.ReferencePoint;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.GradientLambdaSearch;
 import algorithm.rankers.AsfRanker;
@@ -26,7 +26,7 @@ public class ASFBundle {
 
 	private int numObjectives;
 	private int bundleSize;
-	private ArrayList <AsfPreferenceModel> lambdas;
+	private ArrayList <AsfPreferenceModel> asfPreferenceModels;
 	private GradientLambdaSearch GLS;
 	
 	protected ASFBundle(){
@@ -55,9 +55,9 @@ public class ASFBundle {
 		}
 		this.referencePoint = problem.findIdealPoint();
 		
-		lambdas = new ArrayList<>();
+		asfPreferenceModels = new ArrayList<>();
 		for (int i=0; i<bundleSize; i++) {
-			lambdas.add(new AsfPreferenceModel(Geometry.getRandomVectorSummingTo1(numObjectives)));
+			asfPreferenceModels.add(new AsfPreferenceModel(Geometry.getRandomVectorSummingTo1(numObjectives)));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
 	}
@@ -67,8 +67,8 @@ public class ASFBundle {
 	 * Sets ReferencePoint penalty, reward and numViolations fields.
 	 * @param rp
 	 */
-	public int evaluateLambda(AsfPreferenceModel l) {
-		double lambda[] = l.getDim();
+	public int evaluatePreferenceModel(AsfPreferenceModel l) {
+		double lambda[] = l.getLambda();
 		int numViolations = 0;
 		double reward = 1, penalty = 1;
 		for(Comparison c : PreferenceCollector.getInstance().getComparisons()){
@@ -95,31 +95,31 @@ public class ASFBundle {
 		return numViolations;
 	}
 
-	public ArrayList<AsfPreferenceModel> getLambdas() {
-		return this.lambdas;
+	public ArrayList<AsfPreferenceModel> getPreferenceModels() {
+		return this.asfPreferenceModels;
 	}
 
 	public void nextGeneration() {
 		for(int i=0; i<bundleSize; i++) { 
-			lambdas.add(new AsfPreferenceModel(Geometry.getRandomVectorSummingTo1(this.numObjectives))); //Add random lambdas to current bundle to increase the diversity 
+			asfPreferenceModels.add(new AsfPreferenceModel(Geometry.getRandomVectorSummingTo1(this.numObjectives))); //Add random lambdas to current bundle to increase the diversity 
 		}
-		ArrayList <AsfPreferenceModel> newLambdas = selectNewLambdas(GLS.improveLambdas(this));
-		LOGGER.log(Level.INFO, "Best/worse CV:" + newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).max().getAsInt());
-		this.lambdas = newLambdas;
+		ArrayList <AsfPreferenceModel> newPreferenceModels = selectNewPreferenceModels(GLS.improvePreferenceModels(this));
+//		LOGGER.log(Level.INFO, "Best/worse CV:" + newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).max().getAsInt());
+		this.asfPreferenceModels = newPreferenceModels;
 	}
 	
-	protected ArrayList <AsfPreferenceModel> selectNewLambdas(ArrayList <AsfPreferenceModel> lambdas) {
-		for(AsfPreferenceModel l : lambdas){
-			double lambda[] = l.getDim();
+	protected ArrayList <AsfPreferenceModel> selectNewPreferenceModels(ArrayList <AsfPreferenceModel> preferenceModels) {
+		for(AsfPreferenceModel l : preferenceModels){
+			double lambda[] = l.getLambda();
 			if(MyRandom.getInstance().nextDouble() < 0.3){
 				//TODO - mutation of lambdas (randomNeighbour)
 				lambda = Geometry.getRandomNeighbour(lambda, 0.1); //Mutate lambda just a little bit randomly
 			}
 			l.setDim(lambda);
-			evaluateLambda(l);
+			evaluatePreferenceModel(l);
 		}
-		Collections.sort(lambdas, new ConstraintViolationRanker());
-		return new ArrayList<AsfPreferenceModel>(lambdas.subList(0, bundleSize));
+		Collections.sort(preferenceModels, new ConstraintViolationRanker());
+		return new ArrayList<AsfPreferenceModel>(preferenceModels.subList(0, bundleSize));
 	}
 	
 	public boolean converged(){
@@ -130,10 +130,10 @@ public class ASFBundle {
 			max[i] = -Double.MAX_VALUE;
 		}
 		
-		for(AsfPreferenceModel lambda : lambdas){
+		for(AsfPreferenceModel asfPreferenceModel : asfPreferenceModels){
 			for(int i=0; i<numObjectives; i++){
-				if(lambda.getDim(i) < min[i]){ min[i] = lambda.getDim(i); }
-				if(lambda.getDim(i) > max[i]){ max[i] = lambda.getDim(i); }
+				if(asfPreferenceModel.getLambda(i) < min[i]){ min[i] = asfPreferenceModel.getLambda(i); }
+				if(asfPreferenceModel.getLambda(i) > max[i]){ max[i] = asfPreferenceModel.getLambda(i); }
 			}
 		}
 		
@@ -146,8 +146,8 @@ public class ASFBundle {
 	@Override
 	public String toString(){
 		String res="";
-		for(AsfPreferenceModel lambda : lambdas){
-			res += lambda.toString() + "\n" + lambda.getNumViolations() + "\n";
+		for(AsfPreferenceModel asfPreferenceModel : asfPreferenceModels){
+			res += asfPreferenceModel.toString() + "\n" + asfPreferenceModel.getNumViolations() + "\n";
 		}
 		return res;
 	}
@@ -162,13 +162,13 @@ public class ASFBundle {
 
 	public double[] getAverageLambdaPoint() {
 		double res[] = new double[numObjectives];
-		for(AsfPreferenceModel lambda : lambdas){
+		for(AsfPreferenceModel lambda : asfPreferenceModels){
 			for(int i=0; i<numObjectives; i++){
-				res[i] += lambda.getDim(i);
+				res[i] += lambda.getLambda(i);
 			}
 		}
 		for(int i=0; i<numObjectives; i++){
-			res[i] /= lambdas.size();
+			res[i] /= asfPreferenceModels.size();
 		}
 		return res;
 	}

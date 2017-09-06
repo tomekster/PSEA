@@ -49,10 +49,10 @@ public class Elicitator {
 		int maxSplit = -1, res1=-1,res2=-1,inc=-1, id1=-1, id2=-1;
 		
 		//Evaluate all solutions by all lambdas
-		double solutionsLambdasEvals[][] = new double[pop.size()][asfBundle.getLambdas().size()];
+		double solutionsLambdasEvals[][] = new double[pop.size()][asfBundle.getPreferenceModels().size()];
 		for(int i=0; i<pop.size(); i++){
-			for( int j=0; j<asfBundle.getLambdas().size(); j++){
-				solutionsLambdasEvals[i][j] = AsfRanker.eval(pop.getSolution(i), null, asfBundle.getLambdas().get(j).getDim());
+			for( int j=0; j<asfBundle.getPreferenceModels().size(); j++){
+				solutionsLambdasEvals[i][j] = AsfRanker.eval(pop.getSolution(i), null, asfBundle.getPreferenceModels().get(j).getLambda());
 			}
 		}
 		int numObjectives = pop.getSolution(0).getNumObjectives();
@@ -63,7 +63,7 @@ public class Elicitator {
 				int score1=0, score2=0, incomparable=0;
 				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
 				
-				for(int k = 0; k<asfBundle.getLambdas().size(); k++){
+				for(int k = 0; k<asfBundle.getPreferenceModels().size(); k++){
 					if(solutionsLambdasEvals[i][k] < solutionsLambdasEvals[j][k]) score1++;
 					else if(solutionsLambdasEvals[i][k] > solutionsLambdasEvals[j][k]) score2++;
 					else incomparable++;
@@ -89,7 +89,7 @@ public class Elicitator {
 				}
 			}
 		}
-		LOGGER.log(Level.INFO, "final split:" + res1 + " " + res2 + " " + inc);
+		//LOGGER.log(Level.INFO, "final split:" + res1 + " " + res2 + " " + inc);
 		Pair <Integer, Integer> pi = null;
 		if(maxSplit == 0){
 			 pi =  getRandomIds(pop.size());

@@ -8,6 +8,7 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.Association;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.DegeneratedMatrixException;
 import utils.math.GaussianElimination;
 import utils.math.Geometry;

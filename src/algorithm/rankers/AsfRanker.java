@@ -11,9 +11,7 @@ import utils.math.structures.Pair;
 
 public class AsfRanker implements Serializable, Comparator<Solution>{
 	
-	/**
-	 * 
-	 */
+	private final static double DEFAULT_RHO = 0.0001;
 	private static final long serialVersionUID = -6759292394593558688L;
 	//TODO - add tests for Chebyshev function
 	private double lambda[];
@@ -27,31 +25,23 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 		}
 		this.refPoint = refPoint;
 		this.lambda = lambda;
-		AsfRanker.rho = 0.0001;
-		this.setName(name);
+		AsfRanker.rho = DEFAULT_RHO;
+		this.name = name;
 	}
 	
 	public AsfRanker(double lambda[]){
 		this(new double[lambda.length], lambda, "");
 	}
 	
-	public double eval(Solution s){
-		return eval(s, this.refPoint, this.lambda);
-	}
 	
 	public Population sortPopulation(Population pop){
-		Collections.sort(pop.getSolutions(), new Comparator <Solution>() {
-			@Override
-			public int compare(Solution s1, Solution s2) {
-				return compare(s1, s2);
-			}
-		});
+		Collections.sort(pop.getSolutions(), this);
 		return pop;
 	}
 	
 	public static int compareSolutions(Solution s1, Solution s2, double refPoint[], double lambda[]){
-		double val1 = eval(s1, refPoint, lambda);
-		double val2 = eval(s2, refPoint, lambda);
+		double val1 = eval(s1.getObjectives(), refPoint, lambda);
+		double val2 = eval(s2.getObjectives(), refPoint, lambda);
 		if ( val1 < val2 )
 			return -1;
 		else if ( val1 > val2 )
@@ -60,22 +50,33 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 			return 0;
 	}
 	
+	public double eval(Solution s){
+		return eval(s.getObjectives());
+	}
+	public double eval(double obj[]){
+		return eval(obj, this.refPoint, this.lambda);
+	}
+	
 	public static double eval(Solution s, double refPoint[], double lambda[]){
-		return classicEval(s, refPoint, lambda);
+		return eval(s.getObjectives(), refPoint, lambda);
+	}
+	
+	public static double eval(double obj[], double refPoint[], double lambda[]){
+		return classicEval(obj, refPoint, lambda);
 //		return sternalEval(s, refPoint, lambda);
 //		return slowinskiEval(s, refPoint, lambda);
 //		return lpEval(s, refPoint, lambda, 4);
 	}
 	
-	public static double classicEval(Solution s, double refPoint[], double lambda[]){
+	public static double classicEval(double obj[], double refPoint[], double lambda[]){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
 		}
 		double res = -Double.MAX_VALUE;
 		double sum = 0;
-		for(int i=0; i<s.getNumObjectives(); i++){
-			double mult = lambda[i] * (s.getObjective(i) - refPoint[i]);
+		for(int i=0; i<obj.length; i++){
+			double mult = lambda[i] * (obj[i] - refPoint[i]);
 			res = Double.max(mult, res);
 			sum += mult;
 		}

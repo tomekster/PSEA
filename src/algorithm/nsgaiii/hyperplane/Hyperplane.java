@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.ReferencePoint;
 import utils.math.Geometry;
 
 public class Hyperplane {
@@ -34,11 +33,16 @@ public class Hyperplane {
 		}
 	}
 
-	private void generateReferencePoints() {
+	public void generateReferencePoints(){
+		generateReferencePoints(getNumPartitions());
+	}
+	
+	public void generateReferencePoints(ArrayList <Integer> partitions) {
+		referencePoints.clear();
+		
 		ArrayList<ReferencePoint> boundaryLayer = new ArrayList<>();
 		ArrayList<ReferencePoint> insideLayer = new ArrayList<>();
 
-		ArrayList<Integer> partitions = getNumPartitions();
 		int p = partitions.get(0);
 		generateRecursive(new ReferencePoint(dim), 1.0 / p, 0, p, boundaryLayer);
 		referencePoints.addAll(boundaryLayer);

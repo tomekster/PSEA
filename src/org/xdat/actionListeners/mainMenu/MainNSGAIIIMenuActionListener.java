@@ -30,9 +30,8 @@ import org.xdat.Main;
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.menus.mainWIndow.MainNSGAIIIMenu;
 import org.xdat.workerThreads.NSGAIIIDataSheetCreationThread;
-import org.xdat.workerThreads.ParallelCoordinatesChartCreationThread;
 
-import algorithm.nsgaiii.NSGAIIIRunnner;
+import algorithm.nsgaiii.PSEARunnner;
 import experiment.ExecutionHistory;
 
 /**
@@ -70,7 +69,7 @@ public class MainNSGAIIIMenuActionListener implements ActionListener {
 			if (mainWindow.getChartFrameCount() == 0 || JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(mainWindow, "This operation will close all charts.\n Are you sure you want to continue?", "Import Data", JOptionPane.OK_CANCEL_OPTION)) {
 				mainWindow.disposeAllChartFrames();
 				
-				NSGAIIIRunnner.runNSGAIII();
+				PSEARunnner.runPSEA();
 
 				ProgressMonitor progressMonitor = new ProgressMonitor(mainWindow, "", "Building Chart...", 0, 100);
 				progressMonitor.setProgress(0);

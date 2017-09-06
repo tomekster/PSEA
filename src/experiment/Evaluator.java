@@ -10,11 +10,11 @@ import problems.Problem;
 import utils.math.Geometry;
 
 public class Evaluator {
-	public static void evaluateRun(Problem prob, AsfRanker dmr, Population res) {
-		double targetPoint[] = prob.getTargetPoint(dmr.getLambda());
+	public static void evaluateRun(Problem problem, AsfRanker asfRanker, Population res) {
+		double targetPoint[] = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
 		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
 		System.out.println("Final population range: ");
-		for(int i=0; i< prob.getNumObjectives(); i++){
+		for(int i=0; i< problem.getNumObjectives(); i++){
 			double min = Double.MAX_VALUE, sum = 0, max = -Double.MAX_VALUE;
 			for(Solution s : res.getSolutions()){
 				double o = s.getObjective(i);
@@ -30,6 +30,6 @@ public class Evaluator {
 			ExecutionHistory.getInstance().setFinalAvgDist(Geometry.getAvgDist(targetPoint, res));
 		}
 		
-		ExecutionHistory.getInstance().setLambdasConverged(ASFBundle.getInstance().converged());
+		ExecutionHistory.getInstance().setAsfBundleConverged(ASFBundle.getInstance().converged());
 	}
 }

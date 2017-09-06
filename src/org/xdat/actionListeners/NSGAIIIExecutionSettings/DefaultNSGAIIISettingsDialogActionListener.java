@@ -29,7 +29,7 @@ import org.xdat.actionListeners.parallelCoordinatesDisplaySettings.ChartSpecific
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.panels.ParallelCoordinatesChartDisplaySettingsPanel;
 
-import algorithm.nsgaiii.NSGAIIIParameters;
+import algorithm.nsgaiii.PSEAParameters;
 
 /**
  * ActionListener for the Ok button of a
@@ -74,15 +74,15 @@ public class DefaultNSGAIIISettingsDialogActionListener implements ActionListene
 	public void actionPerformed(ActionEvent e) {
 		String actionCommand = e.getActionCommand();
 		if (actionCommand == "Ok") {
-			NSGAIIIParameters.getInstance().setProblemName(this.dialog.getNSGAIIISettingsPanel().getProblemsSelection());
-			NSGAIIIParameters.getInstance().setNumberObjectives(this.dialog.getNSGAIIISettingsPanel().getNumberObjectivesSelection());
-			NSGAIIIParameters.getInstance().setNumberExplorationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExplorationGenerationsSelection());
-			NSGAIIIParameters.getInstance().setNumberExploitationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExploitationGenerationsSelection());
-			NSGAIIIParameters.getInstance().setNumberRuns(this.dialog.getNSGAIIISettingsPanel().getNumberRunsSelection());
-			NSGAIIIParameters.getInstance().setElicitationInterval(this.dialog.getNSGAIIISettingsPanel().getElicitationsFrequency());
-			NSGAIIIParameters.getInstance().setShowTargetPoints(this.dialog.getNSGAIIISettingsPanel().getShowTargetPointsSelection());
-			NSGAIIIParameters.getInstance().setShowLambdas(this.dialog.getNSGAIIISettingsPanel().getShowLambdasSelection());
-			NSGAIIIParameters.getInstance().setShowComparisons(this.dialog.getNSGAIIISettingsPanel().getShowComparisonsSelection());
+			PSEAParameters.getInstance().setProblemName(this.dialog.getNSGAIIISettingsPanel().getProblemsSelection());
+			PSEAParameters.getInstance().setNumberObjectives(this.dialog.getNSGAIIISettingsPanel().getNumberObjectivesSelection());
+			PSEAParameters.getInstance().setNumberExplorationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExplorationGenerationsSelection());
+			PSEAParameters.getInstance().setNumberExploitationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExploitationGenerationsSelection());
+			PSEAParameters.getInstance().setNumberRuns(this.dialog.getNSGAIIISettingsPanel().getNumberRunsSelection());
+			PSEAParameters.getInstance().setElicitationInterval(this.dialog.getNSGAIIISettingsPanel().getElicitationsFrequency());
+			PSEAParameters.getInstance().setShowTargetPoints(this.dialog.getNSGAIIISettingsPanel().getShowTargetPointsSelection());
+			PSEAParameters.getInstance().setShowLambdas(this.dialog.getNSGAIIISettingsPanel().getShowLambdasSelection());
+			PSEAParameters.getInstance().setShowComparisons(this.dialog.getNSGAIIISettingsPanel().getShowComparisonsSelection());
 			log(" OK: Tic label color = " + UserPreferences.getInstance().getParallelCoordinatesAxisTicLabelFontColor().toString());
 			this.dialog.dispose();
 		} else if (actionCommand == "Cancel") {

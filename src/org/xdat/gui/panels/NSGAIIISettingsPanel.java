@@ -43,7 +43,7 @@ import org.xdat.gui.buttons.MinMaxSpinnerModel;
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.frames.ChartFrame;
 
-import algorithm.nsgaiii.NSGAIIIParameters;
+import algorithm.nsgaiii.PSEAParameters;
 
 /**
  * Panel to modify display settings for a
@@ -129,27 +129,27 @@ public class NSGAIIISettingsPanel extends JPanel {
 		// set states
 		problemsComboBox.setName("problemsComboBox");
 		numObjectivesComboBox.setName("numObjectivesComboBox");
-		this.problemsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getProblemName());
-		this.numObjectivesComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberObjectives());
-		this.numExplorationGenerationsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberExplorationGenerations());
-		this.numExploitationGenerationsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberExploitationGenerations());
-		this.numRunsComboBox.setSelectedItem(NSGAIIIParameters.getInstance().getNumberRuns());
-		this.elicitationFrequencySpinner.setValue(NSGAIIIParameters.getInstance().getElicitationInterval());
-		if(NSGAIIIParameters.getInstance().isShowTargetPoints()){
+		this.problemsComboBox.setSelectedItem(PSEAParameters.getInstance().getProblemName());
+		this.numObjectivesComboBox.setSelectedItem(PSEAParameters.getInstance().getNumberObjectives());
+		this.numExplorationGenerationsComboBox.setSelectedItem(PSEAParameters.getInstance().getNumberExplorationGenerations());
+		this.numExploitationGenerationsComboBox.setSelectedItem(PSEAParameters.getInstance().getNumberExploitationGenerations());
+		this.numRunsComboBox.setSelectedItem(PSEAParameters.getInstance().getNumberRuns());
+		this.elicitationFrequencySpinner.setValue(PSEAParameters.getInstance().getElicitationInterval());
+		if(PSEAParameters.getInstance().isShowTargetPoints()){
 			this.showTargetPointsTrueButton.setSelected(true);
 		}
 		else{
 			this.showTargetPointsFalseButton.setSelected(true);
 		}
 		
-		if(NSGAIIIParameters.getInstance().isShowLambdas()){
+		if(PSEAParameters.getInstance().isShowLambdas()){
 			this.showLambdasTrueButton.setSelected(true);
 		}
 		else{
 			this.showLambdasFalseButton.setSelected(true);
 		}
 		
-		if(NSGAIIIParameters.getInstance().isShowComparisons()){
+		if(PSEAParameters.getInstance().isShowComparisons()){
 			this.showComparisonsTrueButton.setSelected(true);
 		}
 		else{

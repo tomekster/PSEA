@@ -6,7 +6,7 @@ package algorithm.nsgaiii;
  * @author tomasz
  *
  */
-public class NSGAIIIParameters {
+public class PSEAParameters {
 	private String problemName;
 	private int numberObjectives;
 	private int numberExplorationGenerations;
@@ -22,7 +22,7 @@ public class NSGAIIIParameters {
 	private boolean showLambdas;
 	private boolean showComparisons;
 	
-	private static NSGAIIIParameters instance = null;
+	private static PSEAParameters instance = null;
 
 //	if(problem.getNumObjectives() == 3){
 //		numElicitations1 = 50;
@@ -37,7 +37,7 @@ public class NSGAIIIParameters {
 //		numElicitations2 = 30;
 //	}
 	
-	protected NSGAIIIParameters(){
+	protected PSEAParameters(){
 		// Exists only to defeat instantiation.
 		problemName = "DTLZ1";
 		numberObjectives = 3;
@@ -53,9 +53,9 @@ public class NSGAIIIParameters {
 		numLambdaDirections = 50;
 	}
 
-	public static NSGAIIIParameters getInstance() {
+	public static PSEAParameters getInstance() {
 		if (instance == null) {
-			instance = new NSGAIIIParameters();
+			instance = new PSEAParameters();
 		}
 		return instance;
 	}
