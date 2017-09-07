@@ -7,6 +7,9 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
+import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.rankers.NonDominationRanker;
 import problems.Problem;
@@ -28,6 +31,14 @@ public class NSGAIII extends EA {
 		this.populationSize = hyperplane.getReferencePoints().size();
 		this.populationSize += this.populationSize % 2;
 		this.population = problem.createPopulation(populationSize);
+	}
+
+	public NSGAIII(Problem problem) {
+		this(problem,
+			new SBX(problem),
+			new PolynomialMutation(problem),
+			new BinaryTournament(new NonDominationRanker())
+		);
 	}
 
 	/**

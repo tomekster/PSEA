@@ -21,12 +21,17 @@
 
 package problems.wfg;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
+import algorithm.nsgaiii.hyperplane.Hyperplane;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
 import utils.WfgFrontReader;
+import utils.math.Geometry;
 
 /**
  * Implements a reference abstract class for all wfg org.uma.test problem
@@ -152,7 +157,27 @@ public abstract class WFG extends Problem {
 	
 	@Override
 	public Population getReferenceFront(){
-		return WfgFrontReader.getFront(this);
+		Hyperplane h = new Hyperplane(this.getNumObjectives());
+		ArrayList <ReferencePoint> rp = h.getReferencePoints();
+		for(int i=0; i<rp.size(); i++){
+			double dim[] = rp.get(i).getDim();
+			dim[0] *= 2;
+			dim[1] *= 4;
+			dim[2] *= 6;
+		}
+		Population front = WfgFrontReader.getFront(this);
+		Population res = new Population();
+		for(ReferencePoint r : rp){
+			res.addSolution(
+					front.getSolutions()
+					.stream()
+					.map(s-> new Object[] {s, Geometry.pointLineDist(((Solution)s).getObjectives(), r.getObjectives())})
+					.min(Comparator.comparingDouble(a -> (Double) a[1]))
+					.map(a -> (Solution) a[0])
+					.get()
+				);
+		}
+		return res;
 	}
 	
 	@Override

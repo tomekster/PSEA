@@ -4,7 +4,7 @@ import os
 import sys
 import pylab
 
-colors = ('r', 'b', 'g', 'c', 'm', 'y', 'k')
+colors = ('r', 'b', 'g', 'm', 'c', 'y', 'k')
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
@@ -20,13 +20,13 @@ def plot(points, filename):
 		idSet = set(points[1])
 		points = np.transpose(points)
 		for id in idSet:
-			curve = [a for a,b in points if b == id] 
-			plt.plot(range(len(curve)), curve)
+			curve = [a for a,b in points if b == id]
+			plt.plot(range(len(curve)), curve, c=colors[int(id)])
 		plt.subplot(122)
 		plt.title(filename + "(250+ gen)")
 		for id in idSet:
 			curve = [a for a,b in points if b == id] 
-			plt.plot(range(len(curve))[250:], curve[250:])
+			plt.plot(range(len(curve))[250:], curve[250:], c=colors[int(id)])
 	else:
 		fig = plt.figure(figsize=plt.figaspect(1))
 		
@@ -41,7 +41,7 @@ def plot(points, filename):
 		plt.title(filename)
 	plt.savefig(filename + '.png', bbox_inches='tight')
 	plt.savefig(filename + '.pdf', bbox_inches='tight')
-	#plt.show()
+	plt.show()
 
 if __name__ == "__main__":
 	filename = sys.argv[1]

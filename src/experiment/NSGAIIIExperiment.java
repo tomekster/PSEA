@@ -5,12 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 
-import utils.math.structures.Pair;
-
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
-import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
-import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.rankers.NonDominationRanker;
 import experiment.metrics.IGD;
@@ -19,6 +14,9 @@ import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
+import problems.wfg.WFG6;
+import problems.wfg.WFG7;
+import utils.math.structures.Pair;
 
 public class NSGAIIIExperiment {
 	
@@ -43,12 +41,7 @@ public class NSGAIIIExperiment {
 				
 				Population target = problem.getReferenceFront();
 				Population firstFront = null;
-				NSGAIII nsgaiii = new NSGAIII(
-						problem, 
-						new SBX(problem),
-						new PolynomialMutation(problem),
-						new BinaryTournament(new NonDominationRanker())
-						);
+				NSGAIII nsgaiii = new NSGAIII(problem);
 				
 				for(int i=0; i < getNumGen(problem); i++){
 					nsgaiii.nextGeneration();
@@ -80,10 +73,12 @@ public class NSGAIIIExperiment {
 		//Initialize problems
 		int dim[] = {3,5,8,10,15};
 		for(int d : dim){
-			problems.add(new DTLZ1(d));
-			problems.add(new DTLZ2(d));
-			problems.add(new DTLZ3(d));
-			problems.add(new DTLZ4(d));
+//			problems.add(new DTLZ1(d));
+//			problems.add(new DTLZ2(d));
+//			problems.add(new DTLZ3(d));
+//			problems.add(new DTLZ4(d));
+			problems.add(new WFG6(d));
+			problems.add(new WFG7(d));
 		}
  
 		//Initialize number of generations for every problem
@@ -110,6 +105,18 @@ public class NSGAIIIExperiment {
 		numGenMap.put(new Pair<String, Integer>("DTLZ4", 8) , 1250);
 		numGenMap.put(new Pair<String, Integer>("DTLZ4", 10) , 2000);
 		numGenMap.put(new Pair<String, Integer>("DTLZ4", 15) , 3000);
+		
+		numGenMap.put(new Pair<String, Integer>("WFG6", 3) , 400);
+		numGenMap.put(new Pair<String, Integer>("WFG6", 5) , 750);
+		numGenMap.put(new Pair<String, Integer>("WFG6", 8) , 1500);
+		numGenMap.put(new Pair<String, Integer>("WFG6", 10) , 2000);
+		numGenMap.put(new Pair<String, Integer>("WFG6", 15) , 3000);
+
+		numGenMap.put(new Pair<String, Integer>("WFG7", 3) , 400);
+		numGenMap.put(new Pair<String, Integer>("WFG7", 5) , 750);
+		numGenMap.put(new Pair<String, Integer>("WFG7", 8) , 1500);
+		numGenMap.put(new Pair<String, Integer>("WFG7", 10) , 2000);
+		numGenMap.put(new Pair<String, Integer>("WFG7", 15) , 3000);
 	}
 	
 	private static int getNumGen(Problem problem){

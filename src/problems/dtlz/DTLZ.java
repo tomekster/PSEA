@@ -28,9 +28,9 @@ public abstract class DTLZ extends Problem{
 	@Override
 	public Population getReferenceFront(){
 		Population res = new Population();
-		Hyperplane h = new Hyperplane(this.getNumObjectives());
-		ArrayList <ReferencePoint> referencePoints = h.getReferencePoints();
-		for(ReferencePoint r : referencePoints){
+		Hyperplane h = new Hyperplane(getNumObjectives());
+		ArrayList <ReferencePoint> rp = h.getReferencePoints();
+		for(ReferencePoint r : rp){
 			res.addSolution(new Solution(r.getDim(), getTargetPoint(r.getDim())));
 		}
 		return res;

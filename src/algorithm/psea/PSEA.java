@@ -81,12 +81,12 @@ public class PSEA extends EA implements Runnable {
 			maxExploitationComparisons = 10;
 		}
 		else if(problem.getNumObjectives() == 5){
-			maxExplorationComparisons = 20;
-			maxExploitationComparisons = 20;
+			maxExplorationComparisons = 25;
+			maxExploitationComparisons = 15;
 		}
 		else if(problem.getNumObjectives() == 8){
 			maxExplorationComparisons = 30;
-			maxExploitationComparisons = 30;
+			maxExploitationComparisons = 20;
 		}
 	}
 

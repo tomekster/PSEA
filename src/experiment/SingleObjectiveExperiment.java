@@ -18,13 +18,10 @@ import utils.math.structures.Pair;
 public class SingleObjectiveExperiment {
 	private static final double DEFAULT_NUM_GENERATIONS = 1500;
 	private static ArrayList <Problem> problems = new ArrayList<>();
-	
-	private static HashMap<Pair<String, Integer>, Integer> numGenMap = new HashMap<>(); //(Problem, numObj) -> numGen
-	
+		
 	public static void main(String [] args){
 		
 		init();
-		final int NUM_RUNS = 5;
 		// TODO - WFG1 - something goes wrong here - obtained front looks weird, WFG8 - difficult problem
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
@@ -67,7 +64,7 @@ public class SingleObjectiveExperiment {
 
 	private static void init() {
 		//Initialize problems
-		int dim[] = {3,5,8,10,15};
+		int dim[] = {3,5,8};
 		for(int d : dim){
 			problems.add(new DTLZ1(d));
 			problems.add(new DTLZ2(d));
@@ -75,36 +72,9 @@ public class SingleObjectiveExperiment {
 			problems.add(new DTLZ4(d));
 		}
  
-		//Initialize number of generations for every problem
-		numGenMap.put(new Pair<String, Integer>("DTLZ1", 3) , 400);
-		numGenMap.put(new Pair<String, Integer>("DTLZ1", 5) , 600);
-		numGenMap.put(new Pair<String, Integer>("DTLZ1", 8) , 750);
-		numGenMap.put(new Pair<String, Integer>("DTLZ1", 10) , 1000);
-		numGenMap.put(new Pair<String, Integer>("DTLZ1", 15) , 1500);
-		
-		numGenMap.put(new Pair<String, Integer>("DTLZ2", 3) , 250);
-		numGenMap.put(new Pair<String, Integer>("DTLZ2", 5) , 350);
-		numGenMap.put(new Pair<String, Integer>("DTLZ2", 8) , 500);
-		numGenMap.put(new Pair<String, Integer>("DTLZ2", 10) , 750);
-		numGenMap.put(new Pair<String, Integer>("DTLZ2", 15) , 1000);
-		
-		numGenMap.put(new Pair<String, Integer>("DTLZ3", 3) , 1000);
-		numGenMap.put(new Pair<String, Integer>("DTLZ3", 5) , 1000);
-		numGenMap.put(new Pair<String, Integer>("DTLZ3", 8) , 1000);
-		numGenMap.put(new Pair<String, Integer>("DTLZ3", 10) , 1500);
-		numGenMap.put(new Pair<String, Integer>("DTLZ3", 15) , 2000);
-		
-		numGenMap.put(new Pair<String, Integer>("DTLZ4", 3) , 600);
-		numGenMap.put(new Pair<String, Integer>("DTLZ4", 5) , 1000);
-		numGenMap.put(new Pair<String, Integer>("DTLZ4", 8) , 1250);
-		numGenMap.put(new Pair<String, Integer>("DTLZ4", 10) , 2000);
-		numGenMap.put(new Pair<String, Integer>("DTLZ4", 15) , 3000);
+
 	}
-	
-	private static int getNumGen(Problem problem){
-		return numGenMap.get(new Pair<String, Integer>(problem.getName(), problem.getNumObjectives()));
-	}
-	
+
 	private static String getTestName(Problem problem, AsfRanker asfRanker){
 		return problem.getName() + "_" + problem.getNumObjectives() + "obj_" + asfRanker.getName();
 	}

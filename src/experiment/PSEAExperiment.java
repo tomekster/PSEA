@@ -48,15 +48,15 @@ public class PSEAExperiment {
 					visData.add(PythonVisualizer.convert(asfOptimalVal.toArray(new Double[0]))); //Plot target point asf value - optimal asf value
 					PythonVisualizer.saveResults(1, visData, runName);
 					
-					for(int genId = 0; genId < hist.getNumGenerations(); genId+=50){
-						visData.clear();
-						visData.add(PythonVisualizer.convert(problem.getReferenceFront()));
-						visData.add(PythonVisualizer.convert(hist.getPopulation(genId)));
-						ArrayList<double[]> target= new ArrayList<>();
-						target.add(targetPoint);
-						visData.add(target);
-						PythonVisualizer.saveResults(problem.getNumObjectives(), visData, runName + "_" + genId + "gen");
-					}
+//					for(int genId = 0; genId < hist.getNumGenerations(); genId+=50){
+//						visData.clear();
+//						visData.add(PythonVisualizer.convert(problem.getReferenceFront()));
+//						visData.add(PythonVisualizer.convert(hist.getPopulation(genId)));
+//						ArrayList<double[]> target= new ArrayList<>();
+//						target.add(targetPoint);
+//						visData.add(target);
+//						PythonVisualizer.saveResults(problem.getNumObjectives(), visData, runName + "_" + genId + "gen");
+//					}
 					
 					visData.clear();
 					visData.add(PythonVisualizer.convert(problem.getReferenceFront()));
@@ -73,7 +73,7 @@ public class PSEAExperiment {
 
 	private static void init() {
 		//Initialize problems
-		int dim[] = {3,5,8,10,15};
+		int dim[] = {3,5,8};
 		for(int d : dim){
 			problems.add(new DTLZ1(d));
 			problems.add(new DTLZ2(d));

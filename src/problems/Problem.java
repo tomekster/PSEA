@@ -1,10 +1,12 @@
 package problems;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
+import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.rankers.AsfRanker;
 import experiment.PythonVisualizer;
 import problems.dtlz.DTLZ4;
