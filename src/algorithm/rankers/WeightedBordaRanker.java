@@ -10,6 +10,7 @@ import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.preferences.ASFBundle;
+import artificialDM.AsfDM;
 import utils.math.structures.Pair;
 
 public class WeightedBordaRanker implements Comparator<Solution>{
@@ -39,7 +40,7 @@ public class WeightedBordaRanker implements Comparator<Solution>{
 
 	private HashMap<Solution, Integer> getBordaPointsForSolutions(Population pop) {
 		HashMap<Solution, Integer> bordaPointsMap = new HashMap<>();
-		for (AsfPreferenceModel lambda : ASFBundle.getInstance().getPreferenceModels()) {
+		for (AsfPreferenceModel lambda : ASFBundle.getInstance().getAsfDMs()) {
 			ArrayList<Solution> ranking = buildSolutionsRanking(lambda, pop);
 			assert ranking.size() == pop.size();
 			for (int i = 0; i < ranking.size(); i++) {
@@ -56,7 +57,7 @@ public class WeightedBordaRanker implements Comparator<Solution>{
 	public static ArrayList<Solution> buildSolutionsRanking(AsfPreferenceModel lambda, Population pop) {
 		ArrayList<Pair<Solution, Double>> solutionValuePairs = new ArrayList<Pair<Solution, Double>>();
 		for (Solution s : pop.getSolutions()) {
-			double chebyshevValue = AsfRanker.eval(s, null, lambda.getLambda());
+			double chebyshevValue = AsfDM.eval(s, null, lambda.getLambda());
 			solutionValuePairs.add(new Pair<Solution, Double>(s, chebyshevValue));
 		}
 		Collections.sort(solutionValuePairs, new Comparator<Pair<Solution, Double>>() {
@@ -78,8 +79,8 @@ public class WeightedBordaRanker implements Comparator<Solution>{
 	@Override
 	public int compare(Solution s1, Solution s2) {
 		int v1=0, v2=0;
-		for(AsfPreferenceModel lambda : ASFBundle.getInstance().getPreferenceModels()){
-			int cmp = AsfRanker.compareSolutions(s1, s2, null, lambda.getLambda());
+		for(AsfPreferenceModel lambda : ASFBundle.getInstance().getAsfDMs()){
+			int cmp = AsfDM.compareSolutions(s1, s2, null, lambda.getLambda());
 			if(cmp < 0) v1++;
 			else if(cmp >0) v2++;
 		}

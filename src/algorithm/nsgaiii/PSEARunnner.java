@@ -4,8 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import algorithm.psea.PSEA;
-import algorithm.rankers.AsfRanker;
-import algorithm.rankers.AsfRankerBuilder;
+import artificialDM.AsfDM;
+import artificialDM.AsfDMBuilder;
 import experiment.Evaluator;
 import experiment.ExecutionHistory;
 import problems.Problem;
@@ -32,10 +32,10 @@ public class PSEARunnner {
 		
 		PSEA alg = null;
 		Problem problem = null;
-		AsfRanker cr = null;
+		AsfDM cr = null;
 		try {
 			problem = (Problem) problemConstructor.newInstance(params.getNumberObjectives());
-			cr = AsfRankerBuilder.getExperimentalRanker(7, params.getNumberObjectives(), null);
+			cr = AsfDMBuilder.getExperimentalRanker(7, params.getNumberObjectives(), null);
 			alg = new PSEA(problem,cr);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {

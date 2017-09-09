@@ -2,15 +2,15 @@ package algorithm.rankers;
 
 import java.util.Comparator;
 
-import algorithm.psea.AsfPreferenceModel;
+import artificialDM.AsfDM;
 
-public class ConstraintViolationRanker implements Comparator <AsfPreferenceModel>{
+public class ConstraintViolationRanker implements Comparator <AsfDM>{
 
 	@Override
-	public int compare(AsfPreferenceModel l1, AsfPreferenceModel l2) {
-		return l1.getNumViolations() == l2.getNumViolations() ? 
-				Double.compare(l1.getPenalty(), l2.getPenalty()) //Smaller penalty = better
+	public int compare(AsfDM dm1, AsfDM dm2) {
+		return dm1.getNumViolations() == dm2.getNumViolations() ? 
+				Double.compare(dm1.getPenalty(), dm2.getPenalty()) //Smaller penalty = better
 				: 
-				Integer.compare(l1.getNumViolations(), l2.getNumViolations()); //Smaller numViolations = better
+				Integer.compare(dm1.getNumViolations(), dm2.getNumViolations()); //Smaller numViolations = better
 	}
 }

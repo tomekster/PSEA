@@ -1,15 +1,10 @@
-package algorithm.rankers;
+package artificialDM;
 
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
-import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import utils.math.structures.Pair;
 
-public class AsfRanker implements Serializable, Comparator<Solution>{
+public class AsfDM extends ArtificialDM{
 	
 	private final static double DEFAULT_RHO = 0.0001;
 	private static final long serialVersionUID = -6759292394593558688L;
@@ -17,58 +12,35 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 	private double lambda[];
 	private static double rho;
 	private double refPoint[];
-	private String name;
-
-	public AsfRanker(double refPoint[], double lambda[], String name){
+	private double reward;
+	private double penalty;
+	private int numViolations;
+	
+	public AsfDM(double refPoint[], double lambda[], String name){
 		if(refPoint.length != lambda.length){
 			throw new RuntimeException();
 		}
 		this.refPoint = refPoint;
 		this.lambda = lambda;
-		AsfRanker.rho = DEFAULT_RHO;
+		AsfDM.rho = DEFAULT_RHO;
 		this.name = name;
 	}
 	
-	public AsfRanker(double lambda[]){
-		this(new double[lambda.length], lambda, "");
-	}
-	
-	
-	public Population sortPopulation(Population pop){
-		Collections.sort(pop.getSolutions(), this);
-		return pop;
-	}
-	
-	public static int compareSolutions(Solution s1, Solution s2, double refPoint[], double lambda[]){
-		double val1 = eval(s1.getObjectives(), refPoint, lambda);
-		double val2 = eval(s2.getObjectives(), refPoint, lambda);
-		if ( val1 < val2 )
-			return -1;
-		else if ( val1 > val2 )
-			return 1;
-		else
-			return 0;
+	public AsfDM(double refPoint[], double lambda[]){
+		this(refPoint,lambda, "");
 	}
 	
 	public double eval(Solution s){
 		return eval(s.getObjectives());
 	}
 	public double eval(double obj[]){
-		return eval(obj, this.refPoint, this.lambda);
-	}
-	
-	public static double eval(Solution s, double refPoint[], double lambda[]){
-		return eval(s.getObjectives(), refPoint, lambda);
-	}
-	
-	public static double eval(double obj[], double refPoint[], double lambda[]){
-		return classicEval(obj, refPoint, lambda);
+		return classicEval(obj, this.refPoint, this.lambda);
 //		return sternalEval(s, refPoint, lambda);
 //		return slowinskiEval(s, refPoint, lambda);
 //		return lpEval(s, refPoint, lambda, 4);
 	}
 	
-	public static double classicEval(double obj[], double refPoint[], double lambda[]){
+	public double classicEval(double obj[], double refPoint[], double lambda[]){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
@@ -84,7 +56,7 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public static double sternalEval(Solution s, double refPoint[], double lambda[]){
+	public double sternalEval(Solution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
@@ -100,7 +72,7 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public static double slowinskiEval(Solution s, double refPoint[], double lambda[]){
+	public double slowinskiEval(Solution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
@@ -119,7 +91,7 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public static double lpEval(Solution s, double refPoint[], double lambda[], double p){
+	public double lpEval(Solution s, double refPoint[], double lambda[], double p){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
@@ -137,36 +109,58 @@ public class AsfRanker implements Serializable, Comparator<Solution>{
 		return res;
 	}
 	
-	public Pair<Solution, Double> getBestSolutionVal(Population pop){
-		Pair<Solution, Double> res = null;
-		double minChebVal = Double.MAX_VALUE;
-		for(Solution s : pop.getSolutions()){
-			double val = this.eval(s);
-			if(val < minChebVal){
-				minChebVal = val;
-				res = new Pair<>(s, val); 
-			}
-		}
-		assert res != null;
-		return res;
+	public int getNumDimensions() {
+		return lambda.length;
 	}
 
 	public double[] getLambda() {
 		return lambda;
 	}
-
-	public static double getRho() {
-		return AsfRanker.rho;
+	
+	public void setLambda(double[] lambda) {
+		this.lambda = lambda;
 	}
 	
-	public String getName() {
-		return name;
+	public double getLambda(int i){
+		return lambda[i];
+	}
+	
+	public boolean isCoherent() {
+		return numViolations == 0;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public AsfDM copy() {
+		return new AsfDM(this.refPoint.clone(), this.lambda.clone(), this.name);
 	}
 
+	public double getReward(){
+		return this.reward;
+	}
+	
+	public void setReward(double reward) {
+		this.reward = reward;
+	}
+
+	public double getPenalty(){
+		return this.penalty;
+	}
+	
+	public void setPenalty(double penalty) {
+		this.penalty = penalty;
+	}
+
+	public int getNumViolations(){
+		return this.numViolations;
+	}
+	
+	public void setNumViolations(int numViolations) {
+		this.numViolations = numViolations;
+	}
+
+	public static double getRho() {
+		return AsfDM.rho;
+	}
+	
 	@Override
 	public int compare(Solution s1, Solution s2) {
 		if (eval(s1) < eval(s2))

@@ -15,8 +15,8 @@ import algorithm.geneticAlgorithm.Solution;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.PSEA;
 import algorithm.psea.preferences.PreferenceCollector;
-import algorithm.rankers.AsfRanker;
-import algorithm.rankers.AsfRankerBuilder;
+import artificialDM.AsfDM;
+import artificialDM.AsfDMBuilder;
 import problems.Problem;
 
 import problems.dtlz.DTLZ1;
@@ -55,8 +55,8 @@ public class ExperimentRunner {
 		
 		for (Problem p : problems) {
 			double idealPoint[] = p.findIdealPoint();
-			ArrayList<AsfRanker> decisionMakerRankers = AsfRankerBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
-			for(AsfRanker cr : decisionMakerRankers){
+			ArrayList<AsfDM> decisionMakerRankers = AsfDMBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
+			for(AsfDM cr : decisionMakerRankers){
 				for (int runId = 1; runId <= numRuns; runId++) {
 					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 					Date date = new Date();
@@ -84,7 +84,7 @@ public class ExperimentRunner {
 	}
 
 
-	private static void runSingleObjectiveExperiment(Problem p, AsfRanker cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
+	private static void runSingleObjectiveExperiment(Problem p, AsfDM cr, ArrayList<Double> minChebDist, ArrayList<Double> avgChebDist, ArrayList<Double> modelChebDist, ArrayList<Double> minEucDist, ArrayList<Double> avgEucDist, ArrayList<Double> modelEucDist) {
 		SingleObjectiveEA so = new SingleObjectiveEA(p, cr);
 //		System.out.println("Lambda: " + Arrays.toString(cr.getLambda()));
 //		System.out.println("Target: " + Arrays.toString(p.getTargetPoint(cr.getLambda())));
@@ -132,7 +132,7 @@ public class ExperimentRunner {
 		System.out.println(minEucDist.get(minEucDist.size() - 1) + ", " + avgEucDist.get(avgEucDist.size() - 1));
 	}
 
-	private static void runPSEAExperiment(Problem p, AsfRanker decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
+	private static void runPSEAExperiment(Problem p, AsfDM decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
 		PreferenceCollector.getInstance().clear();
 		PSEA alg;		
 		alg = new PSEA(p,decisionMakerRanker);

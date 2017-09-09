@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.ejml.simple.SimpleMatrix;
@@ -15,10 +14,10 @@ import algorithm.geneticAlgorithm.Solution;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Comparison;
 import algorithm.psea.preferences.PreferenceCollector;
-import algorithm.rankers.AsfRanker;
+import artificialDM.AsfDM;
 import utils.math.Geometry;
-import utils.math.MyRandom;
 import utils.math.Geometry.Line2D;
+import utils.math.MyRandom;
 import utils.math.structures.Interval;
 import utils.math.structures.Pair;
 
@@ -56,16 +55,16 @@ public class GradientLambdaSearch {
 	}
 	
 	void validateInterval(ASFBundle asfBundle, Interval interval, int CV){
-			ArrayList <AsfPreferenceModel> lambdas = new ArrayList<>();
+			ArrayList <AsfDM> asfDMs = new ArrayList<>();
 			double l1[] = interval.getL1();
 			double l2[] = interval.getL2();
-			lambdas.add(new AsfPreferenceModel( Geometry.linearCombination(l1, l2, 0.01 * interval.getBeg() + 0.99 * interval.getEnd())));
-			lambdas.add(new AsfPreferenceModel( Geometry.linearCombination(l1, l2, 0.99 * interval.getBeg() + 0.01 * interval.getEnd())));
-			lambdas.add(new AsfPreferenceModel( Geometry.linearCombination(l1, l2, (interval.getBeg() + interval.getEnd()) / 2)));
+			asfDMs.add(new AsfDM(asfBundle.getReferencePoint(), Geometry.linearCombination(l1, l2, 0.01 * interval.getBeg() + 0.99 * interval.getEnd())));
+			asfDMs.add(new AsfDM(asfBundle.getReferencePoint(), Geometry.linearCombination(l1, l2, 0.99 * interval.getBeg() + 0.01 * interval.getEnd())));
+			asfDMs.add(new AsfDM(asfBundle.getReferencePoint(), Geometry.linearCombination(l1, l2, (interval.getBeg() + interval.getEnd()) / 2)));
 	
 			//Make sure that both endpoints and middle of interval have the same CV value
-			for(AsfPreferenceModel lambda : lambdas){
-				int eval = asfBundle.evaluatePreferenceModel(lambda);
+			for(AsfDM lambda : asfDMs){
+				int eval = PreferenceCollector.getInstance().evaluateDM(lambda);
 				if( eval != interval.getCV() || eval > CV){
 					System.out.println("Error! CV values are different!");
 					return;
@@ -74,7 +73,7 @@ public class GradientLambdaSearch {
 			}
 	}
 	
-	private ArrayList <Interval> getImprovingIntervals(ASFBundle asfBundle, AsfPreferenceModel lambda, AsfPreferenceModel bestLambda) {
+	private ArrayList <Interval> getImprovingIntervals(ASFBundle asfBundle, AsfDM lambda, AsfDM bestLambda) {
 		ArrayList <Interval> intervals = new ArrayList<>();
 		int numDim = lambda.getNumDimensions();
 		double bestLambdaGrad[] = new double[numDim];
@@ -116,7 +115,7 @@ public class GradientLambdaSearch {
 		}
 		
 		//Evaluate lambda to make sure that CV value is up-to-date
-		asfBundle.evaluatePreferenceModel(lambda);
+		PreferenceCollector.getInstance().evaluateDM(lambda);
 		
 		if(PSEA.assertions){
 			for(Interval interval : intervals){
@@ -192,7 +191,7 @@ public class GradientLambdaSearch {
 				
 				if(PSEA.assertions){
 					double middleLambda[] = Geometry.linearCombination(l1, l2, (bestBeg + bestEnd)/2);
-					int eval = asfBundle.evaluatePreferenceModel(new AsfPreferenceModel(middleLambda));
+					int eval = PreferenceCollector.getInstance().evaluateDM(new AsfDM(asfBundle.getReferencePoint(), middleLambda));
 					if(eval != CV){
 						System.out.println("MIDDLE_CV_DIFFERS");
 						System.out.println(eval + " != " + CV);
@@ -230,7 +229,8 @@ public class GradientLambdaSearch {
 			ArrayList <Line2D> upperEnvelope = Geometry.linesUpperEnvelope(lines);
 
 			//Check comparison for alpha=0 (linearCombination(lambda1, lambda2, 0) = lambda1) to properly initialize switches array
-			int zeroComparison = AsfRanker.compareSolutions(cp.getBetter(), cp.getWorse(), asfBundle.getReferencePoint(), l1);
+			AsfDM asfDM = new AsfDM(asfBundle.getReferencePoint(), l1);
+			int zeroComparison =asfDM.compare(cp.getBetter(), cp.getWorse());
 			if(zeroComparison != 0){ res.add(new Pair<Double, Integer>(.0, -zeroComparison*(cpId+1)));}
 			addComparisonSwitchPoints(asfBundle, res, upperEnvelope, l1, l2, cpId, lines);
 		}
@@ -255,10 +255,10 @@ public class GradientLambdaSearch {
 				else{ res.add(new Pair<Double, Integer>(crossX, cpId+1)); }
 				
 				if(PSEA.assertions){
-					double lambda[] = Geometry.linearCombination(l1, l2, crossX);
+					AsfDM asfDM = new AsfDM(asfBundle.getReferencePoint(), Geometry.linearCombination(l1, l2, crossX));
 					Comparison cp = PreferenceCollector.getInstance().getComparisons().get(cpId);
-					double M1 = AsfRanker.eval(cp.getBetter(), asfBundle.getReferencePoint(), lambda);
-					double M2 = AsfRanker.eval(cp.getWorse(), asfBundle.getReferencePoint(), lambda);
+					double M1 = asfDM.eval(cp.getBetter());
+					double M2 = asfDM.eval(cp.getWorse());
 					if(  Math.abs(M1-M2) > Geometry.EPS ){
 						 System.out.println("Error! Crossing point wasn't computed correctly!");
 					}
@@ -281,7 +281,7 @@ public class GradientLambdaSearch {
 		double sumB2 = Geometry.dot(l2, betterMinusRef);
 		double sumW1 = Geometry.dot(l1, worseMinusRef);
 		double sumW2 = Geometry.dot(l2, worseMinusRef);
-		double rho = AsfRanker.getRho();
+		double rho = AsfDM.getRho();
 		
 		for(int i=0; i<numObjectives; i++){
 			lines.add(new Line2D(betterMinusRef[i] * (l2[i] - l1[i]) + rho * (sumB2 - sumB1), betterMinusRef[i] * l1[i] + rho * sumB1, true ) );
@@ -290,20 +290,20 @@ public class GradientLambdaSearch {
 		return lines;
 	}
 	
-	public ArrayList <AsfPreferenceModel> improvePreferenceModels(ASFBundle asfBundle) {
-		ArrayList<AsfPreferenceModel> lambdas = asfBundle.getPreferenceModels();
-		for(AsfPreferenceModel lambda : lambdas) asfBundle.evaluatePreferenceModel(lambda);
-		AsfPreferenceModel bestLambda = lambdas.stream().min(Comparator.comparing(AsfPreferenceModel::getNumViolations)).get();
+	public ArrayList <AsfDM> improvePreferenceModels(ASFBundle asfBundle) {
+		ArrayList<AsfDM> asfDMs = asfBundle.getAsfDMs();
+		for(AsfDM asfDM : asfDMs) PreferenceCollector.getInstance().evaluateDM(asfDM);
+		AsfDM bestLambda = asfDMs.stream().min(Comparator.comparing(AsfDM::getNumViolations)).get();
 //		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();
-		for(AsfPreferenceModel lambda : lambdas){
+		for(AsfDM lambda : asfDMs){
 			intervals.addAll(getImprovingIntervals(asfBundle, lambda, bestLambda));	
 		}
-		return chooseBestLambdaSubset(intervals, lambdas.size());
+		return chooseBestLambdaSubset(asfBundle, intervals);
 		
 	}
 
-	private ArrayList<AsfPreferenceModel> chooseBestLambdaSubset(ArrayList<Interval> intervals, int N) {
+	private ArrayList<AsfDM> chooseBestLambdaSubset(ASFBundle asfBundle, ArrayList<Interval> intervals) {
 		Collections.sort(intervals);
 		int bestCV = intervals.get(0).getCV();
 		
@@ -314,14 +314,14 @@ public class GradientLambdaSearch {
 		}
 		
 		//TODO - for now pick random interval and random point, later it can be optimized for maximizing diversity
-		ArrayList <AsfPreferenceModel> res = new ArrayList<>();
+		ArrayList <AsfDM> res = new ArrayList<>();
 //		LOGGER.log(Level.INFO, "Best interval CV: " + bestCV);
-		for(int i=0; i<N; i++){
+		for(int i=0; i<asfBundle.getSize(); i++){
 			int id = MyRandom.getInstance().nextInt( bestIntervals.size());
 			Interval interval = bestIntervals.get(id);
 			double t = MyRandom.getInstance().nextDouble();
 			double dim[] = Geometry.linearCombination(interval.getL1(), interval.getL2(), (1-t)*interval.getBeg() + t * interval.getEnd());
-			res.add(new AsfPreferenceModel(dim));
+			res.add(new AsfDM(asfBundle.getReferencePoint(), dim));
 		}
 		return res;
 	}

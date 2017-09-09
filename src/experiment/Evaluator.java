@@ -5,12 +5,12 @@ import java.util.Arrays;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.psea.preferences.ASFBundle;
-import algorithm.rankers.AsfRanker;
+import artificialDM.AsfDM;
 import problems.Problem;
 import utils.math.Geometry;
 
 public class Evaluator {
-	public static void evaluateRun(Problem problem, AsfRanker asfRanker, Population res) {
+	public static void evaluateRun(Problem problem, AsfDM asfRanker, Population res) {
 		double targetPoint[] = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
 		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
 		System.out.println("Final population range: ");

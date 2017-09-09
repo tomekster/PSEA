@@ -2,15 +2,11 @@ package algorithm.psea.preferences;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.GradientLambdaSearch;
-import algorithm.rankers.AsfRanker;
 import algorithm.rankers.ConstraintViolationRanker;
+import artificialDM.AsfDM;
 import problems.Problem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
@@ -22,12 +18,12 @@ public class ASFBundle {
 	
 	private static ASFBundle instance = null;
 
-	private double[] referencePoint;
-
 	private int numObjectives;
 	private int bundleSize;
-	private ArrayList <AsfPreferenceModel> asfPreferenceModels;
+	private ArrayList <AsfDM> asfDMs;
 	private GradientLambdaSearch GLS;
+	
+	private double[] referencePoint;
 	
 	protected ASFBundle(){
 		// Exists only to defeat instantiation.
@@ -53,73 +49,40 @@ public class ASFBundle {
 				this.bundleSize = 70;
 			break;
 		}
-		this.referencePoint = problem.findIdealPoint();
+		double idealPoint[] = problem.findIdealPoint();
 		
-		asfPreferenceModels = new ArrayList<>();
+		asfDMs = new ArrayList<>();
 		for (int i=0; i<bundleSize; i++) {
-			asfPreferenceModels.add(new AsfPreferenceModel(Geometry.getRandomVectorSummingTo1(numObjectives)));
+			asfDMs.add(new AsfDM(idealPoint, Geometry.getRandomVectorSummingTo1(numObjectives)));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
 	}
 
-	/**
-	 * Checks if chebyshev's function with given lambdaPoint can reproduce all comparisons.
-	 * Sets ReferencePoint penalty, reward and numViolations fields.
-	 * @param rp
-	 */
-	public int evaluatePreferenceModel(AsfPreferenceModel l) {
-		double lambda[] = l.getLambda();
-		int numViolations = 0;
-		double reward = 1, penalty = 1;
-		for(Comparison c : PreferenceCollector.getInstance().getComparisons()){
-			Solution better = c.getBetter(), worse = c.getWorse();
-			double a = AsfRanker.eval(better, referencePoint, lambda);
-			double b = AsfRanker.eval(worse, referencePoint, lambda);
-
-			double eps = b-a;
-			if(a >= b){
-				numViolations++;
-				double newPenalty = penalty * (1-eps);
-				assert newPenalty >= penalty;
-				penalty = newPenalty;
-			} else if(a < b){
-				double newReward = reward * (1+eps);
-				assert newReward >= reward;
-				reward = newReward;
-			}
-		}
-		
-		l.setReward(reward);
-		l.setPenalty(penalty);
-		l.setNumViolations(numViolations);
-		return numViolations;
-	}
-
-	public ArrayList<AsfPreferenceModel> getPreferenceModels() {
-		return this.asfPreferenceModels;
+	public ArrayList<AsfDM> getAsfDMs() {
+		return this.asfDMs;
 	}
 
 	public void nextGeneration() {
 		for(int i=0; i<bundleSize; i++) { 
-			asfPreferenceModels.add(new AsfPreferenceModel(Geometry.getRandomVectorSummingTo1(this.numObjectives))); //Add random lambdas to current bundle to increase the diversity 
+			asfDMs.add(new AsfDM(referencePoint, Geometry.getRandomVectorSummingTo1(this.numObjectives))); //Add random lambdas to current bundle to increase the diversity 
 		}
-		ArrayList <AsfPreferenceModel> newPreferenceModels = selectNewPreferenceModels(GLS.improvePreferenceModels(this));
+		ArrayList <AsfDM> newPreferenceModels = selectNewAsfDMs(GLS.improvePreferenceModels(this));
 //		LOGGER.log(Level.INFO, "Best/worse CV:" + newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).min().getAsInt() + "/" + newLambdas.stream().mapToInt(AsfPreferenceModel::getNumViolations).max().getAsInt());
-		this.asfPreferenceModels = newPreferenceModels;
+		this.asfDMs = newPreferenceModels;
 	}
 	
-	protected ArrayList <AsfPreferenceModel> selectNewPreferenceModels(ArrayList <AsfPreferenceModel> preferenceModels) {
-		for(AsfPreferenceModel l : preferenceModels){
-			double lambda[] = l.getLambda();
+	protected ArrayList <AsfDM> selectNewAsfDMs(ArrayList <AsfDM> asfDMs) {
+		for(AsfDM asfDM : asfDMs){
+			double lambda[] = asfDM.getLambda();
 			if(MyRandom.getInstance().nextDouble() < 0.3){
 				//TODO - mutation of lambdas (randomNeighbour)
 				lambda = Geometry.getRandomNeighbour(lambda, 0.1); //Mutate lambda just a little bit randomly
 			}
-			l.setDim(lambda);
-			evaluatePreferenceModel(l);
+			asfDM.setLambda(lambda);
+			PreferenceCollector.getInstance().evaluateDM(asfDM);
 		}
-		Collections.sort(preferenceModels, new ConstraintViolationRanker());
-		return new ArrayList<AsfPreferenceModel>(preferenceModels.subList(0, bundleSize));
+		Collections.sort(asfDMs, new ConstraintViolationRanker());
+		return new ArrayList<AsfDM>(asfDMs.subList(0, bundleSize));
 	}
 	
 	public boolean converged(){
@@ -130,10 +93,10 @@ public class ASFBundle {
 			max[i] = -Double.MAX_VALUE;
 		}
 		
-		for(AsfPreferenceModel asfPreferenceModel : asfPreferenceModels){
+		for(AsfDM asfDM : asfDMs){
 			for(int i=0; i<numObjectives; i++){
-				if(asfPreferenceModel.getLambda(i) < min[i]){ min[i] = asfPreferenceModel.getLambda(i); }
-				if(asfPreferenceModel.getLambda(i) > max[i]){ max[i] = asfPreferenceModel.getLambda(i); }
+				if(asfDM.getLambda(i) < min[i]){ min[i] = asfDM.getLambda(i); }
+				if(asfDM.getLambda(i) > max[i]){ max[i] = asfDM.getLambda(i); }
 			}
 		}
 		
@@ -146,13 +109,13 @@ public class ASFBundle {
 	@Override
 	public String toString(){
 		String res="";
-		for(AsfPreferenceModel asfPreferenceModel : asfPreferenceModels){
-			res += asfPreferenceModel.toString() + "\n" + asfPreferenceModel.getNumViolations() + "\n";
+		for(AsfDM asfDM : asfDMs){
+			res += asfDM.toString() + "\n" + asfDM.getNumViolations() + "\n";
 		}
 		return res;
 	}
 	
-	public int getNumLambdas(){
+	public int getSize(){
 		return bundleSize;
 	}
 	
@@ -160,16 +123,21 @@ public class ASFBundle {
 		return referencePoint;
 	}
 
+	//TODO - average or inversed average?
 	public double[] getAverageLambdaPoint() {
 		double res[] = new double[numObjectives];
-		for(AsfPreferenceModel lambda : asfPreferenceModels){
+		for(AsfDM lambda : asfDMs){
 			for(int i=0; i<numObjectives; i++){
 				res[i] += lambda.getLambda(i);
 			}
 		}
 		for(int i=0; i<numObjectives; i++){
-			res[i] /= asfPreferenceModels.size();
+			res[i] /= asfDMs.size();
 		}
 		return res;
+	}
+
+	public void addAsfDM(double[] lambda) {
+		this.asfDMs.add(new AsfDM(this.referencePoint, lambda));
 	}
 }

@@ -8,7 +8,7 @@ import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
-import algorithm.rankers.AsfRanker;
+import artificialDM.AsfDM;
 import problems.Problem;
 
 public class SingleObjectiveEA extends EA{
@@ -31,7 +31,7 @@ public class SingleObjectiveEA extends EA{
 	 * @param problem
 	 * @param asfRanker
 	 */
-	public SingleObjectiveEA(Problem problem, AsfRanker asfRanker) {
+	public SingleObjectiveEA(Problem problem, AsfDM asfRanker) {
 		this(
 			problem,
 			new SBX(problem),
@@ -53,7 +53,7 @@ public class SingleObjectiveEA extends EA{
 	 * @param problem
 	 * @param asfRanker
 	 */
-	public SingleObjectiveEA(Problem problem, AsfRanker cr, int popSize) {
+	public SingleObjectiveEA(Problem problem, AsfDM cr, int popSize) {
 		this(
 			problem,
 			new SBX(problem),
@@ -72,7 +72,7 @@ public class SingleObjectiveEA extends EA{
 	 * @param asfRanker
 	 */
 	public SingleObjectiveEA(Problem problem, CrossoverOperator crossoverOperator,
-			MutationOperator mutationOperator, SelectionOperator selectionOperator, AsfRanker cr, int popSize) {
+			MutationOperator mutationOperator, SelectionOperator selectionOperator, AsfDM cr, int popSize) {
 		super(problem, crossoverOperator, mutationOperator, selectionOperator);
 		this.popSize = popSize;
 		population = problem.createPopulation(popSize);

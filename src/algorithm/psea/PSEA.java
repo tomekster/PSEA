@@ -15,9 +15,9 @@ import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Elicitator;
 import algorithm.psea.preferences.PreferenceCollector;
-import algorithm.rankers.AsfRanker;
 import algorithm.rankers.NonDominationRanker;
 import algorithm.rankers.WeightedBordaRanker;
+import artificialDM.AsfDM;
 import experiment.ExecutionHistory;
 import problems.Problem;
 import utils.math.Geometry;
@@ -31,7 +31,7 @@ public class PSEA extends EA implements Runnable {
 
 	private Problem problem;
 	private int populationSize;
-	private AsfRanker DMranker;
+	private AsfDM DMranker;
 	private int generation;
 	private NSGAIII nsgaiii;
 	private ASFBundle asfBundle;
@@ -41,13 +41,13 @@ public class PSEA extends EA implements Runnable {
 	private int maxExplorationComparisons=0;
 	private int maxExploitationComparisons=0;
 
-	public PSEA(Problem problem, AsfRanker decisionMakerRanker, int maxExplorCom, int maxExploitComp) {
+	public PSEA(Problem problem, AsfDM decisionMakerRanker, int maxExplorCom, int maxExploitComp) {
 		this(problem,decisionMakerRanker);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
 	}
 	
-	public PSEA(Problem problem, AsfRanker decisionMakerRanker) {
+	public PSEA(Problem problem, AsfDM decisionMakerRanker) {
 		super(  problem,
 				new SBX(1.0, 30.0, problem.getLowerBounds(), problem.getUpperBounds()),
 				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBounds(), problem.getUpperBounds()),
@@ -104,7 +104,7 @@ public class PSEA extends EA implements Runnable {
 
 
 	public int getNumLambdas() {
-		return asfBundle.getNumLambdas();
+		return asfBundle.getSize();
 	}
 	
 	/**
@@ -140,10 +140,10 @@ public class PSEA extends EA implements Runnable {
 	}
 
 	private void exactShrinkHyperplane() {
-		asfBundle.getPreferenceModels().clear();
+		asfBundle.getAsfDMs().clear();
 		nsgaiii.setHyperplane(Geometry.generateNewHyperplane(problem.getNumObjectives(),0.01, Geometry.dir2point(DMranker.getLambda())));
 		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
-			asfBundle.getPreferenceModels().add(new AsfPreferenceModel(rp.getDim()));
+			asfBundle.addAsfDM(rp.getDim());
 		}
 		for(int i=0; i<1500; i++){
 			generation++;
@@ -258,7 +258,7 @@ public class PSEA extends EA implements Runnable {
 			}
 			ExecutionHistory.getInstance().update(population, asfBundle, nsgaiii.getHyperplane());
 			maxDist = Geometry.maxDist(population);
-			double nearestLambda = ASFBundle.getInstance().getPreferenceModels().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), DMranker.getLambda())).min().getAsDouble();
+			double nearestLambda = ASFBundle.getInstance().getAsfDMs().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), DMranker.getLambda())).min().getAsDouble();
 			double trueNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(DMranker.getLambda()))).min().getAsDouble();
 			double lambdaNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(ASFBundle.getInstance().getAverageLambdaPoint()))).min().getAsDouble();
 			if(generation % 100 == 0){

@@ -16,7 +16,7 @@ import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
-import algorithm.rankers.AsfRanker;
+import artificialDM.AsfDM;
 import problems.Problem;
 import utils.math.structures.Pair;
 
@@ -56,7 +56,7 @@ public class ExecutionHistory implements Serializable {
 	private ArrayList<Solution> bestChebSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
-	private AsfRanker chebyshevRanker;
+	private AsfDM chebyshevRanker;
 	private double finalMinDist;
 	private double finalAvgDist;
 	private int secondPhaseId;
@@ -136,11 +136,11 @@ public class ExecutionHistory implements Serializable {
 		this.bestChebSol.add(s);
 	}
 	
-	public void setChebyshevRanker(AsfRanker chebRank){
+	public void setChebyshevRanker(AsfDM chebRank){
 		this.chebyshevRanker = chebRank;
 	}
 	
-	public AsfRanker getChebyshevRanker(){
+	public AsfDM getChebyshevRanker(){
 		return this.chebyshevRanker;
 	}
 
@@ -179,20 +179,20 @@ public class ExecutionHistory implements Serializable {
 		bestChebVal = new ArrayList <Double>();
 	}
 
-	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle asfBundle, AsfRanker decisionMakerRanker) {
+	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle asfBundle, AsfDM decisionMakerRanker) {
 		clear();
 		setPopulationSize(nsgaiii.getPopulation().size());
 		setProblem(problem);
 		setNumVariables(problem.getNumVariables());
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
-		addAsfBundle(asfBundle.getPreferenceModels());
+		addAsfBundle(asfBundle.getAsfDMs());
 		addHyperplanePoints(nsgaiii.getHyperplane());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
 		setChebyshevRanker(decisionMakerRanker);
 		setAsfBundleConverged(false);
-		setNumPrefModels(asfBundle.getNumLambdas());
+		setNumPrefModels(asfBundle.getSize());
 	}
 
 	public void setProblem(Problem problem) {
@@ -205,7 +205,7 @@ public class ExecutionHistory implements Serializable {
 	
 	public void update(Population population, ASFBundle lambda, Hyperplane hp) {
 		addGeneration(population.copy());
-		ArrayList <AsfPreferenceModel> lambdasCopy = new ArrayList <> (lambda.getPreferenceModels()); 
+		ArrayList <AsfPreferenceModel> lambdasCopy = new ArrayList <> (lambda.getAsfDMs()); 
 		addAsfBundle(lambdasCopy);
 		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
 		addHyperplanePoints(hp);

@@ -1,11 +1,11 @@
-package algorithm.rankers;
+package artificialDM;
 
 import java.util.ArrayList;
 
 import utils.math.Geometry;
 
-public class AsfRankerBuilder{
-	public static AsfRanker getExperimentalRanker(int id, int dim, double ideal[]){
+public class AsfDMBuilder{
+	public static AsfDM getExperimentalRanker(int id, int dim, double ideal[]){
 		String name = "---";
 		double refPoint[] = new double[dim];
  		if(ideal == null){
@@ -62,11 +62,11 @@ public class AsfRankerBuilder{
 		}
 		
 		direction = Geometry.normalizeSum1(direction);
-		return new AsfRanker(refPoint, direction, name);
+		return new AsfDM(refPoint, direction, name);
 	}
 	
-	public static ArrayList<AsfRanker> getExperimentalRankers(int numObj, double ideal[]){
-			ArrayList <AsfRanker> rankersList = new ArrayList<>();
+	public static ArrayList<AsfDM> getExperimentalRankers(int numObj, double ideal[]){
+			ArrayList <AsfDM> rankersList = new ArrayList<>();
 			for(int id=1; id<=9; id++){
 				rankersList.add(getExperimentalRanker(id, numObj, ideal));
 			}

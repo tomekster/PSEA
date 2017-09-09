@@ -7,8 +7,8 @@ import java.util.Comparator;
 
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.PSEA;
-import algorithm.rankers.AsfRanker;
-import algorithm.rankers.AsfRankerBuilder;
+import artificialDM.AsfDM;
+import artificialDM.AsfDMBuilder;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ4;
@@ -28,13 +28,13 @@ public class NumComparisonsExperiment {
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
 			System.out.println(Arrays.toString(idealPoint));
-			ArrayList <AsfRanker> allAsfRankers = AsfRankerBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
-			ArrayList <AsfRanker> asfRankers = new ArrayList<>();
+			ArrayList <AsfDM> allAsfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
+			ArrayList <AsfDM> asfRankers = new ArrayList<>();
 			asfRankers.add(allAsfRankers.get(0));
 			asfRankers.add(allAsfRankers.get(5));
 			asfRankers.add(allAsfRankers.get(8));
 			
-			for(AsfRanker asfRanker : asfRankers){
+			for(AsfDM asfRanker : asfRankers){
 				for(Pair<Integer, Integer> comp : comparisons){
 					ArrayList <Double> minModelDist = new ArrayList<>();
 					ArrayList <Double> avgModelDist = new ArrayList<>();
@@ -135,7 +135,7 @@ public class NumComparisonsExperiment {
 		}
 	}
 	
-	private static String getTestName(Problem problem, AsfRanker asfRanker){
+	private static String getTestName(Problem problem, AsfDM asfRanker){
 		return problem.getName() + "_" + problem.getNumObjectives() + "obj_" + asfRanker.getName();
 	}
 	

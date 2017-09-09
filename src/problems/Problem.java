@@ -7,7 +7,7 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import algorithm.rankers.AsfRanker;
+import artificialDM.AsfDM;
 import experiment.PythonVisualizer;
 import problems.dtlz.DTLZ4;
 import utils.math.Geometry;
@@ -92,7 +92,7 @@ public abstract class Problem implements Serializable {
 				lambdaDirection[i] = 0;
 			}
 			lambdaDirection[optimizedDim] = 1;
-			AsfRanker cr = new AsfRanker(lambdaDirection);
+			AsfDM cr = new AsfDM(lambdaDirection);
 			
 			SingleObjectiveEA so = new SingleObjectiveEA(	
 				this,

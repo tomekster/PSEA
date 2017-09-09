@@ -7,8 +7,8 @@ import org.jzy3d.maths.Histogram;
 
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.psea.PSEA;
-import algorithm.rankers.AsfRanker;
-import algorithm.rankers.AsfRankerBuilder;
+import artificialDM.AsfDM;
+import artificialDM.AsfDMBuilder;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ4;
@@ -23,15 +23,15 @@ public class NSGAvsPSEAexperiment {
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
 			System.out.println(Arrays.toString(idealPoint));
-			ArrayList <AsfRanker> allAsfRankers = AsfRankerBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
-			ArrayList <AsfRanker> asfRankers = new ArrayList<>();
+			ArrayList <AsfDM> allAsfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
+			ArrayList <AsfDM> asfRankers = new ArrayList<>();
 			
 			asfRankers.add(allAsfRankers.get(3));
 			asfRankers.add(allAsfRankers.get(5));
 			asfRankers.add(allAsfRankers.get(7));
 			asfRankers.add(allAsfRankers.get(8));
 			
-			for(AsfRanker asfRanker : asfRankers){
+			for(AsfDM asfRanker : asfRankers){
 				ArrayList<Double> minNsgaAsf = new ArrayList<>();
 				ArrayList<Double> avgNsgaAsf = new ArrayList<>();
 				ArrayList<Double> minPseaAsf = new ArrayList<>();
@@ -94,7 +94,7 @@ public class NSGAvsPSEAexperiment {
 		problems.add(new DTLZ4(8));
 	}
 	
-	private static String getTestName(Problem problem, AsfRanker asfRanker){
+	private static String getTestName(Problem problem, AsfDM asfRanker){
 		return problem.getName() + "_" + problem.getNumObjectives() + "obj_" + asfRanker.getName();
 	}
 	

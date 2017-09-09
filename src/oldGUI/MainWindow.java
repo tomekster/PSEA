@@ -39,9 +39,9 @@ import algorithm.geneticAlgorithm.Solution;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.PSEA;
 import algorithm.psea.preferences.Comparison;
-import algorithm.rankers.AsfRanker;
-import algorithm.rankers.AsfRankerBuilder;
 import algorithm.rankers.NonDominationRanker;
+import artificialDM.AsfDM;
+import artificialDM.AsfDMBuilder;
 import experiment.Evaluator;
 import experiment.ExecutionHistory;
 import problems.Problem;
@@ -557,7 +557,7 @@ public class MainWindow {
 		double resIGD = -1;
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
-			AsfRanker cr = AsfRankerBuilder.getExperimentalRanker(1, numObjectives, null);
+			AsfDM cr = AsfDMBuilder.getExperimentalRanker(1, numObjectives, null);
 			alg = new PSEA(problem,  cr);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();
