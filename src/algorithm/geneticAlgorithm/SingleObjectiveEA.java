@@ -8,7 +8,7 @@ import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
-import artificialDM.AsfDM;
+import artificialDM.ArtificialDM;
 import problems.Problem;
 
 public class SingleObjectiveEA extends EA{
@@ -31,13 +31,13 @@ public class SingleObjectiveEA extends EA{
 	 * @param problem
 	 * @param asfRanker
 	 */
-	public SingleObjectiveEA(Problem problem, AsfDM asfRanker) {
+	public SingleObjectiveEA(Problem problem, ArtificialDM dm) {
 		this(
 			problem,
+			new BinaryTournament(dm),
 			new SBX(problem),
 			new PolynomialMutation(problem),
-			new BinaryTournament(asfRanker),
-			asfRanker,
+			dm,
 			DEFAULT_POP_SIZE);
 	}
 	
@@ -53,13 +53,13 @@ public class SingleObjectiveEA extends EA{
 	 * @param problem
 	 * @param asfRanker
 	 */
-	public SingleObjectiveEA(Problem problem, AsfDM cr, int popSize) {
+	public SingleObjectiveEA(Problem problem, ArtificialDM dm, int popSize) {
 		this(
 			problem,
+			new BinaryTournament(dm),
 			new SBX(problem),
 			new PolynomialMutation(problem),
-			new BinaryTournament(cr),
-			cr,
+			dm,
 			popSize);
 	}
 	
@@ -71,12 +71,12 @@ public class SingleObjectiveEA extends EA{
 	 * @param problem
 	 * @param asfRanker
 	 */
-	public SingleObjectiveEA(Problem problem, CrossoverOperator crossoverOperator,
-			MutationOperator mutationOperator, SelectionOperator selectionOperator, AsfDM cr, int popSize) {
-		super(problem, crossoverOperator, mutationOperator, selectionOperator);
+	public SingleObjectiveEA(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator,
+			MutationOperator mutationOperator, ArtificialDM dm, int popSize) {
+		super(problem, selectionOperator, crossoverOperator, mutationOperator);
 		this.popSize = popSize;
 		population = problem.createPopulation(popSize);
-		comp = cr;
+		comp = dm;
 	}
 
 	/**

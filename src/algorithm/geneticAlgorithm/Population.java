@@ -18,7 +18,7 @@ public class Population implements Serializable{
 	public Population(Population pop) {
 		this();
 		for(Solution s : pop.getSolutions()){
-			this.solutions.add(s.copy());
+			this.solutions.add(new Solution(s));
 		}
 	}
 
@@ -27,7 +27,7 @@ public class Population implements Serializable{
 	}
 
 	/**
-	 * Add ->deep copy<- of solution sol to this population.
+	 * Add solution sol to population.
 	 * @param sol
 	 */
 	public void addSolution(Solution sol){

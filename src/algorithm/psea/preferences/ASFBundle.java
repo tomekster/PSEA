@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import algorithm.psea.GradientLambdaSearch;
 import algorithm.rankers.ConstraintViolationRanker;
 import artificialDM.AsfDM;
-import problems.Problem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
 
@@ -16,8 +15,6 @@ public class ASFBundle {
 
 	private static final double CONVERGENCE_THRESHOLD = 0.001;
 	
-	private static ASFBundle instance = null;
-
 	private int numObjectives;
 	private int bundleSize;
 	private ArrayList <AsfDM> asfDMs;
@@ -25,19 +22,8 @@ public class ASFBundle {
 	
 	private double[] referencePoint;
 	
-	protected ASFBundle(){
-		// Exists only to defeat instantiation.
-	}
-	
-	public static ASFBundle getInstance(){
-		if (instance == null){
-			instance = new ASFBundle();
-		}
-		return instance;
-	}
-	
-	public void init(Problem problem) {
-		this.numObjectives = problem.getNumObjectives();
+	public ASFBundle(double refPoint[]) {
+		this.numObjectives = refPoint.length;
 		switch (numObjectives){
 			case(3):
 				this.bundleSize = 50;
@@ -49,20 +35,16 @@ public class ASFBundle {
 				this.bundleSize = 70;
 			break;
 		}
-		double idealPoint[] = problem.findIdealPoint();
+		referencePoint = refPoint;
 		
 		asfDMs = new ArrayList<>();
 		for (int i=0; i<bundleSize; i++) {
-			asfDMs.add(new AsfDM(idealPoint, Geometry.getRandomVectorSummingTo1(numObjectives)));
+			asfDMs.add(new AsfDM(referencePoint, Geometry.getRandomVectorSummingTo1(numObjectives)));
 		}
 		GLS = new GradientLambdaSearch(numObjectives);
 	}
 
-	public ArrayList<AsfDM> getAsfDMs() {
-		return this.asfDMs;
-	}
-
-	public void nextGeneration() {
+	public void updateDMs() {
 		for(int i=0; i<bundleSize; i++) { 
 			asfDMs.add(new AsfDM(referencePoint, Geometry.getRandomVectorSummingTo1(this.numObjectives))); //Add random lambdas to current bundle to increase the diversity 
 		}
@@ -115,12 +97,24 @@ public class ASFBundle {
 		return res;
 	}
 	
-	public int getSize(){
+	public int size(){
 		return bundleSize;
 	}
 	
 	public double[] getReferencePoint(){
 		return referencePoint;
+	}
+	
+	public void setReferencePoint(double [] refPoint){
+		this.referencePoint = refPoint;
+	}
+	
+	public int getNumObjectives(){
+		return numObjectives;
+	}
+	
+	public ArrayList<AsfDM> getAsfDMs() {
+		return this.asfDMs;
 	}
 
 	//TODO - average or inversed average?
@@ -137,7 +131,25 @@ public class ASFBundle {
 		return res;
 	}
 
+	public void addAsfDM(AsfDM asfDM) {
+		this.asfDMs.add(asfDM);
+	}
+	
 	public void addAsfDM(double[] lambda) {
 		this.asfDMs.add(new AsfDM(this.referencePoint, lambda));
+	}
+	
+	public ASFBundle copy(){
+		ASFBundle res = new ASFBundle(this.referencePoint);
+		res.setReferencePoint(this.referencePoint.clone());
+		res.asfDMs.clear();
+		for(AsfDM asfDM : asfDMs){
+			res.addAsfDM(asfDM.getLambda().clone());
+		}
+		return res;
+	}
+
+	public void clear() {
+		asfDMs.clear();
 	}
 }

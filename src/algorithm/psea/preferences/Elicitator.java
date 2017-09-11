@@ -93,8 +93,8 @@ public class Elicitator {
 		else {
 			pi = new Pair<Integer, Integer>(id1, id2);
 		}
-		p.first  = pop.getSolution(pi.first).copy();
-		p.second = pop.getSolution(pi.second).copy();
+		p.first  = new Solution(pop.getSolution(pi.first));
+		p.second = new Solution(pop.getSolution(pi.second));
 		return maxSplit;
 	}
 

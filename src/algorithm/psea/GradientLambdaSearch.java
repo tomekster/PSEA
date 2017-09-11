@@ -75,7 +75,7 @@ public class GradientLambdaSearch {
 	
 	private ArrayList <Interval> getImprovingIntervals(ASFBundle asfBundle, AsfDM lambda, AsfDM bestLambda) {
 		ArrayList <Interval> intervals = new ArrayList<>();
-		int numDim = lambda.getNumDimensions();
+		int numDim = asfBundle.getNumObjectives();
 		double bestLambdaGrad[] = new double[numDim];
 		
 		//Get gradient from current lambda to bestLambda
@@ -316,7 +316,7 @@ public class GradientLambdaSearch {
 		//TODO - for now pick random interval and random point, later it can be optimized for maximizing diversity
 		ArrayList <AsfDM> res = new ArrayList<>();
 //		LOGGER.log(Level.INFO, "Best interval CV: " + bestCV);
-		for(int i=0; i<asfBundle.getSize(); i++){
+		for(int i=0; i<asfBundle.size(); i++){
 			int id = MyRandom.getInstance().nextInt( bestIntervals.size());
 			Interval interval = bestIntervals.get(id);
 			double t = MyRandom.getInstance().nextDouble();

@@ -10,7 +10,7 @@ import org.junit.Test;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.psea.AsfPreferenceModel;
-import algorithm.rankers.WeightedBordaRanker;
+import algorithm.psea.preferences.DMmodel;
 import utils.math.Geometry;
 
 public class ASFBundleTest {
@@ -39,7 +39,7 @@ public class ASFBundleTest {
 	@Test
 	public void buildSolutionRankingTest1() {
 		AsfPreferenceModel lambda = new AsfPreferenceModel(dim1);
-		ArrayList<Solution> res = WeightedBordaRanker.buildSolutionsRanking(lambda, pop);
+		ArrayList<Solution> res = DMmodel.buildSolutionsRanking(lambda, pop);
 
 		Geometry.assertEqualDoubleArrays(obj3, res.get(0).getObjectives());
 		Geometry.assertEqualDoubleArrays(obj1, res.get(1).getObjectives());
@@ -49,7 +49,7 @@ public class ASFBundleTest {
 	@Test
 	public void buildSolutionRankingTest2() {
 		AsfPreferenceModel lambda = new AsfPreferenceModel(dim2);
-		ArrayList<Solution> res = WeightedBordaRanker.buildSolutionsRanking(lambda, pop);
+		ArrayList<Solution> res = DMmodel.buildSolutionsRanking(lambda, pop);
 
 		Geometry.assertEqualDoubleArrays(obj1, res.get(0).getObjectives());
 		Geometry.assertEqualDoubleArrays(obj2, res.get(1).getObjectives());

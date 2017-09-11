@@ -1,4 +1,4 @@
-package solutionRankers;
+package algorithm.rankers;
 
 import static org.junit.Assert.assertEquals;
 

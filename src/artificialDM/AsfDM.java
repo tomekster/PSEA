@@ -1,6 +1,10 @@
 package artificialDM;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 
 import algorithm.geneticAlgorithm.Solution;
 
@@ -14,7 +18,6 @@ public class AsfDM extends ArtificialDM{
 	private double refPoint[];
 	private double reward;
 	private double penalty;
-	private int numViolations;
 	
 	public AsfDM(double refPoint[], double lambda[], String name){
 		if(refPoint.length != lambda.length){
@@ -108,10 +111,6 @@ public class AsfDM extends ArtificialDM{
 		res += sum * rho;
 		return res;
 	}
-	
-	public int getNumDimensions() {
-		return lambda.length;
-	}
 
 	public double[] getLambda() {
 		return lambda;
@@ -125,10 +124,6 @@ public class AsfDM extends ArtificialDM{
 		return lambda[i];
 	}
 	
-	public boolean isCoherent() {
-		return numViolations == 0;
-	}
-
 	public AsfDM copy() {
 		return new AsfDM(this.refPoint.clone(), this.lambda.clone(), this.name);
 	}
@@ -149,25 +144,27 @@ public class AsfDM extends ArtificialDM{
 		this.penalty = penalty;
 	}
 
-	public int getNumViolations(){
-		return this.numViolations;
-	}
-	
-	public void setNumViolations(int numViolations) {
-		this.numViolations = numViolations;
-	}
-
 	public static double getRho() {
 		return AsfDM.rho;
 	}
 	
 	@Override
 	public int compare(Solution s1, Solution s2) {
-		if (eval(s1) < eval(s2))
-			return -1;
-		else if (eval(s1) > eval(s2))
-			return 1;
-		else
-			return 0;
+		return Double.compare(eval(s1), eval(s2));
+	}
+	
+	public void sort(ArrayList<Solution> solutions){
+		HashMap <Solution, Double> asfValue = new HashMap <Solution, Double>();
+
+		for (Solution s : solutions) {
+			asfValue.put(s, this.eval(s.getObjectives()));
+		}
+
+		Collections.sort(solutions, new Comparator<Solution>() {
+			@Override
+			public int compare(final Solution s1, final Solution s2) {
+				return Double.compare(asfValue.get(s1), asfValue.get(s2)); // Sort ASCENDING by ASF value
+			}
+		});
 	}
 }

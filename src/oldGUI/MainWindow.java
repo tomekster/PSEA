@@ -36,8 +36,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.PSEA;
+import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Comparison;
 import algorithm.rankers.NonDominationRanker;
 import artificialDM.AsfDM;
@@ -473,14 +473,14 @@ public class MainWindow {
 
 	private XYDataset createDatasetOnHyperplane() {
 		ArrayList<Population> generationsHistory = history.getPopulations();
-		ArrayList<ArrayList<AsfPreferenceModel>> lambdaPointsHistory = history.getASFbundles();
+		ArrayList<ASFBundle> lambdaPointsHistory = history.getASFbundles();
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (lambdaPointsHistory != null) {
 			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
-			ArrayList<AsfPreferenceModel> lambdas= lambdaPointsHistory.get(currentPopulationId);
+			ASFBundle asfBundle= lambdaPointsHistory.get(currentPopulationId);
 			
-			ArrayList<XYSeries> series = createReferencePointsSeries(generation, lambdas, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
+			ArrayList<XYSeries> series = createReferencePointsSeries(generation, asfBundle, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
 			for(XYSeries ser : series){
 				result.addSeries(ser);
 			}
@@ -502,7 +502,7 @@ public class MainWindow {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ArrayList<AsfPreferenceModel> lambdas, ArrayList<Comparison> comparisons) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ASFBundle asfBundle, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
 		XYSeries generationSeries= new XYSeries("Preference generation");
 		XYSeries lambdaSeries = new XYSeries("Lambdas");
@@ -519,7 +519,7 @@ public class MainWindow {
 		}
 		
 		if(showLambda){
-			for (AsfPreferenceModel lambda : lambdas) {
+			for (AsfDM lambda : asfBundle.getAsfDMs()) {
 				t = Geometry.cast3dPointToPlane(lambda.getLambda());
 				lambdaSeries.add(t[0], t[1]);		
 			}
@@ -557,11 +557,11 @@ public class MainWindow {
 		double resIGD = -1;
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
-			AsfDM cr = AsfDMBuilder.getExperimentalRanker(1, numObjectives, null);
-			alg = new PSEA(problem,  cr);																							
+			AsfDM dm = AsfDMBuilder.getExperimentalRanker(1, numObjectives, null);
+			alg = new PSEA(problem,  dm);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();
-			Evaluator.evaluateRun(problem, cr, alg.getPopulation());
+			Evaluator.evaluateAsfDMRun(problem, dm, alg.getPopulation(), alg.getDMmodel().getAsfBundle());
 			updateSlider();
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {

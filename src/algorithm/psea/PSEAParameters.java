@@ -1,4 +1,4 @@
-package algorithm.nsgaiii;
+package algorithm.psea;
 
 /***
  * Singleton class for storing NSGAIII execution and display parameters

@@ -341,6 +341,7 @@ public class ParallelCoordinatesChartPanel extends ChartPanel implements MouseMo
 					else if(designIndex < ExecutionHistory.getInstance().getPopulationSize() + ExecutionHistory.getInstance().getHyperplanePoints(0).size()){
 						//BLACK - hyperplane points 
 						g.setColor(Color.black);
+						continue;
 					}
 					else {
 						//RED - lambdaPoints

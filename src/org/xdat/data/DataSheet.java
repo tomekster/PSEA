@@ -46,7 +46,7 @@ import org.xdat.exceptions.InconsistentDataException;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import algorithm.psea.AsfPreferenceModel;
+import artificialDM.AsfDM;
 import experiment.ExecutionHistory;
 
 /**
@@ -274,11 +274,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getAsfPreferenceModels(generationId)){
+		for(AsfDM asfDM : ExecutionHistory.getInstance().getAsfBundle(generationId).getAsfDMs()){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
-				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getLambda(i)));
+				newDesign.setValue(this.parameters.get(i), String.valueOf(asfDM.getLambda(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);
@@ -476,11 +476,11 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(AsfPreferenceModel lambda : ExecutionHistory.getInstance().getAsfPreferenceModels(generationId)){
+		for(AsfDM asfDM : ExecutionHistory.getInstance().getAsfBundle(generationId).getAsfDMs()){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
-				newDesign.setValue(this.parameters.get(i), String.valueOf(lambda.getLambda(i)));
+				newDesign.setValue(this.parameters.get(i), String.valueOf(asfDM.getLambda(i)));
 			}
 			this.data.add(newDesign);
 			this.designIdsMap.put(newDesign.getId(), newDesign);

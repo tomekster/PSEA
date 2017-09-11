@@ -28,10 +28,6 @@ public class Solution implements Comparable<Solution>, Serializable {
 		this(solution.getVariables(), solution.getObjectives());
 		this.dominated = solution.isDominated();
 	}
-
-	public Solution copy() {
-		return new Solution(this);
-	}
 	
 	public String objs(){
 		StringBuffer sb = new StringBuffer();

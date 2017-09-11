@@ -10,7 +10,7 @@ import problems.Problem;
 import utils.math.Geometry;
 
 public class Evaluator {
-	public static void evaluateRun(Problem problem, AsfDM asfRanker, Population res) {
+	public static void evaluateAsfDMRun(Problem problem, AsfDM asfRanker, Population res, ASFBundle asfBundle) {
 		double targetPoint[] = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
 		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
 		System.out.println("Final population range: ");
@@ -30,6 +30,6 @@ public class Evaluator {
 			ExecutionHistory.getInstance().setFinalAvgDist(Geometry.getAvgDist(targetPoint, res));
 		}
 		
-		ExecutionHistory.getInstance().setAsfBundleConverged(ASFBundle.getInstance().converged());
+		ExecutionHistory.getInstance().setAsfBundleConverged(asfBundle.converged());
 	}
 }

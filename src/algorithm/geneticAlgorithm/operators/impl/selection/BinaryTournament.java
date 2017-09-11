@@ -20,8 +20,8 @@ public class BinaryTournament implements SelectionOperator {
 		
 		int pos1 = random.nextInt(population.size());
 		int pos2 = random.nextInt(population.size());
-		Solution candidate1 = population.getSolution(pos1).copy();
-		Solution candidate2 = population.getSolution(pos2).copy();
+		Solution candidate1 = new Solution(population.getSolution(pos1));
+		Solution candidate2 = new Solution(population.getSolution(pos2));
 		
 		int flag = comparator.compare(candidate1, candidate2);
 		if(flag < 0) return candidate1;

@@ -21,8 +21,8 @@ public class NSGAIII extends EA {
 	private Hyperplane hyperplane;
 	private int populationSize;
 
-	public NSGAIII(Problem problem, CrossoverOperator crossoverOperator, MutationOperator mutationOperator, SelectionOperator selectionOperator) {
-		super(  problem, crossoverOperator, mutationOperator, selectionOperator);
+	public NSGAIII(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator) {
+		super(  problem, selectionOperator, crossoverOperator, mutationOperator);
 		this.problem = problem;
 		this.hyperplane = new Hyperplane(problem.getNumObjectives());
 		
@@ -35,9 +35,9 @@ public class NSGAIII extends EA {
 
 	public NSGAIII(Problem problem) {
 		this(problem,
+			new BinaryTournament(new NonDominationRanker()),
 			new SBX(problem),
-			new PolynomialMutation(problem),
-			new BinaryTournament(new NonDominationRanker())
+			new PolynomialMutation(problem)
 		);
 	}
 

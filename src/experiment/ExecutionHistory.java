@@ -13,7 +13,6 @@ import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
 import artificialDM.AsfDM;
@@ -31,9 +30,9 @@ public class ExecutionHistory implements Serializable {
 	protected ExecutionHistory(){
 		// Exists only to defeat instantiation.
 		this.populations = new ArrayList<>();
-		this.asfBundles = new ArrayList< ArrayList<AsfPreferenceModel> >();
+		this.asfBundles = new ArrayList<ASFBundle>();
 		this.hyperplanePoints = new ArrayList< ArrayList<ReferencePoint> >();
-		this.bestChebSol = new ArrayList <Solution>();
+		this.bestAdmSol = new ArrayList <Solution>();
 		this.bestChebVal = new ArrayList <Double>();
 	}
 
@@ -51,12 +50,12 @@ public class ExecutionHistory implements Serializable {
 	
 	private Population targetPoints;
 	private ArrayList<Population> populations;
-	private ArrayList< ArrayList<AsfPreferenceModel> > asfBundles;
+	private ArrayList<ASFBundle> asfBundles;
 	private ArrayList <ArrayList<ReferencePoint> > hyperplanePoints;
-	private ArrayList<Solution> bestChebSol;
+	private ArrayList<Solution> bestAdmSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
-	private AsfDM chebyshevRanker;
+	private AsfDM artificialDecisionMaker;
 	private double finalMinDist;
 	private double finalAvgDist;
 	private int secondPhaseId;
@@ -80,21 +79,20 @@ public class ExecutionHistory implements Serializable {
 		return populations.get(pos);
 	}
 
-	public ArrayList< ArrayList<AsfPreferenceModel> > getASFbundles() {
+	public ArrayList< ASFBundle > getASFbundles() {
 		return asfBundles;
 	}
-	public ArrayList<AsfPreferenceModel> getAsfPreferenceModels(int id){
+	public ASFBundle getAsfBundle(int id){
 		return asfBundles.get(id);
 	}
-	public void addAsfBundle(ArrayList<AsfPreferenceModel>  asfBundle){
+	public void addAsfBundle(ASFBundle  asfBundle){
 		this.asfBundles.add(asfBundle);
 	}
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
 	}
-	public void addBestChebVal(Pair<Solution, Double> bestChebVal){
-		this.bestChebSol.add(bestChebVal.first);
-		this.bestChebVal.add(bestChebVal.second);
+	public void addBestAdmSol(Solution sol){
+		this.bestAdmSol.add(sol);
 	}
 	
 	public PreferenceCollector getPreferenceCollector() {
@@ -130,18 +128,18 @@ public class ExecutionHistory implements Serializable {
 	}
 
 	public Solution getBestChebSol(int pos) {
-		return this.bestChebSol.get(pos);
+		return this.bestAdmSol.get(pos);
 	}
 	public void addBestChebSol(Solution s) {
-		this.bestChebSol.add(s);
+		this.bestAdmSol.add(s);
 	}
 	
-	public void setChebyshevRanker(AsfDM chebRank){
-		this.chebyshevRanker = chebRank;
+	public void setADM(AsfDM artificialDecisionMaker){
+		this.artificialDecisionMaker = artificialDecisionMaker;
 	}
 	
-	public AsfDM getChebyshevRanker(){
-		return this.chebyshevRanker;
+	public AsfDM getADM(){
+		return this.artificialDecisionMaker;
 	}
 
 	public void setFinalMinDist(double minDist) {
@@ -174,8 +172,8 @@ public class ExecutionHistory implements Serializable {
 
 	public void clear() {
 		populations = new ArrayList<>();
-		asfBundles = new ArrayList< ArrayList<AsfPreferenceModel> >();
-		bestChebSol = new ArrayList <Solution>();
+		asfBundles = new ArrayList< ASFBundle >();
+		bestAdmSol = new ArrayList <Solution>();
 		bestChebVal = new ArrayList <Double>();
 	}
 
@@ -186,13 +184,13 @@ public class ExecutionHistory implements Serializable {
 		setNumVariables(problem.getNumVariables());
 		setNumObjectives(problem.getNumObjectives());
 		addGeneration(nsgaiii.getPopulation().copy());
-		addAsfBundle(asfBundle.getAsfDMs());
+		addAsfBundle(asfBundle);
 		addHyperplanePoints(nsgaiii.getHyperplane());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
-		setChebyshevRanker(decisionMakerRanker);
+		setADM(decisionMakerRanker);
 		setAsfBundleConverged(false);
-		setNumPrefModels(asfBundle.getSize());
+		setNumPrefModels(asfBundle.size());
 	}
 
 	public void setProblem(Problem problem) {
@@ -203,11 +201,11 @@ public class ExecutionHistory implements Serializable {
 		return this.problem;
 	}
 	
-	public void update(Population population, ASFBundle lambda, Hyperplane hp) {
+	public void update(Population population, ASFBundle asfBundle, Hyperplane hp) {
 		addGeneration(population.copy());
-		ArrayList <AsfPreferenceModel> lambdasCopy = new ArrayList <> (lambda.getAsfDMs()); 
-		addAsfBundle(lambdasCopy);
-		addBestChebVal(getChebyshevRanker().getBestSolutionVal(population));
+		ASFBundle asfBundleCopy = asfBundle.copy(); 
+		addAsfBundle(asfBundleCopy);
+		addBestAdmSol(getADM().getBestSolutionVal(population));
 		addHyperplanePoints(hp);
 	}
 

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
-import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.PSEA;
+import algorithm.psea.preferences.ASFBundle;
 import artificialDM.AsfDM;
 import artificialDM.AsfDMBuilder;
 import problems.Problem;
@@ -48,8 +48,8 @@ public class NumComparisonsExperiment {
 					
 					ExecutionHistory hist = ExecutionHistory.getInstance();
 					for(int i=0; i < hist.getASFbundles().size(); i++){
-						minModelDist.add(hist.getAsfPreferenceModels(i).stream().mapToDouble(model->Geometry.euclideanDistance(model.getLambda(), asfRanker.getLambda())).min().getAsDouble() );
-						avgModelDist.add(hist.getAsfPreferenceModels(i).stream().mapToDouble(model->Geometry.euclideanDistance(model.getLambda(), asfRanker.getLambda())).sum() / hist.getAsfPreferenceModels(i).size() );
+						minModelDist.add(hist.getAsfBundle(i).getAsfDMs().stream().mapToDouble(asfDm->Geometry.euclideanDistance(asfDm.getLambda(), asfRanker.getLambda())).min().getAsDouble() );
+						avgModelDist.add(hist.getAsfBundle(i).getAsfDMs().stream().mapToDouble(asfDm->Geometry.euclideanDistance(asfDm.getLambda(), asfRanker.getLambda())).sum() / hist.getAsfBundle(i).size() );
 					}				
 
 					double targetSolution[] = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
@@ -82,10 +82,10 @@ public class NumComparisonsExperiment {
 					visData.clear();
 					visData.add(PythonVisualizer.convert(problem.getReferenceFront()));
 					
-					ArrayList <AsfPreferenceModel> models = hist.getASFbundles().get(hist.getASFbundles().size()-1);
+					ASFBundle asfBundle = hist.getASFbundles().get(hist.getASFbundles().size()-1);
 					ArrayList <double[]> points = new ArrayList<>();
-					for(AsfPreferenceModel model : models){
-						points.add(model.getLambda());
+					for(AsfDM asfDm : asfBundle.getAsfDMs()){
+						points.add(asfDm.getLambda());
 					}
 					visData.add(points);
 					ArrayList<double[]> targetLambda= new ArrayList<>();

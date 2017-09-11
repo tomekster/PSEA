@@ -1,9 +1,8 @@
-package algorithm.nsgaiii;
+package algorithm.psea;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import algorithm.psea.PSEA;
 import artificialDM.AsfDM;
 import artificialDM.AsfDMBuilder;
 import experiment.Evaluator;
@@ -43,7 +42,7 @@ public class PSEARunnner {
 		}
 		alg.run();
 		
-		Evaluator.evaluateRun(problem, cr, alg.getPopulation());
+		Evaluator.evaluateAsfDMRun(problem, cr, alg.getPopulation(), alg.getDMmodel().getAsfBundle());
 		ExecutionHistory history = ExecutionHistory.getInstance();
 		System.out.println("Generation min: " + history.getFinalMinDist());
 		System.out.println("Generation avg: " + history.getFinalAvgDist());

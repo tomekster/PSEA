@@ -12,6 +12,7 @@ public abstract class ArtificialDM implements Serializable, Comparator<Solution>
 	 * 
 	 */
 	protected String name;
+	protected int numViolations;
 	
 	private static final long serialVersionUID = -1962640459115190637L;
 	
@@ -26,6 +27,18 @@ public abstract class ArtificialDM implements Serializable, Comparator<Solution>
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public int getNumViolations(){
+		return this.numViolations;
+	}
+	
+	public void setNumViolations(int numViolations) {
+		this.numViolations = numViolations;
+	}
+	
+	public boolean isCoherent() {
+		return numViolations == 0;
 	}
 	
 	public Solution getBestSolutionVal(Population pop){

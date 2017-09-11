@@ -12,8 +12,8 @@ import java.util.logging.LogManager;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
-import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.PSEA;
+import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
 import artificialDM.AsfDM;
 import artificialDM.AsfDMBuilder;
@@ -142,13 +142,13 @@ public class ExperimentRunner {
 
 		for(int i=0; i < history.getPopulations().size(); i++){
 			Population pop = history.getPopulation(i);
-			ArrayList <AsfPreferenceModel> lambdas = history.getAsfPreferenceModels(i);
+			ASFBundle asfBundle = history.getAsfBundle(i);
 			minDist.add(Geometry.getMinDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
 			avgDist.add(Geometry.getAvgDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
 			double targetDir[] = decisionMakerRanker.getLambda();
-			modelDist.add(lambdas.stream().mapToDouble(lambda -> Geometry.dirDist(targetDir, lambda.getLambda())).min().getAsDouble());
+			modelDist.add(asfBundle.getAsfDMs().stream().mapToDouble(asfDM -> Geometry.dirDist(targetDir, asfDM.getLambda())).min().getAsDouble());
 		}
-		Evaluator.evaluateRun(p, decisionMakerRanker, alg.getPopulation());
+		Evaluator.evaluateAsfDMRun(p, decisionMakerRanker, alg.getPopulation(), alg.getDMmodel().getAsfBundle());
 		System.out.println("Final min: " + history.getFinalMinDist());
 		System.out.println("Final avg: " + history.getFinalAvgDist());
 		

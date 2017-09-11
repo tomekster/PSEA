@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
-import experiment.PythonVisualizer;
 import problems.Problem;
 
 /**
@@ -18,18 +17,18 @@ import problems.Problem;
 public abstract class EA {
 	protected Problem problem;
 	protected Population population;
+	protected SelectionOperator selectionOperator;
 	protected CrossoverOperator crossoverOperator;
 	protected MutationOperator mutationOperator;
-	protected SelectionOperator selectionOperator;
 	protected int generation;
 	
-	protected EA(Problem problem, CrossoverOperator crossoverOperator, MutationOperator mutationOperator, SelectionOperator selectionOperator){
+	protected EA(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator){
 		this.generation = 0;
 		this.problem = problem;
 		// Standard genetic operators used in evolutionary algorithms
+		this.selectionOperator = selectionOperator;
 		this.crossoverOperator = crossoverOperator;
 		this.mutationOperator = mutationOperator;
-		this.selectionOperator = selectionOperator;
 	}
 
 	/**

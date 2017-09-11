@@ -8,6 +8,7 @@ import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import artificialDM.AsfDM;
+import artificialDM.SingleObjectiveDM;
 import experiment.PythonVisualizer;
 import problems.dtlz.DTLZ4;
 import utils.math.Geometry;
@@ -46,8 +47,7 @@ public abstract class Problem implements Serializable {
 		for(int i=0; i<numVariables; i++){
 			var[i] = lowerBound[i] + (upperBound[i] - lowerBound[i]) * random.nextDouble();
 		}
-		Solution s = new Solution(var,obj);
-		return s;
+		return new Solution(var,obj);
 	}
 	
 	public Population createPopulation(int size){
@@ -88,15 +88,10 @@ public abstract class Problem implements Serializable {
 		}
 			
 		for(int optimizedDim=0; optimizedDim < numObjectives; optimizedDim++){
-			for(int i=0; i<lambdaDirection.length; i++){
-				lambdaDirection[i] = 0;
-			}
-			lambdaDirection[optimizedDim] = 1;
-			AsfDM cr = new AsfDM(lambdaDirection);
-			
+			SingleObjectiveDM soDM = new SingleObjectiveDM(optimizedDim);
 			SingleObjectiveEA so = new SingleObjectiveEA(	
 				this,
-				cr
+				soDM
 			);
 			
 			so.run();
