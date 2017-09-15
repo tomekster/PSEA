@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import utils.math.Geometry;
 
-public class AsfDMBuilder{
-	public static AsfDM getExperimentalRanker(int id, int dim, double ideal[]){
+public class ADMBuilder{
+	public static AsfDM getAsfDm(int id, int dim, double ideal[]){
 		String name = "---";
 		double refPoint[] = new double[dim];
  		if(ideal == null){
@@ -65,11 +65,41 @@ public class AsfDMBuilder{
 		return new AsfDM(refPoint, direction, name);
 	}
 	
-	public static ArrayList<AsfDM> getExperimentalRankers(int numObj, double ideal[]){
+	public static WeightedSumDM getWsDm(int id, int numObj){
+		String name = "---";
+
+		double weights[] = new double[numObj];
+		
+		switch(id){
+		case 1:
+			for(int i=0; i<numObj; i++){weights[i] = 1;}
+			name = "1EqualWeights";
+			break;
+		case 2:
+			for(int i=0; i<numObj; i++){weights[i] = i+1;}
+			name = "2IncreasingWeights";
+			break;
+		case 3:
+			for(int i=0; i<numObj; i++){weights[i] = numObj-i;}
+			name = "3DecreasingWeights";
+			break;
+		}
+		return new WeightedSumDM(weights, name);
+	}
+	
+	public static ArrayList<AsfDM> getAsfDms(int numObj, double ideal[]){
 			ArrayList <AsfDM> rankersList = new ArrayList<>();
 			for(int id=1; id<=9; id++){
-				rankersList.add(getExperimentalRanker(id, numObj, ideal));
+				rankersList.add(getAsfDm(id, numObj, ideal));
 			}
 			return rankersList;
+	}
+	
+	public static ArrayList<WeightedSumDM> getWsDms(int numObj){
+		ArrayList <WeightedSumDM> rankersList = new ArrayList<>();
+		for(int id=1; id<=3; id++){
+			rankersList.add(getWsDm(id, numObj));
+		}
+		return rankersList;
 	}
 }

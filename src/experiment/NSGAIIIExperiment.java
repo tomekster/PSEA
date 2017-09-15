@@ -10,12 +10,15 @@ import algorithm.nsgaiii.NSGAIII;
 import algorithm.rankers.NonDominationRanker;
 import experiment.metrics.IGD;
 import problems.Problem;
-import problems.dtlz.DTLZ1;
-import problems.dtlz.DTLZ2;
-import problems.dtlz.DTLZ3;
-import problems.dtlz.DTLZ4;
+import problems.wfg.WFG1;
+import problems.wfg.WFG2;
+import problems.wfg.WFG3;
+import problems.wfg.WFG4;
+import problems.wfg.WFG5;
 import problems.wfg.WFG6;
 import problems.wfg.WFG7;
+import problems.wfg.WFG8;
+import problems.wfg.WFG9;
 import utils.math.structures.Pair;
 
 public class NSGAIIIExperiment {
@@ -31,7 +34,7 @@ public class NSGAIIIExperiment {
 	public static void main(String [] args){
 		
 		init();
-		final int NUM_RUNS = 20;
+		final int NUM_RUNS = 1;
 		// TODO - WFG1 - something goes wrong here - obtained front looks weird, WFG8 - difficult problem
 		for(Problem problem : problems){
 			ArrayList <Double> igd = new ArrayList<>();
@@ -54,12 +57,17 @@ public class NSGAIIIExperiment {
 				
 				ArrayList<ArrayList<double[]>> visData = new ArrayList<>();
 				visData.add(PythonVisualizer.convert(problem.getReferenceFront()));
-				visData.add(PythonVisualizer.convert(firstFront));					
+				//visData.add(PythonVisualizer.convert(firstFront));					
 				PythonVisualizer.saveResults(numObj, visData, runName);
 			}
 			Collections.sort(igd);
 			best.add(igd.get(0));
-			median.add((igd.get(NUM_RUNS/2) + igd.get(NUM_RUNS/2 - 1))/2);
+			if(NUM_RUNS % 2 == 0){
+				median.add((igd.get(NUM_RUNS/2) + igd.get(NUM_RUNS/2 - 1))/2);
+			}
+			else{
+				median.add(igd.get(NUM_RUNS/2));
+			}
 			worse.add(igd.get(igd.size() - 1));
 			System.out.println(Arrays.toString(igd.toArray(new Double[0])));
 		}
@@ -77,8 +85,15 @@ public class NSGAIIIExperiment {
 //			problems.add(new DTLZ2(d));
 //			problems.add(new DTLZ3(d));
 //			problems.add(new DTLZ4(d));
+//			problems.add(new WFG1(d));
+//			problems.add(new WFG2(d));
+//			problems.add(new WFG3(d));
+//			problems.add(new WFG4(d));
+//			problems.add(new WFG5(d));
 			problems.add(new WFG6(d));
 			problems.add(new WFG7(d));
+//			problems.add(new WFG8(d));
+//			problems.add(new WFG9(d));
 		}
  
 		//Initialize number of generations for every problem
@@ -106,17 +121,18 @@ public class NSGAIIIExperiment {
 		numGenMap.put(new Pair<String, Integer>("DTLZ4", 10) , 2000);
 		numGenMap.put(new Pair<String, Integer>("DTLZ4", 15) , 3000);
 		
-		numGenMap.put(new Pair<String, Integer>("WFG6", 3) , 400);
-		numGenMap.put(new Pair<String, Integer>("WFG6", 5) , 750);
-		numGenMap.put(new Pair<String, Integer>("WFG6", 8) , 1500);
-		numGenMap.put(new Pair<String, Integer>("WFG6", 10) , 2000);
-		numGenMap.put(new Pair<String, Integer>("WFG6", 15) , 3000);
-
-		numGenMap.put(new Pair<String, Integer>("WFG7", 3) , 400);
-		numGenMap.put(new Pair<String, Integer>("WFG7", 5) , 750);
-		numGenMap.put(new Pair<String, Integer>("WFG7", 8) , 1500);
-		numGenMap.put(new Pair<String, Integer>("WFG7", 10) , 2000);
-		numGenMap.put(new Pair<String, Integer>("WFG7", 15) , 3000);
+		ArrayList <String> wfgProblemNames = new ArrayList<>();
+		for(int i=1; i<= 9; i++){
+			wfgProblemNames.add("WFG" + i);
+		}
+		int numObj[] = {3,5,8,10,15};
+		int numGen[] = {400,750,1500,2000,3000};
+		
+		for(String problemName : wfgProblemNames){
+			for(int i = 0; i<5; i++){
+				numGenMap.put(new Pair<String, Integer>(problemName, numObj[i]) , numGen[i]);
+			}
+		}
 	}
 	
 	private static int getNumGen(Problem problem){

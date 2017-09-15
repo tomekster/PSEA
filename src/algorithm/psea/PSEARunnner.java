@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import experiment.Evaluator;
 import experiment.ExecutionHistory;
 import problems.Problem;
@@ -34,7 +34,7 @@ public class PSEARunnner {
 		AsfDM cr = null;
 		try {
 			problem = (Problem) problemConstructor.newInstance(params.getNumberObjectives());
-			cr = AsfDMBuilder.getExperimentalRanker(7, params.getNumberObjectives(), null);
+			cr = ADMBuilder.getAsfDm(7, params.getNumberObjectives(), null);
 			alg = new PSEA(problem,cr);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e1) {

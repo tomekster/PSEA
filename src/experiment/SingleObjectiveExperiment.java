@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
@@ -26,9 +26,9 @@ public class SingleObjectiveExperiment {
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
 			System.out.println(Arrays.toString(idealPoint));
-			ArrayList <AsfDM> asfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
+			ArrayList <AsfDM> asfRankers = ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
 			for(AsfDM asfRanker : asfRankers){
-				double[] targetPoint = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
+				double[] targetPoint = problem.getTargetAsfPoint(Geometry.invert(asfRanker.getLambda()));
 				ArrayList <Double> asf = new ArrayList<>();
 //				for(int k=0; k<NUM_RUNS; k++){
 					String runName = "SO_" + getTestName(problem, asfRanker); 

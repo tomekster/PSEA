@@ -31,7 +31,7 @@ public abstract class DTLZ extends Problem{
 		Hyperplane h = new Hyperplane(getNumObjectives());
 		ArrayList <ReferencePoint> rp = h.getReferencePoints();
 		for(ReferencePoint r : rp){
-			res.addSolution(new Solution(r.getDim(), getTargetPoint(r.getDim())));
+			res.addSolution(new Solution(r.getDim(), getTargetAsfPoint(r.getDim())));
 		}
 		return res;
 	}

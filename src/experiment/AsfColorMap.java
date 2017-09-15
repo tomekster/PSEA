@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
@@ -19,7 +19,7 @@ public class AsfColorMap {
 		init();
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
-			ArrayList <AsfDM> asfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
+			ArrayList <AsfDM> asfRankers = ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
 			for(AsfDM asfRanker : asfRankers){
 				Hyperplane h = new Hyperplane(3);
 				ArrayList <Integer> partitions = new ArrayList<>();
@@ -30,7 +30,7 @@ public class AsfColorMap {
 				ArrayList<ArrayList<double[]>> visData = new ArrayList<>();
 				ArrayList <double[]> points = new ArrayList<>();
 				for(ReferencePoint rp : h.getReferencePoints()){
-					double target[] = problem.getTargetPoint(rp.getDim());
+					double target[] = problem.getTargetAsfPoint(rp.getDim());
 					double point[] = new double[rp.getNumDimensions() + 1];
 					for(int i=0; i<rp.getNumDimensions(); i++){
 						point[i] = target[i];

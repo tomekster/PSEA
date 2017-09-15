@@ -15,7 +15,8 @@ import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
-import artificialDM.AsfDM;
+import artificialDM.ArtificialDM;
+import artificialDM.ArtificialDM;
 import problems.Problem;
 import utils.math.structures.Pair;
 
@@ -55,7 +56,7 @@ public class ExecutionHistory implements Serializable {
 	private ArrayList<Solution> bestAdmSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
-	private AsfDM artificialDecisionMaker;
+	private ArtificialDM artificialDecisionMaker;
 	private double finalMinDist;
 	private double finalAvgDist;
 	private int secondPhaseId;
@@ -134,11 +135,11 @@ public class ExecutionHistory implements Serializable {
 		this.bestAdmSol.add(s);
 	}
 	
-	public void setADM(AsfDM artificialDecisionMaker){
+	public void setADM(ArtificialDM artificialDecisionMaker){
 		this.artificialDecisionMaker = artificialDecisionMaker;
 	}
 	
-	public AsfDM getADM(){
+	public ArtificialDM getADM(){
 		return this.artificialDecisionMaker;
 	}
 
@@ -175,9 +176,10 @@ public class ExecutionHistory implements Serializable {
 		asfBundles = new ArrayList< ASFBundle >();
 		bestAdmSol = new ArrayList <Solution>();
 		bestChebVal = new ArrayList <Double>();
+		hyperplanePoints.clear();
 	}
 
-	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle asfBundle, AsfDM decisionMakerRanker) {
+	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle asfBundle, ArtificialDM adm) {
 		clear();
 		setPopulationSize(nsgaiii.getPopulation().size());
 		setProblem(problem);
@@ -188,7 +190,7 @@ public class ExecutionHistory implements Serializable {
 		addHyperplanePoints(nsgaiii.getHyperplane());
 		setTargetPoints(problem.getReferenceFront());
 		setPreferenceCollector(PreferenceCollector.getInstance());
-		setADM(decisionMakerRanker);
+		setADM(adm);
 		setAsfBundleConverged(false);
 		setNumPrefModels(asfBundle.size());
 	}

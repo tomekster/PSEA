@@ -29,6 +29,8 @@ public abstract class ArtificialDM implements Serializable, Comparator<Solution>
 		this.name = name;
 	}
 	
+	public abstract DMType getType();
+
 	public int getNumViolations(){
 		return this.numViolations;
 	}
@@ -50,7 +52,5 @@ public abstract class ArtificialDM implements Serializable, Comparator<Solution>
 	}
 	
 	@Override
-	public int compare(Solution s1, Solution s2) {
-		return Double.compare(eval(s1), eval(s2));
-	}
+	public abstract int compare(Solution s1, Solution s2);
 }

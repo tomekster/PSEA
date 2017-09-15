@@ -41,7 +41,7 @@ import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Comparison;
 import algorithm.rankers.NonDominationRanker;
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import experiment.Evaluator;
 import experiment.ExecutionHistory;
 import problems.Problem;
@@ -557,7 +557,7 @@ public class MainWindow {
 		double resIGD = -1;
 		try {
 			Problem problem = (Problem) problemConstructor.newInstance(numObjectives);
-			AsfDM dm = AsfDMBuilder.getExperimentalRanker(1, numObjectives, null);
+			AsfDM dm = ADMBuilder.getAsfDm(1, numObjectives, null);
 			alg = new PSEA(problem,  dm);																							
 			alg.run();
 			executedGenerations = alg.getGeneration();

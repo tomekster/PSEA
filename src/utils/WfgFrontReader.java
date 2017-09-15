@@ -20,16 +20,13 @@ public class WfgFrontReader {
 	public static Population getFront(Problem problem) {
 		String subdir = "";
 		int numObj = problem.getNumObjectives(); 
-		if(numObj == 2){
-			subdir = "WFG.2D";
-		} else if(numObj == 3){
-			subdir = "WFG.3D";
-		}
+		subdir = "WFG." + numObj + "D";
 		Path path = Paths.get(DIR, subdir, problem.getName() + "." + numObj + "D.pf");
 		Population pop = new Population();
+		System.out.println(path.toString());
 		try (Stream<String> lines = Files.lines(path)) {
 			List<List<Double>> data = lines
-				.map(l -> Arrays.asList(l.split(" "))
+				.map(l -> Arrays.asList(l.trim().split(" "))
 					.stream()
 					.map(x -> Double.valueOf(x))
 					.collect(Collectors.toList())

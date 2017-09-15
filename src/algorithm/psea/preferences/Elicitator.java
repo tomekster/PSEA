@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
-import artificialDM.AsfDM;
+import artificialDM.ArtificialDM;
 import utils.math.MyRandom;
 import utils.math.structures.Pair;
 
@@ -15,11 +15,11 @@ public class Elicitator {
 	
 	private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
 	
-	public static int elicitate(Population pop, AsfDM cr, ASFBundle lambda, Pair<Solution, Solution> p) {
+	public static int elicitate(Population pop, ArtificialDM adm, ASFBundle lambda, Pair<Solution, Solution> p) {
 		return getComparedSolutions(pop, lambda, p);
 	}
 
-	public static void compare(AsfDM cr, Solution s1, Solution s2) {
+	public static void compare(ArtificialDM cr, Solution s1, Solution s2) {
 		PreferenceCollector PC = PreferenceCollector.getInstance();		
 		if (cr != null) {
 			int comparisonResult = cr.compare(s1, s2);

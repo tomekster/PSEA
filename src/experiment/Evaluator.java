@@ -11,7 +11,7 @@ import utils.math.Geometry;
 
 public class Evaluator {
 	public static void evaluateAsfDMRun(Problem problem, AsfDM asfRanker, Population res, ASFBundle asfBundle) {
-		double targetPoint[] = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
+		double targetPoint[] = problem.getTargetAsfPoint(Geometry.invert(asfRanker.getLambda()));
 		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
 		System.out.println("Final population range: ");
 		for(int i=0; i< problem.getNumObjectives(); i++){

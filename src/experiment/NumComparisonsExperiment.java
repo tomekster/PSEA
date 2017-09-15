@@ -6,13 +6,12 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import algorithm.psea.PSEA;
-import algorithm.psea.preferences.ASFBundle;
-import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
+import artificialDM.ArtificialDM;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
+import problems.dtlz.DTLZ2;
 import problems.dtlz.DTLZ4;
-import utils.math.Geometry;
 import utils.math.structures.Pair;
 
 public class NumComparisonsExperiment {
@@ -28,74 +27,53 @@ public class NumComparisonsExperiment {
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
 			System.out.println(Arrays.toString(idealPoint));
-			ArrayList <AsfDM> allAsfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
-			ArrayList <AsfDM> asfRankers = new ArrayList<>();
-			asfRankers.add(allAsfRankers.get(0));
-			asfRankers.add(allAsfRankers.get(5));
-			asfRankers.add(allAsfRankers.get(8));
+			ArrayList <ArtificialDM> allRankers = new ArrayList<>();
+			for(ArtificialDM adm : ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint)){
+				allRankers.add(adm);
+			}
+			ArrayList <ArtificialDM> testedRankers = new ArrayList<>();
 			
-			for(AsfDM asfRanker : asfRankers){
-				for(Pair<Integer, Integer> comp : comparisons){
-					ArrayList <Double> minModelDist = new ArrayList<>();
-					ArrayList <Double> avgModelDist = new ArrayList<>();
-					ArrayList <Double> minPopDist = new ArrayList<>();
-					ArrayList <Double> avgPopDist = new ArrayList<>();
-					ArrayList <Double> minPopAsf = new ArrayList<>();
-					ArrayList <Double> optPopAsf = new ArrayList<>();
-					String runName = getTestName(problem, asfRanker) + "_(" + comp.first + ", " + comp.second + ")"; 
-					PSEA psea = new PSEA(problem, asfRanker, comp.first, comp.second);
-					psea.run();
-					
-					ExecutionHistory hist = ExecutionHistory.getInstance();
-					for(int i=0; i < hist.getASFbundles().size(); i++){
-						minModelDist.add(hist.getAsfBundle(i).getAsfDMs().stream().mapToDouble(asfDm->Geometry.euclideanDistance(asfDm.getLambda(), asfRanker.getLambda())).min().getAsDouble() );
-						avgModelDist.add(hist.getAsfBundle(i).getAsfDMs().stream().mapToDouble(asfDm->Geometry.euclideanDistance(asfDm.getLambda(), asfRanker.getLambda())).sum() / hist.getAsfBundle(i).size() );
-					}				
-
-					double targetSolution[] = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
-					for(int i=0; i < hist.getPopulations().size(); i++){
-						minPopDist.add(hist.getPopulation(i).getSolutions().stream().mapToDouble(solution->Geometry.euclideanDistance(solution.getObjectives(), targetSolution)).min().getAsDouble() );
-						avgPopDist.add(hist.getPopulation(i).getSolutions().stream().mapToDouble(solution->Geometry.euclideanDistance(solution.getObjectives(), targetSolution)).sum() / hist.getPopulationSize());
-					}
-					
-					for(int i=0; i < hist.getPopulations().size(); i++){
-						minPopAsf.add(hist.getPopulation(i).getSolutions().stream().mapToDouble(solution->asfRanker.eval(solution.getObjectives())).min().getAsDouble() );
-						optPopAsf.add(asfRanker.eval(targetSolution));
-					}
-					finalRes.add(new Pair<Double, String>(Collections.min(minModelDist), problem.getName()));
-			
-					ArrayList<ArrayList<double[]>> visData = new ArrayList<>();
-					visData.add(PythonVisualizer.convert(minModelDist.toArray(new Double[0]))); //Plot minAsf value in every generation
-					visData.add(PythonVisualizer.convert(avgModelDist.toArray(new Double[0]))); //Plot avgAsf value in every generation
-					PythonVisualizer.saveResults(1, visData, runName + "model_dist");
-					
-					visData.clear();
-					visData.add(PythonVisualizer.convert(minPopDist.toArray(new Double[0]))); //Plot minAsf value in every generation
-					visData.add(PythonVisualizer.convert(avgPopDist.toArray(new Double[0]))); //Plot avgAsf value in every generation
-					PythonVisualizer.saveResults(1, visData, runName + "pop_dist");
-					
-					visData.clear();
-					visData.add(PythonVisualizer.convert(minPopAsf.toArray(new Double[0]))); //Plot minAsf value in every generation
-					visData.add(PythonVisualizer.convert(optPopAsf.toArray(new Double[0]))); //Plot avgAsf value in every generation
-					PythonVisualizer.saveResults(1, visData, runName + "pop_asf");
-					
-					visData.clear();
-					visData.add(PythonVisualizer.convert(problem.getReferenceFront()));
-					
-					ASFBundle asfBundle = hist.getASFbundles().get(hist.getASFbundles().size()-1);
-					ArrayList <double[]> points = new ArrayList<>();
-					for(AsfDM asfDm : asfBundle.getAsfDMs()){
-						points.add(asfDm.getLambda());
-					}
-					visData.add(points);
-					ArrayList<double[]> targetLambda= new ArrayList<>();
-					targetLambda.add(asfRanker.getLambda());
-					visData.add(targetLambda);
-					PythonVisualizer.saveResults(problem.getNumObjectives(), visData, runName + "_model_vis");
+			int numRuns = 5;
+			int maxGen = 1500;
+			testedRankers.add(allRankers.get(7));
+			for(ArtificialDM adm : testedRankers){
+				ArrayList<ArrayList<double[]>> visData = new ArrayList<>();
+				ArrayList <Double> optPopAsf = new ArrayList<>();
+				optPopAsf.add(adm.eval(problem.getTargetPoint(adm)));
+				fill(optPopAsf, maxGen);
+				for(double o : optPopAsf){
+					System.out.println(o + " " + 6);
 				}
+				for(Pair<Integer, Integer> comp : comparisons){
+					System.out.println("(" + comp.first + "," + comp.second +")");
+					ArrayList<ArrayList <Double>> median = new ArrayList<>();
+					ArrayList <Double> minPopAsf = new ArrayList<>();
+					ArrayList <Double> avgPopAsf = new ArrayList<>();
+//					for(int runId = 1; runId <= numRuns; runId++){
+//						System.out.println("(" + comp.first + "," + comp.second + ")_"+ runId);
+//						minPopAsf = new ArrayList<>();
+////						avgPopAsf = new ArrayList<>();
+//						optPopAsf = new ArrayList<>();
+////						String runName = getTestName(problem, adm) + "_(" + comp.first + ", " + comp.second + ")"; 
+//						PSEA psea = new PSEA(problem, adm, comp.first, comp.second);
+//						psea.run();
+//						ExecutionHistory hist = ExecutionHistory.getInstance();
+//						
+//						for(int j=0; j < hist.getPopulations().size(); j++){
+//							minPopAsf.add(hist.getPopulation(j).getSolutions().stream().mapToDouble(solution->adm.eval(solution.getObjectives())).min().getAsDouble() );
+//							
+//						}
+//						fill(minPopAsf, maxGen);
+//						median.add(minPopAsf);
+//					}
+//					ArrayList <Double> medianMinPopAsf = getArrayOfMedians(median);
+//					visData.add(PythonVisualizer.convert(medianMinPopAsf.toArray(new Double[0]))); //Plot minAsf value in every generation
+				}
+//				visData.add(PythonVisualizer.convert(optPopAsf.toArray(new Double[0]))); //Plot optimal asf value in every generation
+				//"(" + comp.first + "_" + comp.second + ")
+//				PythonVisualizer.saveResults(1, visData,  "CMP_" + getTestName(problem, adm) + "min_pop_asf");
 			}
 		}
-		
 		
 		Collections.sort(finalRes, new Comparator<Object>(){
 			@Override
@@ -111,6 +89,34 @@ public class NumComparisonsExperiment {
 		}
 	}
 
+	private static ArrayList<Double> getArrayOfMedians(ArrayList<ArrayList<Double>> median) {
+		ArrayList <Double> res = new ArrayList<>();
+		for(int i = 0; i < median.get(0).size(); i++){
+			ArrayList <Double> medianSet = new ArrayList<>();
+			for(int j=0; j < median.size(); j++){
+				medianSet.add(median.get(j).get(i));
+			}
+			res.add(getMedian(medianSet));
+		}
+		return res;
+	}
+
+	private static Double getMedian(ArrayList<Double> medianSet) {
+		int m = medianSet.size()/2;
+		if(medianSet.size() %2 == 0){
+			return medianSet.get(m);
+		}
+		else{
+			return (medianSet.get(m) + medianSet.get(m+1))/2;
+		}
+	}
+
+	private static void fill(ArrayList<Double> array, int maxGen) {
+		while(array.size() <= maxGen){
+			array.add(array.get(array.size() - 1));
+		}
+	}
+
 	private static void init() {
 		//Initialize problems
 //		int dim[] = {3,5,8,10,15};
@@ -121,21 +127,19 @@ public class NumComparisonsExperiment {
 //			problems.add(new DTLZ4(d));
 //		}
 		problems.add(new DTLZ1(3));
-		problems.add(new DTLZ1(5));
-		problems.add(new DTLZ1(8));
-		problems.add(new DTLZ4(3));
-		problems.add(new DTLZ4(5));
+		problems.add(new DTLZ2(5));
 		problems.add(new DTLZ4(8));
 		
-		int comp[] = {30,40};
+		int comp[] = {10,20,30};
 		for(int a : comp){
 			for(int b : comp){
+				if(b > a) continue;
 				NumComparisonsExperiment.comparisons.add(new Pair<Integer, Integer>(a, b));
 			}
 		}
 	}
 	
-	private static String getTestName(Problem problem, AsfDM asfRanker){
+	private static String getTestName(Problem problem, ArtificialDM asfRanker){
 		return problem.getName() + "_" + problem.getNumObjectives() + "obj_" + asfRanker.getName();
 	}
 	

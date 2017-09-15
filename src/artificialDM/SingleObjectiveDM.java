@@ -1,5 +1,7 @@
 package artificialDM;
 
+import algorithm.geneticAlgorithm.Solution;
+
 public class SingleObjectiveDM extends ArtificialDM {
 
 	/**
@@ -24,5 +26,15 @@ public class SingleObjectiveDM extends ArtificialDM {
 	
 	public void setOptimizedObjective(int optObj){
 		optimizedObjective = optObj;
+	}
+	
+	@Override
+	public int compare(Solution s1, Solution s2) {
+		return Double.compare(eval(s1), eval(s2));
+	}
+
+	@Override
+	public DMType getType() {
+		return DMType.SO;
 	}
 }

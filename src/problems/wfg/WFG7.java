@@ -30,7 +30,7 @@ public class WFG7 extends WFG {
 	private static final long serialVersionUID = 4219569441752268868L;
 
 	public WFG7(Integer M){
-		this(M, 3, M);
+		this(2*(M-1), 2, M);
 	}
   /**
    * Creates a default WFG7 problem with

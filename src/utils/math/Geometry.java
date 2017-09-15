@@ -283,12 +283,8 @@ public class Geometry {
 	 */
 	public static double[] vectorNormalize(double[] v) {
 		int n = v.length;
-		double sum = 0;
+		double sum = Geometry.dot(v, v);
 		double[] res = new double[n];
-		
-		for(int i=0; i<n; i++){
-			sum += v[i] * v[i];
-		}
 		
 		double denom = Math.sqrt(sum);
 		for(int i=0; i<n; i++){
@@ -349,27 +345,15 @@ public class Geometry {
 	}
 
 	public static double[] lineCrossDTLZ1HyperplanePoint(double[] pointOnLine) {
-		double crossPoint[] = new double[pointOnLine.length];
-		double sum = 0;
-		for (double d : pointOnLine) {
-			sum += d;
-		}
+		double crossPoint[] = Geometry.normalizeSum1(pointOnLine);
 		for(int i=0; i< pointOnLine.length; i++){
-			crossPoint[i] = pointOnLine[i] * (0.5 / sum);
+			crossPoint[i] *= 0.5;
 		}
 		return crossPoint;
 	}
 
 	public static double[] lineCrossDTLZ234HyperspherePoint(double[] pointOnLine) {
-		double crossPoint[] = new double[pointOnLine.length], sqr_sum = 0;
-		for (double d : pointOnLine) {
-			sqr_sum += d*d;
-		}
-		double div = Math.sqrt(sqr_sum);
-		for (int i = 0; i < pointOnLine.length; i++) {
-			crossPoint[i] = pointOnLine[i] / div;
-		}
-		return crossPoint;
+		return Geometry.vectorNormalize(pointOnLine);
 	}
 	
 	public static class Line2D implements Comparable <Line2D>, Point2D{

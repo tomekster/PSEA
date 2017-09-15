@@ -36,7 +36,7 @@ public class WFG8 extends WFG {
 	private static final long serialVersionUID = -3498718220007298614L;
 
 	public WFG8(Integer M){
-		this(M, 3, M);
+		this(2*(M-1), 2, M);
 	}
   /**
    * Creates a default WFG8 with

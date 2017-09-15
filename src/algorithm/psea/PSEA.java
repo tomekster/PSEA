@@ -16,7 +16,7 @@ import algorithm.psea.preferences.Elicitator;
 import algorithm.psea.preferences.PreferenceCollector;
 import algorithm.psea.preferences.DMmodel;
 import algorithm.rankers.NonDominationRanker;
-import artificialDM.AsfDM;
+import artificialDM.ArtificialDM;
 import experiment.ExecutionHistory;
 import problems.Problem;
 import utils.math.Geometry;
@@ -30,7 +30,7 @@ public class PSEA extends EA implements Runnable {
 
 	private Problem problem;
 	private int populationSize;
-	private AsfDM DMranker;
+	private ArtificialDM adm;
 	private int generation;
 	private NSGAIII nsgaiii;
 	private double spreadThreshold = 0.95;
@@ -40,13 +40,13 @@ public class PSEA extends EA implements Runnable {
 	private int maxExploitationComparisons=0;
 	private DMmodel dmModel;
 	
-	public PSEA(Problem problem, AsfDM decisionMakerRanker, int maxExplorCom, int maxExploitComp) {
-		this(problem,decisionMakerRanker);
+	public PSEA(Problem problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp) {
+		this(problem,adm);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
 	}
 	
-	public PSEA(Problem problem, AsfDM decisionMakerRanker) {
+	public PSEA(Problem problem, ArtificialDM adm) {
 		super(  problem,
 				new BinaryTournament(null), //Replaced below
 				new SBX(1.0, 30.0, problem.getLowerBounds(), problem.getUpperBounds()),
@@ -66,10 +66,10 @@ public class PSEA extends EA implements Runnable {
 		
 		// Parameters of algorithm execution
 		this.problem = problem;
-		this.DMranker = decisionMakerRanker;
+		this.adm = adm;
 		
 		// Structure for storing intermediate state of algorithm for further analysis, display, etc.
-		ExecutionHistory.getInstance().init(problem, nsgaiii, dmModel.getAsfBundle(), decisionMakerRanker);
+		ExecutionHistory.getInstance().init(problem, nsgaiii, dmModel.getAsfBundle(), adm);
 		
 		this.generation = 0;
 		this.explorationComparisons = 0;
@@ -106,7 +106,7 @@ public class PSEA extends EA implements Runnable {
 	 */
 	public void run() {
 		LOGGER.setLevel(Level.INFO);
-		LOGGER.info("Running NSGAIII for" + problem.getName() + "_" + problem.getNumObjectives() + "obj_" + DMranker.getName());
+		LOGGER.info("Running NSGAIII for" + problem.getName() + "_" + problem.getNumObjectives() + "obj_" + adm.getName());
 		
 //		singleObjective();
 		exploreExploit();
@@ -118,8 +118,9 @@ public class PSEA extends EA implements Runnable {
 		}
 	}
 
+//	TODO
 	private void exactHyperplane() {
-		nsgaiii.setHyperplane(Geometry.generateNewHyperplane(problem.getNumObjectives(),1e-3, Geometry.dir2point(DMranker.getLambda())));
+		nsgaiii.setHyperplane(Geometry.generateNewHyperplane(problem.getNumObjectives(),1e-3, Geometry.dir2point(adm.getLambda())));
 		for(int i=0; i<3000; i++){
 			generation++;
 			nsgaiii.nextGeneration();
@@ -127,7 +128,7 @@ public class PSEA extends EA implements Runnable {
 			this.population = nsgaiii.getPopulation();
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
-				bestVal = Double.min(bestVal, DMranker.eval(s));
+				bestVal = Double.min(bestVal, adm.eval(s));
 			}
 			System.out.println(i + ": " + bestVal);
 		}
@@ -135,7 +136,7 @@ public class PSEA extends EA implements Runnable {
 
 	private void exactShrinkHyperplane() {
 		dmModel.clearDMs();
-		nsgaiii.setHyperplane(Geometry.generateNewHyperplane(problem.getNumObjectives(),0.01, Geometry.dir2point(DMranker.getLambda())));
+		nsgaiii.setHyperplane(Geometry.generateNewHyperplane(problem.getNumObjectives(),0.01, Geometry.dir2point(adm.getLambda())));
 		for(ReferencePoint rp : nsgaiii.getHyperplane().getReferencePoints()){
 			dmModel.addAsfDM(rp.getDim());
 		}
@@ -147,7 +148,7 @@ public class PSEA extends EA implements Runnable {
 			ExecutionHistory.getInstance().update(population, dmModel.getAsfBundle(), nsgaiii.getHyperplane());
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
-				bestVal = Double.min(bestVal, DMranker.eval(s));
+				bestVal = Double.min(bestVal, adm.eval(s));
 			}
 			System.out.println(i + ": " + bestVal);
 		}
@@ -164,7 +165,7 @@ public class PSEA extends EA implements Runnable {
 	}
 
 	private void singleObjective() {
-		SingleObjectiveEA so = new SingleObjectiveEA(problem, this.DMranker, populationSize);
+		SingleObjectiveEA so = new SingleObjectiveEA(problem, this.adm, populationSize);
 		for(int i=0; i<3000; i++){
 			generation++;
 			so.nextGeneration();
@@ -172,7 +173,7 @@ public class PSEA extends EA implements Runnable {
 			this.population = so.getPopulation();
 			double bestVal = Double.MAX_VALUE;
 			for(Solution s : population.getSolutions()){
-				bestVal = Double.min(bestVal, DMranker.eval(s));
+				bestVal = Double.min(bestVal, adm.eval(s));
 			}
 			System.out.println(i + ": " + bestVal);
 		}
@@ -215,13 +216,13 @@ public class PSEA extends EA implements Runnable {
 			
 			//If first front (nondominated set) consists of at least two solutions try to elicitate
 			if(firstFront.size() > 1){
-				maxDiscriminativePower = Elicitator.elicitate(population, DMranker, dmModel.getAsfBundle(), p);
+				maxDiscriminativePower = Elicitator.elicitate(population, adm, dmModel.getAsfBundle(), p);
 				if(maxDiscriminativePower == 0){
 					numZeroDiscriminativePower++;
 				}
 				else{
 					numZeroDiscriminativePower = 0;
-					Elicitator.compare(DMranker, p.first, p.second);
+					Elicitator.compare(adm, p.first, p.second);
 					explorationComparisons++;
 					dmModel.getAsfBundle().updateDMs();
 				}
@@ -243,9 +244,9 @@ public class PSEA extends EA implements Runnable {
 			generation++;
 			nextGeneration();
 			if(generation %10 == 0 &&  exploitationComparisons < maxExploitationComparisons){
-				maxDiscriminativePOwer = Elicitator.elicitate( population, DMranker, dmModel.getAsfBundle(), p);
+				maxDiscriminativePOwer = Elicitator.elicitate( population, adm, dmModel.getAsfBundle(), p);
 				if(maxDiscriminativePOwer != 0){
-					Elicitator.compare(DMranker, p.first, p.second);
+					Elicitator.compare(adm, p.first, p.second);
 					exploitationComparisons++;
 					dmModel.getAsfBundle().updateDMs();
 				}
@@ -253,15 +254,18 @@ public class PSEA extends EA implements Runnable {
 			ExecutionHistory.getInstance().update(population, dmModel.getAsfBundle(), nsgaiii.getHyperplane());
 			maxDist = Geometry.maxDist(population);
 			
-			double nearestLambda = dmModel.getAsfBundle().getAsfDMs().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), DMranker.getLambda())).min().getAsDouble();
-			double trueNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(DMranker.getLambda()))).min().getAsDouble();
-			double lambdaNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(dmModel.getAsfBundle().getAverageLambdaPoint()))).min().getAsDouble();
+//			double nearestLambda = dmModel.getAsfBundle().getAsfDMs().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), adm.getLambda())).min().getAsDouble();
+			double trueNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(adm))).min().getAsDouble();
+//			double lambdaNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetAsfPoint(dmModel.getAsfBundle().getAverageLambdaPoint()))).min().getAsDouble();
 			int minCV = dmModel.getAsfBundle().getAsfDMs().stream().mapToInt(asf -> asf.getNumViolations()).min().getAsInt();
 			int maxCV = dmModel.getAsfBundle().getAsfDMs().stream().mapToInt(asf -> asf.getNumViolations()).max().getAsInt();
 			int numLambdas = dmModel.getAsfBundle().getAsfDMs().size();
 			
+//			if(generation % 100 == 0){
+//				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " model dist: " + String.format("%6.3e",nearestLambda) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " lambdaSolDist: " + String.format("%6.3e",lambdaNearestSolution) + " MinCV: " + minCV + " MaxCV: " + maxCV + " NumLambdas: " + numLambdas);
+//			}
 			if(generation % 100 == 0){
-				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " model dist: " + String.format("%6.3e",nearestLambda) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " lambdaSolDist: " + String.format("%6.3e",lambdaNearestSolution) + " MinCV: " + minCV + " MaxCV: " + maxCV + " NumLambdas: " + numLambdas);
+				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " MinCV: " + minCV + " MaxCV: " + maxCV + " NumLambdas: " + numLambdas);
 			}
 		}while(maxDist > 1e-4 && generation < 1500);
 	}
@@ -290,9 +294,9 @@ public class PSEA extends EA implements Runnable {
 			nsgaiii.nextGeneration();
 			population = nsgaiii.getPopulation();
 			if(generation %10 == 0 &&  exploitationComparisons < 20){
-				maxDiscriminativePower = Elicitator.elicitate( population, DMranker, dmModel.getAsfBundle(), p);
+				maxDiscriminativePower = Elicitator.elicitate( population, adm, dmModel.getAsfBundle(), p);
 				if(maxDiscriminativePower != 0){
-					Elicitator.compare(DMranker, p.first, p.second);
+					Elicitator.compare(adm, p.first, p.second);
 					exploitationComparisons++;
 					dmModel.getAsfBundle().updateDMs();
 				}

@@ -8,7 +8,7 @@ import org.jzy3d.maths.Histogram;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.psea.PSEA;
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ4;
@@ -23,7 +23,7 @@ public class NSGAvsPSEAexperiment {
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
 			System.out.println(Arrays.toString(idealPoint));
-			ArrayList <AsfDM> allAsfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
+			ArrayList <AsfDM> allAsfRankers = ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
 			ArrayList <AsfDM> asfRankers = new ArrayList<>();
 			
 			asfRankers.add(allAsfRankers.get(3));

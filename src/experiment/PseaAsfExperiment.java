@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import algorithm.psea.PSEA;
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
@@ -13,7 +13,7 @@ import problems.dtlz.DTLZ3;
 import problems.dtlz.DTLZ4;
 import utils.math.Geometry;
 
-public class PSEAExperiment {
+public class PseaAsfExperiment {
 	private static ArrayList <Problem> problems = new ArrayList<>();
 	
 	public static void main(String [] args){
@@ -24,9 +24,9 @@ public class PSEAExperiment {
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
 			System.out.println(Arrays.toString(idealPoint));
-			ArrayList <AsfDM> asfRankers = AsfDMBuilder.getExperimentalRankers(problem.getNumObjectives(), idealPoint);
+			ArrayList <AsfDM> asfRankers = ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
 			for(AsfDM asfRanker : asfRankers){
-				double[] targetPoint = problem.getTargetPoint(Geometry.invert(asfRanker.getLambda()));
+				double[] targetPoint = problem.getTargetAsfPoint(Geometry.invert(asfRanker.getLambda()));
 				ArrayList <Double> asf = new ArrayList<>();
 //				for(int k=0; k<NUM_RUNS; k++){
 					String runName = "PSEA_" + getTestName(problem, asfRanker); 

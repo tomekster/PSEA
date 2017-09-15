@@ -167,4 +167,9 @@ public class AsfDM extends ArtificialDM{
 			}
 		});
 	}
+
+	@Override
+	public DMType getType() {
+		return DMType.ASF;
+	}
 }

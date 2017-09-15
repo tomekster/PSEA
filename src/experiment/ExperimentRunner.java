@@ -16,7 +16,7 @@ import algorithm.psea.PSEA;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
 import artificialDM.AsfDM;
-import artificialDM.AsfDMBuilder;
+import artificialDM.ADMBuilder;
 import problems.Problem;
 
 import problems.dtlz.DTLZ1;
@@ -55,7 +55,7 @@ public class ExperimentRunner {
 		
 		for (Problem p : problems) {
 			double idealPoint[] = p.findIdealPoint();
-			ArrayList<AsfDM> decisionMakerRankers = AsfDMBuilder.getExperimentalRankers(p.getNumObjectives(), idealPoint);
+			ArrayList<AsfDM> decisionMakerRankers = ADMBuilder.getAsfDms(p.getNumObjectives(), idealPoint);
 			for(AsfDM cr : decisionMakerRankers){
 				for (int runId = 1; runId <= numRuns; runId++) {
 					DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -95,11 +95,11 @@ public class ExperimentRunner {
 			minChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).min().getAsDouble());
 			avgChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).sum()/so.getPopulation().size());
 			double var [] = new double[0];
-			modelChebDist.add(cr.eval(new Solution(var, p.getTargetPoint(cr.getLambda()))));
+			modelChebDist.add(cr.eval(new Solution(var, p.getTargetAsfPoint(cr.getLambda()))));
 			
 			//EuclidianDist
-			minEucDist.add(Geometry.getMinDist(p.getTargetPoint(cr.getLambda()), so.getPopulation()));
-			avgEucDist.add(Geometry.getAvgDist(p.getTargetPoint(cr.getLambda()), so.getPopulation())); 
+			minEucDist.add(Geometry.getMinDist(p.getTargetAsfPoint(cr.getLambda()), so.getPopulation()));
+			avgEucDist.add(Geometry.getAvgDist(p.getTargetAsfPoint(cr.getLambda()), so.getPopulation())); 
 
 			modelEucDist.add(.0);
 			
@@ -143,8 +143,8 @@ public class ExperimentRunner {
 		for(int i=0; i < history.getPopulations().size(); i++){
 			Population pop = history.getPopulation(i);
 			ASFBundle asfBundle = history.getAsfBundle(i);
-			minDist.add(Geometry.getMinDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
-			avgDist.add(Geometry.getAvgDist(p.getTargetPoint(decisionMakerRanker.getLambda()), pop));
+			minDist.add(Geometry.getMinDist(p.getTargetAsfPoint(decisionMakerRanker.getLambda()), pop));
+			avgDist.add(Geometry.getAvgDist(p.getTargetAsfPoint(decisionMakerRanker.getLambda()), pop));
 			double targetDir[] = decisionMakerRanker.getLambda();
 			modelDist.add(asfBundle.getAsfDMs().stream().mapToDouble(asfDM -> Geometry.dirDist(targetDir, asfDM.getLambda())).min().getAsDouble());
 		}

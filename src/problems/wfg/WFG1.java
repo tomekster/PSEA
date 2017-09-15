@@ -43,6 +43,10 @@ public class WFG1 extends WFG {
   public WFG1() {
     this(2, 4, 2);
   }
+  
+  public WFG1(Integer M){
+	this(2*(M-1), 2, M);
+  }
 
   /**
    * Creates a WFG1 problem instance

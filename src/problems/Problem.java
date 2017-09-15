@@ -7,8 +7,11 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import artificialDM.ArtificialDM;
 import artificialDM.AsfDM;
+import artificialDM.DMType;
 import artificialDM.SingleObjectiveDM;
+import artificialDM.WeightedSumDM;
 import experiment.PythonVisualizer;
 import problems.dtlz.DTLZ4;
 import utils.math.Geometry;
@@ -67,7 +70,7 @@ public abstract class Problem implements Serializable {
 		}
 	}
 	
-	public double[] getTargetPoint(double[] pointOnLine){
+	public double[] getTargetAsfPoint(double[] pointOnLine){
 		switch(this.name){
 		case "DTLZ1":
 			return Geometry.lineCrossDTLZ1HyperplanePoint(pointOnLine);
@@ -75,6 +78,26 @@ public abstract class Problem implements Serializable {
 		case "DTLZ3":
 		case "DTLZ4":
 			return Geometry.lineCrossDTLZ234HyperspherePoint(pointOnLine);
+		}
+		return null;
+	}
+	
+	public double[] getTargetWSPoint(double[] weights){
+		double res[] = new double[weights.length];
+		int minAt = 0;
+		for (int i = 0; i < weights.length; i++) {
+		    minAt = weights[i] < weights[minAt] ? i : minAt;
+		}
+		
+		switch(this.name){
+		case "DTLZ1":
+			res[minAt] = 0.5;
+			return res;
+		case "DTLZ2":
+		case "DTLZ3":
+		case "DTLZ4":
+			res[minAt] = 1;
+			return res;
 		}
 		return null;
 	}
@@ -171,4 +194,16 @@ public abstract class Problem implements Serializable {
 	}
 	
 	public abstract Population getReferenceFront();
+
+	public double[] getTargetPoint(ArtificialDM adm) {
+		if(adm.getType() == DMType.ASF){
+			return getTargetAsfPoint( Geometry.invert(((AsfDM) adm).getLambda()) );
+		} 
+		else if(adm.getType() == DMType.WS){
+			return getTargetWSPoint( ((WeightedSumDM)adm).getWeights());
+		}
+		else{
+			throw new EnumConstantNotPresentException(DMType.class, "Decision maker type");
+		}
+	}
 }
