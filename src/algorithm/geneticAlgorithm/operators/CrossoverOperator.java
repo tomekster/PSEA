@@ -1,7 +1,5 @@
 package algorithm.geneticAlgorithm.operators;
 
-import java.util.ArrayList;
-
 import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import utils.math.structures.Pair;
 
