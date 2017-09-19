@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.Solution;
 
 public abstract class ArtificialDM implements Serializable, Comparator<Solution>{
 	/**

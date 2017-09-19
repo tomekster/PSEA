@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import artificialDM.ArtificialDM;
 import artificialDM.AsfDM;
@@ -43,14 +43,14 @@ public abstract class Problem implements Serializable {
 		setBoundsOnVariables();
 	}
 
-	public Solution createSolution() {
+	public DoubleSolution createSolution() {
 		MyRandom random = MyRandom.getInstance();
 		double var[] = new double[numVariables];
 		double obj[] = new double[numObjectives];
 		for(int i=0; i<numVariables; i++){
 			var[i] = lowerBound[i] + (upperBound[i] - lowerBound[i]) * random.nextDouble();
 		}
-		return new Solution(var,obj);
+		return new DoubleSolution(var,obj);
 	}
 	
 	public Population createPopulation(int size){
@@ -62,7 +62,7 @@ public abstract class Problem implements Serializable {
 		return population;
 	}
 
-	public abstract void evaluate(Solution solution);
+	public abstract void evaluate(DoubleSolution solution);
 
 	public void evaluate(Population pop) {
 		for(int i=0; i<pop.size(); i++){
@@ -131,7 +131,7 @@ public abstract class Problem implements Serializable {
 	}
 
 	// TODO - constrained problems
-	public abstract void evaluateConstraints(Solution solution);
+	public abstract void evaluateConstraints(DoubleSolution solution);
 	
 	public void setBoundsOnVariables(){
 		//To be overridden by subclasses

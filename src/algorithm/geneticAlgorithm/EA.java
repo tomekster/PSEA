@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
+import algorithm.geneticAlgorithm.solution.Solution;
 import problems.Problem;
+import utils.math.structures.Pair;
 
 /**
  * Abstract class implementing general scheme of every EvolutionaryAlgorithm.
@@ -70,11 +72,7 @@ public abstract class EA {
 			matingPopulation.addSolution(selectionOperator.execute(population)); //Selecion operator returns deep copy of solution
 		}
 		for (int i = 0; i < population.size(); i += 2) {
-			ArrayList<Solution> parents = new ArrayList<Solution>(2);
-			parents.add(matingPopulation.getSolution(i));
-			parents.add(matingPopulation.getSolution(i + 1));
-			ArrayList<Solution> children = crossoverOperator.execute(parents);
-
+			ArrayList<Solution> children = crossoverOperator.execute(matingPopulation.getSolution(i), matingPopulation.getSolution(i + 1));
 			mutationOperator.execute(children.get(0));
 			mutationOperator.execute(children.get(1));
 

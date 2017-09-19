@@ -6,15 +6,16 @@ import java.util.logging.Logger;
 import algorithm.geneticAlgorithm.EA;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
+import algorithm.geneticAlgorithm.solution.Solution;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.psea.preferences.DMmodel;
 import algorithm.psea.preferences.Elicitator;
 import algorithm.psea.preferences.PreferenceCollector;
-import algorithm.psea.preferences.DMmodel;
 import algorithm.rankers.NonDominationRanker;
 import artificialDM.ArtificialDM;
 import experiment.ExecutionHistory;
@@ -93,8 +94,8 @@ public class PSEA extends EA implements Runnable {
 	@Override
 	public Population selectNewPopulation(Population pop) {
 		problem.evaluate(pop);
-		Population sortedPopulation = dmModel.sortSolutions(pop);
-		return new Population(sortedPopulation.getSolutions().subList(0, populationSize));
+		dmModel.sortSolutions(pop);
+		return new Population(pop.getSolutions().subList(0, populationSize));
 	}
 	
 	public int getGeneration(){

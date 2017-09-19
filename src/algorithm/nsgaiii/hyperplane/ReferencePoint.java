@@ -3,9 +3,9 @@ package algorithm.nsgaiii.hyperplane;
 import java.io.Serializable;
 import java.util.PriorityQueue;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 
-public class ReferencePoint extends Solution implements Serializable{
+public class ReferencePoint extends DoubleSolution implements Serializable{
 	/**
 	 * 
 	 */

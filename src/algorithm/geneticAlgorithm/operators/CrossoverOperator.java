@@ -2,10 +2,12 @@ package algorithm.geneticAlgorithm.operators;
 
 import java.util.ArrayList;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
+import algorithm.geneticAlgorithm.solution.Solution;
+import utils.math.structures.Pair;
 
 public interface CrossoverOperator {
 
-	ArrayList <Solution> execute(ArrayList <Solution> parents);
+	Pair<DoubleSolution, DoubleSolution> execute(Pair<DoubleSolution, DoubleSolution> parents);
 
 }

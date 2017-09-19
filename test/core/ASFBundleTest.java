@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.preferences.DMmodel;
 import utils.math.Geometry;
@@ -26,9 +26,9 @@ public class ASFBundleTest {
 
 	@Before
 	public void init() {
-		Solution s1 = new Solution(var, obj1);
-		Solution s2 = new Solution(var, obj2);
-		Solution s3 = new Solution(var, obj3);
+		DoubleSolution s1 = new DoubleSolution(var, obj1);
+		DoubleSolution s2 = new DoubleSolution(var, obj2);
+		DoubleSolution s3 = new DoubleSolution(var, obj3);
 
 		pop.addSolution(s1);
 		pop.addSolution(s2);
@@ -39,7 +39,7 @@ public class ASFBundleTest {
 	@Test
 	public void buildSolutionRankingTest1() {
 		AsfPreferenceModel lambda = new AsfPreferenceModel(dim1);
-		ArrayList<Solution> res = DMmodel.buildSolutionsRanking(lambda, pop);
+		ArrayList<DoubleSolution> res = DMmodel.buildSolutionsRanking(lambda, pop);
 
 		Geometry.assertEqualDoubleArrays(obj3, res.get(0).getObjectives());
 		Geometry.assertEqualDoubleArrays(obj1, res.get(1).getObjectives());
@@ -49,7 +49,7 @@ public class ASFBundleTest {
 	@Test
 	public void buildSolutionRankingTest2() {
 		AsfPreferenceModel lambda = new AsfPreferenceModel(dim2);
-		ArrayList<Solution> res = DMmodel.buildSolutionsRanking(lambda, pop);
+		ArrayList<DoubleSolution> res = DMmodel.buildSolutionsRanking(lambda, pop);
 
 		Geometry.assertEqualDoubleArrays(obj1, res.get(0).getObjectives());
 		Geometry.assertEqualDoubleArrays(obj2, res.get(1).getObjectives());

@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 
 /**
  * This class implements the WFG2 problem
@@ -166,7 +166,7 @@ public class WFG2 extends WFG {
    *
    * @param solution The solution to evaluate
    */
-  public void evaluate(Solution solution) {
+  public void evaluate(DoubleSolution solution) {
     double[] variables = new double[getNumVariables()];
     double[] x = new double[getNumVariables()];
 

@@ -1,8 +1,8 @@
 package algorithm.geneticAlgorithm.operators;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 
 public interface SelectionOperator {
-	public Solution execute(Population population);
+	public DoubleSolution execute(Population population);
 }

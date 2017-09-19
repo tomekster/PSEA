@@ -3,7 +3,7 @@ package experiment;
 import java.util.Arrays;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.psea.preferences.ASFBundle;
 import artificialDM.AsfDM;
 import problems.Problem;
@@ -16,7 +16,7 @@ public class Evaluator {
 		System.out.println("Final population range: ");
 		for(int i=0; i< problem.getNumObjectives(); i++){
 			double min = Double.MAX_VALUE, sum = 0, max = -Double.MAX_VALUE;
-			for(Solution s : res.getSolutions()){
+			for(DoubleSolution s : res.getSolutions()){
 				double o = s.getObjective(i);
 				min = Double.min(min, o);
 				max = Double.max(max, o);

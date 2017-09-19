@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.Association;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
@@ -42,7 +42,7 @@ public class EnvironmentalSelection {
 			z_min[j] = allFronts.getSolutions().stream().mapToDouble(s->s.getObjective(j)).min().getAsDouble();
 		}
 		
-		for(Solution s : allFronts.getSolutions()){
+		for(DoubleSolution s : allFronts.getSolutions()){
 			for(int i=0; i<numObjectives; i++){
 				s.setObjective(i, s.getObjective(i) - z_min[i]);
 			}
@@ -50,7 +50,7 @@ public class EnvironmentalSelection {
 
 		double invertedIntercepts[] = findInvertedIntercepts(numObjectives, allFronts);
 		
-		for (Solution s : allFronts.getSolutions()) {
+		for (DoubleSolution s : allFronts.getSolutions()) {
 			for (int i = 0; i < numObjectives; i++) {
 				s.setObjective(i, s.getObjective(i) * invertedIntercepts[i]); // Multiplication instead of division - explained in findIntercepts()
 			}
@@ -160,7 +160,7 @@ public class EnvironmentalSelection {
 		Population extremePoints = new Population();
 		for (int i = 0; i < numObjectives; i++) {
 			final int j = i;
-			extremePoints.addSolution(population.getSolutions().stream().min(Comparator.comparing(s -> ASF( ((Solution)s).getObjectives(), j))).get());
+			extremePoints.addSolution(population.getSolutions().stream().min(Comparator.comparing(s -> ASF( ((DoubleSolution)s).getObjectives(), j))).get());
 		}
 		return extremePoints;
 	}

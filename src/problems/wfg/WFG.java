@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
@@ -151,7 +151,7 @@ public abstract class WFG extends Problem {
 	}
 	
 	@Override
-	public void evaluateConstraints(Solution solution) {
+	public void evaluateConstraints(DoubleSolution solution) {
 		return;
 	}
 	
@@ -171,9 +171,9 @@ public abstract class WFG extends Problem {
 			res.addSolution(
 					front.getSolutions()
 					.stream()
-					.map(s-> new Object[] {s, Geometry.pointLineDist(((Solution)s).getObjectives(), r.getObjectives())})
+					.map(s-> new Object[] {s, Geometry.pointLineDist(((DoubleSolution)s).getObjectives(), r.getObjectives())})
 					.min(Comparator.comparingDouble(a -> (Double) a[1]))
-					.map(a -> (Solution) a[0])
+					.map(a -> (DoubleSolution) a[0])
 					.get()
 				);
 		}

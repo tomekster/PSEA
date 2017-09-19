@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import utils.math.Geometry;
 
 public class SolutionTest {
@@ -15,8 +15,8 @@ public class SolutionTest {
 	public void cloneTest(){
 		double var[] = {1,2,3};
 		double obj[] = {4,5,6};
-		Solution s1 = new Solution(var, obj);
-		Solution s2 = s1.copy();
+		DoubleSolution s1 = new DoubleSolution(var, obj);
+		DoubleSolution s2 = s1.copy();
 		assert(Arrays.equals(s2.getVariables(),s1.getVariables()));
 		assert(Arrays.equals(s2.getObjectives(),s1.getObjectives()));
 		s1.setObjective(0, 0);

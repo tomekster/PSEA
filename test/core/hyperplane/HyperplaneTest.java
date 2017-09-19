@@ -9,7 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.Geometry;
@@ -104,11 +104,11 @@ public class HyperplaneTest {
 		double obj4[] 	= {1 ,0};
 		double obj5[] 	= {6 ,2};
 		Population pop = new Population();
-		Solution s1 = new Solution(var, obj1);
-		Solution s2 = new Solution(var, obj2);
-		Solution s3 = new Solution(var, obj3);
-		Solution s4 = new Solution(var, obj4);
-		Solution s5 = new Solution(var, obj5);
+		DoubleSolution s1 = new DoubleSolution(var, obj1);
+		DoubleSolution s2 = new DoubleSolution(var, obj2);
+		DoubleSolution s3 = new DoubleSolution(var, obj3);
+		DoubleSolution s4 = new DoubleSolution(var, obj4);
+		DoubleSolution s5 = new DoubleSolution(var, obj5);
 		pop.addSolution(s1);
 		pop.addSolution(s2);
 		pop.addSolution(s3);

@@ -35,7 +35,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.psea.PSEA;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Comparison;
@@ -453,7 +453,7 @@ public class MainWindow {
 		XYSeriesCollection result = new XYSeriesCollection();
 		XYSeries refPointsSeries = new XYSeries("Reference points");
 		if (showTargetPoints) {
-			for (Solution s : history.getTargetPoints().getSolutions()) {
+			for (DoubleSolution s : history.getTargetPoints().getSolutions()) {
 				refPointsSeries.add(s.getObjective(0), s.getObjective(1));
 			}
 		}
@@ -477,7 +477,7 @@ public class MainWindow {
 		ArrayList <Comparison> comparisonsHistory = history.getPreferenceCollector().getComparisons();
 		XYSeriesCollection result = new XYSeriesCollection();
 		if (lambdaPointsHistory != null) {
-			ArrayList<Solution> generation = generationsHistory.get(currentPopulationId).getSolutions();
+			ArrayList<DoubleSolution> generation = generationsHistory.get(currentPopulationId).getSolutions();
 			ASFBundle asfBundle= lambdaPointsHistory.get(currentPopulationId);
 			
 			ArrayList<XYSeries> series = createReferencePointsSeries(generation, asfBundle, new ArrayList<Comparison>(comparisonsHistory.subList(0, Integer.min(currentPopulationId/elicitationInterval, comparisonsHistory.size()))));
@@ -494,7 +494,7 @@ public class MainWindow {
 		ArrayList<XYSeries> resultSeries = new ArrayList<>();
 		for (int frontId = 0; frontId < fronts.size(); frontId++) {
 			XYSeries frontSeries = new XYSeries(popName + " front " + frontId);
-			for (Solution s : fronts.get(frontId).getSolutions()) {
+			for (DoubleSolution s : fronts.get(frontId).getSolutions()) {
 				frontSeries.add(s.getObjective(0), s.getObjective(1));
 			}
 			resultSeries.add(frontSeries);
@@ -502,7 +502,7 @@ public class MainWindow {
 		return resultSeries;
 	}
 
-	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<Solution> generation, ASFBundle asfBundle, ArrayList<Comparison> comparisons) {
+	private ArrayList<XYSeries> createReferencePointsSeries(ArrayList<DoubleSolution> generation, ASFBundle asfBundle, ArrayList<Comparison> comparisons) {
 		ArrayList<XYSeries> result = new ArrayList<XYSeries>();
 		XYSeries generationSeries= new XYSeries("Preference generation");
 		XYSeries lambdaSeries = new XYSeries("Lambdas");
@@ -512,7 +512,7 @@ public class MainWindow {
 		double t[];
 		
 		if(showSpreadSolutions){
-			for(Solution s : generation){
+			for(DoubleSolution s : generation){
 				t = Geometry.cast3dPointToPlane(s.getObjectives());
 				generationSeries.add(t[0], t[1]);	
 			}

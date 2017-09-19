@@ -2,8 +2,8 @@ package algorithm.geneticAlgorithm.operators.impl.mutation;
 
 import java.util.Random;
 
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import problems.Problem;
 import utils.math.MyRandom;
 
@@ -26,7 +26,7 @@ public class PolynomialMutation implements MutationOperator {
 		this.upperBound = upperBound;
 	}
 
-	public void execute(Solution solution) {
+	public void execute(DoubleSolution solution) {
 		double rnd, delta1, delta2, mutPow, deltaq;
 		double y, yl, yu, val, xy;
 

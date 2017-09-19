@@ -6,11 +6,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
+import algorithm.geneticAlgorithm.solution.Solution;
 import artificialDM.AsfDM;
 import utils.math.structures.Pair;
 
-public class DMmodel implements Comparator<Solution>{
+public class DMmodel implements Comparator<DoubleSolution>{
 	
 	private ASFBundle asfBundle;
 
@@ -18,7 +19,7 @@ public class DMmodel implements Comparator<Solution>{
 		asfBundle = new ASFBundle(idealPoint);
 	}
 	
-	public Population sortSolutions(Population pop) {
+	public void sortSolutions(Population pop) {
 		HashMap<Solution, Double> bordaPointsMap = getBordaPointsForSolutions(pop);
 		
 		ArrayList<Pair<Solution, Double>> pairs = new ArrayList<Pair<Solution, Double>>();
@@ -33,12 +34,10 @@ public class DMmodel implements Comparator<Solution>{
 				return Double.compare(o2.second, o1.second); // Sort DESC by Borda points
 			}
 		});
-
-		Population res = new Population();
-		for (int i = 0; i < pairs.size(); i++) {
-			res.addSolution(new Solution(pairs.get(i).first));
+		
+		for(int i = 0; i <pairs.size(); i++){
+			pop.getSolutions().set(i, pairs.get(i).first);
 		}
-		return res;
 	}
 
 	public HashMap<Solution, Double> getBordaPointsForSolutions(Population pop) {
@@ -60,7 +59,7 @@ public class DMmodel implements Comparator<Solution>{
 	}
 
 	@Override
-	public int compare(Solution s1, Solution s2) {
+	public int compare(DoubleSolution s1, DoubleSolution s2) {
 		double v1=0, v2=0;
 		for(AsfDM adm : asfBundle.getAsfDMs()){
 			int cmp = adm.compare(s1, s2);
