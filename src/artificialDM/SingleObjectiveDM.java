@@ -1,6 +1,6 @@
 package artificialDM;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 
 public class SingleObjectiveDM extends ArtificialDM {
 
@@ -29,7 +29,7 @@ public class SingleObjectiveDM extends ArtificialDM {
 	}
 	
 	@Override
-	public int compare(Solution s1, Solution s2) {
+	public int compare(DoubleSolution s1, DoubleSolution s2) {
 		return Double.compare(eval(s1), eval(s2));
 	}
 

@@ -3,7 +3,7 @@ package algorithm.nsgaiii.hyperplane;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.Solution;
 import utils.math.Geometry;
 
 public class Hyperplane {

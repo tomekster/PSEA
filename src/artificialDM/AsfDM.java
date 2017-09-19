@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
+import algorithm.geneticAlgorithm.solution.Solution;
 
 public class AsfDM extends ArtificialDM{
 	
@@ -33,7 +34,7 @@ public class AsfDM extends ArtificialDM{
 		this(refPoint,lambda, "");
 	}
 	
-	public double eval(Solution s){
+	public double eval(DoubleSolution s){
 		return eval(s.getObjectives());
 	}
 	public double eval(double obj[]){
@@ -59,7 +60,7 @@ public class AsfDM extends ArtificialDM{
 		return res;
 	}
 	
-	public double sternalEval(Solution s, double refPoint[], double lambda[]){
+	public double sternalEval(DoubleSolution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
@@ -75,7 +76,7 @@ public class AsfDM extends ArtificialDM{
 		return res;
 	}
 	
-	public double slowinskiEval(Solution s, double refPoint[], double lambda[]){
+	public double slowinskiEval(DoubleSolution s, double refPoint[], double lambda[]){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);
@@ -94,7 +95,7 @@ public class AsfDM extends ArtificialDM{
 		return res;
 	}
 	
-	public double lpEval(Solution s, double refPoint[], double lambda[], double p){
+	public double lpEval(DoubleSolution s, double refPoint[], double lambda[], double p){
 		if(null == refPoint){
 			refPoint = new double[lambda.length];
 			Arrays.fill(refPoint, 0);

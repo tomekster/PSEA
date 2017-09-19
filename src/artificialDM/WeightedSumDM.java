@@ -1,6 +1,6 @@
 package artificialDM;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import utils.math.Geometry;
 
 public class WeightedSumDM extends ArtificialDM{
@@ -26,7 +26,7 @@ public class WeightedSumDM extends ArtificialDM{
 	}
 	
 	@Override
-	public int compare(Solution s1, Solution s2) {
+	public int compare(DoubleSolution s1, DoubleSolution s2) {
 		return Double.compare(eval(s1), eval(s2));
 	}
 

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import problems.Problem;
 
 public class WfgFrontReader {
@@ -39,7 +39,7 @@ public class WfgFrontReader {
 					obj[i] = l.get(i);
 				}
 				
-				pop.addSolution(new Solution(var, obj));
+				pop.addSolution(new DoubleSolution(var, obj));
 			}
 		} catch (IOException ex) {
 

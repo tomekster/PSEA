@@ -6,7 +6,7 @@ import java.util.stream.DoubleStream;
 import javax.swing.JOptionPane;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.Solution;
 import artificialDM.ArtificialDM;
 import utils.math.MyRandom;
 import utils.math.structures.Pair;
@@ -93,8 +93,8 @@ public class Elicitator {
 		else {
 			pi = new Pair<Integer, Integer>(id1, id2);
 		}
-		p.first  = new Solution(pop.getSolution(pi.first));
-		p.second = new Solution(pop.getSolution(pi.second));
+		p.first  = pop.getSolution(pi.first).copy();
+		p.second = pop.getSolution(pi.second).copy();
 		return maxSplit;
 	}
 

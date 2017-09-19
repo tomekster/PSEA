@@ -1,6 +1,6 @@
 package problems.dtlz;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import utils.math.Geometry;
 
 public class DTLZ4 extends DTLZ {
@@ -21,7 +21,7 @@ public class DTLZ4 extends DTLZ {
 	}
 
 	/** Evaluate() method */
-	public void evaluate(Solution solution) {
+	public void evaluate(DoubleSolution solution) {
 		int numberOfVariables = getNumVariables();
 		int numberOfObjectives = getNumObjectives();
 		double[] f = new double[numberOfObjectives];
@@ -62,7 +62,7 @@ public class DTLZ4 extends DTLZ {
 	}
 
 	@Override
-	public void evaluateConstraints(Solution solution) {
+	public void evaluateConstraints(DoubleSolution solution) {
 		return;
 	}
 

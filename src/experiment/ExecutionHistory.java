@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
@@ -33,7 +33,7 @@ public class ExecutionHistory implements Serializable {
 		this.populations = new ArrayList<>();
 		this.asfBundles = new ArrayList<ASFBundle>();
 		this.hyperplanePoints = new ArrayList< ArrayList<ReferencePoint> >();
-		this.bestAdmSol = new ArrayList <Solution>();
+		this.bestAdmSol = new ArrayList <DoubleSolution>();
 		this.bestChebVal = new ArrayList <Double>();
 	}
 
@@ -53,7 +53,7 @@ public class ExecutionHistory implements Serializable {
 	private ArrayList<Population> populations;
 	private ArrayList<ASFBundle> asfBundles;
 	private ArrayList <ArrayList<ReferencePoint> > hyperplanePoints;
-	private ArrayList<Solution> bestAdmSol;
+	private ArrayList<DoubleSolution> bestAdmSol;
 	private ArrayList<Double> bestChebVal;	
 	private PreferenceCollector pc;
 	private ArtificialDM artificialDecisionMaker;
@@ -92,7 +92,7 @@ public class ExecutionHistory implements Serializable {
 	public double getBestChebVal(int id){
 		return bestChebVal.get(id);
 	}
-	public void addBestAdmSol(Solution sol){
+	public void addBestAdmSol(DoubleSolution sol){
 		this.bestAdmSol.add(sol);
 	}
 	
@@ -128,10 +128,10 @@ public class ExecutionHistory implements Serializable {
 		this.numObjectives = numObjectives;
 	}
 
-	public Solution getBestChebSol(int pos) {
+	public DoubleSolution getBestChebSol(int pos) {
 		return this.bestAdmSol.get(pos);
 	}
-	public void addBestChebSol(Solution s) {
+	public void addBestChebSol(DoubleSolution s) {
 		this.bestAdmSol.add(s);
 	}
 	
@@ -174,7 +174,7 @@ public class ExecutionHistory implements Serializable {
 	public void clear() {
 		populations = new ArrayList<>();
 		asfBundles = new ArrayList< ASFBundle >();
-		bestAdmSol = new ArrayList <Solution>();
+		bestAdmSol = new ArrayList <DoubleSolution>();
 		bestChebVal = new ArrayList <Double>();
 		hyperplanePoints.clear();
 	}

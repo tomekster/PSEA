@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import algorithm.geneticAlgorithm.solution.Solution;
+
 public class Population implements Serializable{
 	/**
 	 * 
@@ -18,7 +20,7 @@ public class Population implements Serializable{
 	public Population(Population pop) {
 		this();
 		for(Solution s : pop.getSolutions()){
-			this.solutions.add(new Solution(s));
+			this.solutions.add(s.copy());
 		}
 	}
 

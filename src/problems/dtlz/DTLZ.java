@@ -3,7 +3,7 @@ package problems.dtlz;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
@@ -20,10 +20,10 @@ public abstract class DTLZ extends Problem{
 	}
 
 	@Override
-	public abstract void evaluate(Solution solution);
+	public abstract void evaluate(DoubleSolution solution);
 
 	@Override
-	public abstract void evaluateConstraints(Solution solution);
+	public abstract void evaluateConstraints(DoubleSolution solution);
 
 	@Override
 	public Population getReferenceFront(){
@@ -31,7 +31,7 @@ public abstract class DTLZ extends Problem{
 		Hyperplane h = new Hyperplane(getNumObjectives());
 		ArrayList <ReferencePoint> rp = h.getReferencePoints();
 		for(ReferencePoint r : rp){
-			res.addSolution(new Solution(r.getDim(), getTargetAsfPoint(r.getDim())));
+			res.addSolution(new DoubleSolution(r.getDim(), getTargetAsfPoint(r.getDim())));
 		}
 		return res;
 	}

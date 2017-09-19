@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.structures.Pair;
@@ -583,7 +583,7 @@ public class Geometry {
 	 */
 	public static double getMinDist(double point[], Population pop){
 		double min = Double.MAX_VALUE;
-		for(Solution s : pop.getSolutions()){
+		for(DoubleSolution s : pop.getSolutions()){
 			double d = Double.min(min, Geometry.euclideanDistance(point, s.getObjectives()));
 			if(d < min){
 				min = d;
@@ -600,7 +600,7 @@ public class Geometry {
 	 */
 	public static double getAvgDist(double point[], Population pop){
 		double avg = 0;
-		for(Solution s : pop.getSolutions()){
+		for(DoubleSolution s : pop.getSolutions()){
 			avg += Geometry.euclideanDistance(point, s.getObjectives());
 		}
 		return avg / pop.size();
@@ -626,8 +626,8 @@ public class Geometry {
 	 */
 	public static double maxDist(Population pop) {
 		double maxDist = 0;
-		for(Solution s1 : pop.getSolutions()){
-			for(Solution s2 : pop.getSolutions()) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));
+		for(DoubleSolution s1 : pop.getSolutions()){
+			for(DoubleSolution s2 : pop.getSolutions()) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));
 		}
 		return maxDist;
 	}

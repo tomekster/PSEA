@@ -44,7 +44,7 @@ import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import artificialDM.AsfDM;
 import experiment.ExecutionHistory;
@@ -264,7 +264,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		}
 		Design newDesign = new Design(idCounter++);
 
-		for(Solution s : pop.getSolutions()){
+		for(DoubleSolution s : pop.getSolutions()){
 			progressMonitor.setProgress(idCounter - 1);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
@@ -456,7 +456,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		}
 
 		Design newDesign = new Design(idCounter);
-		for(Solution s : pop.getSolutions()){
+		for(DoubleSolution s : pop.getSolutions()){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {

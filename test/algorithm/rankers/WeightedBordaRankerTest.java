@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import algorithm.psea.preferences.DMmodel;
 import artificialDM.AsfDM;
 import utils.math.Geometry;
@@ -48,9 +48,9 @@ public class WeightedBordaRankerTest {
 		
 		Population pop = new Population();
 		
-		Solution s1 = new Solution(var1, obj1);
-		Solution s2 = new Solution(var2, obj2);
-		Solution s3 = new Solution(var3, obj3);
+		DoubleSolution s1 = new DoubleSolution(var1, obj1);
+		DoubleSolution s2 = new DoubleSolution(var2, obj2);
+		DoubleSolution s3 = new DoubleSolution(var3, obj3);
 		
 		pop.addSolution(s1);
 		pop.addSolution(s2);
@@ -77,7 +77,7 @@ public class WeightedBordaRankerTest {
 		pop.addSolution(s2);
 		pop.addSolution(s3);
 		
-		HashMap<Solution, Double> bordaPoints = wbr.getBordaPointsForSolutions(pop);
+		HashMap<DoubleSolution, Double> bordaPoints = wbr.getBordaPointsForSolutions(pop);
 		assertEquals(1.5 + 2.0/3, bordaPoints.get(s1), Geometry.EPS);
 		assertEquals(3.5 + 1.0/3, bordaPoints.get(s2), Geometry.EPS);
 		assertEquals(5, bordaPoints.get(s3), Geometry.EPS);

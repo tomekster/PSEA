@@ -1,13 +1,13 @@
 package algorithm.geneticAlgorithm.operators.impl.crossover;
 
-import java.util.ArrayList;
 import java.util.Random;
 
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import problems.Problem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
+import utils.math.structures.Pair;
 
 public class SBX implements CrossoverOperator {
 
@@ -38,12 +38,9 @@ public class SBX implements CrossoverOperator {
 	}
 
 	@Override
-	public ArrayList<Solution> execute(ArrayList<Solution> parents) {
-
-		ArrayList<Solution> children = new ArrayList<Solution>(2);
-		children.add(new Solution(parents.get(0)));
-		children.add(new Solution(parents.get(1)));
-
+	public Pair<DoubleSolution, DoubleSolution> execute(DoubleSolution parent1, DoubleSolution parent2) {
+		Pair<DoubleSolution, DoubleSolution> children = new Pair<DoubleSolution, DoubleSolution>(new DoubleSolution(parent1), new DoubleSolution(parent2));
+		
 		double p1, p2;
 		double rand;
 		double lb, ub;
@@ -57,8 +54,8 @@ public class SBX implements CrossoverOperator {
 		}
 
 		for (int pos = 0; pos < numVariables; pos++) {
-			p1 = parents.get(0).getVariable(pos);
-			p2 = parents.get(1).getVariable(pos);
+			p1 = parent1.getVariable(pos);
+			p2 = parent2.getVariable(pos);
 			if (random.nextDouble() > 0.5) {
 				continue;
 			}

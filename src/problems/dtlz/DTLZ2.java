@@ -2,7 +2,7 @@ package problems.dtlz;
 
 import java.util.Arrays;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import utils.math.Geometry;
 
 public class DTLZ2 extends DTLZ {
@@ -23,7 +23,7 @@ public class DTLZ2 extends DTLZ {
 	}
 
 	/** Evaluate() method */
-	public void evaluate(Solution solution) {
+	public void evaluate(DoubleSolution solution) {
 		int numberOfVariables = getNumVariables();
 		int numberOfObjectives = getNumObjectives();
 
@@ -62,7 +62,7 @@ public class DTLZ2 extends DTLZ {
 	}
 
 	@Override
-	public void evaluateConstraints(Solution solution) {
+	public void evaluateConstraints(DoubleSolution solution) {
 		return;
 	}
 

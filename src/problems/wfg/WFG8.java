@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 
 /**
  * Creates a default WFG8 problem with
@@ -165,7 +165,7 @@ public class WFG8 extends WFG {
    * @param solution The solution to evaluate
    * @throws org.uma.jmetal.util.JMetalException
    */
-  public void evaluate(Solution solution) {
+  public void evaluate(DoubleSolution solution) {
     double[] variables = new double[getNumVariables()];
     double[] x = new double[getNumVariables()];
 

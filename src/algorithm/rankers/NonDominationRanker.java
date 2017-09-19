@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 
-public class NonDominationRanker implements Comparator<Solution>{
+public class NonDominationRanker implements Comparator<DoubleSolution>{
 
 	/**
 	 * This method divides a given population into disjoint sets F_1, F_2, ..., F_n, called non-dominated-fronts, or simply fronts. 
@@ -33,12 +33,12 @@ public class NonDominationRanker implements Comparator<Solution>{
 		}
 
 		for (int i = 0; i < population.size(); i++) {
-			Solution p = population.getSolution(i);
+			DoubleSolution p = population.getSolution(i);
 			for (int j = 0; j < population.size(); j++) {
 				if(i==j){
 					continue;
 				}
-				Solution q = population.getSolution(j);
+				DoubleSolution q = population.getSolution(j);
 				int flag = p.compareTo(q);
 				if (flag == -1) {
 					dominatedBySolutions.get(i).add(j);
@@ -69,12 +69,12 @@ public class NonDominationRanker implements Comparator<Solution>{
 			}
 		}
 		
-		for(Solution s : fronts.get(0).getSolutions()){
+		for(DoubleSolution s : fronts.get(0).getSolutions()){
 			s.setDominated(false);
 		}
 		
 		for(int i=1; i<fronts.size(); i++){
-			for(Solution s : fronts.get(i).getSolutions()){
+			for(DoubleSolution s : fronts.get(i).getSolutions()){
 				s.setDominated(true);
 			}
 		}
@@ -83,7 +83,7 @@ public class NonDominationRanker implements Comparator<Solution>{
 	}
 
 	@Override
-	public int compare(Solution s1, Solution s2) {
+	public int compare(DoubleSolution s1, DoubleSolution s2) {
 		return s1.compareTo(s2);
 	}
 }

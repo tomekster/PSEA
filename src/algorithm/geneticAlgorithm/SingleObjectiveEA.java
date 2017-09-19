@@ -8,6 +8,7 @@ import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
+import algorithm.geneticAlgorithm.solution.DoubleSolution;
 import artificialDM.ArtificialDM;
 import problems.Problem;
 
@@ -15,7 +16,7 @@ public class SingleObjectiveEA extends EA{
 	
 	private static final int DEFAULT_NUM_GENERATIONS = 100;
 	private static final int DEFAULT_POP_SIZE = 100;
-	protected Comparator <Solution> comp;
+	protected Comparator <DoubleSolution> comp;
 	protected int popSize;
 	
 	/**
