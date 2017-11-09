@@ -3,9 +3,14 @@ package experiment;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import algorithm.geneticAlgorithm.operators.CrossoverOperator;
+import algorithm.geneticAlgorithm.operators.MutationOperator;
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.psea.PSEA;
 import artificialDM.AsfDM;
 import artificialDM.ADMBuilder;
+import problems.ContinousProblem;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
@@ -14,15 +19,18 @@ import problems.dtlz.DTLZ4;
 import utils.math.Geometry;
 
 public class PseaAsfExperiment {
-	private static ArrayList <Problem> problems = new ArrayList<>();
+	private static ArrayList <Problem> problems = new ArrayList<>(); 
 	
 	public static void main(String [] args){
+		
 		
 		init();
 		final int NUM_RUNS = 5;
 		// TODO - WFG1 - something goes wrong here - obtained front looks weird, WFG8 - difficult problem
 		for(Problem problem : problems){
-			double idealPoint[] = problem.findIdealPoint();
+			CrossoverOperator co = new SBX(1.0, 30.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds());
+			MutationOperator mo = new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds());
+			double idealPoint[] = problem.findIdealPoint(co, mo);
 			System.out.println(Arrays.toString(idealPoint));
 			ArrayList <AsfDM> asfRankers = ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
 			for(AsfDM asfRanker : asfRankers){
@@ -30,7 +38,11 @@ public class PseaAsfExperiment {
 				ArrayList <Double> asf = new ArrayList<>();
 //				for(int k=0; k<NUM_RUNS; k++){
 					String runName = "PSEA_" + getTestName(problem, asfRanker); 
-					PSEA psea = new PSEA(problem, asfRanker);
+					PSEA psea = new PSEA(problem, 
+							asfRanker,
+							co,
+							mo
+							);
 					psea.run();
 					
 					ExecutionHistory hist = ExecutionHistory.getInstance();

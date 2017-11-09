@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
@@ -630,5 +631,13 @@ public class Geometry {
 			for(Solution s2 : pop.getSolutions()) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));
 		}
 		return maxDist;
+	}
+	
+	public static boolean isPermutation(double arr[]){
+		HashSet <Integer> allVals = new HashSet<>();
+		for(double d : arr){
+			allVals.add((int) Math.round(d));
+		}
+		return allVals.size() == arr.length;
 	}
 }

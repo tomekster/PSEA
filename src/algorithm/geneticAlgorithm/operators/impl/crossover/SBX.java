@@ -5,7 +5,7 @@ import java.util.Random;
 
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
-import problems.Problem;
+import problems.ContinousProblem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
 
@@ -21,7 +21,7 @@ public class SBX implements CrossoverOperator {
 	double[] lowerBound;
 	double[] upperBound;
 
-	public SBX(Problem problem) {
+	public SBX(ContinousProblem problem) {
 		this(DEFAULT_CROSSOVER_PROBABILITY, DEFAULT_ETA_C, problem.getLowerBounds(), problem.getUpperBounds());
 	}
 	

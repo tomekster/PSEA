@@ -25,6 +25,7 @@ public class ASFBundle {
 	public ASFBundle(double refPoint[]) {
 		this.numObjectives = refPoint.length;
 		switch (numObjectives){
+			case(2):
 			case(3):
 				this.bundleSize = 50;
 			break;

@@ -12,6 +12,7 @@ import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.rankers.NonDominationRanker;
+import problems.ContinousProblem;
 import problems.Problem;
 
 public class NSGAIII extends EA {
@@ -36,8 +37,8 @@ public class NSGAIII extends EA {
 	public NSGAIII(Problem problem) {
 		this(problem,
 			new BinaryTournament(new NonDominationRanker()),
-			new SBX(problem),
-			new PolynomialMutation(problem)
+			new SBX((ContinousProblem)problem),
+			new PolynomialMutation((ContinousProblem)problem)
 		);
 	}
 

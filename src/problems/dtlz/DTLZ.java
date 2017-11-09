@@ -6,9 +6,9 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import problems.Problem;
+import problems.ContinousProblem;
 
-public abstract class DTLZ extends Problem{
+public abstract class DTLZ extends ContinousProblem{
 	
 	/**
 	 * 

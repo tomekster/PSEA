@@ -4,9 +4,10 @@ import os
 import sys
 import pylab
 
-colors = ('r', 'b', 'g', 'm', 'c', 'y', 'k', )
+colors = ('r', 'b', 'g', 'm', 'c', 'y', 'k', 'violet', 'orange')
 
-labels = ("(10,10)", "(20,10)", "(20,20)", "(30,10)", "(30,20)", "(30,30)", "Optimal value")
+#labels = ("(10,10)", "(20,10)", "(20,20)", "(30,10)", "(30,20)", "(30,30)", "Optimal value", 'Benchmark', 'NSGA-III')
+labels = ("Benchmark", "Optimum", "PSEA", "(30,10)", "(30,20)", "(30,30)", "Optimal value", 'Benchmark', 'NSGA-III')
 
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
@@ -23,10 +24,13 @@ def plot(points, filename):
 		points = np.transpose(points)
 		for id in idSet:
 			curve = [a for a,b in points if b == id]
+			curve = curve[:600]
 			if id < len(labels):
-				ax.semilogy(range(len(curve)), curve, c=colors[int(id)], label=labels[int(id)])
+				#ax.semilogy(range(len(curve)), curve, c=colors[int(id)], label=labels[int(id)])
+				ax.plot(range(len(curve)), curve, c=colors[int(id)], label=labels[int(id)])
 			else:
-				ax.semilogy(range(len(curve)), curve, c=colors[int(id)])
+				#ax.semilogy(range(len(curve)), curve, c=colors[int(id)])
+				ax.plot(range(len(curve)), curve, c=colors[int(id)])
 			
 		ax.get_yaxis().get_major_formatter().labelOnlyBase = False
 		lgd = plt.legend(bbox_to_anchor=(0.8, 1), loc=2, borderaxespad=0.)

@@ -4,6 +4,7 @@ import java.util.Random;
 
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
+import problems.ContinousProblem;
 import problems.Problem;
 import utils.math.MyRandom;
 
@@ -15,7 +16,7 @@ public class PolynomialMutation implements MutationOperator {
 	private double[] lowerBound;
 	private double[] upperBound;
 
-	public PolynomialMutation(Problem problem){
+	public PolynomialMutation(ContinousProblem problem){
 		this(1.0/problem.getNumVariables(), DEFAULT_DISTRIBUTION_INDEX, problem.getLowerBounds(), problem.getUpperBounds());
 	}
 	

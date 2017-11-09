@@ -75,9 +75,11 @@ public abstract class EA {
 			parents.add(matingPopulation.getSolution(i + 1));
 			ArrayList<Solution> children = crossoverOperator.execute(parents);
 
-			mutationOperator.execute(children.get(0));
-			mutationOperator.execute(children.get(1));
-
+			for(int j=0; j<3; j++){
+				mutationOperator.execute(children.get(0));
+				mutationOperator.execute(children.get(1));
+			}
+			
 			offspring.addSolution(children.get(0));
 			offspring.addSolution(children.get(1));
 		}

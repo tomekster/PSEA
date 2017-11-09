@@ -5,10 +5,13 @@ import java.util.Arrays;
 
 import org.jzy3d.maths.Histogram;
 
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.psea.PSEA;
 import artificialDM.AsfDM;
 import artificialDM.ADMBuilder;
+import problems.ContinousProblem;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ4;
@@ -40,7 +43,7 @@ public class NSGAvsPSEAexperiment {
 				int NUM_RUNS = 3;
 				String runName = getTestName(problem, asfRanker); 
 				for(int runId = 0; runId < NUM_RUNS; runId++){
-					PSEA psea = new PSEA(problem, asfRanker);
+					PSEA psea = new PSEA(problem, asfRanker, new SBX(1.0, 30.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds()), new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds()));
 					psea.run();
 
 					ExecutionHistory hist = ExecutionHistory.getInstance();

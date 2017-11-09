@@ -29,7 +29,7 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.Solution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import problems.Problem;
+import problems.ContinousProblem;
 import utils.WfgFrontReader;
 import utils.math.Geometry;
 
@@ -40,7 +40,7 @@ import utils.math.Geometry;
  * Optimization: Third International Conference, EMO 2005. Proceedings, volume
  * 3410 of Lecture Notes in Computer Science
  */
-public abstract class WFG extends Problem {
+public abstract class WFG extends ContinousProblem{
 
 	/**
 	 * 

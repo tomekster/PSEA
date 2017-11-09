@@ -12,11 +12,14 @@ import java.util.logging.LogManager;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.psea.PSEA;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
 import artificialDM.AsfDM;
 import artificialDM.ADMBuilder;
+import problems.ContinousProblem;
 import problems.Problem;
 
 import problems.dtlz.DTLZ1;
@@ -132,10 +135,13 @@ public class ExperimentRunner {
 		System.out.println(minEucDist.get(minEucDist.size() - 1) + ", " + avgEucDist.get(avgEucDist.size() - 1));
 	}
 
-	private static void runPSEAExperiment(Problem p, AsfDM decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
+	private static void runPSEAExperiment(Problem problem, AsfDM decisionMakerRanker, ArrayList<Double> minDist, ArrayList<Double> avgDist, ArrayList<Double> modelDist) {
 		PreferenceCollector.getInstance().clear();
 		PSEA alg;		
-		alg = new PSEA(p,decisionMakerRanker);
+		alg = new PSEA(problem,
+				decisionMakerRanker,
+				new SBX(1.0, 30.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds()),
+				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds()));
 		alg.run();
 		
 		ExecutionHistory history = ExecutionHistory.getInstance();
@@ -143,12 +149,12 @@ public class ExperimentRunner {
 		for(int i=0; i < history.getPopulations().size(); i++){
 			Population pop = history.getPopulation(i);
 			ASFBundle asfBundle = history.getAsfBundle(i);
-			minDist.add(Geometry.getMinDist(p.getTargetAsfPoint(decisionMakerRanker.getLambda()), pop));
-			avgDist.add(Geometry.getAvgDist(p.getTargetAsfPoint(decisionMakerRanker.getLambda()), pop));
+			minDist.add(Geometry.getMinDist(problem.getTargetAsfPoint(decisionMakerRanker.getLambda()), pop));
+			avgDist.add(Geometry.getAvgDist(problem.getTargetAsfPoint(decisionMakerRanker.getLambda()), pop));
 			double targetDir[] = decisionMakerRanker.getLambda();
 			modelDist.add(asfBundle.getAsfDMs().stream().mapToDouble(asfDM -> Geometry.dirDist(targetDir, asfDM.getLambda())).min().getAsDouble());
 		}
-		Evaluator.evaluateAsfDMRun(p, decisionMakerRanker, alg.getPopulation(), alg.getDMmodel().getAsfBundle());
+		Evaluator.evaluateAsfDMRun(problem, decisionMakerRanker, alg.getPopulation(), alg.getDMmodel().getAsfBundle());
 		System.out.println("Final min: " + history.getFinalMinDist());
 		System.out.println("Final avg: " + history.getFinalAvgDist());
 		

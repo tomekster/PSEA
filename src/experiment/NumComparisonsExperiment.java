@@ -5,9 +5,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.psea.PSEA;
 import artificialDM.ADMBuilder;
 import artificialDM.ArtificialDM;
+import problems.ContinousProblem;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
@@ -49,29 +52,35 @@ public class NumComparisonsExperiment {
 					ArrayList<ArrayList <Double>> median = new ArrayList<>();
 					ArrayList <Double> minPopAsf = new ArrayList<>();
 					ArrayList <Double> avgPopAsf = new ArrayList<>();
-//					for(int runId = 1; runId <= numRuns; runId++){
-//						System.out.println("(" + comp.first + "," + comp.second + ")_"+ runId);
-//						minPopAsf = new ArrayList<>();
-////						avgPopAsf = new ArrayList<>();
-//						optPopAsf = new ArrayList<>();
-////						String runName = getTestName(problem, adm) + "_(" + comp.first + ", " + comp.second + ")"; 
-//						PSEA psea = new PSEA(problem, adm, comp.first, comp.second);
-//						psea.run();
-//						ExecutionHistory hist = ExecutionHistory.getInstance();
-//						
-//						for(int j=0; j < hist.getPopulations().size(); j++){
-//							minPopAsf.add(hist.getPopulation(j).getSolutions().stream().mapToDouble(solution->adm.eval(solution.getObjectives())).min().getAsDouble() );
-//							
-//						}
-//						fill(minPopAsf, maxGen);
-//						median.add(minPopAsf);
-//					}
-//					ArrayList <Double> medianMinPopAsf = getArrayOfMedians(median);
-//					visData.add(PythonVisualizer.convert(medianMinPopAsf.toArray(new Double[0]))); //Plot minAsf value in every generation
+					for(int runId = 1; runId <= numRuns; runId++){
+						System.out.println("(" + comp.first + "," + comp.second + ")_"+ runId);
+						minPopAsf = new ArrayList<>();
+//						avgPopAsf = new ArrayList<>();
+						optPopAsf = new ArrayList<>();
+//						String runName = getTestName(problem, adm) + "_(" + comp.first + ", " + comp.second + ")"; 
+						PSEA psea = new PSEA(problem, 
+								adm,
+								comp.first, 
+								comp.second,
+								new SBX(1.0, 30.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds()), 
+								new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, ((ContinousProblem)problem).getLowerBounds(), ((ContinousProblem)problem).getUpperBounds()) 
+								);
+						psea.run();
+						ExecutionHistory hist = ExecutionHistory.getInstance();
+						
+						for(int j=0; j < hist.getPopulations().size(); j++){
+							minPopAsf.add(hist.getPopulation(j).getSolutions().stream().mapToDouble(solution->adm.eval(solution.getObjectives())).min().getAsDouble() );
+							
+						}
+						fill(minPopAsf, maxGen);
+						median.add(minPopAsf);
+					}
+					ArrayList <Double> medianMinPopAsf = getArrayOfMedians(median);
+					visData.add(PythonVisualizer.convert(medianMinPopAsf.toArray(new Double[0]))); //Plot minAsf value in every generation
 				}
-//				visData.add(PythonVisualizer.convert(optPopAsf.toArray(new Double[0]))); //Plot optimal asf value in every generation
-				//"(" + comp.first + "_" + comp.second + ")
-//				PythonVisualizer.saveResults(1, visData,  "CMP_" + getTestName(problem, adm) + "min_pop_asf");
+				visData.add(PythonVisualizer.convert(optPopAsf.toArray(new Double[0]))); //Plot optimal asf value in every generation
+//				"(" + comp.first + "_" + comp.second + ")
+				PythonVisualizer.saveResults(1, visData,  "CMP_" + getTestName(problem, adm) + "min_pop_asf");
 			}
 		}
 		
@@ -130,13 +139,16 @@ public class NumComparisonsExperiment {
 		problems.add(new DTLZ2(5));
 		problems.add(new DTLZ4(8));
 		
-		int comp[] = {10,20,30};
-		for(int a : comp){
-			for(int b : comp){
-				if(b > a) continue;
-				NumComparisonsExperiment.comparisons.add(new Pair<Integer, Integer>(a, b));
-			}
-		}
+//		int comp[] = {10,20,30};
+//		for(int a : comp){
+//			for(int b : comp){
+//				if(b > a) continue;
+//				NumComparisonsExperiment.comparisons.add(new Pair<Integer, Integer>(a, b));
+//			}
+//		}
+		NumComparisonsExperiment.comparisons.add(new Pair<Integer, Integer>(20, 30));
+		NumComparisonsExperiment.comparisons.add(new Pair<Integer, Integer>(20, 40));
+		NumComparisonsExperiment.comparisons.add(new Pair<Integer, Integer>(40, 20));
 	}
 	
 	private static String getTestName(Problem problem, ArtificialDM asfRanker){

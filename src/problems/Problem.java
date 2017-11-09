@@ -1,11 +1,23 @@
 package problems;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.operators.CrossoverOperator;
+import algorithm.geneticAlgorithm.operators.MutationOperator;
+import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
+import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
+import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import artificialDM.ArtificialDM;
 import artificialDM.AsfDM;
@@ -14,6 +26,8 @@ import artificialDM.SingleObjectiveDM;
 import artificialDM.WeightedSumDM;
 import experiment.PythonVisualizer;
 import problems.dtlz.DTLZ4;
+import problems.knapsack.Knapsack;
+import problems.knapsack.KnapsackItem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
 
@@ -22,36 +36,20 @@ public abstract class Problem implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -5151466907576488480L;
-	private int numVariables = 0;
-	private int numObjectives = 0;
-	private int numConstraints = 0;
-	private String name = "Abstract Problem";
-	private double[] lowerBound;
-	private double[] upperBound;
+	protected int numVariables = 0;
+	protected int numObjectives = 0;
+	protected int numConstraints = 0;
+	protected String name = "Abstract Problem";
+	protected double[] idealPoint = null;
 
 	public Problem(int numVariables, int numObjectives, int numConstraints, String name) {
 		this.numVariables = numVariables;
 		this.numObjectives = numObjectives;
 		this.numConstraints = numConstraints;
 		this.name = name;
-		this.lowerBound = new double[numVariables];
-		this.upperBound = new double[numVariables];
-		for (int i = 0; i < numVariables; i++) {
-			lowerBound[i] = Double.MIN_VALUE;
-			upperBound[i] = Double.MAX_VALUE;
-		}
-		setBoundsOnVariables();
 	}
 
-	public Solution createSolution() {
-		MyRandom random = MyRandom.getInstance();
-		double var[] = new double[numVariables];
-		double obj[] = new double[numObjectives];
-		for(int i=0; i<numVariables; i++){
-			var[i] = lowerBound[i] + (upperBound[i] - lowerBound[i]) * random.nextDouble();
-		}
-		return new Solution(var,obj);
-	}
+	public abstract Solution createSolution();
 	
 	public Population createPopulation(int size){
 		Population population = new Population();
@@ -77,7 +75,36 @@ public abstract class Problem implements Serializable {
 		case "DTLZ2":
 		case "DTLZ3":
 		case "DTLZ4":
+		case "WFG6":
+		case "WFG7":
 			return Geometry.lineCrossDTLZ234HyperspherePoint(pointOnLine);
+		}
+		if(this.name.contains("knap")){
+			try(BufferedReader br = new BufferedReader(new FileReader(Paths.get("/home/tomasz/Dropbox/experiments/knapsack/reference_front", "pareto_front_"+numVariables+"_"+numObjectives).toFile()))) {
+			    double bestVal = Double.MAX_VALUE;
+			    double bestObj[] = new double[numObjectives];
+			    double obj[];
+			    while(true){
+			    	String line = br.readLine();
+			    	if(line ==null) break;
+			    	String vals[] = line.trim().split(" ");
+			    	obj= new double[vals.length];
+			    	for(int i=0; i<vals.length; i++){
+			    		obj[i] = -Integer.parseInt(vals[i]);
+			    	}
+			    	
+			    	AsfDM dm = new AsfDM(this.idealPoint, Geometry.invert(pointOnLine));
+			    	if(dm.eval(obj) < bestVal){
+			    		bestVal = dm.eval(obj);
+			    		bestObj = obj.clone();
+			    	}
+			    }
+			    return bestObj;
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
@@ -103,7 +130,13 @@ public abstract class Problem implements Serializable {
 	}
 	
 	public double[] findIdealPoint(){
-		double lambdaDirection[] = new double[numObjectives];
+		CrossoverOperator co = new SBX(1.0, 30.0, ((ContinousProblem)this).getLowerBounds(), ((ContinousProblem)this).getUpperBounds());
+		MutationOperator mo = new PolynomialMutation(1.0 / this.getNumVariables(), 20.0, ((ContinousProblem)this).getLowerBounds(), ((ContinousProblem)this).getUpperBounds());
+		return findIdealPoint(co , mo);
+	}
+	
+	public double[] findIdealPoint(CrossoverOperator co, MutationOperator mo){
+		if(this.idealPoint != null) return this.idealPoint.clone();
 		double idealPoint[] = new double[numObjectives];
 		
 		for(int i=0; i<idealPoint.length; i++){
@@ -114,6 +147,9 @@ public abstract class Problem implements Serializable {
 			SingleObjectiveDM soDM = new SingleObjectiveDM(optimizedDim);
 			SingleObjectiveEA so = new SingleObjectiveEA(	
 				this,
+				new BinaryTournament(soDM),
+				co,
+				mo,
 				soDM
 			);
 			
@@ -122,11 +158,8 @@ public abstract class Problem implements Serializable {
 			//Workaround for inner class error
 		    final int dummyOptimizedDim = optimizedDim;
 			idealPoint[optimizedDim] = so.getPopulation().getSolutions().stream().mapToDouble(s -> s.getObjective(dummyOptimizedDim)).min().getAsDouble();
-		
-//			Population finalPop = so.getPopulation();
-//			PythonVisualizer pv = new PythonVisualizer();
-//			pv.visualise(getReferenceFront(), finalPop);
 		}
+		this.idealPoint = idealPoint;
 		return idealPoint;
 	}
 
@@ -143,22 +176,6 @@ public abstract class Problem implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public double[] getLowerBounds() {
-		return this.lowerBound;
-	}
-
-	public double[] getUpperBounds() {
-		return this.upperBound;
-	}
-
-	public void setLowerBound(int pos, double val) {
-		lowerBound[pos] = val;
-	}
-
-	public void setUpperBound(int pos, double val) {
-		upperBound[pos] = val;
 	}
 
 	public int getNumVariables() {
@@ -183,14 +200,6 @@ public abstract class Problem implements Serializable {
 
 	public void setNumConstraints(int numConstraints) {
 		this.numConstraints = numConstraints;
-	}
-
-	public double getLowerBound(int pos) {
-		return lowerBound[pos];
-	}
-
-	public double getUpperBound(int pos) {
-		return upperBound[pos];
 	}
 	
 	public abstract Population getReferenceFront();

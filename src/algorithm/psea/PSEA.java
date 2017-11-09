@@ -7,6 +7,9 @@ import algorithm.geneticAlgorithm.EA;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.operators.CrossoverOperator;
+import algorithm.geneticAlgorithm.operators.MutationOperator;
+import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
@@ -18,6 +21,7 @@ import algorithm.psea.preferences.DMmodel;
 import algorithm.rankers.NonDominationRanker;
 import artificialDM.ArtificialDM;
 import experiment.ExecutionHistory;
+import problems.ContinousProblem;
 import problems.Problem;
 import utils.math.Geometry;
 import utils.math.structures.Pair;
@@ -40,25 +44,25 @@ public class PSEA extends EA implements Runnable {
 	private int maxExploitationComparisons=0;
 	private DMmodel dmModel;
 	
-	public PSEA(Problem problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp) {
-		this(problem,adm);
+	public PSEA(Problem problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp, CrossoverOperator co, MutationOperator mo) {
+		this(problem,adm,co,mo);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
 	}
 	
-	public PSEA(Problem problem, ArtificialDM adm) {
+	public PSEA(Problem problem, ArtificialDM adm, CrossoverOperator co, MutationOperator mo) {
 		super(  problem,
 				new BinaryTournament(null), //Replaced below
-				new SBX(1.0, 30.0, problem.getLowerBounds(), problem.getUpperBounds()),
-				new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBounds(), problem.getUpperBounds())
+				co,
+				mo
 				);
-		this.dmModel = new DMmodel(problem.findIdealPoint());
+		this.dmModel = new DMmodel(problem.findIdealPoint(co, mo));
 		this.setSelectionOperator(new BinaryTournament(dmModel));
 
 		this.nsgaiii = new NSGAIII(	problem, 
 				new BinaryTournament(new NonDominationRanker()),
-									new SBX(1.0, 30.0, problem.getLowerBounds(), problem.getUpperBounds()),
-									new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBounds(), problem.getUpperBounds())
+									crossoverOperator,
+									mutationOperator
 									);		
 		
 		this.population = nsgaiii.getPopulation();
@@ -76,7 +80,7 @@ public class PSEA extends EA implements Runnable {
 		this.exploitationComparisons = 0;
 		PreferenceCollector.getInstance().clear();
 		
-		if(problem.getNumObjectives() == 3){
+		if(problem.getNumObjectives() <= 3){
 			maxExplorationComparisons = 20;
 			maxExploitationComparisons = 10;
 		}
@@ -228,7 +232,7 @@ public class PSEA extends EA implements Runnable {
 				}
 			}
 			ExecutionHistory.getInstance().update(population, dmModel.getAsfBundle(), nsgaiii.getHyperplane());
-			if(generation % 100 == 0){
+			if(generation % 1 == 0){
 				System.out.println("Exploration: " + generation + " " + explorationComparisons);
 			}
 		}
@@ -255,7 +259,7 @@ public class PSEA extends EA implements Runnable {
 			maxDist = Geometry.maxDist(population);
 			
 //			double nearestLambda = dmModel.getAsfBundle().getAsfDMs().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), adm.getLambda())).min().getAsDouble();
-			double trueNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(adm))).min().getAsDouble();
+//			double trueNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetPoint(adm))).min().getAsDouble();
 //			double lambdaNearestSolution = population.getSolutions().stream().mapToDouble(solution -> Geometry.euclideanDistance(solution.getObjectives(), problem.getTargetAsfPoint(dmModel.getAsfBundle().getAverageLambdaPoint()))).min().getAsDouble();
 			int minCV = dmModel.getAsfBundle().getAsfDMs().stream().mapToInt(asf -> asf.getNumViolations()).min().getAsInt();
 			int maxCV = dmModel.getAsfBundle().getAsfDMs().stream().mapToInt(asf -> asf.getNumViolations()).max().getAsInt();
@@ -265,9 +269,10 @@ public class PSEA extends EA implements Runnable {
 //				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " model dist: " + String.format("%6.3e",nearestLambda) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " lambdaSolDist: " + String.format("%6.3e",lambdaNearestSolution) + " MinCV: " + minCV + " MaxCV: " + maxCV + " NumLambdas: " + numLambdas);
 //			}
 			if(generation % 100 == 0){
-				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " trueSolDist: " + String.format("%6.3e",trueNearestSolution) + " MinCV: " + minCV + " MaxCV: " + maxCV + " NumLambdas: " + numLambdas);
+				System.out.println("Exploitation: " + generation + " " + exploitationComparisons + " solDist: " + String.format("%6.3e",maxDist) + " MinCV: " + minCV + " MaxCV: " + maxCV + " NumLambdas: " + numLambdas);
 			}
-		}while(maxDist > 1e-4 && generation < 1500);
+		//}while(maxDist > 1e-4 && generation < 1500);
+		}while(generation < 800);
 	}
 	
 	private void shrinkHyperplane(){

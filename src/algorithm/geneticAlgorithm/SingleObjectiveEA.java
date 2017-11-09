@@ -5,80 +5,46 @@ import java.util.Comparator;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
-import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
-import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
-import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
-import artificialDM.ArtificialDM;
 import problems.Problem;
 
 public class SingleObjectiveEA extends EA{
-	
-	private static final int DEFAULT_NUM_GENERATIONS = 100;
-	private static final int DEFAULT_POP_SIZE = 100;
 	protected Comparator <Solution> comp;
 	protected int popSize;
 	
-	/**
-	 * Single objective Evolutionary Algorithm in which multiple objectives are aggregated
-	 * into single objective using Achievement Scalarizing Function (ASF) embedded into
-	 * asfRanker class.
-	 * By default following operators are used:
-	 * 	- crossover: SBX 
-	 * 	- mutation: PolynomialMutation
-	 *  - selection: BinaryTournament
-	 *  Default population size = 100
-	 *  Default number of generations = 100
-	 * @param problem
-	 * @param asfRanker
-	 */
-	public SingleObjectiveEA(Problem problem, ArtificialDM dm) {
-		this(
-			problem,
-			new BinaryTournament(dm),
-			new SBX(problem),
-			new PolynomialMutation(problem),
-			dm,
-			DEFAULT_POP_SIZE);
+	public static class Builder{
+		private final Comparator <Solution> comp;
+		private final Problem problem;
+		private final SelectionOperator selection;
+		private final CrossoverOperator crossover;
+		private final MutationOperator mutation;
+		
+		private int popSize = 100;
+		
+		public Builder(Problem problem, Comparator <Solution> comp, SelectionOperator selection, CrossoverOperator crossover, MutationOperator mutation){
+			this.problem = problem;
+			this.comp = comp;
+			this.selection = selection;
+			this.crossover = crossover;
+			this.mutation = mutation; 
+		}
+		
+		public Builder popSize(int val){
+			this.popSize = val;
+			return this;
+		}
+		
+		public SingleObjectiveEA build(){
+			return new SingleObjectiveEA(this);
+		}
 	}
 	
-	/**
-	 * Single objective Evolutionary Algorithm in which multiple objectives are aggregated
-	 * into single objective using Achievement Scalarizing Function (ASF) embedded into
-	 * asfRanker class.
-	 * By default following operators are used:
-	 * 	- crossover: SBX 
-	 * 	- mutation: PolynomialMutation
-	 *  - selection: BinaryTournament
-	 *  Default number of generations = 100
-	 * @param problem
-	 * @param asfRanker
-	 */
-	public SingleObjectiveEA(Problem problem, ArtificialDM dm, int popSize) {
-		this(
-			problem,
-			new BinaryTournament(dm),
-			new SBX(problem),
-			new PolynomialMutation(problem),
-			dm,
-			popSize);
-	}
-	
-	/**
-	 * Single objective Evolutionary Algorithm in which multiple objectives are aggregated
-	 * into single objective using Achievement Scalarizing Function (ASF) embedded into
-	 * asfRanker class.
-	 *  Default number of generations = 100
-	 * @param problem
-	 * @param asfRanker
-	 */
-	public SingleObjectiveEA(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator,
-			MutationOperator mutationOperator, ArtificialDM dm, int popSize) {
-		super(problem, selectionOperator, crossoverOperator, mutationOperator);
-		this.popSize = popSize;
+	private SingleObjectiveEA(Builder builder){
+		super(builder.problem, builder.selection, builder.crossover, builder.mutation);
+		this.popSize = builder.popSize;
 		population = problem.createPopulation(popSize);
-		comp = dm;
+		comp = builder.comp;
 	}
-
+	
 	/**
 	 * Population is sorted using comparator (ranker) provided during class instantiation.
 	 * First popSize solutions are returned as new population.
@@ -88,16 +54,9 @@ public class SingleObjectiveEA extends EA{
 		pop.getSolutions().sort(comp);
 		return new Population(pop.getSolutions().subList(0, popSize));
 	}
-
-	/**
-	 * Execute algorithm for DEFAULT_NUM_GENERATIONS=100 generations 
-	 */
-	public void run() {
-		run(DEFAULT_NUM_GENERATIONS);
-	}
 	
 	/**
-	 * Execute algorithm fro numGenerations generations 
+	 * Execute algorithm for numGenerations generations 
 	 */
 	public void run(int numGenerations) {
 		for(int i=0; i < numGenerations; i++){
