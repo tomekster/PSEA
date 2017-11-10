@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.psea.AsfPreferenceModel;
 import algorithm.psea.preferences.DMmodel;
 import utils.math.Geometry;

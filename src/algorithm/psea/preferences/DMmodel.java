@@ -6,7 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import artificialDM.AsfDM;
 import utils.math.structures.Pair;
 

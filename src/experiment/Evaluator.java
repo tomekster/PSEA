@@ -3,7 +3,7 @@ package experiment;
 import java.util.Arrays;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.psea.preferences.ASFBundle;
 import artificialDM.AsfDM;
 import problems.Problem;

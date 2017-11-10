@@ -1,14 +1,10 @@
 package problems.dtlz;
 
-import java.util.ArrayList;
-
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
-import algorithm.nsgaiii.hyperplane.Hyperplane;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.geneticAlgorithm.solutions.Solution;
+import problems.AsfDmProblem;
 import problems.ContinousProblem;
 
-public abstract class DTLZ extends ContinousProblem{
+public abstract class DTLZ extends ContinousProblem implements AsfDmProblem{
 	
 	/**
 	 * 
@@ -21,18 +17,4 @@ public abstract class DTLZ extends ContinousProblem{
 
 	@Override
 	public abstract void evaluate(Solution solution);
-
-	@Override
-	public abstract void evaluateConstraints(Solution solution);
-
-	@Override
-	public Population getReferenceFront(){
-		Population res = new Population();
-		Hyperplane h = new Hyperplane(getNumObjectives());
-		ArrayList <ReferencePoint> rp = h.getReferencePoints();
-		for(ReferencePoint r : rp){
-			res.addSolution(new Solution(r.getDim(), getTargetAsfPoint(r.getDim())));
-		}
-		return res;
-	}
 }

@@ -3,7 +3,7 @@ package problems;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 
 public abstract class PermutationProblem extends Problem{
 

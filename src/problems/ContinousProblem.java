@@ -1,6 +1,6 @@
 package problems;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import utils.math.MyRandom;
 
 public abstract class ContinousProblem extends Problem{
@@ -34,6 +34,8 @@ public abstract class ContinousProblem extends Problem{
 		return new Solution(var,obj);
 	}
 
+	public abstract void setBoundsOnVariables();
+	
 	public double[] getLowerBounds() {
 		return this.lowerBound;
 	}

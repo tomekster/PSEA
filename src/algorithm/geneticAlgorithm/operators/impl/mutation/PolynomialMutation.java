@@ -2,13 +2,12 @@ package algorithm.geneticAlgorithm.operators.impl.mutation;
 
 import java.util.Random;
 
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import problems.ContinousProblem;
-import problems.Problem;
 import utils.math.MyRandom;
 
-public class PolynomialMutation implements MutationOperator {
+public class PolynomialMutation implements MutationOperator <Double> {
 
 	private static final double DEFAULT_DISTRIBUTION_INDEX = 20.0;
 	private double probability;
@@ -27,7 +26,7 @@ public class PolynomialMutation implements MutationOperator {
 		this.upperBound = upperBound;
 	}
 
-	public void execute(Solution solution) {
+	public void execute(Solution <Double> solution) {
 		double rnd, delta1, delta2, mutPow, deltaq;
 		double y, yl, yu, val, xy;
 

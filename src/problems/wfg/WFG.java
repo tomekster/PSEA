@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import problems.ContinousProblem;
@@ -148,11 +148,6 @@ public abstract class WFG extends ContinousProblem{
 		System.arraycopy(z, head, result, head - head, tail + 1 - head);
 
 		return result;
-	}
-	
-	@Override
-	public void evaluateConstraints(Solution solution) {
-		return;
 	}
 	
 	@Override

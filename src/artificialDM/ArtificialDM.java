@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.stream.Stream;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 
 public abstract class ArtificialDM implements Serializable, Comparator<Solution>{
 	/**
@@ -29,8 +29,6 @@ public abstract class ArtificialDM implements Serializable, Comparator<Solution>
 		this.name = name;
 	}
 	
-	public abstract DMType getType();
-
 	public int getNumViolations(){
 		return this.numViolations;
 	}

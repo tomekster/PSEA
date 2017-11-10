@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.rankers.NonDominationRanker;
 
 public class NonDominatedSortTest {

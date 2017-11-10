@@ -3,9 +3,7 @@ package algorithm.nsgaiii.hyperplane;
 import java.io.Serializable;
 import java.util.PriorityQueue;
 
-import algorithm.geneticAlgorithm.Solution;
-
-public class ReferencePoint extends Solution implements Serializable{
+public class ReferencePoint implements Serializable{
 	/**
 	 * 
 	 */
@@ -13,22 +11,24 @@ public class ReferencePoint extends Solution implements Serializable{
 	private PriorityQueue<Association> nichedAssociations;
 	private PriorityQueue<Association> lastFrontAssociations;
 
+	double dim[];
+	
 	public ReferencePoint(int numDim) {
-		super(new double[1], new double [numDim]);
+		this.dim = new double [numDim];
 		this.nichedAssociations = new PriorityQueue<Association>();
 		this.lastFrontAssociations = new PriorityQueue<Association>();
 	}
 
 	public ReferencePoint(ReferencePoint rp) {
 		this(rp.getNumDimensions());
-		this.obj = rp.getDim().clone();
+		this.dim = rp.getDim().clone();
 		this.nichedAssociations = new PriorityQueue<Association> (rp.getNichedAssociationsQueue());
 		this.lastFrontAssociations = new PriorityQueue<Association> (rp.getLastFrontAssociationsQueue());
 	}
 	
 	public ReferencePoint(double []dimensions) {
 		this(dimensions.length);
-		this.obj = dimensions.clone();
+		this.dim = dimensions.clone();
 	}
 
 	public int getNicheCount() {
@@ -36,19 +36,19 @@ public class ReferencePoint extends Solution implements Serializable{
 	}
 
 	public int getNumDimensions() {
-		return obj.length;
+		return dim.length;
 	}
 
 	public double[] getDim() {
-		return obj;
+		return dim;
 	}
 	
 	public double getDim(int i){
-		return getObjective(i);
+		return dim[i];
 	}
 	
 	public void setDim(int i, double val){
-		setObjective(i, val);
+		dim[i] = val;
 	}
 	
 	public void resetAssociation() {
@@ -78,10 +78,10 @@ public class ReferencePoint extends Solution implements Serializable{
 	}
 
 	public void setDim(double[] q) {
-		obj = q.clone();
+		dim = q.clone();
 	}
 
 	public void incrDim(int pos, double d) {
-		obj[pos] += d; 
+		dim[pos] += d; 
 	}
 }

@@ -6,7 +6,7 @@ import java.util.stream.DoubleStream;
 import javax.swing.JOptionPane;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import artificialDM.ArtificialDM;
 import utils.math.MyRandom;
 import utils.math.structures.Pair;

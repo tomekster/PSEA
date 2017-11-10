@@ -2,7 +2,7 @@ package algorithm.nsgaiii.hyperplane;
 
 import java.io.Serializable;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 
 public class Association implements Comparable <Association>, Serializable {
 	/**

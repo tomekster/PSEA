@@ -3,9 +3,9 @@ package experiment;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.impl.crossover.PermutationCrossover;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PermutationMutation;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.psea.PSEA;
 import artificialDM.ADMBuilder;
 import artificialDM.AsfDM;

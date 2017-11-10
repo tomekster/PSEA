@@ -6,9 +6,9 @@ import java.util.HashMap;
 
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.impl.crossover.PermutationCrossover;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PermutationMutation;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.nsgaiii.NSGAIII;
 import artificialDM.AsfDM;
 import artificialDM.ADMBuilder;

@@ -1,7 +1,7 @@
 package experiment.metrics;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import utils.math.Geometry;
 
 public class IGD {

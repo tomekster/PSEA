@@ -1,15 +1,14 @@
 package problems.dtlz;
 
-import java.util.Arrays;
-
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import utils.math.Geometry;
 
-public class DTLZ2 extends DTLZ {
+public class DTLZ2 extends DTLZHypersphereParetoFront {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7633040782649679192L;
+	
 	// Parameter used in Deb's original paper
 	// k = numVariables - numObjectives + 1
 	private final static int k = 10;
@@ -38,7 +37,7 @@ public class DTLZ2 extends DTLZ {
 
 		double g = 0.0;
 		for (int i = numberOfVariables - k; i < numberOfVariables; i++) {
-			g += (x[i] - 0.5) * (x[i] - 0.5);
+			g += (x[i] - HYPERSPHERE_RADIUS) * (x[i] - HYPERSPHERE_RADIUS);
 		}
 
 		for (int i = 0; i < numberOfObjectives; i++) {
@@ -47,11 +46,11 @@ public class DTLZ2 extends DTLZ {
 
 		for (int i = 0; i < numberOfObjectives; i++) {
 			for (int j = 0; j < numberOfObjectives - (i + 1); j++) {
-				f[i] *= Math.cos(x[j] * 0.5 * Math.PI);
+				f[i] *= Math.cos(x[j] * HYPERSPHERE_RADIUS * Math.PI);
 			}
 			if (i != 0) {
 				int aux = numberOfObjectives - (i + 1);
-				f[i] *= Math.sin(x[aux] * 0.5 * Math.PI);
+				f[i] *= Math.sin(x[aux] * HYPERSPHERE_RADIUS * Math.PI);
 			}
 		}
 
@@ -59,11 +58,6 @@ public class DTLZ2 extends DTLZ {
 			solution.setObjective(i, f[i]);
 		}
 		assert Geometry.getLen(solution.getObjectives()) >= 1;
-	}
-
-	@Override
-	public void evaluateConstraints(Solution solution) {
-		return;
 	}
 
 	@Override

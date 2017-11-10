@@ -1,30 +1,36 @@
 package utils.math.structures;
 
-import java.util.ArrayList;
-
 public class Point {
-	private int numDim;
-	private double[] dimensions;
+	private static final long serialVersionUID = -7245293372099881248L;
 	
-	public Point(ArrayList <Double> dimensions){
-		numDim = dimensions.size();
-		for(int i=0; i< numDim; i++){
-			this.dimensions[i] = dimensions.get(i);
+	double [] vals;
+	
+	public Point(double [] vals){
+		this.vals = vals.clone();
+	}
+	
+	public int getNumDim(){
+		return vals.length;
+	}
+
+	public double getDim(int i) {
+		return vals[i];
+	}
+
+	public double[] getDim() {
+		return this.vals;
+	}
+	
+	public Point shift(Vector v){
+		if(getNumDim() != v.getNumDim() ){
+			throw new IllegalArgumentException("Point and vector do not have the same dimensionality.");
 		}
-	}
-	public Point(double[] dimensions){
-		numDim = dimensions.length;
-		this.dimensions = dimensions.clone();
-	}
-	
-	public int getNumDIm(){
-		return numDim;
-	}
-	
-	public double getDim(int i){
-		return dimensions[i];
-	}
-	public double[] getDimensions() {
-		return dimensions;
+		
+		double[] res = new double[getNumDim()];
+		for(int i=0; i<res.length; i++){
+			res[i] = getDim(i) + v.getDim(i);
+		}
+		
+		return new Point(res);
 	}
 }

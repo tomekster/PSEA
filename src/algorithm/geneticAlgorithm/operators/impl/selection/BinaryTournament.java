@@ -3,8 +3,8 @@ package algorithm.geneticAlgorithm.operators.impl.selection;
 import java.util.Comparator;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import utils.math.MyRandom;
 
 public class BinaryTournament implements SelectionOperator {

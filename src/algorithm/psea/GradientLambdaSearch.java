@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 import org.ejml.simple.SimpleMatrix;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.Comparison;
 import algorithm.psea.preferences.PreferenceCollector;

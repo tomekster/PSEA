@@ -3,7 +3,7 @@ package algorithm.psea.preferences;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import artificialDM.AsfDM;
 
 public class PreferenceCollector implements Serializable {

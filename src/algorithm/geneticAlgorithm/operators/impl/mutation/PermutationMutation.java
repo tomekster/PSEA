@@ -1,14 +1,14 @@
 package algorithm.geneticAlgorithm.operators.impl.mutation;
 
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import utils.math.MyRandom;
 
-public class PermutationMutation implements MutationOperator{
+public class PermutationMutation implements MutationOperator <Integer>{
 
 	@Override
-	public void execute(Solution s) {
-		double variables[] = new double[s.getNumVariables()];
+	public void execute(Solution <Integer> s) {
+		Integer variables[] = new Integer[s.getNumVariables()];
 		for(int i=0; i<variables.length; i++) variables[i] = -1;
 		int pos1 = MyRandom.getInstance().nextInt(s.getNumVariables());
 		int pos2 = MyRandom.getInstance().nextInt(s.getNumVariables());

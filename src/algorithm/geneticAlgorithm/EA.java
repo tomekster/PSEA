@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import problems.Problem;
 
 /**

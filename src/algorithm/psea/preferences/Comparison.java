@@ -2,7 +2,7 @@ package algorithm.psea.preferences;
 
 import java.io.Serializable;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 
 public class Comparison implements Serializable {
 	/**

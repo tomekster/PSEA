@@ -1,13 +1,16 @@
 package problems.dtlz;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import utils.math.Geometry;
 
-public class DTLZ3 extends DTLZ {
+public class DTLZ3 extends DTLZHypersphereParetoFront{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5215525665727008668L;
+	
+	private static final double HYPERSPHERE_CONST = 0.5; //In DTLZ 2-4 problems Pareto Frontier is given by hypersphere: 0.5 = sqrt(x_1^2 + x_2^2 + ... + x_n^2)
+
 	// Parameter used in Deb's original paper
 	// k = numVariables - numObjectives + 1
 	private final static int k = 10;
@@ -35,7 +38,7 @@ public class DTLZ3 extends DTLZ {
 		
 		double g = 0.0;
 		for (int i = numberOfVariables - k; i < numberOfVariables; i++) {
-			g += (x[i] - 0.5) * (x[i] - 0.5) - Math.cos(20.0 * Math.PI * (x[i] - 0.5));
+			g += (x[i] - HYPERSPHERE_CONST) * (x[i] - HYPERSPHERE_CONST) - Math.cos(20.0 * Math.PI * (x[i] - HYPERSPHERE_CONST));
 		}
 
 		g = 100.0 * (k + g);
@@ -45,11 +48,11 @@ public class DTLZ3 extends DTLZ {
 
 		for (int i = 0; i < numberOfObjectives; i++) {
 			for (int j = 0; j < numberOfObjectives - (i + 1); j++) {
-				f[i] *= java.lang.Math.cos(x[j] * 0.5 * java.lang.Math.PI);
+				f[i] *= java.lang.Math.cos(x[j] * HYPERSPHERE_CONST * java.lang.Math.PI);
 			}
 			if (i != 0) {
 				int aux = numberOfObjectives - (i + 1);
-				f[i] *= java.lang.Math.sin(x[aux] * 0.5 * java.lang.Math.PI);
+				f[i] *= java.lang.Math.sin(x[aux] * HYPERSPHERE_CONST * java.lang.Math.PI);
 			}
 		}
 
@@ -57,11 +60,6 @@ public class DTLZ3 extends DTLZ {
 			solution.setObjective(i, f[i]);
 		}
 		assert Geometry.getLen(solution.getObjectives()) >= 1;
-	}
-
-	@Override
-	public void evaluateConstraints(Solution solution) {
-		return;
 	}
 
 	@Override

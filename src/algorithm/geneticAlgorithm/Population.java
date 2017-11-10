@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import algorithm.geneticAlgorithm.solutions.Solution;
+
 public class Population implements Serializable{
 	/**
 	 * 

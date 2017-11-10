@@ -3,13 +3,13 @@ package algorithm.geneticAlgorithm.operators.impl.crossover;
 import java.util.ArrayList;
 import java.util.Random;
 
-import algorithm.geneticAlgorithm.Solution;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import problems.ContinousProblem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
 
-public class SBX implements CrossoverOperator {
+public class SBX implements CrossoverOperator <Double> {
 
 	// SBX parameters
 	private static final double DEFAULT_CROSSOVER_PROBABILITY = 1.0;
@@ -37,12 +37,19 @@ public class SBX implements CrossoverOperator {
 		this.upperBound = upperBounds;
 	}
 
-	@Override
-	public ArrayList<Solution> execute(ArrayList<Solution> parents) {
+	private double find_bethaq(double rand, double alpha) {
+		if (rand <= (1.0 / alpha)) {
+			return Math.pow((rand * alpha), (1.0 / (crossover_parameter_index + 1.0)));
+		} else {
+			return Math.pow((1.0 / (2.0 - rand * alpha)), (1.0 / (crossover_parameter_index + 1.0)));
+		}
+	}
 
-		ArrayList<Solution> children = new ArrayList<Solution>(2);
-		children.add(new Solution(parents.get(0)));
-		children.add(new Solution(parents.get(1)));
+	@Override
+	public ArrayList<Solution<Double>> execute(ArrayList<Solution<Double>> parents) {
+		ArrayList<Solution <Double> > children = new ArrayList <> (2);
+		children.add(new Solution <Double> (parents.get(0)));
+		children.add(new Solution <Double> (parents.get(1)));
 
 		double p1, p2;
 		double rand;
@@ -98,13 +105,5 @@ public class SBX implements CrossoverOperator {
 		}
 
 		return children;
-	}
-
-	private double find_bethaq(double rand, double alpha) {
-		if (rand <= (1.0 / alpha)) {
-			return Math.pow((rand * alpha), (1.0 / (crossover_parameter_index + 1.0)));
-		} else {
-			return Math.pow((1.0 / (2.0 - rand * alpha)), (1.0 / (crossover_parameter_index + 1.0)));
-		}
 	}
 }

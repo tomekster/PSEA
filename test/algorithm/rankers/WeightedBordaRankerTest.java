@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.psea.preferences.DMmodel;
 import artificialDM.AsfDM;
 import utils.math.Geometry;

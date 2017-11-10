@@ -21,14 +21,19 @@
 
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
+import artificialDM.AsfDM;
+import problems.AsfDmProblem;
+import utils.math.Geometry;
 
-public class WFG7 extends WFG {
+public class WFG7 extends WFG implements AsfDmProblem{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4219569441752268868L;
 
+	private static final double HYPERSPHERE_CONST = 0.5; //In WFG 6-7 problems Pareto Frontier is given by hypersphere: 0.5 = sqrt(x_1^2 + x_2^2 + ... + x_n^2)
+	
 	public WFG7(Integer M){
 		this(2*(M-1), 2, M);
 	}
@@ -172,5 +177,10 @@ public class WFG7 extends WFG {
       solution.setObjective(i, sol2[i]);
     }
   }
+
+	@Override
+	public Solution getOptimalAsfDmSolution(AsfDM dm) {
+		return new Solution(null, Geometry.lineCrossSpherePoint(dm.getAsfLine(), HYPERSPHERE_CONST).getDim());
+	}
 }
 

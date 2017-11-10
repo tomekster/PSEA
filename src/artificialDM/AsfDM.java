@@ -6,7 +6,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
+import utils.math.Geometry;
+import utils.math.structures.Line;
+import utils.math.structures.Point;
+import utils.math.structures.Vector;
 
 public class AsfDM extends ArtificialDM{
 	
@@ -14,8 +18,9 @@ public class AsfDM extends ArtificialDM{
 	private static final long serialVersionUID = -6759292394593558688L;
 	//TODO - add tests for Chebyshev function
 	private double lambda[];
+	private Vector vector;
 	private static double rho;
-	private double refPoint[];
+	private Point refPoint;
 	private double reward;
 	private double penalty;
 	
@@ -23,14 +28,15 @@ public class AsfDM extends ArtificialDM{
 		if(refPoint.length != lambda.length){
 			throw new RuntimeException();
 		}
-		this.refPoint = refPoint;
+		this.refPoint = new Point(refPoint);
+		this.vector = new Vector(Geometry.invert(lambda));
 		this.lambda = lambda;
 		AsfDM.rho = DEFAULT_RHO;
 		this.name = name;
 	}
 	
 	public AsfDM(double refPoint[], double lambda[]){
-		this(refPoint,lambda, "");
+		this(refPoint,lambda, "Anonymous");
 	}
 	
 	public double eval(Solution s){
@@ -43,15 +49,11 @@ public class AsfDM extends ArtificialDM{
 //		return lpEval(s, refPoint, lambda, 4);
 	}
 	
-	public double classicEval(double obj[], double refPoint[], double lambda[]){
-		if(null == refPoint){
-			refPoint = new double[lambda.length];
-			Arrays.fill(refPoint, 0);
-		}
+	public double classicEval(double obj[], Point refPoint, double lambda[]){
 		double res = -Double.MAX_VALUE;
 		double sum = 0;
 		for(int i=0; i<obj.length; i++){
-			double mult = lambda[i] * (obj[i] - refPoint[i]);
+			double mult = lambda[i] * (obj[i] - refPoint.getDim(i));
 			res = Double.max(mult, res);
 			sum += mult;
 		}
@@ -112,6 +114,10 @@ public class AsfDM extends ArtificialDM{
 		return res;
 	}
 
+	public Line getAsfLine(){
+		return new Line(this.refPoint, this.refPoint.shift(this.vector));
+	}
+	
 	public double[] getLambda() {
 		return lambda;
 	}
@@ -125,7 +131,7 @@ public class AsfDM extends ArtificialDM{
 	}
 	
 	public AsfDM copy() {
-		return new AsfDM(this.refPoint.clone(), this.lambda.clone(), this.name);
+		return new AsfDM(this.refPoint.getDim(), this.lambda.clone(), this.name);
 	}
 
 	public double getReward(){
@@ -166,10 +172,5 @@ public class AsfDM extends ArtificialDM{
 				return Double.compare(asfValue.get(s1), asfValue.get(s2)); // Sort ASCENDING by ASF value
 			}
 		});
-	}
-
-	@Override
-	public DMType getType() {
-		return DMType.ASF;
 	}
 }

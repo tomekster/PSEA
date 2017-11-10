@@ -9,17 +9,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.management.RuntimeErrorException;
+
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import utils.math.structures.Line;
 import utils.math.structures.Pair;
+import utils.math.structures.Point;
 import utils.math.structures.Point2D;
+import utils.math.structures.Vector;
 
 public class Geometry {
 
 	public static double EPS = 1E-6;
 
+	public static double vectorLength(double [] vect){
+		return Math.sqrt(Geometry.dot(vect,vect));
+	}
+	
 	/**
 	 * 
 	 * @param P
@@ -31,12 +40,12 @@ public class Geometry {
 	public static double pointLineDist(double[] P, double[] B) {
 
 		if (P.length != B.length) {
-			throw new RuntimeException("Point and line do not have same dimensionality");
+			throw new IllegalArgumentException("Point and line do not have same dimensionality");
 		}
 
 		int numDim = P.length;
 
-		if (numDim < 2) { throw new RuntimeException("Space needs to be at least two dimensional");}
+		if (numDim < 2) { throw new IllegalArgumentException("Point needs to be at least two dimensional");}
 
 		double max = Arrays.stream(B).max().getAsDouble();
 		if (max < EPS) {
@@ -44,7 +53,7 @@ public class Geometry {
 			for(int i=0; i<B.length; i++){
 				s += B[i] + " ";
 			}
-			throw new RuntimeException("Line represented by degenerated vector (B = 0)\n B: [" + s + "]\n");
+			throw new IllegalArgumentException("Line represented by degenerated vector (B = 0)\n B: [" + s + "]\n");
 		}
 
 		double t = dot(P, B) / dot(B, B);
@@ -53,7 +62,7 @@ public class Geometry {
 		for (int i = 0; i < numDim; i++) {
 			resVector[i] = P[i] - t * B[i];
 		}
-		return Math.sqrt(Geometry.dot(resVector,resVector)); 
+		return vectorLength(resVector); 
 	}
 
 	public static double euclideanDistance(double[] P1, double[] P2) {
@@ -151,20 +160,21 @@ public class Geometry {
 	
 	/**
 	 * Maps input point from a hyperplane parallel to one used in NSGA-III.
-	 * The one used here is given by equation SUM(x_i) = 1
+	 * The one used here is given by equation SUM(x_i) = sum
 	 * @param a
 	 * @return
 	 */
-	public static double[] normalizeSum1(double[] a){
+	public static double[] normalizeSum(double[] a, double sum){
 		double res[] = new double[a.length];
-		double sum = 0;
+		double s = 0;
 		for(int i=0; i<a.length; i++){
 			res[i] = a[i];
-			sum += a[i];
+			s += a[i];
 		}
 		
 		for(int i=0; i<a.length; i++){
-			res[i] /= sum;
+			res[i] /= s;
+			res[i] *= sum;
 		}
 		return res;
 	}
@@ -278,18 +288,16 @@ public class Geometry {
 	}
 
 	/**
-	 * Normalize vector to length 1.0
+	 * Normalize vector to length len
 	 * @param v Input vector - arbitrary length
-	 * @return 	Output vector - length 1.0
+	 * @return 	Output vector of length len
 	 */
-	public static double[] vectorNormalize(double[] v) {
+	public static double[] vectorNormalize(double[] v, double len) {
 		int n = v.length;
-		double sum = Geometry.dot(v, v);
+		double mult = Math.sqrt(len) / new Vector(v).getLen();
 		double[] res = new double[n];
-		
-		double denom = Math.sqrt(sum);
 		for(int i=0; i<n; i++){
-			res[i] = v[i] / denom;
+			res[i] = v[i] * mult;
 		}
 		return res;
 	}
@@ -345,16 +353,34 @@ public class Geometry {
 		return q;
 	}
 
-	public static double[] lineCrossDTLZ1HyperplanePoint(double[] pointOnLine) {
-		double crossPoint[] = Geometry.normalizeSum1(pointOnLine);
-		for(int i=0; i< pointOnLine.length; i++){
-			crossPoint[i] *= 0.5;
+	/**
+	 * 
+	 * @param l
+	 * @param s
+	 * @return
+	 * Returns the crossing point of line l given by two points and hyperplane H given by equation:
+	 * s = x_1 + x_2 + ... + x_n
+	 * 
+	 * Throws exception if given line is parallel to the hyperplane or if crossing point does not lie in the positive orthant 
+	 */
+	public static Point lineCrossHyperplanePoint(Line l, double s) {
+		Vector lVect = l.getVector();
+		double vectSum = Arrays.stream(lVect.getDim()).sum(); 
+		if(vectSum == 0){
+			throw new IllegalArgumentException("Given line is parallel to the hyperplane.");
 		}
-		return crossPoint;
-	}
-
-	public static double[] lineCrossDTLZ234HyperspherePoint(double[] pointOnLine) {
-		return Geometry.vectorNormalize(pointOnLine);
+		
+		Point p = l.getA();
+		double pointSum = Arrays.stream(p.getDim()).sum();
+		double mult = (s - pointSum) / vectSum;
+		
+		Point res =  p.shift(lVect.scale(mult));
+		for(int i=0; i<res.getNumDim(); i++){
+			if(res.getDim(i) < 0){
+				throw new IllegalArgumentException("Line and hyperplane corss at non-positive orthant");
+			}
+		}
+		return res;
 	}
 	
 	public static class Line2D implements Comparable <Line2D>, Point2D{
@@ -541,7 +567,7 @@ public class Geometry {
 	}
 	
 	public static double[] dir2point(double direction[]){
-		return normalizeSum1(invert(direction));
+		return normalizeSum(invert(direction), 1);
 	}
 	
 	public static double dirDist(double dir1[], double dir2[]){
@@ -633,11 +659,15 @@ public class Geometry {
 		return maxDist;
 	}
 	
-	public static boolean isPermutation(double arr[]){
+	public static boolean isPermutation(Integer arr[]){
 		HashSet <Integer> allVals = new HashSet<>();
-		for(double d : arr){
+		for(int d : arr){
 			allVals.add((int) Math.round(d));
 		}
 		return allVals.size() == arr.length;
+	}
+
+	public static Point lineCrossSpherePoint(Line asfLine, double hypersphereConst) {
+		throw new RuntimeErrorException(new Error(), "Geometry.lineCrossSpherePoint - method not implemented");
 	}
 }

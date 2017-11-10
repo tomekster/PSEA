@@ -2,14 +2,15 @@ package problems.dtlz;
 
 import java.util.Arrays;
 
-import algorithm.geneticAlgorithm.Solution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 
-public class DTLZ1 extends DTLZ {
+public class DTLZ1 extends DTLZHyperplaneParetoFront{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 6314726004282155449L;
+	
 	// Parameter used in Deb's original paper
 	// k = numVariables - numObjectives + 1
 	private final static int k = 5;
@@ -38,12 +39,12 @@ public class DTLZ1 extends DTLZ {
 
 		double g = 0.0;
 		for (int i = numberOfVariables - k; i < numberOfVariables; i++) {
-			g += (x[i] - 0.5) * (x[i] - 0.5) - Math.cos(20.0 * Math.PI * (x[i] - 0.5));
+			g += (x[i] - HYPERPLANE_CONST) * (x[i] - HYPERPLANE_CONST) - Math.cos(20.0 * Math.PI * (x[i] - HYPERPLANE_CONST));
 		}
 
 		g = 100 * (k + g);
 		for (int i = 0; i < numberOfObjectives; i++) {
-			f[i] = (1.0 + g) * 0.5;
+			f[i] = (1.0 + g) * HYPERPLANE_CONST;
 		}
 
 		for (int i = 0; i < numberOfObjectives; i++) {
@@ -59,12 +60,7 @@ public class DTLZ1 extends DTLZ {
 		for (int i = 0; i < numberOfObjectives; i++) {
 			solution.setObjective(i, f[i]);
 		}
-		assert Arrays.stream(solution.getObjectives()).sum() >= 0.5;
-	}
-
-	@Override
-	public void evaluateConstraints(Solution solution) {
-		return;
+		assert Arrays.stream(solution.getObjectives()).sum() >= HYPERPLANE_CONST;
 	}
 
 	@Override
