@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import problems.ContinousProblem;
 import utils.math.Geometry;
 import utils.math.MyRandom;
 
-public class SBX implements CrossoverOperator <Double> {
+public class SBX implements CrossoverOperator <VectorSolution<Double>> {
 
 	// SBX parameters
 	private static final double DEFAULT_CROSSOVER_PROBABILITY = 1.0;
@@ -46,10 +46,10 @@ public class SBX implements CrossoverOperator <Double> {
 	}
 
 	@Override
-	public ArrayList<Solution<Double>> execute(ArrayList<Solution<Double>> parents) {
-		ArrayList<Solution <Double> > children = new ArrayList <> (2);
-		children.add(new Solution <Double> (parents.get(0)));
-		children.add(new Solution <Double> (parents.get(1)));
+	public ArrayList<VectorSolution<Double>> execute(ArrayList<VectorSolution<Double>> parents) {
+		ArrayList<VectorSolution <Double> > children = new ArrayList <> (2);
+		children.add(new VectorSolution <Double> (parents.get(0)));
+		children.add(new VectorSolution <Double> (parents.get(1)));
 
 		double p1, p2;
 		double rand;

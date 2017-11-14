@@ -6,6 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import problems.knapsack.structures.Knapsack;
+import problems.knapsack.structures.KnapsackItem;
+
 public class KnapsackProblemBuilder {
 	
 	public int readInteger(BufferedReader br) throws NumberFormatException, IOException{

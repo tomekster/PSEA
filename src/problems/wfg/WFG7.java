@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import artificialDM.AsfDM;
 import problems.AsfDmProblem;
 import utils.math.Geometry;
@@ -158,8 +158,8 @@ public class WFG7 extends WFG implements AsfDmProblem{
     return result;
   }
 
-  /** Evaluate() method */
-  public void evaluate(Solution solution) {
+  @Override
+  public void evaluate(VectorSolution <Double> solution) {
     double[] variables = new double[getNumVariables()];
     double[] x = new double[getNumVariables()];
 
@@ -179,8 +179,8 @@ public class WFG7 extends WFG implements AsfDmProblem{
   }
 
 	@Override
-	public Solution getOptimalAsfDmSolution(AsfDM dm) {
-		return new Solution(null, Geometry.lineCrossSpherePoint(dm.getAsfLine(), HYPERSPHERE_CONST).getDim());
+	public VectorSolution <Double> getOptimalAsfDmSolution(AsfDM dm) {
+		return new VectorSolution <> (null, Geometry.lineCrossSpherePoint(dm.getAsfLine(), HYPERSPHERE_CONST).getDim());
 	}
 }
 

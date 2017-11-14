@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.rankers.NonDominationRanker;
 
 public class NonDominatedSortTest {
@@ -23,12 +23,12 @@ public class NonDominatedSortTest {
 
 	@Test
 	public void oneSolutionPopulationTest() {
-		Solution s1;
+		VectorSolution s1;
 
 		double[] var1 = { 0.0, 0.0, 0.0 };
 		double[] obj1 = { 1.0, 2.0, 3.0 };
 
-		s1 = new Solution(var1,obj1);
+		s1 = new VectorSolution(var1,obj1);
 		p.addSolution(s1);
 		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(p);
 		assertEquals(1, fronts.size());
@@ -39,15 +39,15 @@ public class NonDominatedSortTest {
 	// s1 dominates s2;
 	@Test
 	public void twoSolutionsTwoFrontsTest() {
-		Solution s1, s2;
+		VectorSolution s1, s2;
 
 		double[] var1 = { 0.0, 0.0, 0.0 };
 		double[] obj1 = { 1.0, 2.0, 3.0 };
 		double[] var2 = { 0.0, 0.0, 0.0 };
 		double[] obj2 = { 4.0, 4.0, 4.0 };
 
-		s1 = new Solution(var1,obj1);
-		s2 = new Solution(var2,obj2);
+		s1 = new VectorSolution(var1,obj1);
+		s2 = new VectorSolution(var2,obj2);
 
 		p.addSolution(s1);
 		p.addSolution(s2);
@@ -62,15 +62,15 @@ public class NonDominatedSortTest {
 	// s1 and s2 are nondominated
 	@Test
 	public void twoSolutionsOneFrontTest() {
-		Solution s1, s2;
+		VectorSolution s1, s2;
 
 		double[] var1 = { 0.0, 0.0, 0.0 };
 		double[] obj1 = { 1.0, 2.0, 3.0 };
 		double[] var2 = { 0.0, 0.0, 0.0 };
 		double[] obj2 = { 2.0, 1.0, 3.0 };
 
-		s1 = new Solution(var1,obj1);
-		s2 = new Solution(var2,obj2);
+		s1 = new VectorSolution(var1,obj1);
+		s2 = new VectorSolution(var2,obj2);
 
 		p.addSolution(s1);
 		p.addSolution(s2);
@@ -85,7 +85,7 @@ public class NonDominatedSortTest {
 	// Front 4: s7=(6,7)
 	@Test
 	public void manyFrontsTest() {
-		Solution s1, s2, s3, s4, s5, s6, s7;
+		VectorSolution s1, s2, s3, s4, s5, s6, s7;
 
 		double[] var1 = { 0.0, 0.0 };
 		double[] obj1 = { 1.0, 4.0 };
@@ -103,13 +103,13 @@ public class NonDominatedSortTest {
 		double[] obj7 = { 6.0, 7.0 };
 		
 
-		s1 = new Solution(var1,obj1);
-		s2 = new Solution(var2,obj2);
-		s3 = new Solution(var3,obj3);
-		s4 = new Solution(var4,obj4);
-		s5 = new Solution(var5,obj5);
-		s6 = new Solution(var6,obj6);
-		s7 = new Solution(var7,obj7);
+		s1 = new VectorSolution(var1,obj1);
+		s2 = new VectorSolution(var2,obj2);
+		s3 = new VectorSolution(var3,obj3);
+		s4 = new VectorSolution(var4,obj4);
+		s5 = new VectorSolution(var5,obj5);
+		s6 = new VectorSolution(var6,obj6);
+		s7 = new VectorSolution(var7,obj7);
 		
 
 		p.addSolution(s1);
@@ -136,7 +136,7 @@ public class NonDominatedSortTest {
 		// Front 4: s7=(6,7)
 		@Test
 		public void manyFrontsTestDifferentSolutionsOrder() {
-			Solution s1, s2, s3, s4, s5, s6, s7;
+			VectorSolution s1, s2, s3, s4, s5, s6, s7;
 
 			
 			double[] var7 = { 0.0, 0.0 };
@@ -156,13 +156,13 @@ public class NonDominatedSortTest {
 			
 			
 
-			s1 = new Solution(var1,obj1);
-			s2 = new Solution(var2,obj2);
-			s3 = new Solution(var3,obj3);
-			s4 = new Solution(var4,obj4);
-			s5 = new Solution(var5,obj5);
-			s6 = new Solution(var6,obj6);
-			s7 = new Solution(var7,obj7);
+			s1 = new VectorSolution(var1,obj1);
+			s2 = new VectorSolution(var2,obj2);
+			s3 = new VectorSolution(var3,obj3);
+			s4 = new VectorSolution(var4,obj4);
+			s5 = new VectorSolution(var5,obj5);
+			s6 = new VectorSolution(var6,obj6);
+			s7 = new VectorSolution(var7,obj7);
 			
 
 			p.addSolution(s1);

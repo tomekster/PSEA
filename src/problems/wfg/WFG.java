@@ -26,7 +26,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import problems.ContinousProblem;
@@ -150,8 +150,9 @@ public abstract class WFG extends ContinousProblem{
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public Population getReferenceFront(){
+	public Population <VectorSolution<Double>> getReferenceFront(){
 		Hyperplane h = new Hyperplane(this.getNumObjectives());
 		ArrayList <ReferencePoint> rp = h.getReferencePoints();
 		for(int i=0; i<rp.size(); i++){
@@ -160,15 +161,15 @@ public abstract class WFG extends ContinousProblem{
 			dim[1] *= 4;
 			dim[2] *= 6;
 		}
-		Population front = WfgFrontReader.getFront(this);
-		Population res = new Population();
+		Population <VectorSolution<Double>> front = WfgFrontReader.getFront(this);
+		Population <VectorSolution<Double>> res = new Population <> ();
 		for(ReferencePoint r : rp){
 			res.addSolution(
 					front.getSolutions()
 					.stream()
-					.map(s-> new Object[] {s, Geometry.pointLineDist(((Solution)s).getObjectives(), r.getObjectives())})
+					.map(s-> new Object[] {s, Geometry.pointLineDist(((VectorSolution <Double> )s).getObjectives(), r.getDim())})
 					.min(Comparator.comparingDouble(a -> (Double) a[1]))
-					.map(a -> (Solution) a[0])
+					.map(a -> (VectorSolution <Double>) a[0])
 					.get()
 				);
 		}

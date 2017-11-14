@@ -15,7 +15,7 @@ public class Elicitator {
 	
 	private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
 	
-	public static int elicitate(Population pop, ArtificialDM adm, ASFBundle lambda, Pair<Solution, Solution> p) {
+	public static int elicitate(Population <Solution> pop, ArtificialDM adm, ASFBundle lambda, Pair<Solution, Solution> p) {
 		return getComparedSolutions(pop, lambda, p);
 	}
 
@@ -43,7 +43,7 @@ public class Elicitator {
 		return new Pair<Integer, Integer>(i, j);
 	}
 	
-	private static int getComparedSolutions(Population pop, ASFBundle asfBundle, Pair <Solution, Solution> p) {
+	private static int getComparedSolutions(Population <Solution> pop, ASFBundle asfBundle, Pair <Solution, Solution> p) {
 		double maxMinDif = -1;
 		int maxSplit = -1, id1=-1, id2=-1;
 		
@@ -93,8 +93,8 @@ public class Elicitator {
 		else {
 			pi = new Pair<Integer, Integer>(id1, id2);
 		}
-		p.first  = new Solution(pop.getSolution(pi.first));
-		p.second = new Solution(pop.getSolution(pi.second));
+		p.first  = (Solution) pop.getSolution(pi.first).copy();
+		p.second = (Solution) pop.getSolution(pi.second).copy();
 		return maxSplit;
 	}
 

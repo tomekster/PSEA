@@ -5,7 +5,7 @@
  */
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 
 /**
  * Creates a default WFG9 problem with
@@ -135,13 +135,8 @@ public class WFG9 extends WFG {
     return result;
   }
 
-  /**
-   * Evaluates a solution
-   *
-   * @param solution The solution to evaluate
-   * @throws org.uma.jmetal.util.JMetalException
-   */
-  public void evaluate(Solution solution) {
+  @Override
+  public void evaluate(VectorSolution <Double> solution) {
     double[] variables = new double[getNumVariables()];
     double[] x = new double[getNumVariables()];
 

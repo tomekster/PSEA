@@ -608,7 +608,7 @@ public class Geometry {
 	 * @param pop
 	 * @return Return distance between point and closest solution from pop (in objectives space)
 	 */
-	public static double getMinDist(double point[], Population pop){
+	public static double getMinDist(double point[], Population <Solution> pop){
 		double min = Double.MAX_VALUE;
 		for(Solution s : pop.getSolutions()){
 			double d = Double.min(min, Geometry.euclideanDistance(point, s.getObjectives()));
@@ -617,20 +617,6 @@ public class Geometry {
 			}
 		}
 		return min;
-	}
-	
-	/**
-	 * 
-	 * @param point
-	 * @param pop
-	 * @return Computes average distance between point and solutions from pop (in objectives space)
-	 */
-	public static double getAvgDist(double point[], Population pop){
-		double avg = 0;
-		for(Solution s : pop.getSolutions()){
-			avg += Geometry.euclideanDistance(point, s.getObjectives());
-		}
-		return avg / pop.size();
 	}
 	
 	public static double variance(double a[]){
@@ -646,17 +632,6 @@ public class Geometry {
 		for(int i=0; i < a.length; i++){
 			assertEquals(a[i], b[i], Geometry.EPS);
 		}
-	}
-	
-	/**
-	 * @return Returns the Euclidean distance between two farthest solutions in given population pop.
-	 */
-	public static double maxDist(Population pop) {
-		double maxDist = 0;
-		for(Solution s1 : pop.getSolutions()){
-			for(Solution s2 : pop.getSolutions()) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));
-		}
-		return maxDist;
 	}
 	
 	public static boolean isPermutation(Integer arr[]){

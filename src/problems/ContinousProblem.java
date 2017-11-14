@@ -1,9 +1,9 @@
 package problems;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import utils.math.MyRandom;
 
-public abstract class ContinousProblem extends Problem{
+public abstract class ContinousProblem extends Problem <VectorSolution<Double>>{
 	/**
 	 * 
 	 */
@@ -24,14 +24,14 @@ public abstract class ContinousProblem extends Problem{
 	}
 
 	@Override
-	public Solution createSolution() {
+	public VectorSolution <Double> createSolution() {
 		MyRandom random = MyRandom.getInstance();
-		double var[] = new double[numVariables];
+		Double var[] = new Double[numVariables];
 		double obj[] = new double[numObjectives];
 		for(int i=0; i<numVariables; i++){
 			var[i] = lowerBound[i] + (upperBound[i] - lowerBound[i]) * random.nextDouble();
 		}
-		return new Solution(var,obj);
+		return new VectorSolution <Double> (var,obj);
 	}
 
 	public abstract void setBoundsOnVariables();

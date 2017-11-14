@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.solutions.Solution;
 
-public class noCrossover <N extends Number> implements CrossoverOperator <N>{
+public class noCrossover <S extends Solution> implements CrossoverOperator <S>{
 
 	@Override
-	public ArrayList<Solution<N>> execute(ArrayList<Solution<N>> parents) {
+	public ArrayList<S> execute(ArrayList<S> parents) {
 		return parents;
 	}
 }

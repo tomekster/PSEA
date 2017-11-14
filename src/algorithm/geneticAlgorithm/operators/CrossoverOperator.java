@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.solutions.Solution;
 
-public interface CrossoverOperator <T extends Number>{
+public interface CrossoverOperator <S extends Solution>{
 
-	ArrayList <Solution <T> > execute(ArrayList <Solution <T> > parents);
+	ArrayList <S> execute(ArrayList <S> parents);
 
 }

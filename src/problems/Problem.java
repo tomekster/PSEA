@@ -1,25 +1,11 @@
 package problems;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
-import java.nio.file.Paths;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.SingleObjectiveEA;
-import algorithm.geneticAlgorithm.operators.CrossoverOperator;
-import algorithm.geneticAlgorithm.operators.MutationOperator;
-import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
-import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
-import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.geneticAlgorithm.solutions.Solution;
-import artificialDM.ArtificialDM;
-import artificialDM.AsfDM;
-import utils.math.Geometry;
 
-public abstract class Problem implements Serializable {
+public abstract class Problem <S extends Solution> implements Serializable {
 	/**
 	 * 
 	 */
@@ -35,58 +21,28 @@ public abstract class Problem implements Serializable {
 		this.name = name;
 	}
 
-	public abstract Solution createSolution();
+	public abstract S createSolution();
 	
-	public Population createPopulation(int size){
-		Population population = new Population();
+	public Population <S> createPopulation(int size){
+		Population <S> population = new Population <S> ();
 		for(int i=0; i<size; i++){
 			population.addSolution( createSolution() );
 		}
 		return population;
 	}
 
-	public abstract void evaluate(Solution solution);
+	  /**
+	   * Evaluates a solution
+	   *
+	   * @param solution The solution to evaluate
+	   * @throws org.uma.jmetal.util.JMetalException
+	   */
+	public abstract void evaluate(S solution);
 
-	public void evaluate(Population pop) {
+	public void evaluate(Population <S> pop) {
 		for(int i=0; i<pop.size(); i++){
 			evaluate(pop.getSolution(i));
 		}
-	}
-	
-	
-	
-	public double[] findIdealPoint(){
-		CrossoverOperator co = new SBX(1.0, 30.0, ((ContinousProblem)this).getLowerBounds(), ((ContinousProblem)this).getUpperBounds());
-		MutationOperator mo = new PolynomialMutation(1.0 / this.getNumVariables(), 20.0, ((ContinousProblem)this).getLowerBounds(), ((ContinousProblem)this).getUpperBounds());
-		return findIdealPoint(co , mo);
-	}
-	
-	public double[] findIdealPoint(CrossoverOperator co, MutationOperator mo){
-		if(this.idealPoint != null) return this.idealPoint.clone();
-		double idealPoint[] = new double[numObjectives];
-		
-		for(int i=0; i<idealPoint.length; i++){
-			idealPoint[i] = Double.MAX_VALUE;
-		}
-			
-		for(int optimizedDim=0; optimizedDim < numObjectives; optimizedDim++){
-			SingleObjectiveDM soDM = new SingleObjectiveDM(optimizedDim);
-			SingleObjectiveEA so = new SingleObjectiveEA(	
-				this,
-				new BinaryTournament(soDM),
-				co,
-				mo,
-				soDM
-			);
-			
-			so.run();
-			
-			//Workaround for inner class error
-		    final int dummyOptimizedDim = optimizedDim;
-			idealPoint[optimizedDim] = so.getPopulation().getSolutions().stream().mapToDouble(s -> s.getObjective(dummyOptimizedDim)).min().getAsDouble();
-		}
-		this.idealPoint = idealPoint;
-		return idealPoint;
 	}
 
 	public String getName() {
@@ -113,5 +69,5 @@ public abstract class Problem implements Serializable {
 		this.numObjectives = numObjectives;
 	}
 	
-	public abstract Population getReferenceFront();
+	public abstract Population <S> getReferenceFront();
 }

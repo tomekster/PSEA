@@ -1,6 +1,6 @@
 package problems.dtlz;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import utils.math.Geometry;
 
 public class DTLZ4 extends DTLZHypersphereParetoFront{
@@ -24,7 +24,7 @@ public class DTLZ4 extends DTLZHypersphereParetoFront{
 	}
 
 	/** Evaluate() method */
-	public void evaluate(Solution solution) {
+	public void evaluate(VectorSolution <Double> solution) {
 		int numberOfVariables = getNumVariables();
 		int numberOfObjectives = getNumObjectives();
 		double[] f = new double[numberOfObjectives];

@@ -5,26 +5,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import algorithm.geneticAlgorithm.solutions.Solution;
+import utils.math.Geometry;
 
-public class Population implements Serializable{
+public class Population <S extends Solution> implements Serializable{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5522918817753869897L;
-	private ArrayList <Solution> solutions = null;
+	private ArrayList <S> solutions = null;
 	
 	public Population(){
-		this.solutions = new ArrayList <Solution>();
+		this.solutions = new ArrayList <S>();
 	}
 	
-	public Population(Population pop) {
+	@SuppressWarnings("unchecked")
+	public Population(Population <S> pop) {
 		this();
-		for(Solution s : pop.getSolutions()){
-			this.solutions.add(new Solution(s));
+		for(S s : pop.getSolutions()){
+			this.solutions.add((S) s.copy());
 		}
 	}
 
-	public Population(List<Solution> solList) {
+	public Population(List<S> solList) {
 		this.solutions = new ArrayList<>(solList);
 	}
 
@@ -32,7 +34,7 @@ public class Population implements Serializable{
 	 * Add solution sol to population.
 	 * @param sol
 	 */
-	public void addSolution(Solution sol){
+	public void addSolution(S sol){
 		this.solutions.add(sol);
 	}
 	
@@ -41,17 +43,17 @@ public class Population implements Serializable{
 	 * This procedure adds ->deep copy<- of every solution in pop.
 	 * @param pop
 	 */
-	public void addSolutions(Population pop){
-		for(Solution s : pop.getSolutions()){
+	public void addSolutions(Population <S> pop){
+		for(S s : pop.getSolutions()){
 			addSolution(s);
 		}
 	}
 	
-	public Solution getSolution(int pos){
+	public S getSolution(int pos){
 		return this.solutions.get(pos);
 	}
 	
-	public ArrayList <Solution> getSolutions(){
+	public ArrayList <S> getSolutions(){
 		return this.solutions;
 	}
 	
@@ -65,19 +67,44 @@ public class Population implements Serializable{
 	/**
 	 * @return shallow copy of population
 	 */
-	public Population copy() {
-		return new Population(this);
+	public Population <S> copy() {
+		return new Population <>(this);
 	}
 	
 	@Override
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		sb.append("[\n");
-		for(Solution s: this.solutions){
+		for(S s: this.solutions){
 			sb.append(s.toString());
 			sb.append("\n");
 		}
 		sb.append("]");
 		return sb.toString();
+	}
+	
+	/**
+	 * 
+	 * @param point
+	 * @param pop
+	 * @return Computes average distance between point and solutions from pop (in objectives space)
+	 */
+	public static double getAvgDist(double point[], Population <Solution> pop){
+		double avg = 0;
+		for(Solution s : pop.getSolutions()){
+			avg += Geometry.euclideanDistance(point, s.getObjectives());
+		}
+		return avg / pop.size();
+	}
+	
+	/**
+	 * @return Returns the Euclidean distance between two farthest solutions in given population pop.
+	 */
+	public static double maxDist(Population <Solution> pop) {
+		double maxDist = 0;
+		for(Solution s1 : pop.getSolutions()){
+			for(Solution s2 : pop.getSolutions()) maxDist = Double.max(maxDist, Geometry.euclideanDistance(s1.getObjectives(), s2.getObjectives()));
+		}
+		return maxDist;
 	}
 }

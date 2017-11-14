@@ -257,7 +257,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
 
 		int idCounter = 1;
-		Population pop = ExecutionHistory.getInstance().getPopulation(generationId);
+		Population <Solution> pop = ExecutionHistory.getInstance().getPopulation(generationId);
 
 		for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
 			this.parameters.add(new Parameter("f" + (i+1), this));
@@ -444,7 +444,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 		progressMonitor.setMaximum(ExecutionHistory.getInstance().getPopulationSize());
 
 		int idCounter = 0;
-		Population pop = ExecutionHistory.getInstance().getPopulation(generationId);
+		Population <Solution> pop = ExecutionHistory.getInstance().getPopulation(generationId);
 		
 		progressMonitor.setMaximum(pop.size());
 

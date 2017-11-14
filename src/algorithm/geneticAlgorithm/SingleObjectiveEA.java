@@ -8,42 +8,12 @@ import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.geneticAlgorithm.solutions.Solution;
 import problems.Problem;
 
-public class SingleObjectiveEA extends EA{
-	protected Comparator <Solution> comp;
-	protected int popSize;
+public class SingleObjectiveEA <S extends Solution> extends EA <S>{
+	protected Comparator <S> comp;
 	
-	public static class Builder{
-		private final Comparator <Solution> comp;
-		private final Problem problem;
-		private final SelectionOperator selection;
-		private final CrossoverOperator crossover;
-		private final MutationOperator mutation;
-		
-		private int popSize = 100;
-		
-		public Builder(Problem problem, Comparator <Solution> comp, SelectionOperator selection, CrossoverOperator crossover, MutationOperator mutation){
-			this.problem = problem;
-			this.comp = comp;
-			this.selection = selection;
-			this.crossover = crossover;
-			this.mutation = mutation; 
-		}
-		
-		public Builder popSize(int val){
-			this.popSize = val;
-			return this;
-		}
-		
-		public SingleObjectiveEA build(){
-			return new SingleObjectiveEA(this);
-		}
-	}
-	
-	private SingleObjectiveEA(Builder builder){
-		super(builder.problem, builder.selection, builder.crossover, builder.mutation);
-		this.popSize = builder.popSize;
-		population = problem.createPopulation(popSize);
-		comp = builder.comp;
+	public SingleObjectiveEA(Problem<S> p, int popSize, SelectionOperator so, CrossoverOperator<S> co, MutationOperator<S> mo, Comparator <S> comp){
+		super(p, popSize, so, co, mo);
+		this.comp = comp;
 	}
 	
 	/**
@@ -51,7 +21,7 @@ public class SingleObjectiveEA extends EA{
 	 * First popSize solutions are returned as new population.
 	 */
 	@Override
-	protected Population selectNewPopulation(Population pop) {
+	protected Population <S> selectNewPopulation(Population <S> pop) {
 		pop.getSolutions().sort(comp);
 		return new Population(pop.getSolutions().subList(0, popSize));
 	}

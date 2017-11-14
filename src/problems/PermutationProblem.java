@@ -3,9 +3,9 @@ package problems;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 
-public abstract class PermutationProblem extends Problem{
+public abstract class PermutationProblem extends Problem <VectorSolution <Integer>>{
 
 	/**
 	 * 
@@ -17,17 +17,17 @@ public abstract class PermutationProblem extends Problem{
 	}
 
 	@Override
-	public Solution createSolution() {
-		ArrayList <Double> permutation = new ArrayList<>();
+	public VectorSolution <Integer> createSolution() {
+		ArrayList <Integer> permutation = new ArrayList<>();
 		for(int i=0; i<numVariables;i++){
-			permutation.add((double) i);
+			permutation.add(i);
 		}
 		Collections.shuffle(permutation);
-		double var[] = new double[numVariables];
+		Integer var[] = new Integer[numVariables];
 		for(int i=0; i<numVariables;i++){
 			var[i] = permutation.get(i);
 		}
 		double obj[] = new double[numObjectives];
-		return new Solution(var, obj);
+		return new VectorSolution <Integer>(var, obj);
 	}
 }

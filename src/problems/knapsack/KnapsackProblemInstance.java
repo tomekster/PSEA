@@ -8,10 +8,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import artificialDM.AsfDM;
 import problems.AsfDmProblem;
 import problems.PermutationProblem;
+import problems.knapsack.structures.Knapsack;
 
 public class KnapsackProblemInstance extends PermutationProblem implements AsfDmProblem {
 	private ArrayList<Knapsack> knapsacks;
@@ -21,7 +22,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	 * Stores only objective values since only those are available. 
 	 * Variable field is set to NULL for all solutions. 
 	 */
-	private Population paretoFront = null;
+	private Population <VectorSolution<Integer>> paretoFront = null;
 	
 	public KnapsackProblemInstance(int numItems, int numKnapsacks, int numConstraints, String name) {
 		super(numItems, numKnapsacks, numConstraints, name);
@@ -34,7 +35,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	private static final long serialVersionUID = -5243231475354789750L;
 
 	@Override
-	public void evaluate(Solution solution) {
+	public void evaluate(VectorSolution <Integer> solution) {
 		for (int i = 0; i < solution.getNumObjectives(); i++) {
 			solution.setObjective(i, 0);
 		}
@@ -46,7 +47,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 																			// knapsack
 
 		boolean solutionFitsInAllKnapsacks = true;
-		for (double v : solution.getVariables()) {
+		for (Integer v : solution.getVariables()) {
 			for (int i = 0; i < knapsacks.size(); i++) {
 				Knapsack k = knapsacks.get(i);
 				if (k.get((int) v).getWeight() + totalWeights[i] > k.getMaxWeight()) {
@@ -70,8 +71,8 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	}
 
 	@Override
-	public Population getReferenceFront() {
-		Population refFront = new Population();
+	public Population <VectorSolution<Integer>> getReferenceFront() {
+		Population <VectorSolution<Integer>> refFront = new Population <>();
 		try (BufferedReader br = new BufferedReader(new FileReader(Paths
 				.get("/home/tomasz/Desktop/knapsack/", "knapsack." + numVariables + "." + numObjectives + ".pareto")
 				.toFile()))) {
@@ -87,7 +88,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 				}
 
 			}
-			refFront.addSolution(new Solution(obj.clone(), obj.clone()));
+			refFront.addSolution(new VectorSolution <Integer>(null, obj.clone()));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -101,9 +102,9 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	}
 
 	@Override
-	public Solution getOptimalAsfDmSolution(AsfDM dm) {
+	public VectorSolution <Integer> getOptimalAsfDmSolution(AsfDM dm) {
 		if(this.paretoFront == null){
-			this.paretoFront = new Population();
+			this.paretoFront = new Population <VectorSolution<Integer>>();
 			
 			//Read the data
 			try (BufferedReader br = new BufferedReader(
@@ -116,7 +117,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 					for (int i = 0; i < vals.length; i++) {
 						obj[i] = Integer.parseInt(vals[i]);
 					}
-					this.paretoFront.addSolution(new Solution(null, obj));
+					this.paretoFront.addSolution(new VectorSolution <Integer>(null, obj));
 				}
 				
 			} catch (FileNotFoundException e) {
@@ -128,14 +129,14 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 		
 		//Search for best solution for given ASF DM
 		double bestVal = Double.NEGATIVE_INFINITY;
-		Solution bestSol = null;
-		for(Solution s : paretoFront.getSolutions()){
+		VectorSolution <Integer> bestSol = null;
+		for(VectorSolution <Integer> s : paretoFront.getSolutions()){
 			double eval = dm.eval(s.getObjectives()); 
 			if ( eval < bestVal) {
 				bestVal = eval;
 				bestSol = s;
 			}
 		}
-		return new Solution(bestSol);
+		return new VectorSolution <Integer> (bestSol);
 	}
 }

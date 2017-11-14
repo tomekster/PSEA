@@ -41,14 +41,11 @@ public abstract class ArtificialDM implements Serializable, Comparator<Solution>
 		return numViolations == 0;
 	}
 	
-	public Solution getBestSolutionVal(Population pop){
+	public Solution getBestSolutionVal(Population <Solution> pop){
 		Stream<Solution> solutionStream = pop.getSolutions().stream();
 		Solution best = solutionStream.reduce((a,b)-> 
 		    eval(a) < eval(b) ? a:b
 		).get();
 		return best;
 	}
-	
-	@Override
-	public abstract int compare(Solution s1, Solution s2);
 }

@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.ejml.simple.SimpleMatrix;
 
@@ -22,7 +21,7 @@ import utils.math.structures.Interval;
 import utils.math.structures.Pair;
 
 public class GradientLambdaSearch {
-	private final static Logger LOGGER = Logger.getLogger(GradientLambdaSearch.class.getName());
+	//private final static Logger LOGGER = Logger.getLogger(GradientLambdaSearch.class.getName());
 	
 	int numObjectives;
 	SimpleMatrix M, Minv;
