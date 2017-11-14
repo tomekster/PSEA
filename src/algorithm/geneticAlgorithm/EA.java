@@ -15,17 +15,19 @@ import problems.Problem;
  * @author Tomasz
  *
  */
-public abstract class EA {
-	protected Problem problem;
-	protected Population population;
+public abstract class EA <S extends Solution>{
+	protected Problem <S> problem;
+	protected Population <S> population;
 	protected SelectionOperator selectionOperator;
-	protected CrossoverOperator crossoverOperator;
-	protected MutationOperator mutationOperator;
+	protected CrossoverOperator <S> crossoverOperator;
+	protected MutationOperator <S> mutationOperator;
 	protected int generation;
+	protected int popSize;
 	
-	protected EA(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator){
+	protected EA(Problem <S> problem, int popSize, SelectionOperator selectionOperator, CrossoverOperator <S> crossoverOperator, MutationOperator <S> mutationOperator){
 		this.generation = 0;
 		this.problem = problem;
+		this.popSize = popSize;
 		// Standard genetic operators used in evolutionary algorithms
 		this.selectionOperator = selectionOperator;
 		this.crossoverOperator = crossoverOperator;
@@ -45,9 +47,9 @@ public abstract class EA {
 		problem.evaluate(population);
 		generation++;
 		assert population.size() % 2 == 0;
-		Population offspring = createOffspring(population);
+		Population <S> offspring = createOffspring(population);
 				
-		Population combinedPopulation = new Population();
+		Population <S> combinedPopulation = new Population <>();
 
 		combinedPopulation.addSolutions(population);
 		combinedPopulation.addSolutions(offspring);
@@ -64,17 +66,17 @@ public abstract class EA {
 	 * @param population of solutions
 	 * @return offspring
 	 */
-	protected Population createOffspring(Population population) {
-		Population offspring = new Population();
-		Population matingPopulation = new Population();
+	protected Population <S> createOffspring(Population <S> population) {
+		Population <S> offspring = new Population<>();
+		Population <S> matingPopulation = new Population<>();
 		while (matingPopulation.size() < population.size()) {
-			matingPopulation.addSolution(selectionOperator.execute(population)); //Selecion operator returns deep copy of solution
+			matingPopulation.addSolution((S) selectionOperator.execute(population)); //Selecion operator returns deep copy of solution
 		}
 		for (int i = 0; i < population.size(); i += 2) {
-			ArrayList<Solution> parents = new ArrayList<Solution>(2);
+			ArrayList<S> parents = new ArrayList<S>(2);
 			parents.add(matingPopulation.getSolution(i));
 			parents.add(matingPopulation.getSolution(i + 1));
-			ArrayList<Solution> children = crossoverOperator.execute(parents);
+			ArrayList<S> children = crossoverOperator.execute(parents);
 
 			for(int j=0; j<3; j++){
 				mutationOperator.execute(children.get(0));
@@ -95,9 +97,9 @@ public abstract class EA {
 	 * @param pop - combined current population and offspring generated in current generation
 	 * @return population of selected solutions -> shallow copy! <-
 	 */
-	protected abstract Population selectNewPopulation(Population pop);
+	protected abstract Population <S> selectNewPopulation(Population <S> pop);
 	
-	public Population getPopulation(){
+	public Population <S> getPopulation(){
 		return population;
 	}
 
@@ -109,20 +111,28 @@ public abstract class EA {
 		this.selectionOperator = selectionOperator;
 	}
 
-	public CrossoverOperator getCrossoverOperator() {
+	public CrossoverOperator <S> getCrossoverOperator() {
 		return crossoverOperator;
 	}
 
-	public void setCrossoverOperator(CrossoverOperator crossoverOperator) {
+	public void setCrossoverOperator(CrossoverOperator <S> crossoverOperator) {
 		this.crossoverOperator = crossoverOperator;
 	}
 
-	public MutationOperator getMutationOperator() {
+	public MutationOperator <S> getMutationOperator() {
 		return mutationOperator;
 	}
 
-	public void setMutationOperator(MutationOperator mutationOperator) {
+	public void setMutationOperator(MutationOperator <S> mutationOperator) {
 		this.mutationOperator = mutationOperator;
+	}
+	
+	public int getPopSize(){
+		return popSize;
+	}
+	
+	public void setPopSize(int popSize){
+		this.popSize = popSize;
 	}
 
 }

@@ -2,7 +2,7 @@ package problems.dtlz;
 
 import java.util.Arrays;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 
 public class DTLZ1 extends DTLZHyperplaneParetoFront{
 
@@ -24,7 +24,7 @@ public class DTLZ1 extends DTLZHyperplaneParetoFront{
 	}
 
 	@Override
-	public void evaluate(Solution solution) {
+	public void evaluate(VectorSolution <Double> solution) {
 		int numberOfVariables = getNumVariables();
 		int numberOfObjectives = getNumObjectives();
 

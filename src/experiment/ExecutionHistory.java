@@ -16,9 +16,7 @@ import algorithm.nsgaiii.hyperplane.ReferencePoint;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
 import artificialDM.ArtificialDM;
-import artificialDM.ArtificialDM;
 import problems.Problem;
-import utils.math.structures.Pair;
 
 public class ExecutionHistory implements Serializable {
 	
@@ -49,8 +47,8 @@ public class ExecutionHistory implements Serializable {
 	private int numObjectives;
 	private int numLambdas;
 	
-	private Population targetPoints;
-	private ArrayList<Population> populations;
+	private Population <Solution> targetPoints;
+	private ArrayList<Population <Solution>> populations;
 	private ArrayList<ASFBundle> asfBundles;
 	private ArrayList <ArrayList<ReferencePoint> > hyperplanePoints;
 	private ArrayList<Solution> bestAdmSol;
@@ -60,23 +58,23 @@ public class ExecutionHistory implements Serializable {
 	private double finalMinDist;
 	private double finalAvgDist;
 	private int secondPhaseId;
-	private Problem problem;
+	private Problem <Solution> problem;
 	
 	private boolean lambdasConverged;
 	
-	public Population getTargetPoints() {
+	public Population <Solution> getTargetPoints() {
 		return targetPoints;
 	}
-	public void setTargetPoints(Population targetPoints) {
+	public void setTargetPoints(Population <Solution> targetPoints) {
 		this.targetPoints = targetPoints;
 	}
-	public ArrayList<Population> getPopulations() {
+	public ArrayList<Population <Solution> > getPopulations() {
 		return populations;
 	}
-	public void addGeneration(Population pop){
+	public void addGeneration(Population <Solution> pop){
 		this.populations.add(pop);
 	}
-	public Population getPopulation(int pos){
+	public Population <Solution> getPopulation(int pos){
 		return populations.get(pos);
 	}
 
@@ -179,7 +177,7 @@ public class ExecutionHistory implements Serializable {
 		hyperplanePoints.clear();
 	}
 
-	public void init(Problem problem, NSGAIII nsgaiii, ASFBundle asfBundle, ArtificialDM adm) {
+	public void init(Problem <Solution> problem, NSGAIII nsgaiii, ASFBundle asfBundle, ArtificialDM adm) {
 		clear();
 		setPopulationSize(nsgaiii.getPopulation().size());
 		setProblem(problem);
@@ -195,15 +193,15 @@ public class ExecutionHistory implements Serializable {
 		setNumPrefModels(asfBundle.size());
 	}
 
-	public void setProblem(Problem problem) {
+	public void setProblem(Problem <Solution> problem) {
 		this.problem = problem;
 	}
 	
-	public Problem getProblem(){
+	public Problem <Solution> getProblem(){
 		return this.problem;
 	}
 	
-	public void update(Population population, ASFBundle asfBundle, Hyperplane hp) {
+	public void update(Population <Solution> population, ASFBundle asfBundle, Hyperplane hp) {
 		addGeneration(population.copy());
 		ASFBundle asfBundleCopy = asfBundle.copy(); 
 		addAsfBundle(asfBundleCopy);

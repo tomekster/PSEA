@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.operators.impl.crossover.PermutationCrossover;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PermutationMutation;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.psea.PSEA;
 import artificialDM.ADMBuilder;
 import artificialDM.AsfDM;
@@ -33,7 +33,7 @@ public class KnapsackPseaExperiment {
 				
 				double bestVal = Double.MAX_VALUE;
 			    double bestObj[] = new double[problem.getNumObjectives()];
-			    for(Solution s : refFront.getSolutions()){
+			    for(VectorSolution s : refFront.getSolutions()){
 			    	if(asfRanker.eval(s.getObjectives()) < bestVal){
 			    		bestVal = asfRanker.eval(s.getObjectives());
 			    		bestObj = s.getObjectives().clone();

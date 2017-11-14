@@ -7,7 +7,7 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.operators.impl.crossover.PermutationCrossover;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PermutationMutation;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import artificialDM.AsfDM;
 import artificialDM.ADMBuilder;
 import problems.Problem;
@@ -35,7 +35,7 @@ public class SingleObjectiveExperiment {
 				double[] targetPoint;
 				double bestVal = Double.MAX_VALUE;
 			    double bestObj[] = new double[problem.getNumObjectives()];
-			    for(Solution s : refFront.getSolutions()){
+			    for(VectorSolution s : refFront.getSolutions()){
 			    	if(asfRanker.eval(s.getObjectives()) < bestVal){
 			    		bestVal = asfRanker.eval(s.getObjectives());
 			    		bestObj = s.getObjectives().clone();

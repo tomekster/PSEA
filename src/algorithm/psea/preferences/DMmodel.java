@@ -18,10 +18,10 @@ public class DMmodel implements Comparator<Solution>{
 		asfBundle = new ASFBundle(idealPoint);
 	}
 	
-	public Population sortSolutions(Population pop) {
+	public Population <Solution> sortSolutions(Population <Solution> pop) {
 		HashMap<Solution, Double> bordaPointsMap = getBordaPointsForSolutions(pop);
 		
-		ArrayList<Pair<Solution, Double>> pairs = new ArrayList<Pair<Solution, Double>>();
+		ArrayList<Pair<Solution, Double>> pairs = new ArrayList<>();
 
 		for (Solution s : bordaPointsMap.keySet()) {
 			pairs.add(new Pair<Solution, Double>(s, bordaPointsMap.get(s)));
@@ -34,14 +34,14 @@ public class DMmodel implements Comparator<Solution>{
 			}
 		});
 
-		Population res = new Population();
+		Population <Solution> res = new Population <Solution> ();
 		for (int i = 0; i < pairs.size(); i++) {
-			res.addSolution(new Solution(pairs.get(i).first));
+			res.addSolution( (Solution) pairs.get(i).first.copy());
 		}
 		return res;
 	}
 
-	public HashMap<Solution, Double> getBordaPointsForSolutions(Population pop) {
+	public HashMap<Solution, Double> getBordaPointsForSolutions(Population <Solution> pop) {
 		HashMap<Solution, Double> bordaPointsMap = new HashMap<>();
 		for(int i=0; i < pop.getSolutions().size(); i++){
 			bordaPointsMap.put(pop.getSolution(i), .0);

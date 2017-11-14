@@ -1,4 +1,4 @@
-package problems.knapsack;
+package problems.knapsack.structures;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package problems.knapsack;
+package problems.knapsack.structures;
 
 public class KnapsackItem {
 	private int id;

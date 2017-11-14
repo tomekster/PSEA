@@ -3,11 +3,11 @@ package algorithm.geneticAlgorithm.operators.impl.mutation;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.operators.MutationOperator;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import problems.ContinousProblem;
 import utils.math.MyRandom;
 
-public class PolynomialMutation implements MutationOperator <Double> {
+public class PolynomialMutation implements MutationOperator <VectorSolution<Double>> {
 
 	private static final double DEFAULT_DISTRIBUTION_INDEX = 20.0;
 	private double probability;
@@ -26,7 +26,7 @@ public class PolynomialMutation implements MutationOperator <Double> {
 		this.upperBound = upperBound;
 	}
 
-	public void execute(Solution <Double> solution) {
+	public void execute(VectorSolution <Double> solution) {
 		double rnd, delta1, delta2, mutPow, deltaq;
 		double y, yl, yu, val, xy;
 

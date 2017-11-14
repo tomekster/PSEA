@@ -2,8 +2,8 @@ package algorithm.geneticAlgorithm.operators;
 
 import algorithm.geneticAlgorithm.solutions.Solution;
 
-public interface MutationOperator <T extends Number> {
+public interface MutationOperator <S extends Solution> {
 
-	void execute(Solution <T> s);
+	void execute(S s);
 
 }

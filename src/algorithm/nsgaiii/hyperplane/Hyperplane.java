@@ -117,13 +117,13 @@ public class Hyperplane {
 		}
 	}
 	
-	public void associate(Population allButLastFront, Population lastFront){
+	public void associate(Population <Solution> allButLastFront, Population <Solution> lastFront){
 		resetAssociations();
 		associate(allButLastFront, false);
 		associate(lastFront, true);
 	}
 	
-	public void associate(Population population, boolean lastFront) {
+	public void associate(Population <Solution> population, boolean lastFront) {
 		for(Solution s : population.getSolutions()){
 			double minDist = Double.MAX_VALUE;
 			ReferencePoint bestRefPoint = null;

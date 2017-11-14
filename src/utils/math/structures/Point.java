@@ -1,7 +1,6 @@
 package utils.math.structures;
 
 public class Point {
-	private static final long serialVersionUID = -7245293372099881248L;
 	
 	double [] vals;
 	

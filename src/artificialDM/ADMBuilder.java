@@ -61,7 +61,7 @@ public class ADMBuilder{
 			break;
 		}
 		
-		direction = Geometry.normalizeSum1(direction);
+		direction = Geometry.normalizeSum(direction, 1);
 		return new AsfDM(refPoint, direction, name);
 	}
 	

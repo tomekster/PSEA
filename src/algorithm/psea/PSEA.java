@@ -8,31 +8,29 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
-import algorithm.geneticAlgorithm.operators.SelectionOperator;
-import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
-import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.nsgaiii.NSGAIII;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.psea.preferences.DMmodel;
 import algorithm.psea.preferences.Elicitator;
 import algorithm.psea.preferences.PreferenceCollector;
-import algorithm.psea.preferences.DMmodel;
 import algorithm.rankers.NonDominationRanker;
 import artificialDM.ArtificialDM;
 import experiment.ExecutionHistory;
-import problems.ContinousProblem;
 import problems.Problem;
+import utils.SOOIdealPointFinder;
 import utils.math.Geometry;
 import utils.math.structures.Pair;
 
-public class PSEA extends EA implements Runnable {
+public class PSEA <S extends Solution> extends EA <S> implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(PSEA.class.getName());
 
 	public static boolean assertions = true;
 
-	private Problem problem;
+	private Problem <Solution> problem;
 	private int populationSize;
 	private ArtificialDM adm;
 	private int generation;
@@ -44,20 +42,20 @@ public class PSEA extends EA implements Runnable {
 	private int maxExploitationComparisons=0;
 	private DMmodel dmModel;
 	
-	public PSEA(Problem problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp, CrossoverOperator co, MutationOperator mo) {
+	public PSEA(Problem <Solution> problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp, CrossoverOperator <Solution> co, MutationOperator <Solution> mo) {
 		this(problem,adm,co,mo);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
 	}
 	
-	public PSEA(Problem problem, ArtificialDM adm, CrossoverOperator co, MutationOperator mo) {
+	public PSEA(Problem <Solution> problem, ArtificialDM adm, CrossoverOperator <Solution> co, MutationOperator <Solution> mo) {
 		super(  problem,
 				new BinaryTournament(null), //Replaced below
 				co,
 				mo
 				);
-		this.dmModel = new DMmodel(problem.findIdealPoint(co, mo));
-		this.setSelectionOperator(new BinaryTournament(dmModel));
+		this.dmModel = new DMmodel(SOOIdealPointFinder.findIdealPoint(co, mo));
+		this.setSelectionOperator(new BinaryTournament <N> (dmModel));
 
 		this.nsgaiii = new NSGAIII(	problem, 
 				new BinaryTournament(new NonDominationRanker()),
@@ -131,7 +129,7 @@ public class PSEA extends EA implements Runnable {
 			ExecutionHistory.getInstance().update(nsgaiii.getPopulation(), dmModel.getAsfBundle(), nsgaiii.getHyperplane());
 			this.population = nsgaiii.getPopulation();
 			double bestVal = Double.MAX_VALUE;
-			for(Solution s : population.getSolutions()){
+			for(VectorSolution <? extends Number> s : population.getSolutions()){
 				bestVal = Double.min(bestVal, adm.eval(s));
 			}
 			System.out.println(i + ": " + bestVal);
@@ -151,7 +149,7 @@ public class PSEA extends EA implements Runnable {
 			
 			ExecutionHistory.getInstance().update(population, dmModel.getAsfBundle(), nsgaiii.getHyperplane());
 			double bestVal = Double.MAX_VALUE;
-			for(Solution s : population.getSolutions()){
+			for(VectorSolution s : population.getSolutions()){
 				bestVal = Double.min(bestVal, adm.eval(s));
 			}
 			System.out.println(i + ": " + bestVal);
@@ -176,7 +174,7 @@ public class PSEA extends EA implements Runnable {
 			ExecutionHistory.getInstance().update(so.getPopulation(), dmModel.getAsfBundle(), nsgaiii.getHyperplane());
 			this.population = so.getPopulation();
 			double bestVal = Double.MAX_VALUE;
-			for(Solution s : population.getSolutions()){
+			for(VectorSolution s : population.getSolutions()){
 				bestVal = Double.min(bestVal, adm.eval(s));
 			}
 			System.out.println(i + ": " + bestVal);
@@ -207,7 +205,7 @@ public class PSEA extends EA implements Runnable {
 		
 		int maxDiscriminativePower = 0, maxZeroDiscriminativePower = 5, numZeroDiscriminativePower = 0;
 
-		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
+		Pair <VectorSolution, VectorSolution> p = new Pair<VectorSolution, VectorSolution>(null,null);
 		
 		//Elicitate while population is well spread
 		while(numZeroDiscriminativePower < maxZeroDiscriminativePower && explorationComparisons < maxExplorationComparisons){
@@ -240,7 +238,7 @@ public class PSEA extends EA implements Runnable {
 	
 	private void exploit() {
 		//Guide evolution with generated model until it converges
-		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
+		Pair <VectorSolution, VectorSolution> p = new Pair<VectorSolution, VectorSolution>(null,null);
 		int maxDiscriminativePOwer = 0;
 		
 		double maxDist;
@@ -278,7 +276,7 @@ public class PSEA extends EA implements Runnable {
 	private void shrinkHyperplane(){
 		int lastImprovedGen = generation, maxNumGenWithNoImprovment = 50, maxDiscriminativePower;
 		double size=1.0, maxSpread = 0, currentSpread, maxDist;
-		Pair <Solution, Solution> p = new Pair<Solution, Solution>(null,null);
+		Pair <VectorSolution, VectorSolution> p = new Pair<VectorSolution, VectorSolution>(null,null);
 		
 		while(true){
 			if(size < 0.01 || generation >= 1500){

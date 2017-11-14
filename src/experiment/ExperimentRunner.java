@@ -13,7 +13,7 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.SingleObjectiveEA;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.psea.PSEA;
 import algorithm.psea.preferences.ASFBundle;
 import algorithm.psea.preferences.PreferenceCollector;
@@ -95,10 +95,10 @@ public class ExperimentRunner {
 		for(int i=0; i<=numGen; i++){
 			
 			//ChebDist
-			minChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).min().getAsDouble());
-			avgChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((Solution)s)).sum()/so.getPopulation().size());
+			minChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((VectorSolution)s)).min().getAsDouble());
+			avgChebDist.add(Arrays.stream(so.getPopulation().getSolutions().toArray()).mapToDouble(s-> cr.eval((VectorSolution)s)).sum()/so.getPopulation().size());
 			double var [] = new double[0];
-			modelChebDist.add(cr.eval(new Solution(var, p.getTargetAsfPoint(cr.getLambda()))));
+			modelChebDist.add(cr.eval(new VectorSolution(var, p.getTargetAsfPoint(cr.getLambda()))));
 			
 			//EuclidianDist
 			minEucDist.add(Geometry.getMinDist(p.getTargetAsfPoint(cr.getLambda()), so.getPopulation()));

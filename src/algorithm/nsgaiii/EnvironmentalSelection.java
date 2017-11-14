@@ -17,10 +17,11 @@ import utils.math.Geometry;
  * Class encapsulates "selectKPoints" method from NSGA-III algorithm 
  */
 public class EnvironmentalSelection {
-	public static Population selectKPoints(int numObjectives, Population allButLastFront, Population lastFront, 
+	
+	public static Population <Solution> selectKPoints(int numObjectives, Population <Solution> allButLastFront, Population <Solution> lastFront, 
 			int k, Hyperplane hyperplane){
 		
-		Population allFronts = new Population();
+		Population <Solution> allFronts = new Population<>();
 		allFronts.addSolutions(allButLastFront);
 		allFronts.addSolutions(lastFront);
 		
@@ -34,7 +35,7 @@ public class EnvironmentalSelection {
 		return niching(allButLastFront, lastFront, k, hyperplane);
 	}
 
-	public static void normalize(int numObjectives, Population allFronts) {
+	public static void normalize(int numObjectives, Population <Solution> allFronts) {
 		double z_min[] = new double[numObjectives];
 		
 		for(int i=0; i<numObjectives; i++){
@@ -57,11 +58,11 @@ public class EnvironmentalSelection {
 		}
 	}
 	
-	private static double[] alternativeInvertedIntercepts(int numObjectives, Population allFronts){
+	private static double[] alternativeInvertedIntercepts(int numObjectives, Population <Solution> allFronts){
 		return Geometry.invert(findWorstObjectives(numObjectives, allFronts));
 	}
 
-	private static double[] findWorstObjectives(int numObjectives, Population allFronts) {
+	private static double[] findWorstObjectives(int numObjectives, Population <Solution> allFronts) {
 		double res[] = new double[numObjectives];
 		for(int i=0; i<numObjectives; i++){
 			final int j = i;
@@ -70,8 +71,8 @@ public class EnvironmentalSelection {
 		return res;
 	}
 
-	private static double[] findInvertedIntercepts(int numObjectives, Population allFronts){
-		Population extremePoints = computeExtremePoints(allFronts, numObjectives);
+	private static double[] findInvertedIntercepts(int numObjectives, Population <Solution> allFronts){
+		Population <Solution> extremePoints = computeExtremePoints(allFronts, numObjectives);
 		
 		int n = extremePoints.size();
 
@@ -123,8 +124,8 @@ public class EnvironmentalSelection {
 		return coef;
 	}
 
-	private static Population niching(Population allButLastFront, Population lastFront, int K, Hyperplane hyperplane) {
-		Population kPoints = new Population();
+	private static Population <Solution> niching(Population <Solution> allButLastFront, Population <Solution> lastFront, int K, Hyperplane hyperplane) {
+		Population <Solution> kPoints = new Population <> ();
 		
 		int totalNicheCount=0, totalLastFrontCount=0;
 		
@@ -156,11 +157,11 @@ public class EnvironmentalSelection {
 		return kPoints;
 	}
 
-	private static Population computeExtremePoints(Population population, int numObjectives) {
-		Population extremePoints = new Population();
+	private static Population <Solution> computeExtremePoints(Population <Solution> population, int numObjectives) {
+		Population <Solution> extremePoints = new Population <> ();
 		for (int i = 0; i < numObjectives; i++) {
 			final int j = i;
-			extremePoints.addSolution(population.getSolutions().stream().min(Comparator.comparing(s -> ASF( ((Solution)s).getObjectives(), j))).get());
+			extremePoints.addSolution(population.getSolutions().stream().min(Comparator.comparing(s -> ASF(s.getObjectives(), j))).get());
 		}
 		return extremePoints;
 	}

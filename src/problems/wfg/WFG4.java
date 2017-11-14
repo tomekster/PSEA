@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 
 /**
  * This class implements the WFG4 problem
@@ -139,7 +139,8 @@ public class WFG4 extends WFG {
    * @param solution The solution to evaluate
    * @throws org.uma.jmetal.util.JMetalException
    */
-  public void evaluate(Solution solution) {
+  @Override
+  public void evaluate(VectorSolution <Double> solution) {
     double[] variables = new double[this.getNumVariables()];
     double[] x = new double[getNumVariables()];
 

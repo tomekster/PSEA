@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import problems.dtlz.DTLZ1;
 
 public class DTLZ1Test {
@@ -26,7 +26,7 @@ public class DTLZ1Test {
 	@Test
 	public void createSolutionTest(){
 		Problem p = new DTLZ1(7);
-		Solution s = p.createSolution();
+		VectorSolution s = p.createSolution();
 		assertEquals(s.getNumVariables(), p.getNumVariables());
 		for(int i=0; i< p.getNumVariables(); i++){
 			assertTrue(s.getVariable(i) <= p.getUpperBound(i));

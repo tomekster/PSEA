@@ -16,11 +16,11 @@ public class NonDominationRanker implements Comparator<Solution>{
 	 * @param population
 	 * @return ArrayList of Populations representing non-dominated-fronts F_1, F_2, ..., F_n
 	 */
-	public static ArrayList<Population> sortPopulation(Population population) {
-		ArrayList<Population> fronts = new ArrayList<Population>();
+	public static ArrayList<Population <Solution> > sortPopulation(Population <Solution> population) {
+		ArrayList<Population <Solution>> fronts = new ArrayList<Population <Solution> >();
 		ArrayList<Integer> front = new ArrayList<Integer>();
 		ArrayList<Integer> nextFront = new ArrayList<Integer>();
-		Population Q = new Population();
+		Population <Solution> Q = new Population <>();
 
 		// dominatedBySolutions[i] = list of solutions that dominate solution i
 		ArrayList<ArrayList<Integer>> dominatedBySolutions = new ArrayList<ArrayList<Integer>>();
@@ -57,7 +57,7 @@ public class NonDominationRanker implements Comparator<Solution>{
 			fronts.add(Q);
 			front = nextFront;
 			nextFront = new ArrayList<Integer>();
-			Q = new Population();
+			Q = new Population <Solution>();
 			for (int i : front) {
 				for (int q : dominatedBySolutions.get(i)) {
 					dominationCount[q]--;

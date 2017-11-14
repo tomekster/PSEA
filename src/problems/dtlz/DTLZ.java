@@ -1,6 +1,6 @@
 package problems.dtlz;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import problems.AsfDmProblem;
 import problems.ContinousProblem;
 
@@ -16,5 +16,5 @@ public abstract class DTLZ extends ContinousProblem implements AsfDmProblem{
 	}
 
 	@Override
-	public abstract void evaluate(Solution solution);
+	public abstract void evaluate(VectorSolution <Double> solution);
 }

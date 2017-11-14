@@ -10,20 +10,21 @@ import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
 import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
 import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.rankers.NonDominationRanker;
 import problems.ContinousProblem;
 import problems.Problem;
 
-public class NSGAIII extends EA {
+public class NSGAIII <S extends Solution> extends EA <S> {
 	
 	// Hyperplane is one of core objects used in NSGA-III algorithm. It is responsible 
 	// for keeping solutions uniformly spread among objective space.
 	private Hyperplane hyperplane;
 	private int populationSize;
 
-	public NSGAIII(Problem problem, SelectionOperator selectionOperator, CrossoverOperator crossoverOperator, MutationOperator mutationOperator) {
-		super(  problem, selectionOperator, crossoverOperator, mutationOperator);
+	public NSGAIII(Problem <S> problem, int popSize, SelectionOperator selectionOperator, CrossoverOperator <S> crossoverOperator, MutationOperator <S> mutationOperator) {
+		super(  problem, popSize, selectionOperator, crossoverOperator, mutationOperator);
 		this.problem = problem;
 		this.hyperplane = new Hyperplane(problem.getNumObjectives());
 		
@@ -32,14 +33,6 @@ public class NSGAIII extends EA {
 		this.populationSize = hyperplane.getReferencePoints().size();
 		this.populationSize += this.populationSize % 2;
 		this.population = problem.createPopulation(populationSize);
-	}
-
-	public NSGAIII(Problem problem) {
-		this(problem,
-			new BinaryTournament(new NonDominationRanker()),
-			new SBX((ContinousProblem)problem),
-			new PolynomialMutation((ContinousProblem)problem)
-		);
 	}
 
 	/**
@@ -51,9 +44,9 @@ public class NSGAIII extends EA {
 	 *  from p-th front using EnvironmentalSelection procedure.
 	 */
 	@Override
-	public Population selectNewPopulation(Population pop) {
+	public Population <S> selectNewPopulation(Population <S> pop) {
 		assert pop.size() == 2*populationSize;
-		ArrayList<Population> fronts = NonDominationRanker.sortPopulation(pop);
+		ArrayList<Population <S>> fronts = NonDominationRanker.sortPopulation(pop);
 		
 		Population allButLastFront = new Population();
 		Population lastFront = new Population();
