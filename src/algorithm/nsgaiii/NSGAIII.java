@@ -7,13 +7,9 @@ import algorithm.geneticAlgorithm.Population;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
 import algorithm.geneticAlgorithm.operators.SelectionOperator;
-import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
-import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
-import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
 import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.rankers.NonDominationRanker;
-import problems.ContinousProblem;
 import problems.Problem;
 
 public class NSGAIII <S extends Solution> extends EA <S> {
@@ -24,7 +20,7 @@ public class NSGAIII <S extends Solution> extends EA <S> {
 	private int populationSize;
 
 	public NSGAIII(Problem <S> problem, int popSize, SelectionOperator selectionOperator, CrossoverOperator <S> crossoverOperator, MutationOperator <S> mutationOperator) {
-		super(  problem, popSize, selectionOperator, crossoverOperator, mutationOperator);
+		super(problem, popSize, selectionOperator, crossoverOperator, mutationOperator);
 		this.problem = problem;
 		this.hyperplane = new Hyperplane(problem.getNumObjectives());
 		
@@ -46,12 +42,12 @@ public class NSGAIII <S extends Solution> extends EA <S> {
 	@Override
 	public Population <S> selectNewPopulation(Population <S> pop) {
 		assert pop.size() == 2*populationSize;
-		ArrayList<Population <S>> fronts = NonDominationRanker.sortPopulation(pop);
+		ArrayList<Population <S>> fronts = (ArrayList<Population<S>>) NonDominationRanker.sortPopulation(pop);
 		
-		Population allButLastFront = new Population();
-		Population lastFront = new Population();
+		Population <S> allButLastFront = new Population<>();
+		Population <S> lastFront = new Population<>();
 		
-		for (Population front : fronts) {
+		for (Population <S> front : fronts) {
 			if (allButLastFront.size() + front.size() > populationSize) {
 				lastFront = front;
 				break;
@@ -69,9 +65,9 @@ public class NSGAIII <S extends Solution> extends EA <S> {
 		}
 	}
 
-	private Population chooseSolutionsFromLastFront(Population allButLastFront, Population lastFront) {
+	private Population <S> chooseSolutionsFromLastFront(Population <S> allButLastFront, Population <S> lastFront) {
 		int K = populationSize - allButLastFront.size();
-		Population kPoints = EnvironmentalSelection.selectKPoints(problem.getNumObjectives(), allButLastFront, lastFront, K, hyperplane);
+		Population <S> kPoints = EnvironmentalSelection.selectKPoints(problem.getNumObjectives(), allButLastFront, lastFront, K, hyperplane);
 		assert kPoints.size() == K; 
 		assert K + allButLastFront.size() == populationSize; 
 		allButLastFront.addSolutions(kPoints);

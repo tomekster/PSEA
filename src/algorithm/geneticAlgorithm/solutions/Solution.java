@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 
 import utils.Copyable;
 
-public abstract class Solution implements Comparable <Solution>, Copyable{
+public class Solution implements Comparable <Solution>, Copyable{
 	protected double[] obj;
 	protected boolean dominated;
 	
@@ -83,5 +83,11 @@ public abstract class Solution implements Comparable <Solution>, Copyable{
 		if(s1Dominates == s2Dominates) return 0;
 		else if(s1Dominates == true) return -1;
 		else return 1;
+	}
+
+	@Override
+	public Copyable copy() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

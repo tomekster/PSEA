@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import artificialDM.AsfDM;
 import problems.AsfDmProblem;
@@ -71,8 +72,8 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	}
 
 	@Override
-	public Population <VectorSolution<Integer>> getReferenceFront() {
-		Population <VectorSolution<Integer>> refFront = new Population <>();
+	public Population <Solution> getReferenceFront() {
+		Population <Solution> refFront = new Population <>();
 		try (BufferedReader br = new BufferedReader(new FileReader(Paths
 				.get("/home/tomasz/Desktop/knapsack/", "knapsack." + numVariables + "." + numObjectives + ".pareto")
 				.toFile()))) {

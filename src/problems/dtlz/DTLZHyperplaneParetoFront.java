@@ -3,6 +3,7 @@ package problems.dtlz;
 import java.util.ArrayList;
 
 import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
@@ -21,17 +22,17 @@ public abstract class DTLZHyperplaneParetoFront extends DTLZ {
 		super(numVariables, numObjectives, numConstraints, name);
 	}
 	@Override
-	public final VectorSolution getOptimalAsfDmSolution(AsfDM dm) {
-		return new VectorSolution(null, Geometry.lineCrossHyperplanePoint(dm.getAsfLine(), HYPERPLANE_CONST).getDim());
+	public final VectorSolution <Double> getOptimalAsfDmSolution(AsfDM dm) {
+		return new VectorSolution <Double> (null, Geometry.lineCrossHyperplanePoint(dm.getAsfLine(), HYPERPLANE_CONST).getDim());
 	}
 	
 	@Override
-	public Population getReferenceFront(){
-		Population res = new Population();
+	public Population <Solution> getReferenceFront(){
+		Population <Solution> res = new Population<>();
 		Hyperplane h = new Hyperplane(getNumObjectives());
 		ArrayList <ReferencePoint> rp = h.getReferencePoints();
 		for(ReferencePoint r : rp){
-			res.addSolution(new VectorSolution(null, Geometry.normalizeSum(r.getDim(), 0.5)));
+			res.addSolution(new VectorSolution <Double>(null, Geometry.normalizeSum(r.getDim(), 0.5)));
 		}
 		return res;
 	}

@@ -69,5 +69,5 @@ public abstract class Problem <S extends Solution> implements Serializable {
 		this.numObjectives = numObjectives;
 	}
 	
-	public abstract Population <S> getReferenceFront();
+	public abstract Population <Solution> getReferenceFront();
 }

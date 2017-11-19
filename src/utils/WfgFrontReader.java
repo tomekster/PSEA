@@ -10,19 +10,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import problems.wfg.WFG;
 
 public class WfgFrontReader {
 
 	private static final String DIR = "ReferenceParetoFronts";
 
-	public static Population < VectorSolution <Double> > getFront(WFG problem) {
+	public static Population <Solution> getFront(WFG problem) {
 		String subdir = "";
 		int numObj = problem.getNumObjectives(); 
 		subdir = "WFG." + numObj + "D";
 		Path path = Paths.get(DIR, subdir, problem.getName() + "." + numObj + "D.pf");
-		Population <VectorSolution <Double> > pop = new Population <VectorSolution<Double>> ();
+		Population <Solution > pop = new Population <>();
 		System.out.println(path.toString());
 		try (Stream<String> lines = Files.lines(path)) {
 			List<List<Double>> data = lines
@@ -38,7 +38,7 @@ public class WfgFrontReader {
 					obj[i] = l.get(i);
 				}
 				
-				pop.addSolution(new VectorSolution <Double> (null, obj));
+				pop.addSolution(new Solution(obj));
 			}
 		} catch (IOException ex) {
 

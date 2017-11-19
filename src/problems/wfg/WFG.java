@@ -26,6 +26,7 @@ import java.util.Comparator;
 import java.util.Random;
 
 import algorithm.geneticAlgorithm.Population;
+import algorithm.geneticAlgorithm.solutions.Solution;
 import algorithm.geneticAlgorithm.solutions.VectorSolution;
 import algorithm.nsgaiii.hyperplane.Hyperplane;
 import algorithm.nsgaiii.hyperplane.ReferencePoint;
@@ -152,7 +153,7 @@ public abstract class WFG extends ContinousProblem{
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Population <VectorSolution<Double>> getReferenceFront(){
+	public Population <Solution> getReferenceFront(){
 		Hyperplane h = new Hyperplane(this.getNumObjectives());
 		ArrayList <ReferencePoint> rp = h.getReferencePoints();
 		for(int i=0; i<rp.size(); i++){
@@ -161,8 +162,8 @@ public abstract class WFG extends ContinousProblem{
 			dim[1] *= 4;
 			dim[2] *= 6;
 		}
-		Population <VectorSolution<Double>> front = WfgFrontReader.getFront(this);
-		Population <VectorSolution<Double>> res = new Population <> ();
+		Population <Solution> front = WfgFrontReader.getFront(this);
+		Population <Solution> res = new Population <> ();
 		for(ReferencePoint r : rp){
 			res.addSolution(
 					front.getSolutions()

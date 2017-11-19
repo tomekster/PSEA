@@ -30,25 +30,22 @@ public class PSEA <S extends Solution> extends EA <S> implements Runnable {
 
 	public static boolean assertions = true;
 
-	private Problem <Solution> problem;
-	private int populationSize;
 	private ArtificialDM adm;
-	private int generation;
-	private NSGAIII nsgaiii;
+	private DMmodel dmModel;
+	private NSGAIII <S> nsgaiii;
 	private double spreadThreshold = 0.95;
 	private int explorationComparisons;
 	private int exploitationComparisons;
 	private int maxExplorationComparisons=0;
 	private int maxExploitationComparisons=0;
-	private DMmodel dmModel;
 	
-	public PSEA(Problem <Solution> problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp, CrossoverOperator <Solution> co, MutationOperator <Solution> mo) {
+	public PSEA(Problem <S> problem, ArtificialDM adm, int maxExplorCom, int maxExploitComp, CrossoverOperator <S> co, MutationOperator <S> mo) {
 		this(problem,adm,co,mo);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
 	}
 	
-	public PSEA(Problem <Solution> problem, ArtificialDM adm, CrossoverOperator <Solution> co, MutationOperator <Solution> mo) {
+	public PSEA(Problem <S> problem, ArtificialDM adm, CrossoverOperator <S> co, MutationOperator <S> mo) {
 		super(  problem,
 				new BinaryTournament(null), //Replaced below
 				co,
@@ -64,7 +61,7 @@ public class PSEA <S extends Solution> extends EA <S> implements Runnable {
 									);		
 		
 		this.population = nsgaiii.getPopulation();
-		this.populationSize = population.size();
+		this.popSize = population.size();
 		
 		// Parameters of algorithm execution
 		this.problem = problem;

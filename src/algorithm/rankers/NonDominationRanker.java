@@ -16,8 +16,8 @@ public class NonDominationRanker implements Comparator<Solution>{
 	 * @param population
 	 * @return ArrayList of Populations representing non-dominated-fronts F_1, F_2, ..., F_n
 	 */
-	public static ArrayList<Population <Solution> > sortPopulation(Population <Solution> population) {
-		ArrayList<Population <Solution>> fronts = new ArrayList<Population <Solution> >();
+	public static ArrayList<? extends Population <? extends Solution> > sortPopulation(Population <? extends Solution> population) {
+		ArrayList<Population <? extends Solution>> fronts = new ArrayList<>();
 		ArrayList<Integer> front = new ArrayList<Integer>();
 		ArrayList<Integer> nextFront = new ArrayList<Integer>();
 		Population <Solution> Q = new Population <>();

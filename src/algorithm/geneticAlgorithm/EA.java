@@ -1,4 +1,4 @@
-	package algorithm.geneticAlgorithm;
+package algorithm.geneticAlgorithm;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public abstract class EA <S extends Solution>{
 	protected int generation;
 	protected int popSize;
 	
-	protected EA(Problem <S> problem, int popSize, SelectionOperator selectionOperator, CrossoverOperator <S> crossoverOperator, MutationOperator <S> mutationOperator){
+	public EA(Problem <S> problem, int popSize, SelectionOperator selectionOperator, CrossoverOperator <S> crossoverOperator, MutationOperator <S> mutationOperator){
 		this.generation = 0;
 		this.problem = problem;
 		this.popSize = popSize;
