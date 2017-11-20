@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.VectorSolution;
 
 public class PopulationTest {
 	@Test

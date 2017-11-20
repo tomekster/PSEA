@@ -1,6 +1,6 @@
 package problems.dtlz;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.VectorSolution;
 import utils.math.Geometry;
 
 public class DTLZ2 extends DTLZHypersphereParetoFront {

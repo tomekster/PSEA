@@ -5,7 +5,7 @@
  */
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.VectorSolution;
 
 /**
  * Creates a default WFG9 problem with

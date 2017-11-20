@@ -2,8 +2,9 @@ package problems;
 
 import java.io.Serializable;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import utils.enums.OptimizationType;
 
 public abstract class Problem <S extends Solution> implements Serializable {
 	/**
@@ -14,11 +15,13 @@ public abstract class Problem <S extends Solution> implements Serializable {
 	protected int numObjectives = 0;
 	protected String name = "Abstract Problem";
 	protected double[] idealPoint = null;
+	private OptimizationType optimizationType = null;
 
-	public Problem(int numVariables, int numObjectives, int numConstraints, String name) {
+	public Problem(int numVariables, int numObjectives, int numConstraints, String name, OptimizationType ot) {
 		this.numVariables = numVariables;
 		this.numObjectives = numObjectives;
 		this.name = name;
+		this.optimizationType = ot;
 	}
 
 	public abstract S createSolution();
@@ -70,4 +73,8 @@ public abstract class Problem <S extends Solution> implements Serializable {
 	}
 	
 	public abstract Population <Solution> getReferenceFront();
+
+	public OptimizationType getOptimizationType() {
+		return this.optimizationType ;
+	}
 }

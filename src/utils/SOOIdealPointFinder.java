@@ -1,25 +1,27 @@
 package utils;
 
-import algorithm.geneticAlgorithm.SingleObjectiveEA;
+import algorithm.evolutionary.SingleObjectiveEA;
+import algorithm.evolutionary.operators.impl.crossover.SBX;
+import algorithm.evolutionary.operators.impl.mutation.PolynomialMutation;
+import algorithm.evolutionary.operators.impl.selection.BinaryTournament;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.evolutionary.solutions.VectorSolution;
 import algorithm.geneticAlgorithm.operators.CrossoverOperator;
 import algorithm.geneticAlgorithm.operators.MutationOperator;
-import algorithm.geneticAlgorithm.operators.impl.crossover.SBX;
-import algorithm.geneticAlgorithm.operators.impl.mutation.PolynomialMutation;
-import algorithm.geneticAlgorithm.operators.impl.selection.BinaryTournament;
-import algorithm.geneticAlgorithm.solutions.Solution;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.geneticAlgorithm.operators.SelectionOperator;
 import problems.ContinousProblem;
 import problems.Problem;
 
 public class SOOIdealPointFinder {
 	
 	public static double[] findIdealPoint(ContinousProblem problem){
+		SelectionOperator so = new BinaryTournament();
 		CrossoverOperator <VectorSolution<Double>> co = new SBX(1.0, 30.0, problem.getLowerBounds(), problem.getUpperBounds());
 		MutationOperator <VectorSolution<Double>> mo = new PolynomialMutation(1.0 / problem.getNumVariables(), 20.0, problem.getLowerBounds(), problem.getUpperBounds());
-		return findIdealPoint(problem, co , mo);
+		return findIdealPoint(problem, so, co , mo);
 	}
 	
-	public static <S extends Solution> double[] findIdealPoint(Problem <S> p, CrossoverOperator <S> co, MutationOperator <S> mo){
+	public static <S extends Solution> double[] findIdealPoint(Problem <S> p, SelectionOperator so, CrossoverOperator <S> co, MutationOperator <S> mo){
 		double idealPoint[] = new double[p.getNumObjectives()];
 		
 		for(int i=0; i<idealPoint.length; i++){
@@ -27,10 +29,9 @@ public class SOOIdealPointFinder {
 		}
 			
 		for(int optimizedDim=0; optimizedDim < p.getNumObjectives(); optimizedDim++){
-			SingleObjectiveDM soDM = new SingleObjectiveDM(optimizedDim);
 			SingleObjectiveEA so = new SingleObjectiveEA(	
 				this,
-				new BinaryTournament(soDM),
+				
 				co,
 				mo,
 				soDM

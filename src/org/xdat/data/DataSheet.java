@@ -43,10 +43,10 @@ import org.xdat.chart.ParallelCoordinatesChart;
 import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import experiment.ExecutionHistory;
 
 /**

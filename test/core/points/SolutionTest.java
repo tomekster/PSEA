@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.VectorSolution;
 import utils.math.Geometry;
 
 public class SolutionTest {

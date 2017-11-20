@@ -1,6 +1,7 @@
 package problems;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.VectorSolution;
+import utils.enums.OptimizationType;
 import utils.math.MyRandom;
 
 public abstract class ContinousProblem extends Problem <VectorSolution<Double>>{
@@ -12,8 +13,8 @@ public abstract class ContinousProblem extends Problem <VectorSolution<Double>>{
 	protected double[] lowerBound;
 	protected double[] upperBound;
 	
-	public ContinousProblem(int numVariables, int numObjectives, int numConstraints, String name) {
-		super(numVariables, numObjectives, numConstraints, name);
+	public ContinousProblem(int numVariables, int numObjectives, int numConstraints, String name, OptimizationType ot) {
+		super(numVariables, numObjectives, numConstraints, name, ot);
 		this.lowerBound = new double[numVariables];
 		this.upperBound = new double[numVariables];
 		for (int i = 0; i < numVariables; i++) {

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
 import problems.wfg.WFG;
 
 public class WfgFrontReader {

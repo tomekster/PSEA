@@ -2,10 +2,10 @@ package experiment;
 
 import java.util.ArrayList;
 
-import algorithm.nsgaiii.hyperplane.Hyperplane;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import artificialDM.AsfDM;
-import artificialDM.ADMBuilder;
+import algorithm.evolutionary.interactive.artificialDM.ADMBuilder;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;

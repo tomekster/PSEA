@@ -2,7 +2,7 @@ package algorithm.rankers;
 
 import java.util.Comparator;
 
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
 
 public class ConstraintViolationRanker implements Comparator <AsfDM>{
 

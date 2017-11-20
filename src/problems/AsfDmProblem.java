@@ -1,7 +1,7 @@
 package problems;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.solutions.VectorSolution;
 
 public interface AsfDmProblem {
 	public VectorSolution <? extends Number> getOptimalAsfDmSolution(AsfDM dm);

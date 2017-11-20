@@ -3,7 +3,8 @@ package problems;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.VectorSolution;
+import utils.enums.OptimizationType;
 
 public abstract class PermutationProblem extends Problem <VectorSolution <Integer>>{
 
@@ -12,8 +13,8 @@ public abstract class PermutationProblem extends Problem <VectorSolution <Intege
 	 */
 	private static final long serialVersionUID = -8832150494745318938L;
 
-	public PermutationProblem(int numVariables, int numObjectives, int numConstraints, String name) {
-		super(numVariables, numObjectives, numConstraints, name);
+	public PermutationProblem(int numVariables, int numObjectives, int numConstraints, String name, OptimizationType ot) {
+		super(numVariables, numObjectives, numConstraints, name, ot);
 	}
 
 	@Override

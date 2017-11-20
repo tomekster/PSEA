@@ -21,8 +21,8 @@
 
 package problems.wfg;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.solutions.VectorSolution;
 import problems.AsfDmProblem;
 import utils.math.Geometry;
 

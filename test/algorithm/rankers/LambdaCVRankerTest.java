@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import algorithm.psea.AsfPreferenceModel;
+import algorithm.implementations.psea.AsfPreferenceModel;
 import algorithm.rankers.ConstraintViolationRanker;
 
 public class LambdaCVRankerTest {

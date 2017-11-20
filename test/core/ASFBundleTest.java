@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import algorithm.psea.AsfPreferenceModel;
-import algorithm.psea.preferences.DMmodel;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.psea.AsfPreferenceModel;
+import algorithm.implementations.psea.preferences.PreferenceModel;
 import utils.math.Geometry;
 
 public class ASFBundleTest {
@@ -39,7 +39,7 @@ public class ASFBundleTest {
 	@Test
 	public void buildSolutionRankingTest1() {
 		AsfPreferenceModel lambda = new AsfPreferenceModel(dim1);
-		ArrayList<VectorSolution> res = DMmodel.buildSolutionsRanking(lambda, pop);
+		ArrayList<VectorSolution> res = PreferenceModel.buildSolutionsRanking(lambda, pop);
 
 		Geometry.assertEqualDoubleArrays(obj3, res.get(0).getObjectives());
 		Geometry.assertEqualDoubleArrays(obj1, res.get(1).getObjectives());
@@ -49,7 +49,7 @@ public class ASFBundleTest {
 	@Test
 	public void buildSolutionRankingTest2() {
 		AsfPreferenceModel lambda = new AsfPreferenceModel(dim2);
-		ArrayList<VectorSolution> res = DMmodel.buildSolutionsRanking(lambda, pop);
+		ArrayList<VectorSolution> res = PreferenceModel.buildSolutionsRanking(lambda, pop);
 
 		Geometry.assertEqualDoubleArrays(obj1, res.get(0).getObjectives());
 		Geometry.assertEqualDoubleArrays(obj2, res.get(1).getObjectives());

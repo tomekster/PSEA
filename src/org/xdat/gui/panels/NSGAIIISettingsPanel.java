@@ -43,7 +43,7 @@ import org.xdat.gui.buttons.MinMaxSpinnerModel;
 import org.xdat.gui.dialogs.NSGAIIISettingsDialog;
 import org.xdat.gui.frames.ChartFrame;
 
-import algorithm.psea.PSEAParameters;
+import algorithm.implementations.psea.PSEAParameters;
 
 /**
  * Panel to modify display settings for a

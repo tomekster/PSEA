@@ -8,10 +8,10 @@ import java.util.Arrays;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import algorithm.nsgaiii.hyperplane.Hyperplane;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.Geometry;
 
 public class HyperplaneTest {

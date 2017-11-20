@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.VectorSolution;
 import algorithm.rankers.NonDominationRanker;
 
 public class NonDominatedSortTest {

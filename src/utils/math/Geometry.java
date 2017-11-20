@@ -11,10 +11,10 @@ import java.util.HashSet;
 
 import javax.management.RuntimeErrorException;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
-import algorithm.nsgaiii.hyperplane.Hyperplane;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.structures.Line;
 import utils.math.structures.Pair;
 import utils.math.structures.Point;

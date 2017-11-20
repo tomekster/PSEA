@@ -7,13 +7,14 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.evolutionary.solutions.VectorSolution;
 import problems.AsfDmProblem;
 import problems.PermutationProblem;
 import problems.knapsack.structures.Knapsack;
+import utils.enums.OptimizationType;
 
 public class KnapsackProblemInstance extends PermutationProblem implements AsfDmProblem {
 	private ArrayList<Knapsack> knapsacks;
@@ -26,7 +27,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	private Population <VectorSolution<Integer>> paretoFront = null;
 	
 	public KnapsackProblemInstance(int numItems, int numKnapsacks, int numConstraints, String name) {
-		super(numItems, numKnapsacks, numConstraints, name);
+		super(numItems, numKnapsacks, numConstraints, name, OptimizationType.MAXIMIZATION);
 		this.knapsacks = new ArrayList<>();
 	}
 

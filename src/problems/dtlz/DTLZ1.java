@@ -2,7 +2,7 @@ package problems.dtlz;
 
 import java.util.Arrays;
 
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
+import algorithm.evolutionary.solutions.VectorSolution;
 
 public class DTLZ1 extends DTLZHyperplaneParetoFront{
 

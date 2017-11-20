@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 
 public class PythonVisualizer {
 	
@@ -65,9 +65,9 @@ public class PythonVisualizer {
 		}
 	}
 
-	public static ArrayList<double[]> convert(Population pop) {
+	public static ArrayList<double[]> convert(Population <? extends Solution> pop) {
 		ArrayList <double[]> points = new ArrayList<>();
-		for(VectorSolution s : pop.getSolutions()){
+		for(Solution s : pop.getSolutions()){
 			points.add(s.getObjectives());
 		}
 		return points;

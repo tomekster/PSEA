@@ -25,13 +25,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Random;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import algorithm.nsgaiii.hyperplane.Hyperplane;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import problems.ContinousProblem;
 import utils.WfgFrontReader;
+import utils.enums.OptimizationType;
 import utils.math.Geometry;
 
 /**
@@ -72,7 +73,7 @@ public abstract class WFG extends ContinousProblem{
 	 *            Number of objectives
 	 */
 	public WFG(Integer k, Integer l, Integer M) {
-		super(k + l, M, 0, "WFG");
+		super(k + l, M, 0, "WFG", OptimizationType.MINIMIZATION);
 		this.k = k;
 		this.l = l;
 		this.m = M;

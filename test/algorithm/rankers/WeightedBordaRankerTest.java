@@ -6,10 +6,10 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import algorithm.psea.preferences.DMmodel;
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.psea.preferences.PreferenceModel;
 import utils.math.Geometry;
 
 public class WeightedBordaRankerTest {
@@ -30,7 +30,7 @@ public class WeightedBordaRankerTest {
 		double obj2[] = {2, 3, 1};
 		double obj3[] = {3, 1 ,2};
 		
-		DMmodel wbr = new DMmodel(new double[]{0,0,0});
+		PreferenceModel wbr = new PreferenceModel(new double[]{0,0,0});
 		wbr.getAsfBundle().setReferencePoint(referencePoint);
 		wbr.clearDMs();
 		

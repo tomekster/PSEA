@@ -2,12 +2,12 @@ package problems.dtlz;
 
 import java.util.ArrayList;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
-import algorithm.geneticAlgorithm.solutions.VectorSolution;
-import algorithm.nsgaiii.hyperplane.Hyperplane;
-import algorithm.nsgaiii.hyperplane.ReferencePoint;
-import artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
+import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.Geometry;
 
 public abstract class DTLZHypersphereParetoFront extends DTLZ{
