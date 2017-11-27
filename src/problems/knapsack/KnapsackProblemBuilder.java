@@ -32,14 +32,18 @@ public class KnapsackProblemBuilder {
 		String filename = "parsed_knapsack." + numItems + "." + numKnapsacks;
 		KnapsackProblemInstance kpi = new KnapsackProblemInstance(numItems, numKnapsacks, 0, filename);
 
-		try(BufferedReader br = new BufferedReader(new FileReader(Paths.get("/home/tomasz/Desktop/knapsack", filename).toFile()))) {
-		    assert numKnapsacks == readInteger(br);
-		    assert numItems == readDouble(br);
+		try(BufferedReader br = new BufferedReader(new FileReader(Paths.get("C:\\Users\\stern\\git\\PSEA\\benchmarks\\knapsack\\problemInstance", filename).toFile()))) {
+			int nk = readInteger(br);
+			int ni = readInteger(br);
+			
+		    assert numKnapsacks == nk;
+		    assert numItems == ni;
 		    
 		    for(int i=0; i<numKnapsacks; i++){
 		    	int knapsackId  = readInteger(br);
 		    	double knapsackMaxWeight = readDouble(br);
 		    	Knapsack k = new Knapsack(knapsackId, knapsackMaxWeight);
+		    	
 		    	int itemIds[] = readIntegerArray(br);
 		    	int itemWeights[] = readIntegerArray(br);
 		    	int itemProfits[] = readIntegerArray(br);

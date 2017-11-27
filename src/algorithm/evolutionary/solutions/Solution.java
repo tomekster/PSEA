@@ -15,6 +15,11 @@ public class Solution implements Copyable{
 		setDominated(false);
 	}
 	
+	public Solution(Solution s){
+		this.obj = s.getObjectives().clone();
+		setDominated(s.isDominated());
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();

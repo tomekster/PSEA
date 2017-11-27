@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.VectorSolution;
 import algorithm.implementations.psea.preferences.PreferenceModel;
@@ -34,9 +34,9 @@ public class WeightedBordaRankerTest {
 		wbr.getAsfBundle().setReferencePoint(referencePoint);
 		wbr.clearDMs();
 		
-		AsfDM asfDM1 = new AsfDM(referencePoint, lambda1);
-		AsfDM asfDM2 = new AsfDM(referencePoint, lambda2);
-		AsfDM asfDM3 = new AsfDM(referencePoint, lambda3);
+		AsfDm asfDM1 = new AsfDm(referencePoint, lambda1);
+		AsfDm asfDM2 = new AsfDm(referencePoint, lambda2);
+		AsfDm asfDM3 = new AsfDm(referencePoint, lambda3);
 		
 		asfDM1.setNumViolations(1);
 		asfDM2.setNumViolations(0);

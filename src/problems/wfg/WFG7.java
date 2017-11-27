@@ -21,7 +21,7 @@
 
 package problems.wfg;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.VectorSolution;
 import problems.AsfDmProblem;
 import utils.math.Geometry;
@@ -179,7 +179,7 @@ public class WFG7 extends WFG implements AsfDmProblem{
   }
 
 	@Override
-	public VectorSolution <Double> getOptimalAsfDmSolution(AsfDM dm) {
+	public VectorSolution <Double> getOptimalAsfDmSolution(AsfDm dm) {
 		return new VectorSolution <> (null, Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine(), HYPERSPHERE_CONST).getDim());
 	}
 }

@@ -43,7 +43,7 @@ import org.xdat.chart.ParallelCoordinatesChart;
 import org.xdat.customEvents.DataTableModelEvent;
 import org.xdat.exceptions.InconsistentDataException;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
@@ -273,7 +273,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(AsfDM asfDM : ExecutionHistory.getInstance().getAsfBundle(generationId).getAsfFunctions()){
+		for(AsfDm asfDM : ExecutionHistory.getInstance().getAsfBundle(generationId).getAsfFunctions()){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {
@@ -475,7 +475,7 @@ public class DataSheet implements TableModel, Serializable, ListModel {
 			this.designIdsMap.put(newDesign.getId(), newDesign);
 		}
 		
-		for(AsfDM asfDM : ExecutionHistory.getInstance().getAsfBundle(generationId).getAsfFunctions()){
+		for(AsfDm asfDM : ExecutionHistory.getInstance().getAsfBundle(generationId).getAsfFunctions()){
 			progressMonitor.setProgress(idCounter);
 			newDesign = new Design(idCounter++);
 			for (int i = 0; i < ExecutionHistory.getInstance().getNumObjectives(); i++) {

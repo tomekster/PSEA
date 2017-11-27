@@ -33,6 +33,7 @@ public abstract class EA <S extends Solution>{
 		this.selectionOperator = go.getSelectionOperator();
 		this.crossoverOperator = go.getCrossoverOperator();
 		this.mutationOperator = go.getMutationOperator();
+		this.population = problem.createPopulation(popSize);
 	}
 
 	/**

@@ -4,7 +4,7 @@ import java.util.stream.DoubleStream;
 
 import javax.swing.JOptionPane;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
@@ -16,11 +16,11 @@ public class Elicitator {
 	
 	//private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
 	
-	public static int elicitate(Population <? extends Solution> pop, AsfDM adm, ASFBundle asfBundle, Pair<Solution, Solution> p) {
+	public static int elicitate(Population <? extends Solution> pop, AsfDm adm, ASFBundle asfBundle, Pair<Solution, Solution> p) {
 		return getComparedSolutions(pop, asfBundle, p);
 	}
 
-	public static Comparison compare(AsfDM adm, Solution s1, Solution s2, int gen) {		
+	public static Comparison compare(AsfDm adm, Solution s1, Solution s2, int gen) {		
 		if (adm != null) {
 			int comparisonResult = adm.compare(s1, s2);
 			if (comparisonResult == -1) {

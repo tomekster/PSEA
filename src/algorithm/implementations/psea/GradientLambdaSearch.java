@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.ejml.simple.SimpleMatrix;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Solution;
 import utils.math.Geometry;
@@ -52,7 +52,7 @@ public class GradientLambdaSearch {
 	}
 	
 	void validateInterval(ASFBundle asfBundle, Interval interval, int CV, ArrayList <Comparison> pc){
-			ArrayList <AsfDM> asfDMs = new ArrayList<>();
+			ArrayList <AsfDm> asfDMs = new ArrayList<>();
 			double l1[] = interval.getL1();
 			double l2[] = interval.getL2();
 			asfDMs.add( asfBundle.createAsfDm(Geometry.linearCombination(l1, l2, 0.01 * interval.getBeg() + 0.99 * interval.getEnd())));
@@ -60,7 +60,7 @@ public class GradientLambdaSearch {
 			asfDMs.add( asfBundle.createAsfDm(Geometry.linearCombination(l1, l2, (interval.getBeg() + interval.getEnd()) / 2)));
 	
 			//Make sure that both endpoints and middle of interval have the same CV value
-			for(AsfDM adm : asfDMs){
+			for(AsfDm adm : asfDMs){
 				int eval = adm.verifyModel(pc);
 				if( eval != interval.getCV() || eval > CV){
 					System.out.println("Error! CV values are different!");
@@ -70,7 +70,7 @@ public class GradientLambdaSearch {
 			}
 	}
 	
-	private ArrayList <Interval> getImprovingIntervals(ASFBundle asfBundle, AsfDM adm, AsfDM bestAdm, ArrayList <Comparison> pc) {
+	private ArrayList <Interval> getImprovingIntervals(ASFBundle asfBundle, AsfDm adm, AsfDm bestAdm, ArrayList <Comparison> pc) {
 		ArrayList <Interval> intervals = new ArrayList<>();
 		int numDim = asfBundle.getReferencePoint().getNumDim();
 		double bestLambdaGrad[] = new double[numDim];
@@ -226,7 +226,7 @@ public class GradientLambdaSearch {
 			ArrayList <Line2D> upperEnvelope = Geometry.linesUpperEnvelope(lines);
 
 			//Check comparison for alpha=0 (linearCombination(lambda1, lambda2, 0) = lambda1) to properly initialize switches array
-			AsfDM asfDM = asfBundle.createAsfDm(l1);
+			AsfDm asfDM = asfBundle.createAsfDm(l1);
 			int zeroComparison =asfDM.compare(cp.getBetter(), cp.getWorse());
 			if(zeroComparison != 0){ res.add(new Pair<Double, Integer>(.0, -zeroComparison*(cpId+1)));}
 			addComparisonSwitchPoints(asfBundle, res, upperEnvelope, l1, l2, cpId, lines, pc);
@@ -252,7 +252,7 @@ public class GradientLambdaSearch {
 				else{ res.add(new Pair<Double, Integer>(crossX, cpId+1)); }
 				
 				if(PSEA.assertions){
-					AsfDM asfDM = asfBundle.createAsfDm(Geometry.linearCombination(l1, l2, crossX));
+					AsfDm asfDM = asfBundle.createAsfDm(Geometry.linearCombination(l1, l2, crossX));
 					Comparison cp = pc.get(cpId);
 					double M1 = asfDM.eval(cp.getBetter());
 					double M2 = asfDM.eval(cp.getWorse());
@@ -287,20 +287,20 @@ public class GradientLambdaSearch {
 		return lines;
 	}
 	
-	public ArrayList <AsfDM> improvePreferenceModels(ASFBundle asfBundle, ArrayList <Comparison> pc) {
-		ArrayList<AsfDM> asfDMs = asfBundle.getAsfDMs();
-		for(AsfDM asfDM : asfDMs) asfDM.verifyModel(pc);
-		AsfDM bestLambda = asfDMs.stream().min(Comparator.comparing(AsfDM::getNumViolations)).get();
+	public ArrayList <AsfDm> improvePreferenceModels(ASFBundle asfBundle, ArrayList <Comparison> pc) {
+		ArrayList<AsfDm> asfDMs = asfBundle.getAsfDMs();
+		for(AsfDm asfDM : asfDMs) asfDM.verifyModel(pc);
+		AsfDm bestLambda = asfDMs.stream().min(Comparator.comparing(AsfDm::getNumViolations)).get();
 //		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();
-		for(AsfDM lambda : asfDMs){
+		for(AsfDm lambda : asfDMs){
 			intervals.addAll(getImprovingIntervals(asfBundle, lambda, bestLambda, pc));	
 		}
 		return chooseBestLambdaSubset(asfBundle, intervals);
 		
 	}
 
-	private ArrayList<AsfDM> chooseBestLambdaSubset(ASFBundle asfBundle, ArrayList<Interval> intervals) {
+	private ArrayList<AsfDm> chooseBestLambdaSubset(ASFBundle asfBundle, ArrayList<Interval> intervals) {
 		Collections.sort(intervals);
 		int bestCV = intervals.get(0).getCV();
 		
@@ -311,7 +311,7 @@ public class GradientLambdaSearch {
 		}
 		
 		//TODO - for now pick random interval and random point, later it can be optimized for maximizing diversity
-		ArrayList <AsfDM> res = new ArrayList<>();
+		ArrayList <AsfDm> res = new ArrayList<>();
 //		LOGGER.log(Level.INFO, "Best interval CV: " + bestCV);
 		for(int i=0; i<asfBundle.size(); i++){
 			int id = MyRandom.getInstance().nextInt( bestIntervals.size());

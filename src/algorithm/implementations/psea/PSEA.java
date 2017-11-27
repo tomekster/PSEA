@@ -5,7 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import algorithm.evolutionary.EA;
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
@@ -43,7 +43,7 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 	private final boolean DEFAULT_ASF_DMS_MUTATION = false;
 	
 	//Parameters
-	private AsfDM adm;
+	private AsfDm adm;
 	private ASFBundle asfBundle;
 	private ArrayList <Comparison> pairwiseComparisons;
 	private double spreadThreshold;
@@ -60,7 +60,7 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 	private int asfBundleSize;
 	private boolean asfDMsMutation;
 	
-	public PSEA(Problem <S> problem, int popSize, AsfDM adm, EA.GeneticOperators<S> go, Point refPoint) {
+	public PSEA(Problem <S> problem, int popSize, AsfDm adm, EA.GeneticOperators<S> go, Point refPoint) {
 		super(problem, popSize, go);
 		
 		this.nsgaiii = new NSGAIII <S>(	problem,
@@ -96,7 +96,7 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		this.asfDMsMutation = DEFAULT_ASF_DMS_MUTATION;
 	}
 	
-	public PSEA(Problem <S> problem, int popSize, AsfDM adm, int maxExplorCom, int maxExploitComp, EA.GeneticOperators<S> go, Point refPoint) {
+	public PSEA(Problem <S> problem, int popSize, AsfDm adm, int maxExplorCom, int maxExploitComp, EA.GeneticOperators<S> go, Point refPoint) {
 		this(problem, popSize, adm, go, refPoint);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
@@ -106,12 +106,12 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		
 		private final String problemName;
 		private final int popSize;
-		private final AsfDM adm;
+		private final AsfDm adm;
 		private final EA.GeneticOperators<S> go;
 		
 		private 
 		
-		public Builder(String problemName, int popSize, AsfDM adm, EA.GeneticOperators<S> go){
+		public Builder(String problemName, int popSize, AsfDm adm, EA.GeneticOperators<S> go){
 			this.problemName = problemName;
 			this.popSize = popSize;
 			this.adm = adm;
@@ -239,11 +239,11 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		}while(generation < maxExploitGenerations);
 	}
 	
-	public AsfDM getAdm() {
+	public AsfDm getAdm() {
 		return adm;
 	}
 
-	public PSEA <S> setAdm(AsfDM adm) {
+	public PSEA <S> setAdm(AsfDm adm) {
 		this.adm = adm;
 		return this;
 	}
