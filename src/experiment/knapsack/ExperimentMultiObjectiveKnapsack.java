@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.ejml.alg.dense.mult.VectorVectorMult;
+
 import algorithm.evolutionary.EA;
-import algorithm.evolutionary.EA.GeneticOperators;
 import algorithm.evolutionary.SingleObjectiveEA;
+import algorithm.evolutionary.EA.GeneticOperators;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
 import algorithm.evolutionary.operators.CrossoverOperator;
@@ -18,13 +20,15 @@ import algorithm.evolutionary.operators.impl.selection.BinaryTournament;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.psea.PSEA;
 import problems.knapsack.KnapsackProblemBuilder;
 import problems.knapsack.KnapsackProblemInstance;
 import utils.comparators.NondominationComparator;
 import utils.enums.OptimizationType;
 import utils.math.structures.Point;
 
-public class ExperimentSingleObjectiveKnapsack {
+public class ExperimentMultiObjectiveKnapsack {
+
 		public static void main(String args[]) {
 		KnapsackProblemBuilder kpb = new KnapsackProblemBuilder();
 		
@@ -52,7 +56,8 @@ public class ExperimentSingleObjectiveKnapsack {
 		
 		AsfDm asfDM = AsfDmBuilder.getAsfDm(1, numKnapsacks, ideal, rho);
 		
-		SingleObjectiveEA< VectorSolution <Integer> > alg = new SingleObjectiveEA<>(kpi , popSize, go, asfDM);
+		PSEA.Builder <VectorSolution<Integer>>builder = new PSEA.Builder<VectorSolution<Integer>> (kpi, popSize, asfDM, go);
+		PSEA <VectorSolution<Integer>>alg = new PSEA<>(builder);
 		
 		System.out.println(pf);
 		
@@ -61,7 +66,7 @@ public class ExperimentSingleObjectiveKnapsack {
 		ArrayList <Double> bestAsf = new ArrayList<>();
 		ArrayList <Double> currentAsf = new ArrayList<>();
 		for(int i=0; i<numGenerations; i++) {
-			alg.run(1);
+			alg.run();
 			Population <VectorSolution<Integer> > pop = alg.getPopulation();
 			for(Solution s : pop.getSolutions()) {
 				currentAsf.add(asfDM.eval(s));

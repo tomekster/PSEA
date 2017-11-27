@@ -15,7 +15,6 @@ import problems.AsfDmProblem;
 import problems.PermutationProblem;
 import problems.knapsack.structures.Knapsack;
 import utils.enums.OptimizationType;
-import utils.math.structures.Point;
 
 public class KnapsackProblemInstance extends PermutationProblem implements AsfDmProblem {
 	

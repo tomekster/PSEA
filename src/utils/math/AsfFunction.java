@@ -26,8 +26,7 @@ public class AsfFunction {
 			res = Double.max(mult, res);
 			sum += mult;
 		}
-		//TODO
-		//res += sum * rho;
+		res += sum * rho;
 		return res;
 	}
 	
