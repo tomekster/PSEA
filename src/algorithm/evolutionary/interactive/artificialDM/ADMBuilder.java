@@ -2,18 +2,17 @@ package algorithm.evolutionary.interactive.artificialDM;
 
 import java.util.ArrayList;
 
-import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import utils.math.AsfFunction;
 import utils.math.Geometry;
+import utils.math.structures.Point;
 
 public class ADMBuilder{
-	public static AsfDM getAsfDm(int id, int dim, double ideal[]){
+	public static AsfDM getAsfDm(int id, int dim, double ideal[], double rho){
 		String name = "---";
-		double refPoint[] = new double[dim];
- 		if(ideal == null){
-			for(int i=0; i<dim; i++) refPoint[i]=0;
-		}
- 		else{
- 			refPoint = ideal.clone();
+		Point refPoint = new Point(dim);
+ 		
+ 		if(ideal != null){
+ 			refPoint = new Point(ideal.clone());
  		}
 		
 		double direction[] = new double[dim];
@@ -62,14 +61,14 @@ public class ADMBuilder{
 			break;
 		}
 		
-		direction = Geometry.normalizeSum(direction, 1);
-		return new AsfDM(refPoint, direction, name);
+		double lambda[] = Geometry.invert(Geometry.normalizeSum(direction, 1));
+		return new AsfDM(new AsfFunction(lambda, rho, refPoint), name);
 	}
 	
-	public static ArrayList<AsfDM> getAsfDms(int numObj, double ideal[]){
+	public static ArrayList<AsfDM> getAsfDms(int numObj, double ideal[], double rho){
 			ArrayList <AsfDM> rankersList = new ArrayList<>();
 			for(int id=1; id<=9; id++){
-				rankersList.add(getAsfDm(id, numObj, ideal));
+				rankersList.add(getAsfDm(id, numObj, ideal, rho));
 			}
 			return rankersList;
 	}

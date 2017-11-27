@@ -1,4 +1,4 @@
-package algorithm.evolutionary.interactive.elicitationModels.implementations;
+package algorithm.evolutionary.interactive.comparison;
 
 import java.io.Serializable;
 

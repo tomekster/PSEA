@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
@@ -133,7 +133,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 		double bestVal = Double.NEGATIVE_INFINITY;
 		VectorSolution <Integer> bestSol = null;
 		for(VectorSolution <Integer> s : paretoFront.getSolutions()){
-			double eval = dm.eval(s.getObjectives()); 
+			double eval = dm.eval(s); 
 			if ( eval < bestVal) {
 				bestVal = eval;
 				bestSol = s;

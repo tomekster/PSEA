@@ -3,7 +3,7 @@ package experiment;
 import java.util.ArrayList;
 
 import algorithm.evolutionary.interactive.artificialDM.ADMBuilder;
-import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
 import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
 import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;

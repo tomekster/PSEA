@@ -1,8 +1,8 @@
-package algorithm.geneticAlgorithm.operators;
+package algorithm.evolutionary.operators;
 
 import java.util.ArrayList;
 
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.evolutionary.solutions.Solution;
 
 public interface CrossoverOperator <S extends Solution>{
 

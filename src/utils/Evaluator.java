@@ -2,17 +2,18 @@ package utils;
 
 import java.util.Arrays;
 
-import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
-import algorithm.evolutionary.interactive.preferenceModels.implementations.ASFBundle;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
 import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
+import algorithm.implementations.psea.ASFBundle;
 import experiment.ExecutionHistory;
 import problems.Problem;
 import utils.math.Geometry;
 
-public class Evaluator {
-	public static void evaluateAsfDMRun(Problem problem, AsfDM asfRanker, Population res, ASFBundle asfBundle) {
-		double targetPoint[] = problem.getTargetAsfPoint(Geometry.invert(asfRanker.getLambda()));
+public class Evaluator  {
+	public static <S extends Solution> void evaluateAsfDMRun(Problem <S> problem, AsfDM asfRanker, Population <S> res, ASFBundle asfBundle) {
+		double targetPoint[] = problem.getTargetAsfPoint(Geometry.invert(asfRanker.getAsfFunction().getLambda()));
 		System.out.println("TargetPoint: " + Arrays.toString(targetPoint));
 		System.out.println("Final population range: ");
 		for(int i=0; i< problem.getNumObjectives(); i++){

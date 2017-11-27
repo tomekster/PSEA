@@ -1,5 +1,7 @@
 package utils.math.structures;
 
+import javax.management.RuntimeErrorException;
+
 import utils.math.Geometry;
 
 public class Vector{
@@ -31,5 +33,16 @@ public class Vector{
 			res[i] = getDim(i) * multiplier;
 		}
 		return new Vector(res);
+	}
+
+	public Vector subtract(Point p) {
+		if(p.getNumDim() != this.getNumDim()){
+			throw new RuntimeErrorException(new Error(), "Cannot subtract point from vector when they have different dimensionality! Vector: " + this.getNumDim() + ", Point: " + p.getNumDim());
+		}
+		
+		for(int i=0; i<getNumDim(); i++){
+			this.vals[i] -= p.getDim(i);
+		}
+		return this;
 	}
 }

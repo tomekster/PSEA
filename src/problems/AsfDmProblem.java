@@ -1,6 +1,6 @@
 package problems;
 
-import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
 import algorithm.evolutionary.solutions.VectorSolution;
 
 public interface AsfDmProblem {

@@ -4,8 +4,16 @@ public class Point {
 	
 	double [] vals;
 	
+	public Point(int numDim){
+		this.vals = new double[numDim];
+	}
+	
 	public Point(double [] vals){
 		this.vals = vals.clone();
+	}
+	
+	public Point(Point p){
+		this(p.getDim());
 	}
 	
 	public int getNumDim(){
@@ -31,5 +39,9 @@ public class Point {
 		}
 		
 		return new Point(res);
+	}
+	
+	public Point copy(){
+		return new Point(this);
 	}
 }

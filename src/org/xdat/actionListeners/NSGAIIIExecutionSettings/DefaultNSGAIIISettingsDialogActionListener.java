@@ -80,9 +80,9 @@ public class DefaultNSGAIIISettingsDialogActionListener implements ActionListene
 			PSEAParameters.getInstance().setNumberExploitationGenerations(this.dialog.getNSGAIIISettingsPanel().getNumberExploitationGenerationsSelection());
 			PSEAParameters.getInstance().setNumberRuns(this.dialog.getNSGAIIISettingsPanel().getNumberRunsSelection());
 			PSEAParameters.getInstance().setElicitationInterval(this.dialog.getNSGAIIISettingsPanel().getElicitationsFrequency());
-			PSEAParameters.getInstance().setShowTargetPoints(this.dialog.getNSGAIIISettingsPanel().getShowTargetPointsSelection());
-			PSEAParameters.getInstance().setShowLambdas(this.dialog.getNSGAIIISettingsPanel().getShowLambdasSelection());
-			PSEAParameters.getInstance().setShowComparisons(this.dialog.getNSGAIIISettingsPanel().getShowComparisonsSelection());
+//			PSEAParameters.getInstance().setShowTargetPoints(this.dialog.getNSGAIIISettingsPanel().getShowTargetPointsSelection());
+//			PSEAParameters.getInstance().setShowLambdas(this.dialog.getNSGAIIISettingsPanel().getShowLambdasSelection());
+//			PSEAParameters.getInstance().setShowComparisons(this.dialog.getNSGAIIISettingsPanel().getShowComparisonsSelection());
 			log(" OK: Tic label color = " + UserPreferences.getInstance().getParallelCoordinatesAxisTicLabelFontColor().toString());
 			this.dialog.dispose();
 		} else if (actionCommand == "Cancel") {

@@ -2,6 +2,8 @@ package algorithm.evolutionary.solutions;
 
 import java.text.DecimalFormat;
 
+import javax.management.RuntimeErrorException;
+
 import utils.Copyable;
 
 public class Solution implements Copyable{
@@ -62,9 +64,9 @@ public class Solution implements Copyable{
 		this.dominated = dominated;
 	}
 
+	//TODO
 	@Override
 	public Copyable copy() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeErrorException(new Error(), "Should not be executed");
 	}
 }

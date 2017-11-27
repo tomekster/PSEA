@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import algorithm.evolutionary.interactive.artificialDM.implementations.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.VectorSolution;
 import algorithm.implementations.psea.preferences.PreferenceModel;

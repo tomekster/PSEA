@@ -5,11 +5,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import algorithm.evolutionary.EA;
-import algorithm.evolutionary.interactive.InteractiveEA;
-import algorithm.evolutionary.interactive.artificialDM.ArtificialDM;
-import algorithm.evolutionary.interactive.elicitationModels.implementations.PairwiseComparisons;
-import algorithm.evolutionary.interactive.preferenceModels.implementations.ASFBundle;
-import algorithm.evolutionary.operators.impl.selection.BinaryTournament;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.implementations.nsgaiii.NSGAIII;
@@ -17,10 +14,10 @@ import algorithm.implementations.psea.history.GenerationSnapshot;
 import algorithm.implementations.psea.preferences.Elicitator;
 import problems.Problem;
 import utils.NonDominationSort;
-import utils.comparators.NondominationComparator;
 import utils.math.structures.Pair;
+import utils.math.structures.Point;
 
-public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runnable {
+public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 
 	private final static Logger LOGGER = Logger.getLogger(PSEA.class.getName());
 
@@ -31,6 +28,9 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 	private ArrayList <GenerationSnapshot> history = new ArrayList<>();
 	
 	private final double DEFAULT_SPREAD_THRESHOLD = 0.95;
+	private final double DEFAULT_LAMBDA_MUTATION_PROBABILITY = 0.05;
+	private final double DEFAULT_LAMBDA_MUTATION_NEIGHBORHOOD_RADIUS = 0.3;
+	private final double DEFAULT_LAMBDA_RHO = 0.0001;
 	private final int DEFAULT_MAX_EXPLORATION_COMPARISONS = 20;
 	private final int DEFAULT_MAX_EXPLOITATION_COMPARISONS = 20;
 	private final int DEFAULT_MAX_ZERO_DISCRIMINATIVE_POWER = 5;
@@ -43,8 +43,13 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 	private final boolean DEFAULT_ASF_DMS_MUTATION = false;
 	
 	//Parameters
-	private ArtificialDM adm;
+	private AsfDM adm;
+	private ASFBundle asfBundle;
+	private ArrayList <Comparison> pairwiseComparisons;
 	private double spreadThreshold;
+	private double lambdaMutationProbability;
+	private double lambdaMutationNeighborhoodRadius;
+	private double lambdaRho = DEFAULT_LAMBDA_RHO;
 	private int maxExplorationComparisons;
 	private int maxExploitationComparisons;
 
@@ -55,29 +60,30 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 	private int asfBundleSize;
 	private boolean asfDMsMutation;
 	
-	public PSEA(Problem <S> problem, int popSize, ArtificialDM adm, EA.GeneticOperators<S> go, ASFBundle asfBundle) {
-		super(problem, popSize, go, adm, asfBundle, new PairwiseComparisons());
+	public PSEA(Problem <S> problem, int popSize, AsfDM adm, EA.GeneticOperators<S> go, Point refPoint) {
+		super(problem, popSize, go);
 		
 		this.nsgaiii = new NSGAIII <S>(	problem,
 					popSize,
-					new EA.GeneticOperators<>(
-							new BinaryTournament(new NondominationComparator<>(problem.getOptimizationType())), 
-							crossoverOperator, 
-							mutationOperator
-							)
+					go
 					);		
 		
 		this.population = nsgaiii.getPopulation();
 		this.popSize = population.size();
 		
-		// Parameters of algorithm execution
+		// Algorithm execution parameters 
 		this.problem = problem;
 		this.adm = adm;
+		
+		this.asfBundle = new ASFBundle(refPoint, this.asfBundleSize, lambdaMutationProbability, lambdaMutationNeighborhoodRadius, lambdaRho);
+		this.pairwiseComparisons = new ArrayList<>();
 		
 		this.generation = 0;
 		this.explorationComparisons = 0;
 		this.exploitationComparisons = 0;
 		
+		this.lambdaMutationProbability = DEFAULT_LAMBDA_MUTATION_PROBABILITY;
+		this.lambdaMutationNeighborhoodRadius = DEFAULT_LAMBDA_MUTATION_NEIGHBORHOOD_RADIUS;
 		this.spreadThreshold = DEFAULT_SPREAD_THRESHOLD;
 		this.maxExplorationComparisons = DEFAULT_MAX_EXPLORATION_COMPARISONS;
 		this.maxExploitationComparisons = DEFAULT_MAX_EXPLOITATION_COMPARISONS;
@@ -90,10 +96,30 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 		this.asfDMsMutation = DEFAULT_ASF_DMS_MUTATION;
 	}
 	
-	public PSEA(Problem <S> problem, int popSize, ArtificialDM adm, int maxExplorCom, int maxExploitComp, EA.GeneticOperators<S> go, ASFBundle asfBundle) {
-		this(problem, popSize, adm, go, asfBundle);
+	public PSEA(Problem <S> problem, int popSize, AsfDM adm, int maxExplorCom, int maxExploitComp, EA.GeneticOperators<S> go, Point refPoint) {
+		this(problem, popSize, adm, go, refPoint);
 		this.maxExplorationComparisons = maxExplorCom;
 		this.maxExploitationComparisons = maxExploitComp;
+	}
+	
+	public class Builder{
+		
+		private final String problemName;
+		private final int popSize;
+		private final AsfDM adm;
+		private final EA.GeneticOperators<S> go;
+		
+		private 
+		
+		public Builder(String problemName, int popSize, AsfDM adm, EA.GeneticOperators<S> go){
+			this.problemName = problemName;
+			this.popSize = popSize;
+			this.adm = adm;
+			this.go = go;
+		}
+		
+		
+		
 	}
 
 	@Override
@@ -169,11 +195,11 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 					numZeroDiscriminativePower = 0;
 					Elicitator.compare(adm, p.first, p.second, generation);
 					explorationComparisons++;
-					asfBundle.updateDMs(asfDMsMutation);
+					asfBundle.updateDMs(asfDMsMutation, pairwiseComparisons);
 				}
 			}
 			
-			history.add(new GenerationSnapshot(generation, population.copy(), asfBundle.getAsfDMs(), ));
+			history.add(new GenerationSnapshot(generation, population.copy(), asfBundle.getAsfDMs()));
 			
 			System.out.println("Exploration: " + generation + " " + explorationComparisons);
 		}
@@ -193,10 +219,10 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 				if(maxDiscriminativePOwer != 0){
 					Elicitator.compare(adm, p.first, p.second, generation);
 					exploitationComparisons++;
-					asfBundle.updateDMs(asfDMsMutation);
+					asfBundle.updateDMs(asfDMsMutation, pairwiseComparisons);
 				}
 			}
-			history.add(new GenerationSnapshot(generation, population.copy(), asfBundle.getAsfDMs(), ))
+			history.add(new GenerationSnapshot(generation, population.copy(), asfBundle.getAsfDMs()));
 			maxDist = population.maxDist();
 			
 //			double nearestLambda = dmModel.getAsfBundle().getAsfDMs().stream().mapToDouble(lambda -> Geometry.euclideanDistance(lambda.getLambda(), adm.getLambda())).min().getAsDouble();
@@ -213,11 +239,11 @@ public class PSEA <S extends Solution> extends InteractiveEA <S> implements Runn
 		}while(generation < maxExploitGenerations);
 	}
 	
-	public ArtificialDM getAdm() {
+	public AsfDM getAdm() {
 		return adm;
 	}
 
-	public PSEA <S> setAdm(ArtificialDM adm) {
+	public PSEA <S> setAdm(AsfDM adm) {
 		this.adm = adm;
 		return this;
 	}

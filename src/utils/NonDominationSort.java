@@ -1,12 +1,13 @@
-package algorithm.rankers;
+package utils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
-import algorithm.geneticAlgorithm.Population;
-import algorithm.geneticAlgorithm.solutions.Solution;
+import algorithm.evolutionary.solutions.Population;
+import algorithm.evolutionary.solutions.Solution;
+import utils.comparators.NondominationComparator;
+import utils.enums.OptimizationType;
 
-public class NonDominationRanker implements Comparator<Solution>{
+public abstract class NonDominationSort {
 
 	/**
 	 * This method divides a given population into disjoint sets F_1, F_2, ..., F_n, called non-dominated-fronts, or simply fronts. 
@@ -16,12 +17,13 @@ public class NonDominationRanker implements Comparator<Solution>{
 	 * @param population
 	 * @return ArrayList of Populations representing non-dominated-fronts F_1, F_2, ..., F_n
 	 */
-	public static ArrayList<? extends Population <? extends Solution> > sortPopulation(Population <? extends Solution> population) {
-		ArrayList<Population <? extends Solution>> fronts = new ArrayList<>();
+	public static <S extends Solution> ArrayList<Population <S>> sortPopulation(Population <S> population, OptimizationType optimizationType) {
+		ArrayList<Population <S>> fronts = new ArrayList<>();
 		ArrayList<Integer> front = new ArrayList<Integer>();
 		ArrayList<Integer> nextFront = new ArrayList<Integer>();
-		Population <Solution> Q = new Population <>();
-
+		Population <S> Q = new Population <>();
+		NondominationComparator <Solution> NDC = new NondominationComparator<>(optimizationType);
+		
 		// dominatedBySolutions[i] = list of solutions that dominate solution i
 		ArrayList<ArrayList<Integer>> dominatedBySolutions = new ArrayList<ArrayList<Integer>>();
 		// dominationCount[i] = number of solutions dominating solution i
@@ -39,7 +41,7 @@ public class NonDominationRanker implements Comparator<Solution>{
 					continue;
 				}
 				Solution q = population.getSolution(j);
-				int flag = p.compareTo(q);
+				int flag = NDC.compare(p, q);
 				if (flag == -1) {
 					dominatedBySolutions.get(i).add(j);
 				} else if (flag == 1) {
@@ -57,7 +59,7 @@ public class NonDominationRanker implements Comparator<Solution>{
 			fronts.add(Q);
 			front = nextFront;
 			nextFront = new ArrayList<Integer>();
-			Q = new Population <Solution>();
+			Q = new Population <S>();
 			for (int i : front) {
 				for (int q : dominatedBySolutions.get(i)) {
 					dominationCount[q]--;
@@ -80,10 +82,5 @@ public class NonDominationRanker implements Comparator<Solution>{
 		}
 
 		return fronts;
-	}
-
-	@Override
-	public int compare(Solution s1, Solution s2) {
-		return s1.compareTo(s2);
 	}
 }

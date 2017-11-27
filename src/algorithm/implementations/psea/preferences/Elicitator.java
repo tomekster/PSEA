@@ -4,11 +4,11 @@ import java.util.stream.DoubleStream;
 
 import javax.swing.JOptionPane;
 
-import algorithm.evolutionary.interactive.artificialDM.ArtificialDM;
-import algorithm.evolutionary.interactive.elicitationModels.implementations.Comparison;
-import algorithm.evolutionary.interactive.preferenceModels.implementations.ASFBundle;
+import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
+import algorithm.implementations.psea.ASFBundle;
 import utils.math.MyRandom;
 import utils.math.structures.Pair;
 
@@ -16,11 +16,11 @@ public class Elicitator {
 	
 	//private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
 	
-	public static int elicitate(Population <? extends Solution> pop, ArtificialDM adm, ASFBundle asfBundle, Pair<Solution, Solution> p) {
+	public static int elicitate(Population <? extends Solution> pop, AsfDM adm, ASFBundle asfBundle, Pair<Solution, Solution> p) {
 		return getComparedSolutions(pop, asfBundle, p);
 	}
 
-	public static Comparison compare(ArtificialDM adm, Solution s1, Solution s2, int gen) {		
+	public static Comparison compare(AsfDM adm, Solution s1, Solution s2, int gen) {		
 		if (adm != null) {
 			int comparisonResult = adm.compare(s1, s2);
 			if (comparisonResult == -1) {
@@ -75,7 +75,7 @@ public class Elicitator {
 				int score1=0, score2=0;
 				Solution s1 = pop.getSolution(i), s2 = pop.getSolution(j);
 				
-				for(int k = 0; k<asfBundle.getAsfDMs().size(); k++){
+				for(int k = 0; k < asfBundle.getAsfDMs().size(); k++){
 					if(solutionsLambdasEvals[i][k] < solutionsLambdasEvals[j][k]) score1++;
 					else if(solutionsLambdasEvals[i][k] > solutionsLambdasEvals[j][k]) score2++;
 				}
