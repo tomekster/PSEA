@@ -11,7 +11,7 @@ import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import utils.math.AsfFunction;
 
-public class AsfDM implements Comparator<Solution>{
+public class AsfDm implements Comparator<Solution>{
 	
 	private AsfFunction asf;
 	private String name;
@@ -19,17 +19,17 @@ public class AsfDM implements Comparator<Solution>{
 	private double reward;
 	private double penalty;
 	
-	public AsfDM(AsfFunction asf, String name){
+	public AsfDm(AsfFunction asf, String name){
 		this.asf= asf;
 		this.name = name;
 	}
 	
-	public AsfDM(AsfFunction asf){
+	public AsfDm(AsfFunction asf){
 		this(asf, "Anonymous");
 	}
 
-	public AsfDM copy() {
-		return new AsfDM(this.asf.copy(), this.name);
+	public AsfDm copy() {
+		return new AsfDm(this.asf.copy(), this.name);
 	}
 
 	public double getReward(){
@@ -80,10 +80,10 @@ public class AsfDM implements Comparator<Solution>{
 		});
 	}
 	
-	public AsfDM newAdmWithUpdatedLambda(double lambda[]){
+	public AsfDm newAdmWithUpdatedLambda(double lambda[]){
 		AsfFunction newAsf = this.asf.copy();
 		newAsf.setLambda(lambda.clone());
-		return new AsfDM(newAsf);
+		return new AsfDm(newAsf);
 	}
 	
 	/**

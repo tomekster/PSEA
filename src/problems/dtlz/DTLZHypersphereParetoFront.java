@@ -2,7 +2,7 @@ package problems.dtlz;
 
 import java.util.ArrayList;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
@@ -23,7 +23,7 @@ public abstract class DTLZHypersphereParetoFront extends DTLZ{
 	}
 	
 	@Override
-	public final VectorSolution <Double> getOptimalAsfDmSolution(AsfDM dm) {
+	public final VectorSolution <Double> getOptimalAsfDmSolution(AsfDm dm) {
 		return new VectorSolution <Double> (null, Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine(), HYPERSPHERE_RADIUS).getDim());
 	}
 	

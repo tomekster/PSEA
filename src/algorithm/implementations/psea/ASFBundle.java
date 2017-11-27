@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
@@ -21,7 +21,7 @@ public class ASFBundle implements Comparator<Solution> {
 	
 	private int bundleSize;
 	
-	private ArrayList <AsfDM> asfDMs;
+	private ArrayList <AsfDm> asfDMs;
 	private GradientLambdaSearch GLS;
 	
 	private double lambdaMutationProbability;
@@ -41,21 +41,21 @@ public class ASFBundle implements Comparator<Solution> {
 		asfDMs = new ArrayList<>();
 		
 		for (int i=0; i<bundleSize; i++) {
-			asfDMs.add(new AsfDM(new AsfFunction(Geometry.getRandomVectorSummingTo1(refPoint.getNumDim()), asfDmRho, referencePoint)));
+			asfDMs.add(new AsfDm(new AsfFunction(Geometry.getRandomVectorSummingTo1(refPoint.getNumDim()), asfDmRho, referencePoint)));
 		}
 		GLS = new GradientLambdaSearch(refPoint.getNumDim());
 	}
 
 	public void updateDMs(boolean mutation, ArrayList <Comparison> pc) {
 		for(int i=0; i<bundleSize; i++) { 
-			asfDMs.add(new AsfDM( new AsfFunction(Geometry.getRandomVectorSummingTo1(referencePoint.getNumDim()), asfDmRho, referencePoint))); //Add random lambdas to current bundle to increase the diversity 
+			asfDMs.add(new AsfDm( new AsfFunction(Geometry.getRandomVectorSummingTo1(referencePoint.getNumDim()), asfDmRho, referencePoint))); //Add random lambdas to current bundle to increase the diversity 
 		}
-		ArrayList <AsfDM> newPreferenceModels = selectNewAsfDMs(GLS.improvePreferenceModels(this, pc),mutation, pc);
+		ArrayList <AsfDm> newPreferenceModels = selectNewAsfDMs(GLS.improvePreferenceModels(this, pc),mutation, pc);
 		this.asfDMs = newPreferenceModels;
 	}
 	
-	protected ArrayList <AsfDM> selectNewAsfDMs(ArrayList <AsfDM> asfDMs, boolean mutation, ArrayList <Comparison> pc) {
-		for(AsfDM asfDM : asfDMs){
+	protected ArrayList <AsfDm> selectNewAsfDMs(ArrayList <AsfDm> asfDMs, boolean mutation, ArrayList <Comparison> pc) {
+		for(AsfDm asfDM : asfDMs){
 			
 			if(mutation){
 				double lambda[] = asfDM.getAsfFunction().getLambda();
@@ -68,7 +68,7 @@ public class ASFBundle implements Comparator<Solution> {
 			asfDM.verifyModel(pc);
 		}
 		Collections.sort(asfDMs, new ConstraintViolationRanker());
-		return new ArrayList<AsfDM>(asfDMs.subList(0, bundleSize));
+		return new ArrayList<AsfDm>(asfDMs.subList(0, bundleSize));
 	}
 	
 	public boolean converged(double convergenceThreshold){
@@ -79,7 +79,7 @@ public class ASFBundle implements Comparator<Solution> {
 			max[i] = -Double.MAX_VALUE;
 		}
 		
-		for(AsfDM asfDM : asfDMs){
+		for(AsfDm asfDM : asfDMs){
 			for(int i=0; i < this.referencePoint.getNumDim(); i++){
 				if(asfDM.getAsfFunction().getLambda(i) < min[i]){ min[i] = asfDM.getAsfFunction().getLambda(i); }
 				if(asfDM.getAsfFunction().getLambda(i) > max[i]){ max[i] = asfDM.getAsfFunction().getLambda(i); }
@@ -95,7 +95,7 @@ public class ASFBundle implements Comparator<Solution> {
 	@Override
 	public String toString(){
 		String res="";
-		for(AsfDM asfDM : asfDMs){
+		for(AsfDm asfDM : asfDMs){
 			res += asfDM.toString() + "\n" + asfDM.getNumViolations() + "\n";
 		}
 		return res;
@@ -113,14 +113,14 @@ public class ASFBundle implements Comparator<Solution> {
 		this.referencePoint = refPoint;
 	}
 	
-	public ArrayList<AsfDM> getAsfDMs() {
+	public ArrayList<AsfDm> getAsfDMs() {
 		return this.asfDMs;
 	}
 
 	//TODO - average or inversed average?
 	public double[] getAverageLambdaPoint() {
 		double res[] = new double[referencePoint.getNumDim()];
-		for(AsfDM asfDm : asfDMs){
+		for(AsfDm asfDm : asfDMs){
 			for(int i=0; i < referencePoint.getNumDim(); i++){
 				res[i] += asfDm.getAsfFunction().getLambda(i);
 			}
@@ -131,19 +131,19 @@ public class ASFBundle implements Comparator<Solution> {
 		return res;
 	}
 
-	public void addAsfDM(AsfDM asfDM) {
+	public void addAsfDM(AsfDm asfDM) {
 		this.asfDMs.add(asfDM);
 	}
 	
 	public void addAsfDM(double[] lambda) {
-		this.asfDMs.add(new AsfDM(new AsfFunction(lambda, asfDmRho, referencePoint)));
+		this.asfDMs.add(new AsfDm(new AsfFunction(lambda, asfDmRho, referencePoint)));
 	}
 	
 	public ASFBundle copy(){
 		ASFBundle res = new ASFBundle(this.referencePoint, this.bundleSize, this.lambdaMutationProbability, this.lambdaMutationNeighborhoodRadius, this.asfDmRho);
 		res.setReferencePoint(this.referencePoint.copy());
 		res.asfDMs.clear();
-		for(AsfDM asfDM : asfDMs){
+		for(AsfDm asfDM : asfDMs){
 			res.addAsfDM(asfDM.getAsfFunction().getLambda().clone());
 		}
 		return res;
@@ -182,7 +182,7 @@ public class ASFBundle implements Comparator<Solution> {
 			bordaPointsMap.put(pop.getSolution(i), .0);
 		}
 		
-		for (AsfDM adm : getAsfDMs()) {
+		for (AsfDm adm : getAsfDMs()) {
 			adm.sort(pop.getSolutions());
 			ArrayList <? extends Solution> ranking = pop.getSolutions();
 			assert ranking.size() == pop.size();
@@ -197,7 +197,7 @@ public class ASFBundle implements Comparator<Solution> {
 	@Override
 	public int compare(Solution s1, Solution s2) {
 		int v1=0, v2=0;
-		for(AsfDM adm : getAsfDMs()){
+		for(AsfDm adm : getAsfDMs()){
 			int cmp = adm.compare(s1, s2);
 			if(cmp < 0) v1++;
 			else if(cmp >0) v2++;
@@ -209,7 +209,7 @@ public class ASFBundle implements Comparator<Solution> {
 		return this.asfDmRho;
 	}
 	
-	public AsfDM createAsfDm(double lambda[]){
-		return new AsfDM(new AsfFunction(lambda, asfDmRho, this.referencePoint));
+	public AsfDm createAsfDm(double lambda[]){
+		return new AsfDm(new AsfFunction(lambda, asfDmRho, this.referencePoint));
 	}
 }

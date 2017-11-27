@@ -22,7 +22,7 @@ public class AsfFunction {
 		double res = -Double.MAX_VALUE;
 		double sum = 0;
 		for(int i=0; i<obj.length; i++){
-			double mult = lambda[i] * (obj[i] - refPoint.getDim(i));
+			double mult = lambda[i] * Math.abs(obj[i] - refPoint.getDim(i));
 			res = Double.max(mult, res);
 			sum += mult;
 		}

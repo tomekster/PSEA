@@ -2,12 +2,12 @@ package algorithm.rankers;
 
 import java.util.Comparator;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 
-public class ConstraintViolationRanker implements Comparator <AsfDM>{
+public class ConstraintViolationRanker implements Comparator <AsfDm>{
 
 	@Override
-	public int compare(AsfDM dm1, AsfDM dm2) {
+	public int compare(AsfDm dm1, AsfDm dm2) {
 		return dm1.getNumViolations() == dm2.getNumViolations() ? 
 				Double.compare(dm1.getPenalty(), dm2.getPenalty()) //Smaller penalty = better
 				: 

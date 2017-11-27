@@ -2,8 +2,8 @@ package experiment;
 
 import java.util.ArrayList;
 
-import algorithm.evolutionary.interactive.artificialDM.ADMBuilder;
-import algorithm.evolutionary.interactive.artificialDM.AsfDM;
+import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
+import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
 import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
@@ -19,8 +19,8 @@ public class AsfColorMap {
 		init();
 		for(Problem problem : problems){
 			double idealPoint[] = problem.findIdealPoint();
-			ArrayList <AsfDM> asfRankers = ADMBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
-			for(AsfDM asfRanker : asfRankers){
+			ArrayList <AsfDm> asfRankers = AsfDmBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
+			for(AsfDm asfRanker : asfRankers){
 				Hyperplane h = new Hyperplane(3);
 				ArrayList <Integer> partitions = new ArrayList<>();
 				partitions.add(50);
@@ -55,7 +55,7 @@ public class AsfColorMap {
 		}
 	}
 	
-	private static String getTestName(Problem problem, AsfDM asfRanker){
+	private static String getTestName(Problem problem, AsfDm asfRanker){
 		return problem.getName() + "_" + problem.getNumObjectives() + "obj_" + asfRanker.getName();
 	}
 	

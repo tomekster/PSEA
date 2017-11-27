@@ -7,9 +7,9 @@ import algorithm.evolutionary.solutions.Solution;
 import problems.Problem;
 
 public class SingleObjectiveEA <S extends Solution> extends EA <S>{
-	protected Comparator <S> comp;
+	protected Comparator <Solution> comp;
 	
-	public SingleObjectiveEA(Problem<S> p, int popSize, EA.GeneticOperators<S> go, Comparator <S> comp){
+	public SingleObjectiveEA(Problem<S> p, int popSize, EA.GeneticOperators<S> go, Comparator <Solution> comp){
 		super(p, popSize, go);
 		this.comp = comp;
 	}
