@@ -18,18 +18,24 @@ import utils.enums.OptimizationType;
 import utils.math.structures.Point;
 
 public class KnapsackProblemInstance extends PermutationProblem implements AsfDmProblem {
+	
+	String linuxPath = "/media/tomasz/D3E6-0A4B/PSEA/knapsack";
+	String windowsPath = "C:\\Users\\stern\\git\\PSEA\\benchmarks\\knapsack\\referencePF";
+	String path;		
+	
 	private ArrayList<Knapsack> knapsacks;
 
 	/**
 	 * paretoFront field stores pareto-optimal solutions only after getOptimalAsfDmSolution method was called.
 	 * Stores only objective values since only those are available. 
-	 * Variable field is set to NULL for all solutions. 
+	 * Variable field is set to NULL for alls solutions. 
 	 */
 	private Population <Solution> paretoFront = null;
 	
 	public KnapsackProblemInstance(int numItems, int numKnapsacks, int numConstraints, String name) {
 		super(numItems, numKnapsacks, numConstraints, name, OptimizationType.MAXIMIZATION);
 		this.knapsacks = new ArrayList<>();
+		path = this.linuxPath;
 	}
 
 	/**
@@ -48,12 +54,13 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 																			// in
 																			// each
 																			// knapsack
-
+		double totalProfits[] = new double[solution.getNumObjectives()];
+		
 		boolean solutionFitsInAllKnapsacks = true;
-		for (Integer pos : solution.getVariables()) {
+		for (Integer itemId : solution.getVariables()) {
 			for (int i = 0; i < knapsacks.size(); i++) {
 				Knapsack k = knapsacks.get(i);
-				if (k.get(pos).getWeight() + totalWeights[i] > k.getMaxWeight()) {
+				if (k.get(itemId).getWeight() + totalWeights[i] > k.getMaxWeight()) {
 					solutionFitsInAllKnapsacks = false;
 					break;
 				}
@@ -63,13 +70,17 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 			}
 
 			// If next element in permutation fits into all knapsacks, update
-			// total weights used by adding element weight and update objective
+			// total weights by adding element weight and update objective
 			// vector of profits.
-			for (int i = 0; i < knapsacks.size(); i++) {
+			for(int i = 0; i < knapsacks.size(); i++) {
 				Knapsack k = knapsacks.get(i);
-				totalWeights[i] += k.get(pos).getWeight();
-				solution.setObjective(i, solution.getObjective(i) + k.get(i).getProfit());
+				totalWeights[i] += k.get(itemId).getWeight();
+				totalProfits[i] += k.get(itemId).getProfit();
 			}
+		}
+		
+		for(int i=0; i<knapsacks.size(); i++){
+			solution.setObjective(i, totalProfits[i]);
 		}
 	}
 
@@ -78,7 +89,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 		Population <Solution> refFront = new Population <>();
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(Paths
-				.get("C:\\Users\\stern\\git\\PSEA\\benchmarks\\knapsack\\referencePF", "knapsack." + numVariables + "." + numObjectives + ".pareto")
+				.get(path, "knapsack." + numVariables + "." + numObjectives + ".pareto")
 				.toFile()))) {
 			double obj[] = null;
 			while (true) {
@@ -113,7 +124,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 			
 			//Read the data
 			try (BufferedReader br = new BufferedReader(
-					new FileReader(Paths.get("C:\\Users\\stern\\git\\PSEA\\benchmarks\\knapsack\\referencePF", "knapsack." + getNumVariables() + "." + getNumObjectives() + ".pareto").toFile()))) {
+					new FileReader(Paths.get(this.path, "knapsack." + getNumVariables() + "." + getNumObjectives() + ".pareto").toFile()))) {
 				
 				for (String line = br.readLine(); line != null; line = br.readLine()) {
 					String vals[] = line.trim().split(" ");
@@ -142,13 +153,5 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 			}
 		}
 		return new Solution(bestSol);
-	}
-
-	public Point getIdealPoint() {
-		double knapsackMaxWeights[] = new double[knapsacks.size()];
-		for(int i=0; i < knapsacks.size(); i++) {
-			knapsackMaxWeights[i] = knapsacks.get(i).getMaxWeight();
-		}
-		return new Point(knapsackMaxWeights);
 	}
 }

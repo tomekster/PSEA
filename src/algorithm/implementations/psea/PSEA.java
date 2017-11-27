@@ -37,7 +37,6 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 
 	private final int DEFAULT_ELICITATION_INTERVAL = 10;
 	private final int DEFAULT_MAX_EXPLITATION_GENERATIONS = 800;
-	private final int DEFAULT_POP_SIZE = 100;
 	private final int DEFAULT_MAX_NUM_GEN_WITH_NO_SPREAD_IMPROVEMENT = 50;
 	private final int DEFAULT_ASF_BUNDLE_SIZE = 50;
 	private final boolean DEFAULT_ASF_DMS_MUTATION = false;
@@ -60,40 +59,25 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 	private int asfBundleSize;
 	private boolean asfDMsMutation;
 	
-	public PSEA(Problem <S> problem, int popSize, AsfDm adm, EA.GeneticOperators<S> go, Point refPoint) {
-		super(problem, popSize, go);
+	public PSEA(Builder builder) {
+		super(builder.getProblem(), builder.getPopSize(), builder.getGo());
 		
 		this.nsgaiii = new NSGAIII <S>(	problem,
 					popSize,
-					go
+					builder.getGo()
 					);		
 		
 		this.population = nsgaiii.getPopulation();
 		this.popSize = population.size();
 		
 		// Algorithm execution parameters 
-		this.problem = problem;
-		this.adm = adm;
+		this.adm = builder.getAdm();
 		
 		this.asfBundle = new ASFBundle(refPoint, this.asfBundleSize, lambdaMutationProbability, lambdaMutationNeighborhoodRadius, lambdaRho);
 		this.pairwiseComparisons = new ArrayList<>();
-		
 		this.generation = 0;
 		this.explorationComparisons = 0;
 		this.exploitationComparisons = 0;
-		
-		this.lambdaMutationProbability = DEFAULT_LAMBDA_MUTATION_PROBABILITY;
-		this.lambdaMutationNeighborhoodRadius = DEFAULT_LAMBDA_MUTATION_NEIGHBORHOOD_RADIUS;
-		this.spreadThreshold = DEFAULT_SPREAD_THRESHOLD;
-		this.maxExplorationComparisons = DEFAULT_MAX_EXPLORATION_COMPARISONS;
-		this.maxExploitationComparisons = DEFAULT_MAX_EXPLOITATION_COMPARISONS;
-		this.maxZeroDiscriminativePower = DEFAULT_MAX_ZERO_DISCRIMINATIVE_POWER;
-		this.elicitationInterval = DEFAULT_ELICITATION_INTERVAL;
-		this.maxExploitationComparisons = DEFAULT_MAX_EXPLITATION_GENERATIONS;
-		this.popSize = DEFAULT_POP_SIZE;
-		this.maxNumGenWithNoSpreadImprovment = DEFAULT_MAX_NUM_GEN_WITH_NO_SPREAD_IMPROVEMENT;
-		this.asfBundleSize = DEFAULT_ASF_BUNDLE_SIZE;
-		this.asfDMsMutation = DEFAULT_ASF_DMS_MUTATION;
 	}
 	
 	public PSEA(Problem <S> problem, int popSize, AsfDm adm, int maxExplorCom, int maxExploitComp, EA.GeneticOperators<S> go, Point refPoint) {
@@ -104,22 +88,156 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 	
 	public class Builder{
 		
-		private final String problemName;
+		private final Problem <S> problem;
 		private final int popSize;
 		private final AsfDm adm;
 		private final EA.GeneticOperators<S> go;
 		
-		private 
+		private double lambdaMutationProbability;
+		private double lambdaMutationNeighborhoodRadius;
+		private double lambdaRho = DEFAULT_LAMBDA_RHO;
+		private int maxExplorationComparisons;
+		private int maxExploitationComparisons;
+		private int maxZeroDiscriminativePower;
+		private int elicitationInterval;
+		private int maxExploitGenerations;
+		private int maxNumGenWithNoSpreadImprovment;
+		private int asfBundleSize;
+		private boolean asfDMsMutation;
+		private double spreadThreshold;
 		
-		public Builder(String problemName, int popSize, AsfDm adm, EA.GeneticOperators<S> go){
-			this.problemName = problemName;
+		public Builder(Problem <S> problem, int popSize, AsfDm adm, EA.GeneticOperators<S> go){
+			this.problem = problem;
 			this.popSize = popSize;
 			this.adm = adm;
 			this.go = go;
+			
+			this.lambdaMutationProbability = DEFAULT_LAMBDA_MUTATION_PROBABILITY;
+			this.lambdaMutationNeighborhoodRadius = DEFAULT_LAMBDA_MUTATION_NEIGHBORHOOD_RADIUS;
+			this.spreadThreshold = DEFAULT_SPREAD_THRESHOLD;
+			this.maxExplorationComparisons = DEFAULT_MAX_EXPLORATION_COMPARISONS;
+			this.maxExploitationComparisons = DEFAULT_MAX_EXPLOITATION_COMPARISONS;
+			this.maxZeroDiscriminativePower = DEFAULT_MAX_ZERO_DISCRIMINATIVE_POWER;
+			this.elicitationInterval = DEFAULT_ELICITATION_INTERVAL;
+			this.maxExploitGenerations = DEFAULT_MAX_EXPLITATION_GENERATIONS;
+			this.maxNumGenWithNoSpreadImprovment = DEFAULT_MAX_NUM_GEN_WITH_NO_SPREAD_IMPROVEMENT;
+			this.asfBundleSize = DEFAULT_ASF_BUNDLE_SIZE;
+			this.asfDMsMutation = DEFAULT_ASF_DMS_MUTATION;
+			
+			
 		}
-		
-		
-		
+
+		public double getLambdaMutationProbability() {
+			return lambdaMutationProbability;
+		}
+
+		public void setLambdaMutationProbability(double lambdaMutationProbability) {
+			this.lambdaMutationProbability = lambdaMutationProbability;
+		}
+
+		public double getLambdaMutationNeighborhoodRadius() {
+			return lambdaMutationNeighborhoodRadius;
+		}
+
+		public void setLambdaMutationNeighborhoodRadius(double lambdaMutationNeighborhoodRadius) {
+			this.lambdaMutationNeighborhoodRadius = lambdaMutationNeighborhoodRadius;
+		}
+
+		public double getLambdaRho() {
+			return lambdaRho;
+		}
+
+		public void setLambdaRho(double lambdaRho) {
+			this.lambdaRho = lambdaRho;
+		}
+
+		public int getMaxExplorationComparisons() {
+			return maxExplorationComparisons;
+		}
+
+		public void setMaxExplorationComparisons(int maxExplorationComparisons) {
+			this.maxExplorationComparisons = maxExplorationComparisons;
+		}
+
+		public int getMaxExploitationComparisons() {
+			return maxExploitationComparisons;
+		}
+
+		public void setMaxExploitationComparisons(int maxExploitationComparisons) {
+			this.maxExploitationComparisons = maxExploitationComparisons;
+		}
+
+		public int getMaxZeroDiscriminativePower() {
+			return maxZeroDiscriminativePower;
+		}
+
+		public void setMaxZeroDiscriminativePower(int maxZeroDiscriminativePower) {
+			this.maxZeroDiscriminativePower = maxZeroDiscriminativePower;
+		}
+
+		public int getElicitationInterval() {
+			return elicitationInterval;
+		}
+
+		public void setElicitationInterval(int elicitationInterval) {
+			this.elicitationInterval = elicitationInterval;
+		}
+
+		public int getMaxExploitGenerations() {
+			return maxExploitGenerations;
+		}
+
+		public void setMaxExploitGenerations(int maxExploitGenerations) {
+			this.maxExploitGenerations = maxExploitGenerations;
+		}
+
+		public int getMaxNumGenWithNoSpreadImprovment() {
+			return maxNumGenWithNoSpreadImprovment;
+		}
+
+		public void setMaxNumGenWithNoSpreadImprovment(int maxNumGenWithNoSpreadImprovment) {
+			this.maxNumGenWithNoSpreadImprovment = maxNumGenWithNoSpreadImprovment;
+		}
+
+		public int getAsfBundleSize() {
+			return asfBundleSize;
+		}
+
+		public void setAsfBundleSize(int asfBundleSize) {
+			this.asfBundleSize = asfBundleSize;
+		}
+
+		public boolean isAsfDMsMutation() {
+			return asfDMsMutation;
+		}
+
+		public void setAsfDMsMutation(boolean asfDMsMutation) {
+			this.asfDMsMutation = asfDMsMutation;
+		}
+
+		public double getSpreadThreshold() {
+			return spreadThreshold;
+		}
+
+		public void setSpreadThreshold(double spreadThreshold) {
+			this.spreadThreshold = spreadThreshold;
+		}
+
+		public Problem<S> getProblem() {
+			return problem;
+		}
+
+		public int getPopSize() {
+			return popSize;
+		}
+
+		public AsfDm getAdm() {
+			return adm;
+		}
+
+		public EA.GeneticOperators<S> getGo() {
+			return go;
+		}		
 	}
 
 	@Override

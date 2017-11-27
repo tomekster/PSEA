@@ -9,7 +9,6 @@ import utils.math.structures.Point;
 public class AsfDmBuilder{
 	public static AsfDm getAsfDm(int id, int dim, Point ideal, double rho){
 		String name = "---";
-		Point refPoint = new Point(dim);
 		
 		double weights[] = new double[dim];
 		switch(id){
@@ -58,7 +57,7 @@ public class AsfDmBuilder{
 		}
 		
 		double lambda[] = Geometry.normalizeSum(weights, 1);
-		return new AsfDm(new AsfFunction(lambda, rho, refPoint), name);
+		return new AsfDm(new AsfFunction(lambda, rho, ideal), name);
 	}
 	
 	public static ArrayList<AsfDm> getAsfDms(int numObj, Point ideal, double rho){

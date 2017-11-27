@@ -19,14 +19,15 @@ public class AsfFunction {
 	}
 
 	public double eval(double obj[]){
-		double res = -Double.MAX_VALUE;
+		double res = Double.NEGATIVE_INFINITY;
 		double sum = 0;
 		for(int i=0; i<obj.length; i++){
 			double mult = lambda[i] * Math.abs(obj[i] - refPoint.getDim(i));
 			res = Double.max(mult, res);
 			sum += mult;
 		}
-		res += sum * rho;
+		//TODO
+		//res += sum * rho;
 		return res;
 	}
 	

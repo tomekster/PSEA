@@ -35,7 +35,14 @@ public class ExperimentSingleObjectiveKnapsack {
 		int numGenerations = 100;
 		
 		KnapsackProblemInstance kpi = kpb.readFile(numItems, numKnapsacks);
-		Point ideal = kpi.getIdealPoint();
+		Population <Solution> pf = kpi.getReferenceFront();
+		double maxProfits[] = new double[numKnapsacks];
+		for(Solution s : pf.getSolutions()){
+			for(int i=0; i<s.getNumObjectives(); i++){
+				maxProfits[i] = Math.max(s.getObjective(i), maxProfits[i]);
+			}
+		}
+		Point ideal = new Point(maxProfits); 
 		
 		SelectionOperator so = new BinaryTournament( new NondominationComparator<Solution> (OptimizationType.MAXIMIZATION) );
 		CrossoverOperator<VectorSolution<Integer>> co = new PermutationCrossover();
@@ -45,10 +52,8 @@ public class ExperimentSingleObjectiveKnapsack {
 		
 		AsfDm asfDM = AsfDmBuilder.getAsfDm(1, numKnapsacks, ideal, rho);
 		
-		
 		SingleObjectiveEA< VectorSolution <Integer> > alg = new SingleObjectiveEA<>(kpi , popSize, go, asfDM);
 		
-		Population <Solution> pf = kpi.getReferenceFront();
 		System.out.println(pf);
 		
 		Solution optimalSolution = kpi.getOptimalAsfDmSolution(asfDM);
@@ -65,6 +70,7 @@ public class ExperimentSingleObjectiveKnapsack {
 			
 			System.out.println(pop);
 		}
+		
 		System.out.println("Best asf in each generation: " + Arrays.toString(bestAsf.toArray()));
 		System.out.println("Optimal solution: " + Arrays.toString(optimalSolution.getObjectives()));
 		System.out.println("Optimal solution asf: " + asfDM.eval(optimalSolution));
