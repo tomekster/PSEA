@@ -38,7 +38,10 @@ public class ExperimentMultiObjectiveKnapsack {
 		CrossoverOperator<VectorSolution<Integer>> co = new PermutationCrossover();
 		MutationOperator<VectorSolution<Integer>> mo = new PermutationMutation();
 		
-		Point idealPoint = SOOIdealPointFinder.findIdealPoint(p, numIdealFinderGen, idealFinderPopSize);
+		//Point idealPoint = SOOIdealPointFinder.findIdealPoint(p, numIdealFinderGen, idealFinderPopSize);
+//		double ideal[] = {4248.0, 3989.0};
+		double ideal[] = {4027.0, 4119.0, 3903.0};
+		Point idealPoint = new Point(ideal);
 		
 		AsfDm asfDM = AsfDmBuilder.getAsfDm(asfDmId, numObj, idealPoint, rho);
 		

@@ -55,9 +55,12 @@ public class SOOIdealPointFinder {
 			SingleObjectiveEA <S> alg= new SingleObjectiveEA <>(p, popSize, go, new SingleObjectiveComparator(optObj, p.getOptimizationType()));
 			alg.run(numGen);
 			
-			//Workaround for inner class error
-		    final int dummyOptimizedDim = optObj;
-			idealPoint[optObj] = alg.getPopulation().getSolutions().stream().mapToDouble(s -> s.getObjective(dummyOptimizedDim)).min().getAsDouble();
+			if(p.getOptimizationType() == OptimizationType.MINIMIZATION){
+				idealPoint[optObj] = alg.getPopulation().minObjectiveVal(optObj);
+			}
+			else if(p.getOptimizationType() == OptimizationType.MAXIMIZATION){
+				idealPoint[optObj] = alg.getPopulation().maxObjectiveVal(optObj);
+			}
 		}
 		return new Point(idealPoint);
 	}

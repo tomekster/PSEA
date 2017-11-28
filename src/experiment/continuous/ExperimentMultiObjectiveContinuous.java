@@ -15,23 +15,22 @@ import algorithm.implementations.psea.PSEA;
 import algorithm.implementations.psea.PSEABuilder;
 import experiment.ExperimentRunner;
 import problems.ContinousProblem;
-import problems.dtlz.DTLZ1;
+import problems.zdt.ZDT3;
 import utils.SOOIdealPointFinder;
 import utils.comparators.NondominationComparator;
-import utils.enums.OptimizationType;
 import utils.math.structures.Point;
 
 public class ExperimentMultiObjectiveContinuous {
 	public static void main(String args[]) {
 		
-		int numObj 				= 8;
+		int numObj 				= 2;
 		double rho 				= 0.0001;
 		int idealFinderPopSize 	= 100;
 		int numGen 				= 100;
-		int asfDmId				= 1;
+		int asfDmId				= 4;
 		
 		ContinousProblem p = new 
-				DTLZ1
+//				DTLZ1
 //				DTLZ2
 //				DTLZ3
 //				DTLZ4
@@ -45,10 +44,11 @@ public class ExperimentMultiObjectiveContinuous {
 //				WFG7
 //				WFG8
 //				WFG9
+				ZDT3
 				(numObj);
 				
 		
-		SelectionOperator so = new BinaryTournament( new NondominationComparator<Solution> (OptimizationType.MAXIMIZATION) );
+		SelectionOperator so = new BinaryTournament( new NondominationComparator<Solution> (p.getOptimizationType()) );
 		CrossoverOperator<VectorSolution<Double>> co = new SBX(p);
 		MutationOperator<VectorSolution<Double>> mo = new PolynomialMutation(p);
 		

@@ -14,19 +14,20 @@ import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
 import experiment.ExperimentRunner;
 import problems.ContinousProblem;
-import problems.dtlz.DTLZ1;
+import problems.zdt.ZDT3;
+import utils.SOOIdealPointFinder;
 import utils.comparators.NondominationComparator;
 import utils.math.structures.Point;
 
 public class ExperimentSingleObjectiveContinuous {
 	public static void main(String args[]) {
-		int numObj 										= 8;
+		int numObj 										= 2;
 		double rho 										= 0.0001;
 		int popSize 									= 100;
 		int numGen 										= 600;
 		int asfDmId										= 1;
 		ContinousProblem p = new 
-				DTLZ1
+//				DTLZ1
 //				DTLZ2
 //				DTLZ3
 //				DTLZ4
@@ -40,12 +41,16 @@ public class ExperimentSingleObjectiveContinuous {
 //				WFG7
 //				WFG8
 //				WFG9
-				(numObj); 
+//				(numObj);
+				
+				ZDT3();
+		
+				
 		SelectionOperator so 							= new BinaryTournament( new NondominationComparator<Solution> (p.getOptimizationType()) );
 		CrossoverOperator<VectorSolution<Double>> co 	= new SBX(p);
 		MutationOperator<VectorSolution<Double>> mo 	= new PolynomialMutation(p);
-		Point trueIdeal 								= new Point(numObj);
-		AsfDm asfDM 									= AsfDmBuilder.getAsfDm(asfDmId, numObj, trueIdeal, rho);
+		Point ideal	 									= SOOIdealPointFinder.findIdealPoint(p, numGen, popSize);
+		AsfDm asfDM 									= AsfDmBuilder.getAsfDm(asfDmId, numObj, ideal, rho);
 		
 		
 		SingleObjectiveEA<VectorSolution<Double>> alg = new SingleObjectiveEA<>(p, popSize, new EA.GeneticOperators<>(so, co, mo), asfDM);

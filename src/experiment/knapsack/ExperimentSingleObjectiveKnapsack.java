@@ -40,6 +40,7 @@ public class ExperimentSingleObjectiveKnapsack {
 				maxProfits[i] = Math.max(s.getObjective(i), maxProfits[i]);
 			}
 		}
+//		double ideal[] = {4248.0, 3989.0};
 		double ideal[] = {4027.0, 4119.0, 3903.0};
 		Point idealPoint = new Point(ideal);
 		AsfDm asfDM = AsfDmBuilder.getAsfDm(decidentId, numObj,  idealPoint, rho);
