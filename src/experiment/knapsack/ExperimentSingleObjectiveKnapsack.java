@@ -1,11 +1,6 @@
 package experiment.knapsack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-
 import algorithm.evolutionary.EA;
-import algorithm.evolutionary.EA.GeneticOperators;
 import algorithm.evolutionary.SingleObjectiveEA;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
@@ -15,66 +10,43 @@ import algorithm.evolutionary.operators.SelectionOperator;
 import algorithm.evolutionary.operators.impl.crossover.PermutationCrossover;
 import algorithm.evolutionary.operators.impl.mutation.PermutationMutation;
 import algorithm.evolutionary.operators.impl.selection.BinaryTournament;
-import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
+import experiment.ExperimentRunner;
 import problems.knapsack.KnapsackProblemBuilder;
 import problems.knapsack.KnapsackProblemInstance;
 import utils.comparators.NondominationComparator;
-import utils.enums.OptimizationType;
 import utils.math.structures.Point;
 
 public class ExperimentSingleObjectiveKnapsack {
-		public static void main(String args[]) {
-		KnapsackProblemBuilder kpb = new KnapsackProblemBuilder();
+	public static void main(String args[]) {
 		
-		int numItems = 100;
-		int numKnapsacks = 2;
-		double rho = 0.0001;
-		int popSize = 100;
-		int numGenerations = 100;
+		int numItems									= 100;
+		int numObj										= 3;
+		double rho 										= 0.0001;
+		int popSize 									= 152;
+		int numGen 										= 800;
+		int decidentId									= 1;
 		
-		KnapsackProblemInstance kpi = kpb.readFile(numItems, numKnapsacks);
-		Population <Solution> pf = kpi.getReferenceFront();
-		double maxProfits[] = new double[numKnapsacks];
-		for(Solution s : pf.getSolutions()){
+		KnapsackProblemBuilder kpb			 			= new KnapsackProblemBuilder();
+		KnapsackProblemInstance p 						= kpb.readFile(numItems, numObj);
+		SelectionOperator so 							= new BinaryTournament( new NondominationComparator<Solution> (p.getOptimizationType()) );
+		CrossoverOperator<VectorSolution<Integer>> co 	= new PermutationCrossover();
+		MutationOperator<VectorSolution<Integer>> mo 	= new PermutationMutation();
+		
+		double maxProfits[] = new double[numObj];
+		for(Solution s : p.getReferenceFront().getSolutions()){
 			for(int i=0; i<s.getNumObjectives(); i++){
 				maxProfits[i] = Math.max(s.getObjective(i), maxProfits[i]);
 			}
 		}
-		Point ideal = new Point(maxProfits); 
+		double ideal[] = {4027.0, 4119.0, 3903.0};
+		Point idealPoint = new Point(ideal);
+		AsfDm asfDM = AsfDmBuilder.getAsfDm(decidentId, numObj,  idealPoint, rho);
+		//AsfDm asfDM = AsfDmBuilder.getAsfDm(decidentId, numObj,  new Point(maxProfits), rho);
 		
-		SelectionOperator so = new BinaryTournament( new NondominationComparator<Solution> (OptimizationType.MAXIMIZATION) );
-		CrossoverOperator<VectorSolution<Integer>> co = new PermutationCrossover();
-		MutationOperator<VectorSolution<Integer>> mo = new PermutationMutation();
+		SingleObjectiveEA<VectorSolution<Integer>> alg = new SingleObjectiveEA<>(p, popSize, new EA.GeneticOperators<>(so, co, mo), asfDM);
 		
-		EA.GeneticOperators < VectorSolution<Integer> >go = new GeneticOperators<>(so, co, mo);
-		
-		AsfDm asfDM = AsfDmBuilder.getAsfDm(1, numKnapsacks, ideal, rho);
-		
-		SingleObjectiveEA< VectorSolution <Integer> > alg = new SingleObjectiveEA<>(kpi , popSize, go, asfDM);
-		
-		System.out.println(pf);
-		
-		Solution optimalSolution = kpi.getOptimalAsfDmSolution(asfDM);
-		
-		ArrayList <Double> bestAsf = new ArrayList<>();
-		ArrayList <Double> currentAsf = new ArrayList<>();
-		for(int i=0; i<numGenerations; i++) {
-			alg.run(1);
-			Population <VectorSolution<Integer> > pop = alg.getPopulation();
-			for(Solution s : pop.getSolutions()) {
-				currentAsf.add(asfDM.eval(s));
-			}
-			bestAsf.add(Collections.min(currentAsf));
-			
-			System.out.println(pop);
-		}
-		
-		System.out.println("Best asf in each generation: " + Arrays.toString(bestAsf.toArray()));
-		System.out.println("Optimal solution: " + Arrays.toString(optimalSolution.getObjectives()));
-		System.out.println("Optimal solution asf: " + asfDM.eval(optimalSolution));
-		System.out.println("Ideal point:" + Arrays.toString(ideal.getDim()));
-		System.out.println("AsfLambda: " + Arrays.toString(asfDM.getAsfFunction().getLambda()) );
+		ExperimentRunner.run(alg, p, asfDM, numGen, numObj);
 	}
 }

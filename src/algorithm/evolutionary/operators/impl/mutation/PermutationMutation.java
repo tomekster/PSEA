@@ -12,7 +12,6 @@ public class PermutationMutation implements MutationOperator <VectorSolution<Int
 		for(int i=0; i<variables.length; i++) variables[i] = -1;
 		int pos1 = MyRandom.getInstance().nextInt(s.getNumVariables());
 		int pos2 = MyRandom.getInstance().nextInt(s.getNumVariables());
-		System.out.println(pos1 + " " + pos2);
 		
 		variables[pos2] = s.getVariable(pos1);
 		

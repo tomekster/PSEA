@@ -61,4 +61,8 @@ public class AsfFunction {
 	public int getNumDim(){
 		return lambda.length;
 	}
+	
+	public Point getRefPoint(){
+		return this.refPoint;
+	}
 }

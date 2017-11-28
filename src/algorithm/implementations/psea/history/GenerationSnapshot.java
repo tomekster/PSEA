@@ -16,8 +16,8 @@ public class GenerationSnapshot {
 	
 	public GenerationSnapshot(int genId, Population<? extends Solution> pop, ArrayList<AsfDm> lambdas){
 		this.generationId = genId;
-		this. population = pop;
-		this.lambdas = lambdas;
+		this.population = pop.copy();
+		this.lambdas = (ArrayList <AsfDm>) lambdas.clone();
 	}
 
 	public int getGenerationId() {

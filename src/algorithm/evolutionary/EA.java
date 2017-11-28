@@ -161,4 +161,8 @@ public abstract class EA <S extends Solution>{
 		this.popSize = popSize;
 	}
 
+	public int getGenerationNum() {
+		return generation;
+	}
+
 }

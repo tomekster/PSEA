@@ -398,8 +398,13 @@ public class Geometry {
 		public double evalX(double x) {
 			return a*x + b;
 		}
+		
+		/**
+		 * Returns real value x for which l1(x) = l2(x)
+		 * @param l2
+		 * @return
+		 */
 		public double crossX(Line2D l2){
-			//if( Math.abs(a - l2.a) < EPS){
 			if(Double.compare(a, l2.a) == 0){
 				return Double.POSITIVE_INFINITY;
 			}
@@ -642,6 +647,18 @@ public class Geometry {
 		return allVals.size() == arr.length;
 	}
 
+	//Finds crossing point of sphere centered at 0 and vector v starting at 0
+	public static Point lineCrossSpherePoint(Vector v, double hypersphereConst) {
+		v = v.scale(hypersphereConst/v.getLen() * Math.signum(v.getDim(0)));
+		
+		assert v.getLen() == hypersphereConst;
+		System.out.println(hypersphereConst + " " + v.getLen());
+		
+		Point origin = new Point(v.getNumDim());
+		return origin.shift(v);
+	}
+	
+	//TODO - implement for sphere centered at origin and arbitrary line
 	public static Point lineCrossSpherePoint(Line asfLine, double hypersphereConst) {
 		throw new RuntimeErrorException(new Error(), "Geometry.lineCrossSpherePoint - method not implemented");
 	}

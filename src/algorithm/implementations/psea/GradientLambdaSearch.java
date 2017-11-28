@@ -270,8 +270,8 @@ public class GradientLambdaSearch {
 		double[] worseMinusRef = new double[numObjectives];
 		
 		for(int i=0; i < numObjectives; i++){
-			betterMinusRef[i] = better.getObjective(i) - asfBundle.getReferencePoint().getDim(i);
-			worseMinusRef[i]  = worse.getObjective(i) - asfBundle.getReferencePoint().getDim(i);
+			betterMinusRef[i] = Math.abs(better.getObjective(i) - asfBundle.getReferencePoint().getDim(i));
+			worseMinusRef[i]  = Math.abs(worse.getObjective(i) - asfBundle.getReferencePoint().getDim(i));
 		}
 		
 		double sumB1 = Geometry.dot(l1, betterMinusRef);
@@ -289,7 +289,9 @@ public class GradientLambdaSearch {
 	
 	public ArrayList <AsfDm> improvePreferenceModels(ASFBundle asfBundle, ArrayList <Comparison> pc) {
 		ArrayList<AsfDm> asfDMs = asfBundle.getAsfDMs();
-		for(AsfDm asfDM : asfDMs) asfDM.verifyModel(pc);
+		for(AsfDm asfDM : asfDMs){
+			asfDM.verifyModel(pc);
+		}
 		AsfDm bestLambda = asfDMs.stream().min(Comparator.comparing(AsfDm::getNumViolations)).get();
 //		LOGGER.log(Level.INFO, "Best lambda CV: " + bestLambda.getNumViolations());
 		ArrayList <Interval> intervals = new ArrayList<>();

@@ -2,24 +2,29 @@ package experiment;
 
 import java.util.ArrayList;
 
-import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
+import algorithm.evolutionary.solutions.Solution;
 import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
 import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import problems.Problem;
 import problems.dtlz.DTLZ1;
 import problems.dtlz.DTLZ2;
-import problems.dtlz.DTLZ3;
-import problems.dtlz.DTLZ4;
+import utils.SOOIdealPointFinder;
+import utils.math.structures.Point;
 
 public class AsfColorMap {
-	private static ArrayList <Problem> problems = new ArrayList<>();
+	private static ArrayList <Problem <? extends Solution>> problems = new ArrayList<>();
+	
+	private static int numGen = 100;
+	private static int popSize = 100;
+	private static double rho = 0.0001;
 	
 	public static void main(String [] args){
 		init();
-		for(Problem problem : problems){
-			double idealPoint[] = problem.findIdealPoint();
-			ArrayList <AsfDm> asfRankers = AsfDmBuilder.getAsfDms(problem.getNumObjectives(), idealPoint);
+		for(Problem <? extends Solution> problem : problems){
+			Point idealPoint = SOOIdealPointFinder.findIdealPoint(problem, numGen, popSize);
+			ArrayList <AsfDm> asfRankers = AsfDmBuilder.getAsfDms(problem.getNumObjectives(), idealPoint, rho);
 			for(AsfDm asfRanker : asfRankers){
 				Hyperplane h = new Hyperplane(3);
 				ArrayList <Integer> partitions = new ArrayList<>();

@@ -1,4 +1,4 @@
-package experiment.knapsack;
+package experiment.continuous;
 
 import algorithm.evolutionary.EA.GeneticOperators;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
@@ -6,51 +6,60 @@ import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
 import algorithm.evolutionary.operators.CrossoverOperator;
 import algorithm.evolutionary.operators.MutationOperator;
 import algorithm.evolutionary.operators.SelectionOperator;
-import algorithm.evolutionary.operators.impl.crossover.PermutationCrossover;
-import algorithm.evolutionary.operators.impl.mutation.PermutationMutation;
+import algorithm.evolutionary.operators.impl.crossover.SBX;
+import algorithm.evolutionary.operators.impl.mutation.PolynomialMutation;
 import algorithm.evolutionary.operators.impl.selection.BinaryTournament;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
 import algorithm.implementations.psea.PSEA;
 import algorithm.implementations.psea.PSEABuilder;
 import experiment.ExperimentRunner;
-import problems.knapsack.KnapsackProblemBuilder;
-import problems.knapsack.KnapsackProblemInstance;
+import problems.ContinousProblem;
+import problems.dtlz.DTLZ1;
 import utils.SOOIdealPointFinder;
 import utils.comparators.NondominationComparator;
 import utils.enums.OptimizationType;
 import utils.math.structures.Point;
 
-public class ExperimentMultiObjectiveKnapsack {
+public class ExperimentMultiObjectiveContinuous {
 	public static void main(String args[]) {
-		KnapsackProblemBuilder kpb = new KnapsackProblemBuilder();
 		
-		int numItems 			= 100;
-		int numObj 				= 3;
+		int numObj 				= 8;
 		double rho 				= 0.0001;
 		int idealFinderPopSize 	= 100;
-		int numIdealFinderGen 	= 100;
+		int numGen 				= 100;
 		int asfDmId				= 1;
 		
-		KnapsackProblemInstance p = kpb.readFile(numItems, numObj);
+		ContinousProblem p = new 
+				DTLZ1
+//				DTLZ2
+//				DTLZ3
+//				DTLZ4
+				
+//				WFG1
+//				WFG2
+//				WFG3
+//				WFG4
+//				WFG5
+//				WFG6
+//				WFG7
+//				WFG8
+//				WFG9
+				(numObj);
+				
 		
 		SelectionOperator so = new BinaryTournament( new NondominationComparator<Solution> (OptimizationType.MAXIMIZATION) );
-		CrossoverOperator<VectorSolution<Integer>> co = new PermutationCrossover();
-		MutationOperator<VectorSolution<Integer>> mo = new PermutationMutation();
+		CrossoverOperator<VectorSolution<Double>> co = new SBX(p);
+		MutationOperator<VectorSolution<Double>> mo = new PolynomialMutation(p);
 		
-		Point idealPoint = SOOIdealPointFinder.findIdealPoint(p, numIdealFinderGen, idealFinderPopSize);
-		
+		Point idealPoint = SOOIdealPointFinder.findIdealPoint(p, numGen, idealFinderPopSize);
 		AsfDm asfDM = AsfDmBuilder.getAsfDm(asfDmId, numObj, idealPoint, rho);
 		
-		PSEABuilder<VectorSolution<Integer>> builder = new PSEABuilder<>(p, asfDM, new GeneticOperators<>(so, co, mo));
+		PSEABuilder<VectorSolution<Double>> builder = new PSEABuilder<>(p, asfDM, new GeneticOperators<>(so, co, mo));
+		builder.setMaxExploitGenerations(1500);
+		PSEA<VectorSolution<Double>>alg = new PSEA<>(builder);
 		
-		
-		builder.setMaxExploitGenerations(800);
-		
-		
-		PSEA<VectorSolution<Integer>>alg = new PSEA<>(builder);
-		
-		ExperimentRunner.run(alg, p, asfDM, numIdealFinderGen, numObj);
+		ExperimentRunner.run(alg, p, asfDM, numGen, numObj);
 		
 		
 	}

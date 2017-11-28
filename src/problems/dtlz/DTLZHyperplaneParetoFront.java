@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
-import algorithm.evolutionary.solutions.VectorSolution;
 import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
 import algorithm.implementations.nsgaiii.hyperplane.ReferencePoint;
 import utils.math.Geometry;
@@ -22,8 +21,8 @@ public abstract class DTLZHyperplaneParetoFront extends DTLZ {
 		super(numVariables, numObjectives, numConstraints, name);
 	}
 	@Override
-	public final VectorSolution <Double> getOptimalAsfDmSolution(AsfDm dm) {
-		return new VectorSolution <Double> (null, Geometry.lineCrossHyperplanePoint(dm.getAsfFunction().getAsfLine(), HYPERPLANE_CONST).getDim());
+	public final Solution getOptimalAsfDmSolution(AsfDm dm) {
+		return new Solution(Geometry.lineCrossHyperplanePoint(dm.getAsfFunction().getAsfLine(), HYPERPLANE_CONST).getDim());
 	}
 	
 	@Override
@@ -32,7 +31,7 @@ public abstract class DTLZHyperplaneParetoFront extends DTLZ {
 		Hyperplane h = new Hyperplane(getNumObjectives());
 		ArrayList <ReferencePoint> rp = h.getReferencePoints();
 		for(ReferencePoint r : rp){
-			res.addSolution(new VectorSolution <Double>(null, Geometry.normalizeSum(r.getDim(), 0.5)));
+			res.addSolution(new Solution(Geometry.normalizeSum(r.getDim(), 0.5)));
 		}
 		return res;
 	}

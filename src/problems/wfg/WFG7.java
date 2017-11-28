@@ -23,10 +23,11 @@ package problems.wfg;
 
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.VectorSolution;
-import problems.AsfDmProblem;
+import problems.KnowsOptimalAsfSolution;
 import utils.math.Geometry;
+import utils.math.structures.Point;
 
-public class WFG7 extends WFG implements AsfDmProblem{
+public class WFG7 extends WFG implements KnowsOptimalAsfSolution{
 	/**
 	 * 
 	 */
@@ -181,6 +182,11 @@ public class WFG7 extends WFG implements AsfDmProblem{
 	@Override
 	public VectorSolution <Double> getOptimalAsfDmSolution(AsfDm dm) {
 		return new VectorSolution <> (null, Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine(), HYPERSPHERE_CONST).getDim());
+	}
+	
+	@Override
+	public Point getTrueIdealPoint() {
+		return new Point(numObjectives);
 	}
 }
 
