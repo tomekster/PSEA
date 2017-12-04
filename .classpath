@@ -24,6 +24,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jfreechart-1.0.19/jfreechart-1.0.19-bundle.jar"/>
+	<classpathentry kind="lib" path="/home/tomasz/Desktop/NSGAIII/jfreechart-1.0.19/jfreechart-1.0.19-bundle/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
