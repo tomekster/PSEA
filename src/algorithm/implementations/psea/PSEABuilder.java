@@ -2,13 +2,14 @@ package algorithm.implementations.psea;
 
 import algorithm.evolutionary.EA;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.RferencePointDm;
 import algorithm.evolutionary.solutions.Solution;
 import problems.Problem;
 
 public class PSEABuilder<S extends Solution> {
 
 	private final Problem<S> problem;
-	private final AsfDm adm;
+	private final RferencePointDm simulatedDm;
 	private final EA.GeneticOperators<S> go;
 
 	private double lambdaMutationProbability;
@@ -24,11 +25,11 @@ public class PSEABuilder<S extends Solution> {
 	private double spreadThreshold;
 	private boolean asfDmMutation;
 
-	public PSEABuilder(Problem<S> problem, AsfDm adm, EA.GeneticOperators<S> go) {
+	public PSEABuilder(Problem<S> problem, RferencePointDm simulatedDm, EA.GeneticOperators<S> go) {
 		// MandatoryFields
-		this.problem 	= problem;
-		this.adm 		= adm;
-		this.go 		= go;
+		this.problem 		= problem;
+		this.simulatedDm 	= simulatedDm;
+		this.go 			= go;
 
 		// OptionalFields
 		this.spreadThreshold 					= 0.95;
@@ -162,8 +163,8 @@ public class PSEABuilder<S extends Solution> {
 		return problem;
 	}
 
-	public AsfDm getAdm() {
-		return adm;
+	public RferencePointDm getAdm() {
+		return simulatedDm;
 	}
 
 	public EA.GeneticOperators<S> getGo() {

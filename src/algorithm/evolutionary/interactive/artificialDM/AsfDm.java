@@ -1,22 +1,17 @@
 package algorithm.evolutionary.interactive.artificialDM;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.stream.Stream;
 
 import algorithm.evolutionary.interactive.comparison.Comparison;
-import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import utils.math.AsfFunction;
 import utils.math.structures.Point;
 
-public class AsfDm implements Comparator<Solution>{
+public class AsfDm extends RferencePointDm{
 	
 	private AsfFunction asf;
-	private String name;
 	private int numViolations;
+	
 	private double reward;
 	private double penalty;
 	
@@ -52,40 +47,8 @@ public class AsfDm implements Comparator<Solution>{
 	public void setPenalty(double penalty) {
 		this.penalty = penalty;
 	}
-
-	public Solution getBestSolutionVal(Population <? extends Solution> pop){
-		Stream<? extends Solution> solutionStream = pop.getSolutions().stream();
-		Solution best = solutionStream.reduce((a,b)-> 
-		    eval(a) < eval(b) ? a:b
-		).get();
-		return best;
-	}
 	
-	public double eval(Solution a) {
-		return this.asf.eval(a);
-	}
-
-	@Override
-	public int compare(Solution s1, Solution s2) {
-		return Double.compare(eval(s1), eval(s2));
-	}
-	
-	public void sort(ArrayList<? extends Solution> solutions){
-		HashMap <Solution, Double> asfValue = new HashMap <Solution, Double>();
-
-		for (Solution s : solutions) {
-			asfValue.put(s, eval(s));
-		}
-
-		Collections.sort(solutions, new Comparator<Solution>() {
-			@Override
-			public int compare(final Solution s1, final Solution s2) {
-				return Double.compare(asfValue.get(s1), asfValue.get(s2)); // Sort ASCENDING by ASF value
-			}
-		});
-	}
-	
-	public AsfDm newAdmWithUpdatedLambda(double lambda[]){
+	public AsfDm newAsfDmWithUpdatedLambda(double lambda[]){
 		AsfFunction newAsf = this.asf.copy();
 		newAsf.setLambda(lambda.clone());
 		return new AsfDm(newAsf);
@@ -106,14 +69,6 @@ public class AsfDm implements Comparator<Solution>{
 		return numViolations;
 	}
 	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
 	public int getNumViolations(){
 		return this.numViolations;
 	}
@@ -128,5 +83,15 @@ public class AsfDm implements Comparator<Solution>{
 	
 	public AsfFunction getAsfFunction(){
 		return this.asf;
+	}
+
+	@Override
+	public double eval(Solution a) {
+		return asf.eval(a.getObjectives());
+	}
+
+	@Override
+	public Point getReferencePoint() {
+		return this.getAsfFunction().getRefPoint();
 	}
 }

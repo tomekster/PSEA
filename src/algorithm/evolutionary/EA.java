@@ -5,9 +5,14 @@ import java.util.ArrayList;
 import algorithm.evolutionary.operators.CrossoverOperator;
 import algorithm.evolutionary.operators.MutationOperator;
 import algorithm.evolutionary.operators.SelectionOperator;
+import algorithm.evolutionary.operators.impl.crossover.SBX;
+import algorithm.evolutionary.operators.impl.mutation.PolynomialMutation;
+import algorithm.evolutionary.operators.impl.selection.BinaryTournament;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
+import algorithm.evolutionary.solutions.VectorSolution;
 import problems.Problem;
+import utils.comparators.NondominationComparator;
 
 /**
  * Abstract class implementing general scheme of every EvolutionaryAlgorithm.

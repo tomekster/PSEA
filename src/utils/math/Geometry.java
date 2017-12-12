@@ -662,4 +662,12 @@ public class Geometry {
 	public static Point lineCrossSpherePoint(Line asfLine, double hypersphereConst) {
 		throw new RuntimeErrorException(new Error(), "Geometry.lineCrossSpherePoint - method not implemented");
 	}
+	
+	public static double norm(double v[], double p){
+		double res = 0;
+		for(double a : v){
+			res += Math.pow(a, p);
+		}
+		return Math.pow(res, 1.0/p);
+	}
 }

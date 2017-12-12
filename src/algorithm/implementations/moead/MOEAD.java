@@ -21,389 +21,219 @@ package algorithm.implementations.moead;
 //You should have received a copy of the GNU Lesser General Public License
 //along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 import algorithm.evolutionary.EA;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
+import algorithm.evolutionary.solutions.VectorSolution;
 import problems.Problem;
+import utils.math.MyRandom;
+import algorithm.implementations.moead.Utils;
 
-public class MOEAD <S extends Solution> extends EA <S> {
+public class MOEAD<S extends Solution> extends EA<S> {
 
-/**
-* Z vector (ideal point)
-*/
-double[] z_;
-/**
-* Lambda vectors
-*/
-//Vector<Vector<Double>> lambda_ ; 
-double[][] lambda_;
-/**
-* T: neighbour size
-*/
-int T_;
-/**
-* Neighborhood
-*/
-int[][] neighborhood_;
-/**
-* delta: probability that parent solutions are selected from neighbourhood
-*/
-double delta_;
-/**
-* nr: maximal number of solutions replaced by each child solution
-*/
-int nr_;
-Population <S> indArray_;
-int evaluations_;
-String dataDirectory_;
+	/**
+	 * Z vector (ideal point)
+	 */
+	double[] z_;
+	/**
+	 * Lambda vectors
+	 */
+	// Vector<Vector<Double>> lambda_ ;
+	double[][] lambda_;
+	/**
+	 * T: neighbour size
+	 */
+	int T_;
+	/**
+	 * Neighborhood
+	 */
+	int[][] neighborhood_;
+	/**
+	 * delta: probability that parent solutions are selected from neighbourhood
+	 */
+	double delta_;
+	/**
+	 * nr: maximal number of solutions replaced by each child solution
+	 */
+	int nr_;
+	Population<S> indArray_;
+	String dataDirectory_;
 
-/** 
-* Constructor
-* @param problem Problem to solve
-*/
-public MOEAD(Problem <S> problem, ) {
-	super(problem, T_, go)
-super (problem) ;
+	/** 
+	* Constructor
+	* @param problem Problem to solve
+	*/
+	public MOEAD(Problem <S> problem, int popSize, GeneticOperators<S> go, double[] idealPoint, int neighSize) {
+		super(problem, popSize, go); 
+		z_ = idealPoint.clone();
+		
+		this.popSize = popSize; 
+		Population <S> indArray_ = new Population<>();
 
-functionType_ = "_TCHE1";
+		T_ = neighSize;
 
-} // DMOEA
+		/*
+		 * T_ = (int) (0.1 * populationSize_); delta_ = 0.9; nr_ = (int) (0.01 *
+		 * populationSize_);
+		 */
+		neighborhood_ = new int[this.popSize][T_];
 
-public SolutionSet execute() throws JMException, ClassNotFoundException {
-int maxEvaluations;
+		z_ = new double[problem.getNumObjectives()];
+		// lambda_ = new Vector(problem_.getNumberOfObjectives()) ;
+		lambda_ = new double[this.popSize][problem.getNumObjectives()];
 
-evaluations_ = 0;
-maxEvaluations = ((Integer) this.getInputParameter("maxEvaluations")).intValue();
-populationSize_ = ((Integer) this.getInputParameter("populationSize")).intValue();
-dataDirectory_ = this.getInputParameter("dataDirectory").toString();
-System.out.println("POPSIZE: "+ populationSize_) ;
+		// STEP 1. Initialization
+		// STEP 1.1. Compute euclidean distances between weight vectors and find
+		// T
+		initUniformWeight();
+		// for (int i = 0; i < 300; i++)
+		// System.out.println(lambda_[i][0] + " " + lambda_[i][1]) ;
 
-population_ = new SolutionSet(populationSize_);
-indArray_ = new Solution[problem_.getNumberOfObjectives()];
+		initNeighborhood();
+	}
 
-T_ = ((Integer) this.getInputParameter("T")).intValue();
-nr_ = ((Integer) this.getInputParameter("nr")).intValue();
-delta_ = ((Double) this.getInputParameter("delta")).doubleValue();
+	/**
+	 * initUniformWeight
+	 */
+	public void initUniformWeight() {
+		for (int n = 0; n < this.popSize; n++) {
+			double a = 1.0 * n / (this.popSize - 1);
+			lambda_[n][0] = a;
+			lambda_[n][1] = 1 - a;
+		} // for
+	} // initUniformWeight
 
-/*
-T_ = (int) (0.1 * populationSize_);
-delta_ = 0.9;
-nr_ = (int) (0.01 * populationSize_);
-*/
-neighborhood_ = new int[populationSize_][T_];
+	/**
+	* 
+	*/
+	public void initNeighborhood() {
+		double[] x = new double[popSize];
+		int[] idx = new int[popSize];
 
-z_ = new double[problem_.getNumberOfObjectives()];
-//lambda_ = new Vector(problem_.getNumberOfObjectives()) ;
-lambda_ = new double[populationSize_][problem_.getNumberOfObjectives()];
+		for (int i = 0; i < popSize; i++) {
+			// calculate the distances based on weight vectors
+			for (int j = 0; j < popSize; j++) {
+				x[j] = Utils.distVector(lambda_[i], lambda_[j]);
+				// x[j] = dist_vector(population[i].namda,population[j].namda);
+				idx[j] = j;
+				// System.out.println("x["+j+"]: "+x[j]+ ". idx["+j+"]:
+				// "+idx[j]) ;
+			} // for
 
-// STEP 1. Initialization
-// STEP 1.1. Compute euclidean distances between weight vectors and find T
-initUniformWeight();
-//for (int i = 0; i < 300; i++)
-// 	System.out.println(lambda_[i][0] + " " + lambda_[i][1]) ;
+			// find 'niche' nearest neighboring subproblems
+			Utils.minFastSort(x, idx, popSize, T_);
+			// minfastsort(x,idx,population.size(),niche);
 
-initNeighborhood();
+			System.arraycopy(idx, 0, neighborhood_[i], 0, T_);
+		} // for
+	} // initNeighborhood
 
-// STEP 1.2. Initialize population
-initPopulation();
+//	/**
+//	* 
+//	*/
+//	public void matingSelection(Vector<Integer> list, int cid, int size, int type) {
+//		// list : the set of the indexes of selected mating parents
+//		// cid : the id of current subproblem
+//		// size : the number of selected mating parents
+//		// type : 1 - neighborhood; otherwise - whole population
+//		int ss;
+//		int r;
+//		int p;
+//
+//		ss = neighborhood_[cid].length;
+//		while (list.size() < size) {
+//			if (type == 1) {
+//				r = PseudoRandom.randInt(0, ss - 1);
+//				p = neighborhood_[cid][r];
+//				// p = population[cid].table[r];
+//			} else {
+//				p = PseudoRandom.randInt(0, populationSize_ - 1);
+//			}
+//			boolean flag = true;
+//			for (int i = 0; i < list.size(); i++) {
+//				if (list.get(i) == p) // p is in the list
+//				{
+//					flag = false;
+//					break;
+//				}
+//			}
+//
+//			// if (flag) list.push_back(p);
+//			if (flag) {
+//				list.addElement(p);
+//			}
+//		}
+//	} // matingSelection
 
-// STEP 1.3. Initialize z_
-initIdealPoint();
+	/**
+	 * 
+	 * @param individual
+	 */
+	void updateReference(S individual) {
+		for (int n = 0; n < problem.getNumObjectives(); n++) {
+			if (individual.getObjective(n) < z_[n]) {
+				z_[n] = individual.getObjective(n);
+				indArray_.getSolutions().set(n, (S) individual.copy());
+			}
+		}
+	} // updateReference
 
-// STEP 2. Update
-do {
-  int[] permutation = new int[populationSize_];
-  Utils.randomPermutation(permutation, populationSize_);
+	/**
+	 * @param individual
+	 * @param id
+	 * @param type
+	 */
+	void updateProblem(S indiv, int id, int type) {
+		// indiv: child solution
+		// id: the id of current subproblem
+		// type: update solutions in - neighborhood (1) or whole population
+		// (otherwise)
+		int size;
 
-  for (int i = 0; i < populationSize_; i++) {
-    int n = permutation[i]; // or int n = i;
-    //int n = i ; // or int n = i;
-    int type;
-    double rnd = PseudoRandom.randDouble();
+		if (type == 1) {
+			size = neighborhood_[id].length;
+		} else {
+			size = popSize;
+		}
+		int[] perm = new int[size];
 
-    // STEP 2.1. Mating selection based on probability
-    if (rnd < delta_) // if (rnd < realb)    
-    {
-      type = 1;   // neighborhood
-    } else {
-      type = 2;   // whole population
-    }
-    Vector<Integer> p = new Vector<Integer>();
-    matingSelection(p, n, 2, type);
+		Utils.randomPermutation(perm, size);
 
-    // STEP 2.2. Reproduction
-    Solution child;
-    Solution[] parents = new Solution[3];
+		for (int i = 0; i < size; i++) {
+			int k;
+			if (type == 1) {
+				k = neighborhood_[id][perm[i]];
+			} else {
+				k = perm[i]; // calculate the values of objective function
+								// regarding the current subproblem
+			}
+			double f1, f2;
 
-    parents[0] = population_.get(p.get(0));
-    parents[1] = population_.get(p.get(1));
-    parents[2] = population_.get(n);
+			f1 = fitnessFunction(population.getSolution(k), lambda_[k]);
+			f2 = fitnessFunction(indiv, lambda_[k]);
 
-    // Apply DE crossover 
-    child = (Solution) crossover_.execute(new Object[]{population_.get(n), parents});
+			if (f2 < f1) {
+				population.getSolutions().set(k, indiv);
+			}
+		}
+	} // updateProblem
 
-    // Apply mutation
-    mutation_.execute(child);
+	@Override
+	protected Population <S> selectNewPopulation(Population <S> pop) {
+		
+		int[] permutation = new int[popSize];
+		Utils.randomPermutation(permutation, popSize);
 
-    // Evaluation
-    problem_.evaluate(child);      
-    
-    evaluations_++;
+		for (int i = 0; i < popSize; i++) {
+			int n = permutation[i]; // or int n = i;
+			
 
-    // STEP 2.3. Repair. Not necessary
+			// STEP 2.4. Update z_
+			updateReference(child);
 
-    // STEP 2.4. Update z_
-    updateReference(child);
-
-    // STEP 2.5. Update of solutions
-    updateProblem(child, n, type);
-  } // for 
-} while (evaluations_ < maxEvaluations);
-
-return population_;
-}
-
-
-/**
-* initUniformWeight
-*/
-public void initUniformWeight() {
-if ((problem_.getNumberOfObjectives() == 2) && (populationSize_ <= 300)) {
-  for (int n = 0; n < populationSize_; n++) {
-    double a = 1.0 * n / (populationSize_ - 1);
-    lambda_[n][0] = a;
-    lambda_[n][1] = 1 - a;
-  } // for
-} // if
-else {
-  String dataFileName;
-  dataFileName = "W" + problem_.getNumberOfObjectives() + "D_" +
-    populationSize_ + ".dat";
-
-  try {
-    // Open the file
-    FileInputStream fis = new FileInputStream(dataDirectory_ + "/" + dataFileName);
-    InputStreamReader isr = new InputStreamReader(fis);
-    BufferedReader br = new BufferedReader(isr);
-
-    int numberOfObjectives = 0;
-    int i = 0;
-    int j = 0;
-    String aux = br.readLine();
-    while (aux != null) {
-      StringTokenizer st = new StringTokenizer(aux);
-      j = 0;
-      numberOfObjectives = st.countTokens();
-      while (st.hasMoreTokens()) {
-        double value = (new Double(st.nextToken())).doubleValue();
-        lambda_[i][j] = value;
-        //System.out.println("lambda["+i+","+j+"] = " + value) ;
-        j++;
-      }
-      aux = br.readLine();
-      i++;
-    }
-    br.close();
-  } catch (Exception e) {
-    System.out.println("initUniformWeight: failed when reading for file: " + dataDirectory_ + "/" + dataFileName);
-    e.printStackTrace();
-  }
-} // else
-
-//System.exit(0) ;
-} // initUniformWeight
-/**
-* 
-*/
-public void initNeighborhood() {
-double[] x = new double[populationSize_];
-int[] idx = new int[populationSize_];
-
-for (int i = 0; i < populationSize_; i++) {
-  // calculate the distances based on weight vectors
-  for (int j = 0; j < populationSize_; j++) {
-    x[j] = Utils.distVector(lambda_[i], lambda_[j]);
-    //x[j] = dist_vector(population[i].namda,population[j].namda);
-    idx[j] = j;
-  //System.out.println("x["+j+"]: "+x[j]+ ". idx["+j+"]: "+idx[j]) ;
-  } // for
-
-  // find 'niche' nearest neighboring subproblems
-  Utils.minFastSort(x, idx, populationSize_, T_);
-  //minfastsort(x,idx,population.size(),niche);
-
-    System.arraycopy(idx, 0, neighborhood_[i], 0, T_);
-} // for
-} // initNeighborhood
-
-/**
-* 
-*/
-public void initPopulation() throws JMException, ClassNotFoundException {
-for (int i = 0; i < populationSize_; i++) {
-  Solution newSolution = new Solution(problem_);
-
-  problem_.evaluate(newSolution);
-  evaluations_++;
-  population_.add(newSolution) ;
-} // for
-} // initPopulation
-
-/**
-* 
-*/
-void initIdealPoint() throws JMException, ClassNotFoundException {
-for (int i = 0; i < problem_.getNumberOfObjectives(); i++) {
-  z_[i] = 1.0e+30;
-  indArray_[i] = new Solution(problem_);
-  problem_.evaluate(indArray_[i]);
-  evaluations_++;
-} // for
-
-for (int i = 0; i < populationSize_; i++) {
-  updateReference(population_.get(i));
-} // for
-} // initIdealPoint
-
-/**
-* 
-*/
-public void matingSelection(Vector<Integer> list, int cid, int size, int type) {
-// list : the set of the indexes of selected mating parents
-// cid  : the id of current subproblem
-// size : the number of selected mating parents
-// type : 1 - neighborhood; otherwise - whole population
-int ss;
-int r;
-int p;
-
-ss = neighborhood_[cid].length;
-while (list.size() < size) {
-  if (type == 1) {
-    r = PseudoRandom.randInt(0, ss - 1);
-    p = neighborhood_[cid][r];
-  //p = population[cid].table[r];
-  } else {
-    p = PseudoRandom.randInt(0, populationSize_ - 1);
-  }
-  boolean flag = true;
-  for (int i = 0; i < list.size(); i++) {
-    if (list.get(i) == p) // p is in the list
-    {
-      flag = false;
-      break;
-    }
-  }
-
-  //if (flag) list.push_back(p);
-  if (flag) {
-    list.addElement(p);
-  }
-}
-} // matingSelection
-
-/**
-* 
-* @param individual
-*/
-void updateReference(Solution individual) {
-for (int n = 0; n < problem_.getNumberOfObjectives(); n++) {
-  if (individual.getObjective(n) < z_[n]) {
-    z_[n] = individual.getObjective(n);
-
-    indArray_[n] = individual;
-  }
-}
-} // updateReference
-
-/**
-* @param individual
-* @param id
-* @param type
-*/
-void updateProblem(Solution indiv, int id, int type) {
-// indiv: child solution
-// id:   the id of current subproblem
-// type: update solutions in - neighborhood (1) or whole population (otherwise)
-int size;
-int time;
-
-time = 0;
-
-if (type == 1) {
-  size = neighborhood_[id].length;
-} else {
-  size = population_.size();
-}
-int[] perm = new int[size];
-
-Utils.randomPermutation(perm, size);
-
-for (int i = 0; i < size; i++) {
-  int k;
-  if (type == 1) {
-    k = neighborhood_[id][perm[i]];
-  } else {
-    k = perm[i];      // calculate the values of objective function regarding the current subproblem
-  }
-  double f1, f2;
-
-  f1 = fitnessFunction(population_.get(k), lambda_[k]);
-  f2 = fitnessFunction(indiv, lambda_[k]);
-
-  if (f2 < f1) {
-    population_.replace(k, new Solution(indiv));
-    //population[k].indiv = indiv;
-    time++;
-  }
-  // the maximal number of solutions updated is not allowed to exceed 'limit'
-  if (time >= nr_) {
-    return;
-  }
-}
-} // updateProblem
-
-double fitnessFunction(Solution individual, double[] lambda) {
-double fitness;
-fitness = 0.0;
-
-if (functionType_.equals("_TCHE1")) {
-  double maxFun = -1.0e+30;
-
-  for (int n = 0; n < problem_.getNumberOfObjectives(); n++) {
-    double diff = Math.abs(individual.getObjective(n) - z_[n]);
-
-    double feval;
-    if (lambda[n] == 0) {
-      feval = 0.0001 * diff;
-    } else {
-      feval = diff * lambda[n];
-    }
-    if (feval > maxFun) {
-      maxFun = feval;
-    }
-  } // for
-
-  fitness = maxFun;
-} // if
-else {
-  System.out.println("MOEAD.fitnessFunction: unknown type " + functionType_);
-  System.exit(-1);
-}
-return fitness;
-} // fitnessEvaluation
-
-@Override
-protected Population selectNewPopulation(Population pop) {
-	// TODO Auto-generated method stub
-	return null;
-}
+			// STEP 2.5. Update of solutions
+			updateProblem(child, n, type);
+	}
 } // MOEAD
-
-

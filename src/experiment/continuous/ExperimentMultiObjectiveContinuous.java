@@ -1,8 +1,7 @@
 package experiment.continuous;
 
 import algorithm.evolutionary.EA.GeneticOperators;
-import algorithm.evolutionary.interactive.artificialDM.AsfDm;
-import algorithm.evolutionary.interactive.artificialDM.AsfDmBuilder;
+import algorithm.evolutionary.interactive.artificialDM.LpDm;
 import algorithm.evolutionary.operators.CrossoverOperator;
 import algorithm.evolutionary.operators.MutationOperator;
 import algorithm.evolutionary.operators.SelectionOperator;
@@ -15,7 +14,7 @@ import algorithm.implementations.psea.PSEA;
 import algorithm.implementations.psea.PSEABuilder;
 import experiment.ExperimentRunner;
 import problems.ContinousProblem;
-import problems.zdt.ZDT3;
+import problems.dtlz.DTLZ1;
 import utils.SOOIdealPointFinder;
 import utils.comparators.NondominationComparator;
 import utils.math.structures.Point;
@@ -30,7 +29,7 @@ public class ExperimentMultiObjectiveContinuous {
 		int asfDmId				= 4;
 		
 		ContinousProblem p = new 
-//				DTLZ1
+				DTLZ1
 //				DTLZ2
 //				DTLZ3
 //				DTLZ4
@@ -44,7 +43,7 @@ public class ExperimentMultiObjectiveContinuous {
 //				WFG7
 //				WFG8
 //				WFG9
-				ZDT3
+//				ZDT3
 				(numObj);
 				
 		
@@ -53,14 +52,12 @@ public class ExperimentMultiObjectiveContinuous {
 		MutationOperator<VectorSolution<Double>> mo = new PolynomialMutation(p);
 		
 		Point idealPoint = SOOIdealPointFinder.findIdealPoint(p, numGen, idealFinderPopSize);
-		AsfDm asfDM = AsfDmBuilder.getAsfDm(asfDmId, numObj, idealPoint, rho);
-		
-		PSEABuilder<VectorSolution<Double>> builder = new PSEABuilder<>(p, asfDM, new GeneticOperators<>(so, co, mo));
+		//AsfDm asfDM = AsfDmBuilder.getAsfDm(asfDmId, numObj, idealPoint, rho);
+		LpDm simulatedDm = new LpDm(6, idealPoint);
+		PSEABuilder<VectorSolution<Double>> builder = new PSEABuilder<>(p, simulatedDm, new GeneticOperators<>(so, co, mo));
 		builder.setMaxExploitGenerations(1500);
 		PSEA<VectorSolution<Double>>alg = new PSEA<>(builder);
 		
-		ExperimentRunner.run(alg, p, asfDM, numGen, numObj);
-		
-		
+		ExperimentRunner.run(alg, p, simulatedDm, numGen, numObj);
 	}
 }

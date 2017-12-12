@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import algorithm.evolutionary.EA;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.RferencePointDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
@@ -33,7 +34,7 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 	private PSEAphase pseaPhase;
 	
 	//Parameters
-	private AsfDm adm;
+	private RferencePointDm simulatedDM;
 	private int maxExplorationComparisons;
 	private int maxExploitationComparisons;
 	private double spreadThreshold;
@@ -65,31 +66,31 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		
 		// Reset counters
 		this.pseaPhase = PSEAphase.REACHING_SPREAD;
-		this.generation = 0;
-		this.explorationComparisons = 0;
-		this.exploitationComparisons = 0;
-		this.lastImprovedSpreadGen = 0;
-		this.maxSpread = 0;
+		this.generation 				= 0;
+		this.explorationComparisons 	= 0;
+		this.exploitationComparisons 	= 0;
+		this.lastImprovedSpreadGen 		= 0;
+		this.maxSpread 					= 0;
 		this.numZeroDiscriminativePower = 0;
 		
 		// Algorithm execution parameters 
-		this.spreadThreshold = 					builder.getSpreadThreshold();
-		this.lambdaMutationProbability = 		builder.getLambdaMutationProbability();
-		this.lambdaMutationNeighborhoodRadius = builder.getLambdaMutationNeighborhoodRadius();
-		this.lambdaRho =						builder.getLambdaRho();
-		this.maxExplorationComparisons = 		builder.getMaxExplorationComparisons();
-		this.maxExploitationComparisons = 		builder.getMaxExploitationComparisons();
-		this.maxZeroDiscriminativePower = 		builder.getMaxZeroDiscriminativePower();
-		this.elicitationInterval = 				builder.getElicitationInterval();
-		this.maxExploitGenerations = 			builder.getMaxExploitGenerations();
-		this.maxNumGenWithNoSpreadImprovment =  builder.getMaxNumGenWithNoSpreadImprovment();
-		this.asfBundleSize = 					builder.getAsfBundleSize();
-		this.asfDmMutation = 					builder.isAsfDmMutation();
-		this.refPoint =							builder.getAdm().getRefPoint();
+		this.spreadThreshold 					= builder.getSpreadThreshold();
+		this.lambdaMutationProbability 			= builder.getLambdaMutationProbability();
+		this.lambdaMutationNeighborhoodRadius 	= builder.getLambdaMutationNeighborhoodRadius();
+		this.lambdaRho 							= builder.getLambdaRho();
+		this.maxExplorationComparisons 			= builder.getMaxExplorationComparisons();
+		this.maxExploitationComparisons 		= builder.getMaxExploitationComparisons();
+		this.maxZeroDiscriminativePower 		= builder.getMaxZeroDiscriminativePower();
+		this.elicitationInterval 				= builder.getElicitationInterval();
+		this.maxExploitGenerations 				= builder.getMaxExploitGenerations();
+		this.maxNumGenWithNoSpreadImprovment 	= builder.getMaxNumGenWithNoSpreadImprovment();
+		this.asfBundleSize 						= builder.getAsfBundleSize();
+		this.asfDmMutation 						= builder.isAsfDmMutation();
+		this.refPoint 							= builder.getAdm().getReferencePoint();
 		
 		this.asfBundle = new ASFBundle(refPoint, this.asfBundleSize, lambdaMutationProbability, lambdaMutationNeighborhoodRadius, lambdaRho);
 		this.pairwiseComparisons = new ArrayList<>();
-		this.adm = builder.getAdm();
+		this.simulatedDM = builder.getAdm();
 	}
 
 	@Override
@@ -160,13 +161,13 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		
 		//If first front (nondominated set) consists of at least two solutions try to elicitate
 		if(firstFront.size() > 1){
-			maxDiscriminativePower = Elicitator.elicitate(population, adm, asfBundle, p);
+			maxDiscriminativePower = Elicitator.elicitate(population, simulatedDM, asfBundle, p);
 			if(maxDiscriminativePower == 0){
 				numZeroDiscriminativePower++;
 			}
 			else{
 				numZeroDiscriminativePower = 0;
-				Comparison cmp = Elicitator.compare(adm, p.first, p.second, generation);
+				Comparison cmp = Elicitator.compare(simulatedDM, p.first, p.second, generation);
 				if(cmp != null){
 					pairwiseComparisons.add(cmp);
 				}
@@ -192,9 +193,9 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		nextGeneration();
 		
 		if(generation % elicitationInterval == 0 &&  exploitationComparisons < maxExploitationComparisons){
-			maxDiscriminativePower = Elicitator.elicitate( population, adm, asfBundle, p);
+			maxDiscriminativePower = Elicitator.elicitate( population, simulatedDM, asfBundle, p);
 			if(maxDiscriminativePower != 0){
-				Comparison cmp = Elicitator.compare(adm, p.first, p.second, generation);
+				Comparison cmp = Elicitator.compare(simulatedDM, p.first, p.second, generation);
 				if(cmp != null){
 					pairwiseComparisons.add(cmp);
 				}
@@ -217,12 +218,12 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		}
 	}
 	
-	public AsfDm getAdm() {
-		return adm;
+	public RferencePointDm getSimulatedDm() {
+		return simulatedDM;
 	}
 
 	public PSEA <S> setAdm(AsfDm adm) {
-		this.adm = adm;
+		this.simulatedDM = adm;
 		return this;
 	}
 

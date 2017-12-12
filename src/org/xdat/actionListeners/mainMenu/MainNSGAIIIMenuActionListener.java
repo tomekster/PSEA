@@ -32,8 +32,6 @@ import org.xdat.gui.menus.mainWIndow.MainNSGAIIIMenu;
 import org.xdat.workerThreads.NSGAIIIDataSheetCreationThread;
 
 import algorithm.implementations.psea.PSEA;
-import algorithm.implementations.psea.PSEARunnner;
-import experiment.ExecutionHistory;
 
 /**
  * ActionListener for a {@link MainNSGAIIIMenu}.

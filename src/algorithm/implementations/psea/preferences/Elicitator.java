@@ -1,10 +1,12 @@
 package algorithm.implementations.psea.preferences;
 
+import java.util.Arrays;
 import java.util.stream.DoubleStream;
 
 import javax.swing.JOptionPane;
 
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.RferencePointDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
@@ -16,11 +18,11 @@ public class Elicitator {
 	
 	//private final static Logger LOGGER = Logger.getLogger(Elicitator.class.getName());
 	
-	public static int elicitate(Population <? extends Solution> pop, AsfDm adm, ASFBundle asfBundle, Pair<Solution, Solution> p) {
+	public static int elicitate(Population <? extends Solution> pop, RferencePointDm adm, ASFBundle asfBundle, Pair<Solution, Solution> p) {
 		return getComparedSolutions(pop, asfBundle, p);
 	}
 
-	public static Comparison compare(AsfDm adm, Solution s1, Solution s2, int gen) {		
+	public static Comparison compare(RferencePointDm adm, Solution s1, Solution s2, int gen) {		
 		if (adm != null) {
 			int comparisonResult = adm.compare(s1, s2);
 			if (comparisonResult == -1) {
@@ -29,6 +31,8 @@ public class Elicitator {
 				return new Comparison(s2, s1, gen);
 			} else {
 				//TODO - add epsilon for incomparable solutions
+				System.out.println(s1 + "\n" + s2 );
+				System.out.println(adm.eval(s1) + " " + adm.eval(s2));
 				System.out.println("Incomparable solutions - equal chebyshev function value");
 				return null;
 			}
