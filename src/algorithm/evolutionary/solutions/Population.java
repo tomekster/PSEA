@@ -106,4 +106,20 @@ public class Population <S extends Solution> implements Serializable{
 		}
 		return maxDist;
 	}
+	
+	public double minObjectiveVal(int obj){
+		double min = Double.POSITIVE_INFINITY;
+		for(Solution s : solutions){
+			min = Double.min(min, s.getObjective(obj));
+		}
+		return min;
+	}
+	
+	public double maxObjectiveVal(int obj){
+		double max = Double.NEGATIVE_INFINITY;
+		for(Solution s : solutions){
+			max = Double.max(max, s.getObjective(obj));
+		}
+		return max;
+	}
 }

@@ -1,0 +1,5 @@
+package utils.enums;
+
+public enum PSEAphase {
+	REACHING_SPREAD, EXPLOARATION, EXPLOITATION, REACHED_MAX_GENERATIONS;
+}

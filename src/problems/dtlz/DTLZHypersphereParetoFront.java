@@ -23,8 +23,9 @@ public abstract class DTLZHypersphereParetoFront extends DTLZ{
 	}
 	
 	@Override
-	public final VectorSolution <Double> getOptimalAsfDmSolution(AsfDm dm) {
-		return new VectorSolution <Double> (null, Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine(), HYPERSPHERE_RADIUS).getDim());
+	public final Solution getOptimalAsfDmSolution(AsfDm dm) {
+		//return new VectorSolution <Double> (null, Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine(), HYPERSPHERE_RADIUS).getDim());
+		return new Solution(Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine().getVector(), HYPERSPHERE_RADIUS).getDim());
 	}
 	
 	@Override

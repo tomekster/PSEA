@@ -26,8 +26,7 @@ public class AsfFunction {
 			res = Double.max(mult, res);
 			sum += mult;
 		}
-		//TODO
-		//res += sum * rho;
+		res += sum * rho;
 		return res;
 	}
 	
@@ -61,5 +60,9 @@ public class AsfFunction {
 	
 	public int getNumDim(){
 		return lambda.length;
+	}
+	
+	public Point getRefPoint(){
+		return this.refPoint;
 	}
 }

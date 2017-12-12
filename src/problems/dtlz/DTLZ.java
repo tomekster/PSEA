@@ -1,11 +1,12 @@
 package problems.dtlz;
 
 import algorithm.evolutionary.solutions.VectorSolution;
-import problems.AsfDmProblem;
+import problems.KnowsOptimalAsfSolution;
 import problems.ContinousProblem;
 import utils.enums.OptimizationType;
+import utils.math.structures.Point;
 
-public abstract class DTLZ extends ContinousProblem implements AsfDmProblem{
+public abstract class DTLZ extends ContinousProblem implements KnowsOptimalAsfSolution{
 	
 	/**
 	 * 
@@ -18,4 +19,9 @@ public abstract class DTLZ extends ContinousProblem implements AsfDmProblem{
 
 	@Override
 	public abstract void evaluate(VectorSolution <Double> solution);
+	
+	@Override
+	public Point getTrueIdealPoint() {
+		return new Point(numObjectives);
+	}
 }

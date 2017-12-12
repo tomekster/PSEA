@@ -62,7 +62,7 @@ for k in range(num_knapsacks):
     knap_id = int(l[-1].replace(':', '')) # Get knapsack id
 
     l = f.readline().strip().split()
-    capacity = int(l[-1]) # Get knapsack capacity
+    capacity = float(l[-1]) # Get knapsack capacity
 
     knapsack = Knapsack(knap_id, capacity)
 

@@ -50,7 +50,7 @@ public class ASFBundle implements Comparator<Solution> {
 		for(int i=0; i<bundleSize; i++) { 
 			asfDMs.add(new AsfDm( new AsfFunction(Geometry.getRandomVectorSummingTo1(referencePoint.getNumDim()), asfDmRho, referencePoint))); //Add random lambdas to current bundle to increase the diversity 
 		}
-		ArrayList <AsfDm> newPreferenceModels = selectNewAsfDMs(GLS.improvePreferenceModels(this, pc),mutation, pc);
+		ArrayList <AsfDm> newPreferenceModels = selectNewAsfDMs(GLS.improvePreferenceModels(this, pc), mutation, pc);
 		this.asfDMs = newPreferenceModels;
 	}
 	

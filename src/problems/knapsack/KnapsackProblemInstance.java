@@ -11,17 +11,13 @@ import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
-import problems.AsfDmProblem;
+import problems.KnowsOptimalAsfSolution;
 import problems.PermutationProblem;
 import problems.knapsack.structures.Knapsack;
 import utils.enums.OptimizationType;
 import utils.math.structures.Point;
 
-public class KnapsackProblemInstance extends PermutationProblem implements AsfDmProblem {
-	
-	String linuxPath = "/media/tomasz/D3E6-0A4B/PSEA/knapsack";
-	String windowsPath = "C:\\Users\\stern\\git\\PSEA\\benchmarks\\knapsack\\referencePF";
-	String path;		
+public class KnapsackProblemInstance extends PermutationProblem implements KnowsOptimalAsfSolution {
 	
 	private ArrayList<Knapsack> knapsacks;
 
@@ -35,7 +31,6 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 	public KnapsackProblemInstance(int numItems, int numKnapsacks, int numConstraints, String name) {
 		super(numItems, numKnapsacks, numConstraints, name, OptimizationType.MAXIMIZATION);
 		this.knapsacks = new ArrayList<>();
-		path = this.linuxPath;
 	}
 
 	/**
@@ -54,7 +49,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 																			// in
 																			// each
 																			// knapsack
-		double totalProfits[] = new double[solution.getNumObjectives()];
+		int totalProfits[] = new int[solution.getNumObjectives()];
 		
 		boolean solutionFitsInAllKnapsacks = true;
 		for (Integer itemId : solution.getVariables()) {
@@ -89,7 +84,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 		Population <Solution> refFront = new Population <>();
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(Paths
-				.get(path, "knapsack." + numVariables + "." + numObjectives + ".pareto")
+				.get("benchmarks", "knapsack", "referencePF", "knapsack." + numVariables + "." + numObjectives + ".pareto")
 				.toFile()))) {
 			double obj[] = null;
 			while (true) {
@@ -124,7 +119,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 			
 			//Read the data
 			try (BufferedReader br = new BufferedReader(
-					new FileReader(Paths.get(this.path, "knapsack." + getNumVariables() + "." + getNumObjectives() + ".pareto").toFile()))) {
+					new FileReader(Paths.get("benchmarks", "knapsack", "referencePF", "knapsack." + getNumVariables() + "." + getNumObjectives() + ".pareto").toFile()))) {
 				
 				for (String line = br.readLine(); line != null; line = br.readLine()) {
 					String vals[] = line.trim().split(" ");
@@ -153,5 +148,16 @@ public class KnapsackProblemInstance extends PermutationProblem implements AsfDm
 			}
 		}
 		return new Solution(bestSol);
+	}
+
+	@Override
+	public Point getTrueIdealPoint() {
+		double maxProfits[] = new double[numObjectives];
+		for(Solution s : getReferenceFront().getSolutions()){
+			for(int i=0; i<numObjectives; i++){
+				maxProfits[i] = Double.max(maxProfits[i], s.getObjective(i));
+			}
+		}
+		return new Point(maxProfits);
 	}
 }

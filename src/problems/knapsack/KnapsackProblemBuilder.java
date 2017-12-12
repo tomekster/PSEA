@@ -32,7 +32,7 @@ public class KnapsackProblemBuilder {
 		String filename = "parsed_knapsack." + numItems + "." + numKnapsacks;
 		KnapsackProblemInstance kpi = new KnapsackProblemInstance(numItems, numKnapsacks, 0, filename);
 
-		try(BufferedReader br = new BufferedReader(new FileReader(Paths.get("/media/tomasz/D3E6-0A4B/PSEA/knapsack", filename).toFile()))) {
+		try(BufferedReader br = new BufferedReader(new FileReader(Paths.get("benchmarks/knapsack/probleminstance", filename).toFile()))) {
 			int nk = readInteger(br);
 			int ni = readInteger(br);
 			

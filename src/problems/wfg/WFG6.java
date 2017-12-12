@@ -23,8 +23,9 @@ package problems.wfg;
 
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
 import algorithm.evolutionary.solutions.VectorSolution;
-import problems.AsfDmProblem;
+import problems.KnowsOptimalAsfSolution;
 import utils.math.Geometry;
+import utils.math.structures.Point;
 
 /**
  * This class implements the WFG6 problem Reference: Simon Huband, Luigi Barone,
@@ -32,7 +33,7 @@ import utils.math.Geometry;
  * Evolutionary Multi-Criterion Optimization: Third International Conference,
  * EMO 2005. Proceedings, volume 3410 of Lecture Notes in Computer Science
  */
-public class WFG6 extends WFG implements AsfDmProblem {
+public class WFG6 extends WFG implements KnowsOptimalAsfSolution {
 
 	/**
 	 * 
@@ -164,5 +165,10 @@ public class WFG6 extends WFG implements AsfDmProblem {
 	@Override
 	public VectorSolution <Double> getOptimalAsfDmSolution(AsfDm dm) {
 		return new VectorSolution <> (null,Geometry.lineCrossSpherePoint(dm.getAsfFunction().getAsfLine(), HYPERSPHERE_CONST).getDim());
+	}
+
+	@Override
+	public Point getTrueIdealPoint() {
+		return new Point(numObjectives);
 	}
 }

@@ -10,6 +10,7 @@ import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import utils.math.AsfFunction;
+import utils.math.structures.Point;
 
 public class AsfDm implements Comparator<Solution>{
 	
@@ -32,6 +33,10 @@ public class AsfDm implements Comparator<Solution>{
 		return new AsfDm(this.asf.copy(), this.name);
 	}
 
+	public Point getRefPoint(){
+		return asf.getRefPoint();
+	}
+	
 	public double getReward(){
 		return this.reward;
 	}
@@ -92,9 +97,9 @@ public class AsfDm implements Comparator<Solution>{
 	 * @param rp
 	 */
 	public int verifyModel(ArrayList <Comparison> pc) {
-		int numViolations = 0;
+		numViolations = 0;
 		for(Comparison c : pc){
-			if( this.compare(c.getBetter(), c.getWorse()) < 0 ){
+			if( this.compare(c.getBetter(), c.getWorse()) >= 0 ){
 				numViolations++;
 			}
 		}
