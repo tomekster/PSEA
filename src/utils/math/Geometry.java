@@ -494,7 +494,6 @@ public class Geometry {
 		}
 	}
 	
-	
 	public static Pair<double[], double[]> getSimplexSegment(double[] point, double[] grad) {
 		assert (Math.abs( Arrays.stream(point).sum() - 1) < Geometry.EPS);
 		assert(Math.abs( Arrays.stream(grad).sum()) < Geometry.EPS);
@@ -504,15 +503,10 @@ public class Geometry {
 		double t1 = Double.MAX_VALUE, t2 = Double.MAX_VALUE;
 		
 		for(int i=0; i<numDim; i++){
-			assert point[i] >= -Geometry.EPS && point[i] <= 1+Geometry.EPS;
-			if(point[i] < 0) point[i]=0;
-			if(point[i] > 1) point[i]=1;
 			if(grad[i] < 0){
 				t1 = Double.min( t1, -point[i]/grad[i]);
-//				t2 = Double.min( t2, -(1-point[i])/grad[i]);
 			}
 			else if(grad[i] > 0){
-//				t1 = Double.min( t1, (1-point[i])/grad[i]);
 				t2 = Double.min( t2, point[i]/grad[i]);
 			}
 		}
@@ -521,23 +515,16 @@ public class Geometry {
 			p1[i] = point[i] + t1 * grad[i];
 			p2[i] = point[i] - t2 * grad[i];
 		}
+		
+		for(int i=0; i < numDim; i++){
+			if(p1[i] < 0) p1[i] = 0;
+			if(p2[i] < 0) p2[i] = 0;
+		}
+		
 		assert( Math.abs( Arrays.stream(p1).sum() - 1) < Geometry.EPS );
 		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
 		assert( Math.abs( Arrays.stream(p1).min().getAsDouble() ) < Geometry.EPS );
 		assert( Math.abs( Arrays.stream(p2).min().getAsDouble() ) < Geometry.EPS );
-		
-		for(int i=0; i < numDim; i++){
-			assert p1[i] > -Geometry.EPS;
-			assert p1[i] < 1 + Geometry.EPS;
-			assert p2[i] > -Geometry.EPS;
-			assert p2[i] < 1 + Geometry.EPS;
-			if(p1[i] > 1) p1[i] = 1;
-			if(p1[i] < 0) p1[i] = 0;
-			if(p2[i] > 1) p2[i] = 1;
-			if(p2[i] < 0) p2[i] = 0;
-		}
-		assert( Math.abs( Arrays.stream(p1).sum() - 1) < Geometry.EPS );
-		assert( Math.abs( Arrays.stream(p2).sum() - 1) < Geometry.EPS );
 		
 		return new Pair <double[], double[]>(p1, p2);
 	}
@@ -651,16 +638,20 @@ public class Geometry {
 	public static Point lineCrossSpherePoint(Vector v, double hypersphereConst) {
 		v = v.scale(hypersphereConst/v.getLen() * Math.signum(v.getDim(0)));
 		
-		assert v.getLen() == hypersphereConst;
-		System.out.println(hypersphereConst + " " + v.getLen());
+		assertEquals(v.getLen(), hypersphereConst, EPS);
 		
 		Point origin = new Point(v.getNumDim());
 		return origin.shift(v);
 	}
 	
 	//TODO - implement for sphere centered at origin and arbitrary line
-	public static Point lineCrossSpherePoint(Line asfLine, double hypersphereConst) {
-		throw new RuntimeErrorException(new Error(), "Geometry.lineCrossSpherePoint - method not implemented");
+	public static Point lineCrossSpherePoint(Line l, double hypersphereConst) {
+		if(Arrays.stream(l.getA().getDim()).map(i -> Math.abs(i)).sum() > EPS){
+			throw new RuntimeErrorException(new Error(), "Geometry.lineCrossSpherePoint - method not implemented for lines not starting at the origin");
+		}
+		else{
+			return lineCrossSpherePoint(new Vector(l.getB().getDim()), hypersphereConst);
+		}
 	}
 	
 	public static double norm(double v[], double p){

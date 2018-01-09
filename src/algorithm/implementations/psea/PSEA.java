@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import algorithm.evolutionary.EA;
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
-import algorithm.evolutionary.interactive.artificialDM.RferencePointDm;
+import algorithm.evolutionary.interactive.artificialDM.ReferencePointDm;
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
@@ -34,7 +34,7 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 	private PSEAphase pseaPhase;
 	
 	//Parameters
-	private RferencePointDm simulatedDM;
+	private ReferencePointDm simulatedDM;
 	private int maxExplorationComparisons;
 	private int maxExploitationComparisons;
 	private double spreadThreshold;
@@ -218,7 +218,7 @@ public class PSEA <S extends Solution> extends EA<S> implements Runnable {
 		}
 	}
 	
-	public RferencePointDm getSimulatedDm() {
+	public ReferencePointDm getSimulatedDm() {
 		return simulatedDM;
 	}
 

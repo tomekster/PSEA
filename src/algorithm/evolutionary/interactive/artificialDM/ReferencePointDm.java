@@ -8,9 +8,10 @@ import java.util.stream.Stream;
 
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
+import utils.math.structures.Line;
 import utils.math.structures.Point;
 
-public abstract class RferencePointDm implements Comparator<Solution>{
+public abstract class ReferencePointDm implements Comparator<Solution>{
 
 	protected String name;
 	
@@ -52,4 +53,6 @@ public abstract class RferencePointDm implements Comparator<Solution>{
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public abstract Line getDirection();
 }

@@ -5,8 +5,7 @@ import java.util.Arrays;
 
 import algorithm.evolutionary.EA;
 import algorithm.evolutionary.SingleObjectiveEA;
-import algorithm.evolutionary.interactive.artificialDM.AsfDm;
-import algorithm.evolutionary.interactive.artificialDM.RferencePointDm;
+import algorithm.evolutionary.interactive.artificialDM.ReferencePointDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.implementations.psea.PSEA;
@@ -16,16 +15,13 @@ import utils.enums.PSEAphase;
 
 public class ExperimentRunner {
 
-	public static <S extends Solution> void  run (EA <S> alg, Problem <S> p, RferencePointDm simulatedDm, int numGen, int numObjectives){
+	public static <S extends Solution> void  run (EA <S> alg, Problem <S> p, ReferencePointDm simulatedDm, int numGen, int numObjectives){
 		Solution optimalSolution = new Solution(new double[0]);
-		if(p instanceof KnowsOptimalAsfSolution && simulatedDm instanceof AsfDm){
-			optimalSolution = ((KnowsOptimalAsfSolution) p).getOptimalAsfDmSolution( (AsfDm) simulatedDm);
+		if(p instanceof KnowsOptimalAsfSolution){
+			optimalSolution = ((KnowsOptimalAsfSolution) p).getOptimalSolution(simulatedDm);
 		}
-		double optVal [] = {0.25, 0.25};
-		optimalSolution = new Solution(optVal);//TODO - temporary for DTLZ1
 		
-		
-		ArrayList <Double> bestAsf = new ArrayList<>();
+		ArrayList <Double> bestVal = new ArrayList<>();
 		ArrayList <Solution> bestSols = new ArrayList<>();
 		for(int i=0; i<numGen; i++) {
 			if(alg instanceof SingleObjectiveEA<?>){
@@ -45,13 +41,13 @@ public class ExperimentRunner {
 			p.evaluate(pop);
 			Solution bestSol = simulatedDm.getBestSolutionVal(pop); 
 			bestSols.add(bestSol);
-			bestAsf.add(simulatedDm.eval(bestSol));
+			bestVal.add(simulatedDm.eval(bestSol));
 		}
 		
-		printResults(p, simulatedDm, numGen, alg, optimalSolution, bestAsf, bestSols);
+		printResults(p, simulatedDm, numGen, alg, optimalSolution, bestVal, bestSols);
 	}
 	
-	public static <S extends Solution> void printResults(Problem <S> p, RferencePointDm simulatedDm, int numGen, EA <S> alg, Solution optimalSolution, ArrayList <Double> bestAsf, ArrayList<Solution> bestSols ){
+	public static <S extends Solution> void printResults(Problem <S> p, ReferencePointDm simulatedDm, int numGen, EA <S> alg, Solution optimalSolution, ArrayList <Double> bestVal, ArrayList<Solution> bestSols ){
 		System.out.println("Problem: " + p.getName());
 		System.out.println("NumObjectives: " + p.getNumObjectives());
 		
@@ -59,15 +55,15 @@ public class ExperimentRunner {
 		
 		System.out.println("Ideal point used:" + Arrays.toString(simulatedDm.getReferencePoint().getDim()));
 		
-//		System.out.println("asfDMLambda: " + Arrays.toString(simulatedDm.getAsfFunction().getLambda()) );
+		System.out.println("DM description: " + simulatedDm);
 		System.out.println("NumberGenerations: " + alg.getGenerationNum());
 		System.out.println("Population size: " + alg.getPopSize());
 		
 		System.out.println();
 		
-		System.out.println("Optimal solution asf: " + simulatedDm.eval(optimalSolution));
-		System.out.println("Best asf in first generation: " + bestAsf.get(0));
-		System.out.println("Best asf in last generation: " + bestAsf.get(bestAsf.size() - 1));
+		System.out.println("Optimal solution evaluation: " + simulatedDm.eval(optimalSolution));
+		System.out.println("Best solution value in first generation: " + bestVal.get(0));
+		System.out.println("Best solution value in last generation : " + bestVal.get(bestVal.size() - 1));
 		
 		System.out.println();
 		
@@ -75,6 +71,6 @@ public class ExperimentRunner {
 		System.out.println("Best solution in first generation: " + Arrays.toString(bestSols.get(0).getObjectives()) );
 		System.out.println("Best solution in last generation: " + Arrays.toString(bestSols.get(bestSols.size() - 1).getObjectives()) );
 		
-		System.out.println("All asf vals: " + Arrays.toString(bestAsf.toArray()));
+		System.out.println("DM's evaluations for every generation: " + Arrays.toString(bestVal.toArray()));
 	}
 }

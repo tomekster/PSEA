@@ -1,13 +1,15 @@
 package algorithm.evolutionary.interactive.artificialDM;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import algorithm.evolutionary.interactive.comparison.Comparison;
 import algorithm.evolutionary.solutions.Solution;
 import utils.math.AsfFunction;
+import utils.math.structures.Line;
 import utils.math.structures.Point;
 
-public class AsfDm extends RferencePointDm{
+public class AsfDm extends ReferencePointDm{
 	
 	private AsfFunction asf;
 	private int numViolations;
@@ -93,5 +95,17 @@ public class AsfDm extends RferencePointDm{
 	@Override
 	public Point getReferencePoint() {
 		return this.getAsfFunction().getRefPoint();
+	}
+	
+	@Override
+	public String toString(){
+		return "ASF Descision Maker" +
+				"\n lambda=" + Arrays.toString(asf.getLambda()) +
+				"\n refPoint=" + Arrays.toString(asf.getRefPoint().getDim());
+	}
+
+	@Override
+	public Line getDirection() {
+		return asf.getAsfLine();
 	}
 }

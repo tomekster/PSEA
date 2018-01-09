@@ -3,6 +3,7 @@ package problems.zdt;
 import java.util.ArrayList;
 
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.ReferencePointDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
@@ -118,7 +119,7 @@ public class ZDT3 extends ContinousProblem implements KnowsOptimalAsfSolution{
 	}
 
 	@Override
-	public Solution getOptimalAsfDmSolution(AsfDm dm) {
+	public Solution getOptimalSolution(ReferencePointDm dm) {
 		Population <Solution> paretoFront = getReferenceFront();
 		return dm.getBestSolutionVal(paretoFront);
 	}

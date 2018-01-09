@@ -3,6 +3,7 @@ package problems.dtlz;
 import java.util.ArrayList;
 
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.ReferencePointDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.implementations.nsgaiii.hyperplane.Hyperplane;
@@ -21,8 +22,8 @@ public abstract class DTLZHyperplaneParetoFront extends DTLZ {
 		super(numVariables, numObjectives, numConstraints, name);
 	}
 	@Override
-	public final Solution getOptimalAsfDmSolution(AsfDm dm) {
-		return new Solution(Geometry.lineCrossHyperplanePoint(dm.getAsfFunction().getAsfLine(), HYPERPLANE_CONST).getDim());
+	public final Solution getOptimalSolution(ReferencePointDm dm) {
+		return new Solution(Geometry.lineCrossHyperplanePoint(dm.getDirection(), HYPERPLANE_CONST).getDim());
 	}
 	
 	@Override

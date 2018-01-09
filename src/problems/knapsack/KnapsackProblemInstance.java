@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import algorithm.evolutionary.interactive.artificialDM.AsfDm;
+import algorithm.evolutionary.interactive.artificialDM.ReferencePointDm;
 import algorithm.evolutionary.solutions.Population;
 import algorithm.evolutionary.solutions.Solution;
 import algorithm.evolutionary.solutions.VectorSolution;
@@ -113,7 +114,7 @@ public class KnapsackProblemInstance extends PermutationProblem implements Knows
 
 	//TODO - remove duplicated file reading code
 	@Override
-	public Solution getOptimalAsfDmSolution(AsfDm dm) {
+	public Solution getOptimalSolution(ReferencePointDm dm) {
 		if(this.paretoFront == null){
 			this.paretoFront = new Population <Solution>();
 			
